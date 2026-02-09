@@ -1,3 +1,0 @@
-Test artifact for JIRA issue: https://eaflood.atlassian.net/browse/ULITP-4050
-This is a test artifact for JIRA issue: https://eaflood.atlassian.net/browse/ULITP-4050
-Further test
