@@ -12,4 +12,10 @@ public class EnvironmentTest
        var isDev = CadsDataService.Config.Environment.IsDevMode(builder);
        Assert.False(isDev);
    }
+
+   [Fact]
+   public void Fail()
+   {
+    Assert.Fail();
+   }
 }
