@@ -31,7 +31,7 @@ A more extensive setup is available in [github.com/DEFRA/cdp-local-environment](
 
 #### MongoDB via Docker
 
-See above.    
+See above.        
 
 ```
 docker compose up -d mongodb
