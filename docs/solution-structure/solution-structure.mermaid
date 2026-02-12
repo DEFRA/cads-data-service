@@ -1,0 +1,94 @@
+flowchart TD
+
+%% ApiSurface
+subgraph APISURFACE["ApiSurface (Shared Contracts)"]
+    API_Contracts["Contracts"]
+    API_DTOs["DTOs"]
+    API_Events["Events"]
+end
+
+%% Building Blocks
+subgraph BB["Building Blocks (Shared Foundation)"]
+    BB_Core["BuildingBlocks.Core"]
+    BB_App["BuildingBlocks.Application"]
+    BB_Infra["BuildingBlocks.Infrastructure"]
+    BB_Infra --> BB_App --> BB_Core
+end
+
+%% Host
+subgraph HOST["Cads.Cds (Host)"]
+    HOST_Program["Program.cs<br/>Middleware<br/>CdpLogging<br/>ModuleRegistration"]
+end
+
+%% API Module
+subgraph API[API Module]
+    API_Core["Api.Core"]
+    API_App["Api.Application"]
+    API_Infra["Api.Infrastructure"]
+    API_Surface["Api (Controllers/Endpoints)"]
+    API_Surface --> API_Infra --> API_App --> API_Core
+end
+
+%% Ingest Module
+subgraph ING[Ingest Module]
+    ING_Core["Ingester.Core"]
+    ING_App["Ingester.Application"]
+    ING_Infra["Ingester.Infrastructure"]
+    ING_Surface["Ingester (Worker Surface)"]
+    ING_Surface --> ING_Infra --> ING_App --> ING_Core
+end
+
+%% MiBff Module
+subgraph BFF[MiBff Module]
+    BFF_Core["MiBff.Core"]
+    BFF_App["MiBff.Application"]
+    BFF_Infra["MiBff.Infrastructure"]
+    BFF_Surface["MiBff (API Surface)"]
+    BFF_Surface --> BFF_Infra --> BFF_App --> BFF_Core
+end
+
+%% StorageBridge Module
+subgraph SB[StorageBridge Module]
+    SB_Core["StorageBridge.Core"]
+    SB_App["StorageBridge.Application"]
+    SB_Infra["StorageBridge.Infrastructure"]
+    SB_Surface["StorageBridge (API/Worker Surface)"]
+    SB_Surface --> SB_Infra --> SB_App --> SB_Core
+end
+
+%% Host depends on module surfaces and ApiSurface
+HOST_Program --> API_Surface
+HOST_Program --> ING_Surface
+HOST_Program --> BFF_Surface
+HOST_Program --> SB_Surface
+HOST_Program --> APISURFACE
+
+%% Modules depend on ApiSurface
+API_App --> APISURFACE
+API_Infra --> APISURFACE
+
+ING_App --> APISURFACE
+ING_Infra --> APISURFACE
+
+BFF_App --> APISURFACE
+BFF_Infra --> APISURFACE
+
+SB_App --> APISURFACE
+SB_Infra --> APISURFACE
+
+%% Modules depend inward on BuildingBlocks
+API_Core --> BB_Core
+API_App --> BB_App
+API_Infra --> BB_Infra
+
+ING_Core --> BB_Core
+ING_App --> BB_App
+ING_Infra --> BB_Infra
+
+BFF_Core --> BB_Core
+BFF_App --> BB_App
+BFF_Infra --> BB_Infra
+
+SB_Core --> BB_Core
+SB_App --> BB_App
+SB_Infra --> BB_Infra

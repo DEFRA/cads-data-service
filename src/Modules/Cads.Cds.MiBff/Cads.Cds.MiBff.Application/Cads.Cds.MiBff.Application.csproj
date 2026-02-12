@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ApiSurface\Cads.Cds.ApiSurface\Cads.Cds.ApiSurface.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Cads.Cds.BuildingBlocks.Application\Cads.Cds.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\Cads.Cds.MiBff.Core\Cads.Cds.MiBff.Core.csproj" />
+  </ItemGroup>
+
+</Project>
