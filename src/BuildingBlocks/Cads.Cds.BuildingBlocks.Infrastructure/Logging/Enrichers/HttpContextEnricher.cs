@@ -8,7 +8,7 @@ public class HttpContextEnricher(IHttpContextAccessor accessor) : ILogEventEnric
 {
     private readonly IHttpContextAccessor _accessor = accessor;
 
-    public void Enrich(LogEvent logEvent, ILogEventPropertyFactory factory)
+    public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
         var ctx = _accessor.HttpContext;
         if (ctx == null) return;
@@ -16,7 +16,7 @@ public class HttpContextEnricher(IHttpContextAccessor accessor) : ILogEventEnric
         var userAgent = ctx.Request.Headers.UserAgent.ToString();
         var clientIp = ctx.Connection.RemoteIpAddress?.ToString();
 
-        logEvent.AddPropertyIfAbsent(factory.CreateProperty("http.user_agent", userAgent));
-        logEvent.AddPropertyIfAbsent(factory.CreateProperty("client.ip", clientIp));
+        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("http.user_agent", userAgent));
+        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("client.ip", clientIp));
     }
 }

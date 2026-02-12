@@ -97,6 +97,3 @@ indent_size = 2
 
 [*.json]
 indent_size = 2
-
-# Dotnet eager messages
-dotnet_diagnostic.CA1873.severity = none

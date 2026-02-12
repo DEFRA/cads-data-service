@@ -19,11 +19,11 @@ public static class WebApplicationExtensions
         if (logger.IsEnabled(LogLevel.Information))
         {
             applicationLifetime.ApplicationStarted.Register(() =>
-                logger.LogInformation("{applicationName} started", env.ApplicationName));
+                logger.LogInformation("{ApplicationName} started", env.ApplicationName));
             applicationLifetime.ApplicationStopping.Register(() =>
-                logger.LogInformation("{applicationName} stopping", env.ApplicationName));
+                logger.LogInformation("{ApplicationName} stopping", env.ApplicationName));
             applicationLifetime.ApplicationStopped.Register(() =>
-                logger.LogInformation("{applicationName} stopped", env.ApplicationName));
+                logger.LogInformation("{ApplicationName} stopped", env.ApplicationName));
         }
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();

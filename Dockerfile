@@ -34,9 +34,9 @@ RUN dotnet restore -r linux-${TARGETARCH} -v n
 
 # Build
 RUN dotnet build src/Cads.Cds/Cads.Cds.csproj \
-    -c ${BUILD_CONFIGURATION} \
+    -c "${BUILD_CONFIGURATION}" \
     -o /app/build \
-    -r linux-${TARGETARCH} \
+    -r "linux-${TARGETARCH}" \
     --no-restore
 
 # Publish
