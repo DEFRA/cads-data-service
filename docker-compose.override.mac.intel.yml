@@ -1,0 +1,19 @@
+services:
+  cads_cds:
+    build:
+      args:
+        TARGETARCH: x64
+    labels:
+      com.microsoft.visual-studio.project-name: "Cads.Cds"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=5555
+      - AWS__ServiceURL=http://cds-localstack-emulator:4566
+    ports:
+      - "5555"
+    volumes:
+      # Mac-specific paths for user secrets and HTTPS certificates
+      - ~/.microsoft/usersecrets:/home/app/.microsoft/usersecrets:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+      - ~/.aspnet/https:/home/app/.aspnet/https:ro
+      - ~/.aspnet/https:/root/.aspnet/https:ro
