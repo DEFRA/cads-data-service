@@ -1,0 +1,15 @@
+services:
+  cads_cds:
+    labels:
+      com.microsoft.visual-studio.project-name: "Cads.Cds"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=5555
+      - AWS__ServiceURL=http://cds-localstack-emulator:4566
+    ports:
+      - "5555"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
