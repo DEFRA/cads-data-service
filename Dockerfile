@@ -30,7 +30,7 @@ RUN dotnet sln Cads.Cds.sln remove docker-compose.dcproj || true
 RUN dotnet sln Cads.Cds.sln list | grep "Tests" | xargs -I {} dotnet sln Cads.Cds.sln remove "{}" || true
 
 # Restore solution
-RUN dotnet restore -r linux-${TARGETARCH} -v n
+RUN dotnet restore -r "linux-${TARGETARCH}" -v n
 
 # Build
 RUN dotnet build src/Cads.Cds/Cads.Cds.csproj \
@@ -42,9 +42,9 @@ RUN dotnet build src/Cads.Cds/Cads.Cds.csproj \
 # Publish
 FROM build AS publish
 RUN dotnet publish src/Cads.Cds/Cads.Cds.csproj \
-    -c ${BUILD_CONFIGURATION} \
+    -c "${BUILD_CONFIGURATION}" \
     -o /app/publish \
-    -r linux-${TARGETARCH} \
+    -r "linux-${TARGETARCH}" \
     --no-restore \
     /p:UseAppHost=false
 
