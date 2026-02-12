@@ -60,7 +60,10 @@ public sealed class ExceptionHandlingMiddleware(
             }
             else
             {
-                _logger.LogInformation(exception, logMessageTemplate, errorId, correlationId, statusCode);
+                if (_logger.IsEnabled(LogLevel.Information))
+                {
+                    _logger.LogInformation(exception, logMessageTemplate, errorId, correlationId, statusCode);
+                }
             }
         }
 
