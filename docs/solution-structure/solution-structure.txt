@@ -1,0 +1,90 @@
+/Cads.Cds.sln
+/src
+  /Cads.Cds                          <-- HOST (Composition Root)
+    Program.cs
+    appsettings.json
+    /Configuration
+    /Middleware
+      ExceptionHandlingMiddleware.cs
+    /Setup
+      ModuleRegistration.cs
+      ServiceCollectionExtensions.cs
+      HostBuilderExtensions.cs
+
+  /ApiSurface                        <-- Shared API contracts
+    /Contracts
+    /DTOs
+    /Events
+
+  /BuildingBlocks                    <-- Shared cross-cutting foundation
+    /Cads.Cds.BuildingBlocks.Core
+    /Cads.Cds.BuildingBlocks.Application
+    /Cads.Cds.BuildingBlocks.Infrastructure
+    /Cads.Cds.BuildingBlocks.Testing.Support
+
+  /Modules                           <-- Vertical feature modules
+    /Cads.Cds.Api
+      /Cads.Cds.Api.Core
+      /Cads.Cds.Api.Application
+      /Cads.Cds.Api.Infrastructure
+      /Cads.Cds.Api (Host-facing API surface)
+
+    /Cads.Cds.Ingester
+      /Cads.Cds.Ingester.Core
+      /Cads.Cds.Ingester.Application
+      /Cads.Cds.Ingester.Infrastructure
+      /Cads.Cds.Ingester (Host-facing worker surface)
+
+    /Cads.Cds.MiBff
+      /Cads.Cds.MiBff.Core
+      /Cads.Cds.MiBff.Application
+      /Cads.Cds.MiBff.Infrastructure
+      /Cads.Cds.MiBff (Host-facing API surface)
+
+    /Cads.Cds.StorageBridge
+      /Cads.Cds.StorageBridge.Core
+      /Cads.Cds.StorageBridge.Application
+      /Cads.Cds.StorageBridge.Infrastructure
+      /Cads.Cds.StorageBridge (Host-facing worker surface)
+
+  /Database
+    /Liquibase
+    /Scripts
+    /SeedData
+
+/tests
+  Cads.Cds.Tests.Unit
+  
+  /BuildingBlocks
+    Cads.Cds.BuildingBlocks.Core.Tests.Unit
+    Cads.Cds.BuildingBlocks.Application.Tests.Unit
+    Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit
+
+  /Modules
+    /Api
+      Cads.Cds.Api.Tests.Component
+      Cads.Cds.Api.Tests.Integration
+      Cads.Cds.Api.Core.Tests.Unit
+      Cads.Cds.Api.Application.Tests.Unit
+      Cads.Cds.Api.Infrastructure.Tests.Unit
+
+    /Ingester
+      Cads.Cds.Ingester.Tests.Component
+      Cads.Cds.Ingester.Tests.Integration
+      Cads.Cds.Ingester.Core.Tests.Unit
+      Cads.Cds.Ingester.Application.Tests.Unit
+      Cads.Cds.Ingester.Infrastructure.Tests.Unit
+
+    /MiBff
+      Cads.Cds.MiBff.Tests.Component
+      Cads.Cds.MiBff.Tests.Integration
+      Cads.Cds.MiBff.Core.Tests.Unit
+      Cads.Cds.MiBff.Application.Tests.Unit
+      Cads.Cds.MiBff.Infrastructure.Tests.Unit
+
+    /StorageBridge
+      Cads.Cds.StorageBridge.Tests.Component
+      Cads.Cds.StorageBridge.Tests.Integration
+      Cads.Cds.StorageBridge.Core.Tests.Unit
+      Cads.Cds.StorageBridge.Application.Tests.Unit
+      Cads.Cds.StorageBridge.Infrastructure.Tests.Unit
