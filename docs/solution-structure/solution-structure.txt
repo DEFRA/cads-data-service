@@ -16,12 +16,13 @@
     /DTOs
     /Events
 
-  /BuildingBlocks
+  /BuildingBlocks                    <-- Shared cross-cutting foundation
     /Cads.Cds.BuildingBlocks.Core
     /Cads.Cds.BuildingBlocks.Application
     /Cads.Cds.BuildingBlocks.Infrastructure
+    /Cads.Cds.BuildingBlocks.Testing.Support
 
-  /Modules
+  /Modules                           <-- Vertical feature modules
     /Cads.Cds.Api
       /Cads.Cds.Api.Core
       /Cads.Cds.Api.Application
@@ -52,6 +53,8 @@
     /SeedData
 
 /tests
+  Cads.Cds.Tests.Unit
+  
   /BuildingBlocks
     Cads.Cds.BuildingBlocks.Core.Tests.Unit
     Cads.Cds.BuildingBlocks.Application.Tests.Unit
