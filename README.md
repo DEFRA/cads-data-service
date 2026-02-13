@@ -246,6 +246,14 @@ This structure ensures clarity, isolation, and high coverage.
    docker compose ps
    ```
    Or open Docker Desktop dashboard and inspect the containers tab.
+3. **Access pgAdmin4:**
+   - Open a web browser and navigate to `http://localhost:16543`.
+   - Use the default credentials: `pgadmin@pgadmin.com` and `password`.
+   - Configure a new server connection to connect to the PostgreSQL database running in the container.
+     - Host name/Address: postgres
+     - Port: 5432
+     - Username: postgres
+     - Password: password
 
 A more extensive setup is available in [github.com/DEFRA/cdp-local-environment](https://github.com/DEFRA/cdp-local-environment)
 

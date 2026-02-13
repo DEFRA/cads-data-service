@@ -272,5 +272,7 @@ __pycache__/
 library.db
 .envrc
 /localstack_data/cache
+/postgres-data
+/pgadmin-data
 /coverage
 /coverage-report
