@@ -250,7 +250,8 @@ This structure ensures clarity, isolation, and high coverage.
    - Open a web browser and navigate to `http://localhost:16543`.
    - Use the default credentials: `pgadmin@pgadmin.com` and `password`.
    - Configure a new server connection to connect to the PostgreSQL database running in the container.
-     - Server: postgres
+     - Host name/Address: postgres
+     - Port: 5432
      - Username: postgres
      - Password: password
 
