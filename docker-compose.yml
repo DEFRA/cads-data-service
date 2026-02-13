@@ -45,6 +45,7 @@ services:
       - 16543:80
     volumes:
       - "./servers.json:/pgadmin4/servers.json"
+      - "./pgadmin-data:/var/lib/pgadmin"
     networks:
       - cdp-tenant
 
