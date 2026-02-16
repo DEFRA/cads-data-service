@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -27,6 +28,7 @@ public static class WebApplicationExtensions
         }
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseCorrelationId();
 
         app.UseHeaderPropagation();
         app.UseRouting();
