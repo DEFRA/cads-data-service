@@ -13,8 +13,28 @@ public class PostgresHealthCheckService : IHealthCheck
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
     {
-        var canConnect = await _context.Database.CanConnectAsync(cancellationToken);
+        bool canConnect = false;
+        Exception? exception = null;
+        try
+        {
+            canConnect = await _context.Database.CanConnectAsync(cancellationToken);
+        }
+        catch (Exception e)
+        {
+            exception = e;
+        }
 
-        return new HealthCheckResult(canConnect ? HealthStatus.Healthy : HealthStatus.Unhealthy);
+        var data = new Dictionary<string, object>();
+        
+        if (exception != null)
+        {
+            data["error"] = $"{exception.Message} - {exception.InnerException?.Message}";
+        }
+
+        return new HealthCheckResult(
+            status: canConnect ? HealthStatus.Healthy : HealthStatus.Unhealthy,
+            description: $"Could not connect to postgres.",
+            exception: exception,
+            data: data);
     }
 }
