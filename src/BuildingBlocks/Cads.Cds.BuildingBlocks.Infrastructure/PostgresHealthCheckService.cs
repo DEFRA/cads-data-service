@@ -4,37 +4,19 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure;
 
 public class PostgresHealthCheckService : IHealthCheck
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IPostgresStatusService _postgresStatusService;
 
-    public PostgresHealthCheckService(ApplicationDbContext context)
+    public PostgresHealthCheckService(IPostgresStatusService postgresStatusService)
     {
-        _context = context;
+        _postgresStatusService = postgresStatusService;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
     {
-        bool canConnect = false;
-        Exception? exception = null;
-        try
-        {
-            canConnect = await _context.Database.CanConnectAsync(cancellationToken);
-        }
-        catch (Exception e)
-        {
-            exception = e;
-        }
-
-        var data = new Dictionary<string, object>();
-        
-        if (exception != null)
-        {
-            data["error"] = $"{exception.Message} - {exception.InnerException?.Message}";
-        }
+        var canConnect = await _postgresStatusService.CanConnect(cancellationToken);
 
         return new HealthCheckResult(
             status: canConnect ? HealthStatus.Healthy : HealthStatus.Unhealthy,
-            description: $"Could not connect to postgres.",
-            exception: exception,
-            data: data);
+            description: $"Could not connect to postgres.");
     }
 }
