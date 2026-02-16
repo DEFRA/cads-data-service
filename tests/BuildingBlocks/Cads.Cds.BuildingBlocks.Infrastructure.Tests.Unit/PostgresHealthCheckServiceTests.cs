@@ -15,7 +15,7 @@ public class PostgresHealthCheckServiceTests
         mockPostgresStatusService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         var unitUnderTest = new PostgresHealthCheckService(mockPostgresStatusService.Object);
 
-        var healthCheckResult = await unitUnderTest.CheckHealthAsync(null, CancellationToken.None);
+        var healthCheckResult = await unitUnderTest.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         healthCheckResult.Status.Should().Be(HealthStatus.Healthy);
     }
@@ -27,7 +27,7 @@ public class PostgresHealthCheckServiceTests
         mockPostgresStatusService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(false);
         var unitUnderTest = new PostgresHealthCheckService(mockPostgresStatusService.Object);
 
-        var healthCheckResult = await unitUnderTest.CheckHealthAsync(null, CancellationToken.None);
+        var healthCheckResult = await unitUnderTest.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         healthCheckResult.Status.Should().Be(HealthStatus.Unhealthy);
     }
