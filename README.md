@@ -225,6 +225,15 @@ This structure ensures clarity, isolation, and high coverage.
    ```bash
    dotnet restore
    ```
+3. **Set up environment variables:**
+   - Create a `.env` file in the root directory and add the following variables, passwords can be any value, pgamin email must be a valid email format:
+   ```bash
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=*****
+   PGADMIN_EMAIL=pgadmin@pgadmin.com
+   PGADMIN_PASSWORD=*****
+   ```
+
 ### Running the Application
 
 1. **Start the local development environment:**
@@ -246,6 +255,14 @@ This structure ensures clarity, isolation, and high coverage.
    docker compose ps
    ```
    Or open Docker Desktop dashboard and inspect the containers tab.
+3. **Access pgAdmin4:**
+   - Open a web browser and navigate to `http://localhost:16543`.
+   - Use the default credentials: `pgadmin@pgadmin.com` and `password`.
+   - Configure a new server connection to connect to the PostgreSQL database running in the container.
+     - Host name/Address: postgres
+     - Port: 5432
+     - Username: postgres
+     - Password: password
 
 A more extensive setup is available in [github.com/DEFRA/cdp-local-environment](https://github.com/DEFRA/cdp-local-environment)
 
