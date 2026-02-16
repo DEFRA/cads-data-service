@@ -271,6 +271,7 @@ __pycache__/
 
 library.db
 .envrc
+.env
 /localstack_data/cache
 /postgres-data
 /pgadmin-data
