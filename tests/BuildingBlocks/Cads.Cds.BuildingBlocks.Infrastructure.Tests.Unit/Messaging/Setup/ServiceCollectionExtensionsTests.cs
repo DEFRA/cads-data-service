@@ -1,3 +1,6 @@
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
 using Amazon.SQS;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
 using FluentAssertions;
@@ -26,6 +29,11 @@ public class ServiceCollectionExtensionsTests
             .Build();
 
         // Act
+        services.AddDefaultAWSOptions(new AWSOptions
+        {
+            Credentials = new BasicAWSCredentials("test", "test"),
+            Region = RegionEndpoint.EUWest2
+        });
         services.AddAmazonSQSDependencies(config);
         var provider = services.BuildServiceProvider();
 
@@ -51,6 +59,11 @@ public class ServiceCollectionExtensionsTests
             .Build();
 
         // Act
+        services.AddDefaultAWSOptions(new AWSOptions
+        {
+            Credentials = new BasicAWSCredentials("test", "test"),
+            Region = RegionEndpoint.EUWest2
+        });
         services.AddAmazonSQSDependencies(config);
         var provider = services.BuildServiceProvider();
 
@@ -74,6 +87,11 @@ public class ServiceCollectionExtensionsTests
             })
             .Build();
 
+        services.AddDefaultAWSOptions(new AWSOptions
+        {
+            Credentials = new BasicAWSCredentials("test", "test"),
+            Region = RegionEndpoint.EUWest2
+        });
         services.AddAmazonSQSDependencies(config);
 
         var provider = services.BuildServiceProvider();
