@@ -225,6 +225,15 @@ This structure ensures clarity, isolation, and high coverage.
    ```bash
    dotnet restore
    ```
+3. **Set up environment variables:**
+   - Create a `.env` file in the root directory and add the following variables, passwords can be any value, pgamin email must be a valid email format:
+   ```bash
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=*****
+   PGADMIN_EMAIL=pgadmin@pgadmin.com
+   PGADMIN_PASSWORD=*****
+   ```
+
 ### Running the Application
 
 1. **Start the local development environment:**
