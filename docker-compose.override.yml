@@ -6,6 +6,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=5555
       - AWS__ServiceURL=http://cds-localstack-emulator:4566
+      - Postgres__DefaultConnection=Server=localhost;Port=5432;Database=cads;User Id=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+      - Postgres__ReadOnlyConnection=Server=localhost;Port=5432;Database=cads;User Id=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+
     ports:
       - "5555"
     volumes:
