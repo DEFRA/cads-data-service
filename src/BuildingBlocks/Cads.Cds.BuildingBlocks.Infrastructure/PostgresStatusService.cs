@@ -7,7 +7,7 @@ public class PostgresStatusService : IPostgresStatusService
     {
         _context = context;
     }
-    
+
     public Task<bool> CanConnect(CancellationToken cancellationToken)
     {
         return _context.Database.CanConnectAsync(cancellationToken);
