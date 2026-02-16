@@ -18,5 +18,6 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
         services.AddScoped<PostgresHealthCheckService>();
+        services.AddScoped<IPostgresStatusService, PostgresStatusService>();
     }
 }
