@@ -1,6 +1,7 @@
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using System.Net;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
 
@@ -50,6 +52,14 @@ public abstract class WebAppFactoryBase<TStart>(
                 apply(services);
 
             services.RemoveAll<IHostedService>();
+        });
+
+        builder.ConfigureServices(services =>
+        {
+            var mockService = new Mock<IPostgresStatusService>();
+            mockService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+            services.RemoveAll<IPostgresStatusService>();
+            services.AddScoped<IPostgresStatusService>(x => mockService.Object);
         });
     }
 
