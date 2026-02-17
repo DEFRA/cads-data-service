@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,5 +13,6 @@ public static class ServiceCollectionExtensions
     public static void AddBuildBlocksModule(this IServiceCollection services, IConfiguration config)
     {
         services.AddAmazonSQSDependencies(config);
+        services.ConfigureDatabase(config);
     }
 }
