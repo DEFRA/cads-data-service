@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
+using Cads.Cds.Ingester.Core.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,6 +9,6 @@ public static class ServiceCollectionExtensions
 {
     public static void AddMessagingDependencies(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddQueueConsumers(configuration.GetSection("Modules:Ingester:Queues"));
+        services.AddQueueConsumers(configuration.GetSection(ModuleConfigurationSection.QueuesSectionName));
     }
 }

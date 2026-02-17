@@ -2,6 +2,7 @@ using Amazon.SQS;
 using Amazon.SQS.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Health;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using FluentAssertions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -19,7 +20,7 @@ public class AwsSqsHealthCheckTests
     private readonly QueueConsumerOptions _queueConsumerOptions = new()
     {
         Name = "TestQueue",
-        QueueUrl = "http://localhost:4566/000000000000/test-queue",
+        QueueUrl = $"{TestAwsConstants.AwsServiceUrl.TrimEnd('/')}/000000000000/test-queue",
         WaitTimeSeconds = 5,
         MaxNumberOfMessages = 10
     };
