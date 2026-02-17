@@ -1,4 +1,4 @@
-namespace Cads.Cds.BuildingBlocks.Infrastructure;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
 public interface IPostgresStatusService
 {

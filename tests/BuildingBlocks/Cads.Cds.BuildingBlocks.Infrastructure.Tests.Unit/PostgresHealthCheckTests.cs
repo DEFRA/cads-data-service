@@ -1,4 +1,6 @@
 
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Moq;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -6,14 +8,14 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit;
 
-public class PostgresHealthCheckServiceTests
+public class PostgresHealthCheckTests
 {
     [Fact]
     public async Task PostgresHealthCheckService_ReturnsHealthy()
     {
         var mockPostgresStatusService = new Mock<IPostgresStatusService>();
         mockPostgresStatusService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        var unitUnderTest = new PostgresHealthCheckService(mockPostgresStatusService.Object);
+        var unitUnderTest = new PostgresHealthCheck(mockPostgresStatusService.Object);
 
         var healthCheckResult = await unitUnderTest.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
@@ -25,7 +27,7 @@ public class PostgresHealthCheckServiceTests
     {
         var mockPostgresStatusService = new Mock<IPostgresStatusService>();
         mockPostgresStatusService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        var unitUnderTest = new PostgresHealthCheckService(mockPostgresStatusService.Object);
+        var unitUnderTest = new PostgresHealthCheck(mockPostgresStatusService.Object);
 
         var healthCheckResult = await unitUnderTest.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
