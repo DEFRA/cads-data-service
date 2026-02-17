@@ -1,13 +1,15 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static void ConfigureBuildingBlocks(this IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         var postgresConfig = configuration.GetSection(PostgresConfiguration.SectionName).Get<PostgresConfiguration>();
 
@@ -16,7 +18,7 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
-        services.AddScoped<PostgresHealthCheckService>();
+        services.AddScoped<PostgresHealthCheck>();
         services.AddScoped<IPostgresStatusService, PostgresStatusService>();
     }
 }

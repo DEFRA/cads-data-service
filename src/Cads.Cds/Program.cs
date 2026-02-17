@@ -5,6 +5,7 @@ using Cads.Cds.Setup;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
 using Cads.Cds.BuildingBlocks.Infrastructure;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 
 var app = CreateWebApplication(args);
 await app.RunAsync();
@@ -57,6 +58,4 @@ static void ConfigureBuilder(WebApplicationBuilder builder)
     });
 
     builder.Services.ConfigureCds(builder.Configuration);
-
-    builder.Services.ConfigureBuildingBlocks(builder.Configuration);
 }
