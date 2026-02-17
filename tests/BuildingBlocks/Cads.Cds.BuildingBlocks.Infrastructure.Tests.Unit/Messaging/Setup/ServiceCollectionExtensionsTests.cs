@@ -3,6 +3,7 @@ using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon.SQS;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,9 +20,9 @@ public class ServiceCollectionExtensionsTests
 
         var configDict = new Dictionary<string, string?>
         {
-            ["LOCALSTACK_ENDPOINT"] = "http://localhost:4566/",
-            ["AWS:ServiceURL"] = "http://localhost:4566/",
-            ["AWS:Region"] = "eu-west-2"
+            ["LOCALSTACK_ENDPOINT"] = TestAwsConstants.AwsServiceUrl,
+            ["AWS:ServiceURL"] = TestAwsConstants.AwsServiceUrl,
+            ["AWS:Region"] = TestAwsConstants.AwsRegion
         };
 
         IConfiguration config = new ConfigurationBuilder()
@@ -43,8 +44,8 @@ public class ServiceCollectionExtensionsTests
         sqs.Should().BeOfType<AmazonSQSClient>();
 
         var client = (AmazonSQSClient)sqs;
-        client.Config.ServiceURL.Should().Be("http://localhost:4566/");
-        client.Config.AuthenticationRegion.Should().Be("eu-west-2");
+        client.Config.ServiceURL.Should().Be(TestAwsConstants.AwsServiceUrl);
+        client.Config.AuthenticationRegion.Should().Be(TestAwsConstants.AwsRegion);
         client.Config.UseHttp.Should().BeTrue();
     }
 
@@ -82,8 +83,8 @@ public class ServiceCollectionExtensionsTests
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["LOCALSTACK_ENDPOINT"] = "true",
-                ["AWS:ServiceURL"] = "http://localhost:4566/",
-                ["AWS:Region"] = "eu-west-2"
+                ["AWS:ServiceURL"] = TestAwsConstants.AwsServiceUrl,
+                ["AWS:Region"] = TestAwsConstants.AwsRegion
             })
             .Build();
 

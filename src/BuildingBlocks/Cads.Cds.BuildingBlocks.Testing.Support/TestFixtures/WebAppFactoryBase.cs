@@ -1,5 +1,6 @@
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -62,9 +63,9 @@ public abstract class WebAppFactoryBase<TStart>(
 
     private static void SetTestEnvironmentVariables()
     {
-        Environment.SetEnvironmentVariable("AWS__ServiceURL", "http://localhost:4566");
-        Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__QueueUrl", "http://localhost:4566/000000000000/test-queue");
-        Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", "http://localhost:4566/000000000000/test-queue-deadletter");
+        Environment.SetEnvironmentVariable("AWS__ServiceURL", TestAwsConstants.AwsServiceUrl.TrimEnd('/'));
+        Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
+        Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)
