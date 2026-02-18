@@ -1,0 +1,55 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro
+        http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+  <changeSet  author="ARose"  id="1">
+    <tagDatabase tag="v1.0.1" />
+  </changeSet>
+  <changeSet  author="ARose"  id="2">
+    <insert tableName="liquibase_test">
+      <column  name="id" value="1"/>
+      <column  name="name" value="Andy Rose"/>
+      <column name="active" value="true"/>
+      <column  name="date"  value="2026-02-18"/>
+      <column  name="count"  value="666"/>
+    </insert>
+    <insert tableName="liquibase_test">
+      <column  name="id" value="10"/>
+      <column  name="name" value="Mark Gent"/>
+      <column name="active" value="true"/>
+      <column  name="date"  value="2026-02-18"/>
+      <column  name="count"  value="999"/>
+    </insert>
+    <insert tableName="liquibase_test">
+      <column  name="id" value="11"/>
+      <column  name="name" value="Tom Harrison"/>
+      <column name="active" value="true"/>
+      <column  name="date"  value="2026-02-18"/>
+      <column  name="count"  value="121212"/>
+    </insert>
+    <insert tableName="liquibase_test">
+      <column  name="id" value="20"/>
+      <column  name="name" value="David Baillie"/>
+      <column name="active" value="true"/>
+      <column  name="date"  value="2026-02-18"/>
+      <column  name="count"  value="555555"/>
+    </insert>
+  </changeSet>
+  <changeSet author="ARose" id="3">
+    <createView  catalogName="cads"
+                 encoding="UTF-8"
+                 fullDefinition="false"
+                 remarks="A test view"
+                 replaceIfExists="false"
+                 schemaName="public"
+                 viewName="filtered_liquibase_test">select id, name from liquibase_test where id > 10</createView>
+  </changeSet>
+</databaseChangeLog>
