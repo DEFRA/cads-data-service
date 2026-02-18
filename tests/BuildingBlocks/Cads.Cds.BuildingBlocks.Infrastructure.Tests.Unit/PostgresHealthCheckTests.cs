@@ -1,10 +1,11 @@
 
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
-using Moq;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Moq;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit;
 
@@ -37,8 +38,7 @@ public class PostgresHealthCheckTests
     [Fact]
     public async Task PostgresStatusService_CanConnect_ReturnsTrue()
     {
-
-        var dbContext = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase("cads").Options);
+        var dbContext = new HealthCheckDbContext(new DbContextOptionsBuilder<HealthCheckDbContext>().UseInMemoryDatabase("cads").Options);
         var postgresStatusService = new PostgresStatusService(dbContext);
 
         var canConnect = await postgresStatusService.CanConnect(CancellationToken.None);
