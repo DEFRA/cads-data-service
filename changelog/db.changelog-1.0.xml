@@ -13,15 +13,4 @@
   <changeSet author="ARose" id="1">
     <tagDatabase tag="v1.0.0" />
   </changeSet>
-  <changeSet author="ARose" id="2">
-    <createTable tableName="liquibase_test">
-      <column name="id" type="INTEGER" autoIncrement="true" >
-        <constraints nullable="false" primaryKey="true" primaryKeyName="id_pkey" />
-      </column>
-      <column name="name" type="VARCHAR(32)" />
-      <column name="date" type="DATE" />
-      <column name="active" type="BOOLEAN" />
-      <column name="count" type="NUMBER" />
-    </createTable>
-  </changeSet>
 </databaseChangeLog>
