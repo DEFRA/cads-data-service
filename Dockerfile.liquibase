@@ -1,3 +1,6 @@
 FROM liquibase/liquibase:latest
 # Add PostgreSQL driver
 RUN lpm add postgresql --global
+
+# Switch to non-root user (already exists in base image)
+USER liquibase
