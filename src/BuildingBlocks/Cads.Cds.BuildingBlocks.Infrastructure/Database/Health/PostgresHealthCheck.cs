@@ -11,6 +11,9 @@ public class PostgresHealthCheck(IPostgresStatusService postgresStatusService) :
 
         return new HealthCheckResult(
             status: canConnect ? HealthStatus.Healthy : HealthStatus.Unhealthy,
-            description: $"Could not connect to postgres.");
+            description: "Health check on Postgres database",
+            data: canConnect
+                ? null
+                : new Dictionary<string, object> { { "error", "Could not connect to Postgres database" } });
     }
 }

@@ -13,7 +13,7 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Messaging.Setup;
 public class ServiceCollectionExtensionsTests
 {
     [Fact]
-    public void AddAmazonSQSDependencies_Should_Register_Custom_SQS_Client_When_Localstack_Enabled()
+    public void AddAmazonSQSCore_Should_Register_Custom_SQS_Client_When_Localstack_Enabled()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -35,7 +35,7 @@ public class ServiceCollectionExtensionsTests
             Credentials = new BasicAWSCredentials("test", "test"),
             Region = RegionEndpoint.EUWest2
         });
-        services.AddAmazonSQSDependencies(config);
+        services.AddAmazonSQSCore(config);
         var provider = services.BuildServiceProvider();
 
         // Assert
@@ -50,7 +50,7 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddAmazonSQSDependencies_Should_Register_AwsService_When_Localstack_Disabled()
+    public void AddAmazonSQSCore_Should_Register_AwsService_When_Localstack_Disabled()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -65,7 +65,7 @@ public class ServiceCollectionExtensionsTests
             Credentials = new BasicAWSCredentials("test", "test"),
             Region = RegionEndpoint.EUWest2
         });
-        services.AddAmazonSQSDependencies(config);
+        services.AddAmazonSQSCore(config);
         var provider = services.BuildServiceProvider();
 
         // Assert
@@ -75,7 +75,7 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddAmazonSQSDependencies_Should_Register_Singleton_When_Localstack_Enabled()
+    public void AddAmazonSQSCore_Should_Register_Singleton_When_Localstack_Enabled()
     {
         var services = new ServiceCollection();
 
@@ -93,7 +93,7 @@ public class ServiceCollectionExtensionsTests
             Credentials = new BasicAWSCredentials("test", "test"),
             Region = RegionEndpoint.EUWest2
         });
-        services.AddAmazonSQSDependencies(config);
+        services.AddAmazonSQSCore(config);
 
         var provider = services.BuildServiceProvider();
 

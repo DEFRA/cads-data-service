@@ -7,7 +7,7 @@ namespace Cads.Cds.Ingester.Infrastructure.Messaging.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddMessagingDependencies(this IServiceCollection services, IConfiguration configuration)
+    public static void AddIngesterMessaging(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddQueueConsumers(configuration.GetSection(ModuleConfigurationSection.QueuesSectionName));
     }

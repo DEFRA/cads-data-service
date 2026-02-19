@@ -6,8 +6,10 @@ namespace Cads.Cds.Ingester.Infrastructure.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddInfrastructureLayer(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddIngesterInfrastructureLayer(this IServiceCollection services, IConfiguration config)
     {
-        services.AddMessagingDependencies(config);
+        services.AddIngesterMessaging(config);
+
+        return services;
     }
 }
