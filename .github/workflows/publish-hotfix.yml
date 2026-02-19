@@ -26,7 +26,7 @@ jobs:
         uses: DEFRA/cdp-build-action/build-hotfix@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish database schema
+      - name: Publish database schema with liquibase
         users: DEFRA/cdp-build-action/publish-db-migrations@main
         with:
           path: ./changelog
