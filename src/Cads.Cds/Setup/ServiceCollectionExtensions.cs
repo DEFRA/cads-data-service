@@ -1,8 +1,7 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Configuration.Aws;
-using System.Text.Json.Serialization;
-using Cads.Cds.BuildingBlocks.Infrastructure;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Text.Json.Serialization;
 
 namespace Cads.Cds.Setup;
 
@@ -28,6 +27,11 @@ public static class ServiceCollectionExtensions
     private static void ConfigureHealthChecks(this IServiceCollection services)
     {
         var builder = services.AddHealthChecks();
-        builder.Add(new HealthCheckRegistration("postgreshealth", (x) => x.GetService<PostgresHealthCheck>()!, null, null));
+
+        builder.Add(new HealthCheckRegistration(
+            name: "postgres",
+            factory: (x) => x.GetRequiredService<PostgresHealthCheck>(),
+            failureStatus: HealthStatus.Unhealthy,
+            tags: ["db", "postgres"]));
     }
 }
