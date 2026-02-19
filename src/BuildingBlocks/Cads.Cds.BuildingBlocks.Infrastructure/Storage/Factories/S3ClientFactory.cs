@@ -11,6 +11,14 @@ public class S3ClientFactory : IS3ClientFactory
 
     public IAmazonS3 GetClient<T>() where T : IStorageClient, new() => GetClientInfo<T>().Client;
 
+    public IAmazonS3 GetClient(string clientName)
+    {
+        if (!_clients.TryGetValue(clientName, out var client))
+            throw new KeyNotFoundException($"No S3 client registered for name '{clientName}'");
+
+        return client.Client;
+    }
+
     public ClientInfo GetClientInfo<T>()
         where T : IStorageClient, new()
     {
@@ -21,14 +29,6 @@ public class S3ClientFactory : IS3ClientFactory
             throw new KeyNotFoundException($"No S3 client registered for name '{storageClientName}'");
 
         return client;
-    }
-
-    public IAmazonS3 GetClient(string clientName)
-    {
-        if (!_clients.TryGetValue(clientName, out var client))
-            throw new KeyNotFoundException($"No S3 client registered for name '{clientName}'");
-
-        return client.Client;
     }
 
     public string GetClientBucketName<T>() where T : IStorageClient, new() => GetClientInfo<T>().BucketName;
