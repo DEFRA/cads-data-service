@@ -54,7 +54,7 @@ services:
       - "./pgadmin-data:/var/lib/pgadmin"
     networks:
       - cdp-tenant
-        
+
   liquibase:
     build:
       context: .
