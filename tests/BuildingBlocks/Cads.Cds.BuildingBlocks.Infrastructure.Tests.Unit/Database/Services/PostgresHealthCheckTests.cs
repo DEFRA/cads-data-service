@@ -1,4 +1,3 @@
-
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Moq;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Database.Services;
 
 public class PostgresHealthCheckTests
 {

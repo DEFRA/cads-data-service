@@ -1,4 +1,4 @@
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Configuration;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 
 public class PostgresConfiguration
 {

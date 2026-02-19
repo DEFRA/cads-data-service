@@ -1,7 +1,12 @@
+using Amazon.S3;
+using Amazon.S3.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
+using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -21,6 +26,7 @@ public abstract class WebAppFactoryBase<TStart>(
 
 {
     public Mock<IAmazonSQS> AmazonSQSMock { get; private set; } = new();
+    public Mock<IAmazonS3> AmazonS3Mock { get; private set; } = new();
 
     private readonly List<Action<IServiceCollection>> _serviceOverrides = [];
     private readonly IDictionary<string, string?> _configOverrides = configOverrides ?? new Dictionary<string, string?>();
@@ -46,6 +52,7 @@ public abstract class WebAppFactoryBase<TStart>(
             }
 
             OverrideAmazonSqs(services);
+            OverrideAmazonS3(services);
 
             foreach (var apply in _serviceOverrides)
                 apply(services);
@@ -75,6 +82,7 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("AWS__ServiceURL", TestAwsConstants.AwsServiceUrl.TrimEnd('/'));
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
+        Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)
@@ -85,6 +93,9 @@ public abstract class WebAppFactoryBase<TStart>(
     {
         AmazonSQSMock!.Reset();
         ApplyDefaultSqsMockSetup();
+
+        AmazonS3Mock!.Reset();
+        ApplyDefaultS3MockSetup();
     }
 
     private void OverrideAmazonSqs(IServiceCollection services)
@@ -94,6 +105,28 @@ public abstract class WebAppFactoryBase<TStart>(
         ApplyDefaultSqsMockSetup();
 
         services.AddSingleton(AmazonSQSMock.Object);
+    }
+
+    private void OverrideAmazonS3(IServiceCollection services)
+    {
+        services.RemoveAll<IAmazonS3>();
+
+        ApplyDefaultS3MockSetup();
+
+        services.AddSingleton(AmazonS3Mock.Object);
+
+        services.RemoveAll<IS3ClientFactory>();
+
+        services.AddSingleton<IS3ClientFactory>(sp =>
+        {
+            var factory = new S3ClientFactory();
+
+            factory.RegisterMockClient<CadsInternalClient>(
+                TestS3Constants.TestCadsInternalBucketName,
+                AmazonS3Mock.Object);
+
+            return factory;
+        });
     }
 
     private void ApplyDefaultSqsMockSetup()
@@ -113,5 +146,16 @@ public abstract class WebAppFactoryBase<TStart>(
                 It.IsAny<GetQueueAttributesRequest>(),
                 It.IsAny<CancellationToken>()))
             .Throws(new NotImplementedException("Use the (string, List<string>) overload"));
+    }
+
+    private void ApplyDefaultS3MockSetup()
+    {
+        AmazonS3Mock
+            .Setup(x => x.GetBucketAclAsync(It.IsAny<GetBucketAclRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetBucketAclResponse { HttpStatusCode = HttpStatusCode.OK });
+
+        AmazonS3Mock
+            .Setup(x => x.ListObjectsV2Async(It.IsAny<ListObjectsV2Request>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ListObjectsV2Response { HttpStatusCode = HttpStatusCode.OK });
     }
 }
