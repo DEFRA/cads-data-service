@@ -58,7 +58,10 @@ services:
   liquibase:
     build:
       context: .
-      dockerfile: Dockerfile.liquibase
+      dockerfile_inline: |
+        FROM liquibase/liquibase:5.0.1
+        RUN lpm add postgresql --global
+        USER liquibase
     depends_on:
       postgres:
         condition: service_healthy
