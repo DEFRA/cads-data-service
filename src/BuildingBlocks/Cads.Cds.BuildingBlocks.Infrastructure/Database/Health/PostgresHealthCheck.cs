@@ -14,6 +14,6 @@ public class PostgresHealthCheck(IPostgresStatusService postgresStatusService) :
             description: "Health check on Postgres database",
             data: canConnect
                 ? null
-                : new Dictionary<string, object> { { "ees datrror", "Could not connect to Postgres database" } });
+                : new Dictionary<string, object> { { "error", "Could not connect to Postgres database" } });
     }
 }
