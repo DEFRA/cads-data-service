@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
     private static void ConfigureHealthChecks(this IServiceCollection services)
     {
         var builder = services.AddHealthChecks();
+
         builder.Add(new HealthCheckRegistration(
             name: "postgres",
             factory: (x) => x.GetRequiredService<PostgresHealthCheck>(),

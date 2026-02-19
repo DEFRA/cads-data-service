@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +9,7 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         var postgresConfig = configuration
             .GetSection(PostgresConfiguration.SectionName)
@@ -29,6 +29,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<PostgresHealthCheck>();
         services.AddScoped<IPostgresStatusService, PostgresStatusService>();
+
+        return services;
     }
 
     public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services, string connectionString)
