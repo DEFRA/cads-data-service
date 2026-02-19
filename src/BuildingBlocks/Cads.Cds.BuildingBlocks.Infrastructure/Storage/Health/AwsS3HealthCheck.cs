@@ -51,7 +51,7 @@ public class AwsS3HealthCheck(IS3ClientFactory s3ClientFactory, ILogger<AwsS3Hea
             }
             catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                logger.LogError("AmazonS3Exception recieved when testing {bucketName}, with {message}.", bucketName, ex.Message);
+                logger.LogError("AmazonS3Exception recieved when testing {BucketName}, with {Exception}.", bucketName, ex);
 
                 results[clientName] = new
                 {
@@ -63,7 +63,7 @@ public class AwsS3HealthCheck(IS3ClientFactory s3ClientFactory, ILogger<AwsS3Hea
             }
             catch (Exception ex)
             {
-                logger.LogError("Exception recieved when testing {bucketName}, with {message}.", bucketName, ex.Message);
+                logger.LogError("Exception recieved when testing {BucketName}, with {Exception}.", bucketName, ex);
 
                 results[clientName] = new
                 {
