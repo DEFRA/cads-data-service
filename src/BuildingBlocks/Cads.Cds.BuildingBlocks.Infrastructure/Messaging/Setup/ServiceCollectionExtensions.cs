@@ -6,7 +6,7 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddAmazonSQSDependencies(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAmazonSQSCore(this IServiceCollection services, IConfiguration configuration)
     {
         if (configuration["LOCALSTACK_ENDPOINT"] != null)
         {
@@ -26,5 +26,7 @@ public static class ServiceCollectionExtensions
         {
             services.AddAWSService<IAmazonSQS>();
         }
+
+        return services;
     }
 }
