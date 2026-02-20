@@ -1,4 +1,5 @@
 using Amazon;
+using Amazon.Runtime;
 using Amazon.Runtime.Credentials;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
@@ -35,7 +36,8 @@ public static class ServiceCollectionExtensions
 
                 services.AddSingleton<IPostgresIamTokenGenerator>(sp =>
                 {
-                    var credentials = DefaultAWSCredentialsIdentityResolver.GetCredentials();
+                    var credentials = sp.GetService<AWSCredentials>()
+                                      ?? DefaultAWSCredentialsIdentityResolver.GetCredentials();
                     var region = RegionEndpoint.GetBySystemName(
                         configuration.GetValue<string>("AWS:Region") ?? "eu-west-2");
                     return new PostgresIamTokenGenerator(credentials, region);
