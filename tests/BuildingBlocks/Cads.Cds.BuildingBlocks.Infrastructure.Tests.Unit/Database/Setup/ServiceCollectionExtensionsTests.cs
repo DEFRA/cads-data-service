@@ -1,3 +1,5 @@
+using Amazon.Runtime;
+using Amazon.Runtime.Credentials;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
@@ -46,13 +48,14 @@ public class ServiceCollectionExtensionsTests
             .Throw<InvalidOperationException>()
             .WithMessage("Configuration section 'Postgres' is missing");
     }
-
+    
     [Fact]
     public void Throws_When_DefaultConnection_Is_Missing()
     {
         var config = new Dictionary<string, string>
         {
-            ["Postgres:DefaultConnection"] = ""
+            ["Postgres:DefaultConnection"] = "",
+            ["Postgres:UseIamAuthentication"] = "false"
         };
 
         Action act = () => BuildProvider(config);
@@ -63,11 +66,28 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void Registers_PostgresConfiguration_And_Services()
+    public void Throws_When_IAM_Connection_Details_Are_Missing()
     {
         var config = new Dictionary<string, string>
         {
-            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;"
+            ["Postgres:UseIamAuthentication"] = "true"
+        };
+
+        Action act = () => BuildProvider(config);
+
+        act.Should()
+            .Throw<InvalidOperationException>()
+            .WithMessage("IAM authentication requires DbHost, DbName, and DbUser to be configured");
+    }
+    
+    
+    [Fact]
+    public void Registers_PostgresConfiguration_And_Services_When_Using_Connection_String()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:UseIamAuthentication"] = "false"
         };
 
         var provider = BuildProvider(config);
@@ -81,6 +101,49 @@ public class ServiceCollectionExtensionsTests
         provider.GetRequiredService<IPostgresStatusService>()
             .Should().BeOfType<PostgresStatusService>();
     }
+    
+    [Fact]
+    public void Registers_PostgresConfiguration_And_Services_When_Using_IAM()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:UseIamAuthentication"] = "true",
+            ["Postgres:DbHost"] = "localhost",
+            ["Postgres:DbName"] = "test",
+            ["Postgres:DbUser"] = "test"
+        };
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                config.ToDictionary(kvp => kvp.Key, kvp => (string?)kvp.Value)
+            )
+            .Build();
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        // Add mock AWS credentials to prevent authentication errors in tests
+        services.AddSingleton<AWSCredentials>(new BasicAWSCredentials("test", "test"));
+
+        services.ConfigureDatabase(configuration);
+        var provider = services.BuildServiceProvider();
+
+        var pgConfig = provider.GetRequiredService<PostgresConfiguration>();
+        pgConfig.Should().BeOfType<PostgresConfiguration>();
+
+        provider.GetRequiredService<IPostgresIamTokenGenerator>()
+            .Should().BeOfType<PostgresIamTokenGenerator>();
+
+        provider.GetRequiredService<IPostgresDataSourceFactory>()
+            .Should().BeOfType<PostgresDataSourceFactory>();
+        
+        provider.GetRequiredService<PostgresHealthCheck>()
+            .Should().BeOfType<PostgresHealthCheck>();
+
+        provider.GetRequiredService<IPostgresStatusService>()
+            .Should().BeOfType<PostgresStatusService>();
+    }
+
 
     [Fact]
     public void Registers_DbContext_With_Npgsql()
