@@ -33,7 +33,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
 
             if (config.UseIamAuthentication)
             {
-                dataSource = CreateIamAuthDataSource(connectionIdentifier);
+                dataSource = CreateIamAuthDataSource();
             }
             else
             {
@@ -61,8 +61,9 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         return NpgsqlDataSource.Create(connectionString);
     }
 
-    private NpgsqlDataSource CreateIamAuthDataSource(string connectionIdentifier)
+    private NpgsqlDataSource CreateIamAuthDataSource()
     {
+        // TODO: add support for using a connection identifier to specify a different IAM role
         var builder = new NpgsqlDataSourceBuilder
         {
             ConnectionStringBuilder =
