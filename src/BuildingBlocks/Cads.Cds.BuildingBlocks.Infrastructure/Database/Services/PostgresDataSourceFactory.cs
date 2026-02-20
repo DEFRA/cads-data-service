@@ -79,10 +79,10 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         builder.UsePeriodicPasswordProvider(
             passwordProvider: async (_, ct) =>
             {
-                var token = await iamTokenGenerator.GenerateAuthTokenAsync(
-                    config.DbHost,
+                var token = await iamTokenGenerator!.GenerateAuthTokenAsync(
+                    config.DbHost!,
                     config.DbPort,
-                    config.DbUser);
+                    config.DbUser!);
                 return token;
             },
             successRefreshInterval: TimeSpan.FromMinutes(10), // Refresh every 10 minutes
