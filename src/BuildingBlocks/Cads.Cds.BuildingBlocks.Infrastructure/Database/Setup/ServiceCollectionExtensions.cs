@@ -60,7 +60,7 @@ public static class ServiceCollectionExtensions
             return services;
         }
 
-        private IServiceCollection AddPostgresDbContext<TContext>()
+        public IServiceCollection AddPostgresDbContext<TContext>()
             where TContext : DbContext
         {
             services.AddDbContext<TContext>((sp, options) =>

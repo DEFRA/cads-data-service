@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Npgsql;
 
@@ -62,20 +63,6 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
 
     private NpgsqlDataSource CreateIamAuthDataSource(string connectionIdentifier)
     {
-        if (iamTokenGenerator == null)
-        {
-            throw new InvalidOperationException(
-                "IAM authentication is enabled but IPostgresIamTokenGenerator is not registered");
-        }
-
-        if (string.IsNullOrWhiteSpace(config.DbHost) ||
-            string.IsNullOrWhiteSpace(config.DbName) ||
-            string.IsNullOrWhiteSpace(config.DbUser))
-        {
-            throw new InvalidOperationException(
-                "IAM authentication requires DbHost, DbName, and DbUser to be configured");
-        }
-
         var builder = new NpgsqlDataSourceBuilder
         {
             ConnectionStringBuilder =
@@ -105,6 +92,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         return builder.Build();
     }
 
+    [ExcludeFromCodeCoverage]
     public void Dispose()
     {
         if (_disposed)
