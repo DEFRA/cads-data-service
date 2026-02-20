@@ -99,8 +99,6 @@ public class ServiceCollectionExtensionsTests
 
         provider.GetRequiredService<IPostgresStatusService>()
             .Should().BeOfType<PostgresStatusService>();
-        
-        
     }
 
     [Fact]
