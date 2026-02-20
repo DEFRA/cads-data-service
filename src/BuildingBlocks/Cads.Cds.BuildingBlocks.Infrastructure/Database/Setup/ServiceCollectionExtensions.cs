@@ -23,7 +23,6 @@ public static class ServiceCollectionExtensions
 
             services.AddSingleton(postgresConfig);
 
-            // Validate configuration
             if (postgresConfig.UseIamAuthentication)
             {
                 if (string.IsNullOrWhiteSpace(postgresConfig.DbHost) ||
@@ -34,7 +33,6 @@ public static class ServiceCollectionExtensions
                         "IAM authentication requires DbHost, DbName, and DbUser to be configured");
                 }
 
-                // Register IAM token generator
                 services.AddSingleton<IPostgresIamTokenGenerator>(sp =>
                 {
                     var credentials = DefaultAWSCredentialsIdentityResolver.GetCredentials();
@@ -52,12 +50,8 @@ public static class ServiceCollectionExtensions
                 }
             }
 
-            // Register data source factory
             services.AddSingleton<IPostgresDataSourceFactory, PostgresDataSourceFactory>();
-
-            // Register DbContext with data source
             services.AddPostgresDbContext<HealthCheckDbContext>();
-
             services.AddScoped<PostgresHealthCheck>();
             services.AddScoped<IPostgresStatusService, PostgresStatusService>();
 
@@ -71,13 +65,13 @@ public static class ServiceCollectionExtensions
             {
                 var dataSourceFactory = sp.GetRequiredService<IPostgresDataSourceFactory>();
                 var dataSource = dataSourceFactory.CreateDataSource("Default");
-            
                 options.UseNpgsql(dataSource);
             });
 
             return services;
         }
 
+        // Overload for modules that need to specify connection identifier
         public IServiceCollection AddPostgresDbContext<TContext>(string connectionIdentifier)
             where TContext : DbContext
         {
@@ -85,13 +79,10 @@ public static class ServiceCollectionExtensions
             {
                 var dataSourceFactory = sp.GetRequiredService<IPostgresDataSourceFactory>();
                 var dataSource = dataSourceFactory.CreateDataSource(connectionIdentifier);
-            
                 options.UseNpgsql(dataSource);
             });
 
             return services;
         }
     }
-
-    // Overload for modules that need to specify connection identifier
 }
