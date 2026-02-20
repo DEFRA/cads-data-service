@@ -31,6 +31,34 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
+    public void Throws_When_Invalid_Connection_Identifier_Is_Used()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                (new Dictionary<string, string>
+                {
+                    ["Postgres:DefaultConnection"] = "Host=localhost;Database=test",
+                    ["Postgres:UseIamAuthentication"] = "false"
+                })
+                .ToDictionary(kvp => kvp.Key, kvp => (string?)kvp.Value)
+            )
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.ConfigureDatabase(configuration);
+        services.AddPostgresDbContext<TestDbContext>("invalidConnectionIdentifier");
+
+        var provider = services.BuildServiceProvider();
+
+        var act = () => provider.GetRequiredService<TestDbContext>();
+        act.Should().Throw<ArgumentException>().WithMessage("Unknown connection identifier: invalidConnectionIdentifier");
+    }
+
+    private class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
+    {
+    }
+
+    [Fact]
     public void Throws_When_Configuration_Section_Is_Missing()
     {
         var config = new Dictionary<string, string>();
