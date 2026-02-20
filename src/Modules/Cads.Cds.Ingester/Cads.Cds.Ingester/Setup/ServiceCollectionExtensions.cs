@@ -9,9 +9,9 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddIngesterModule(this IServiceCollection services, IConfiguration config)
     {
-        services.AddInfrastructureLayer(config);
+        services.AddIngesterInfrastructureLayer(config);
 
-        services.AddApplicationLayer();
+        services.AddIngesterApplicationLayer();
 
         return services;
     }

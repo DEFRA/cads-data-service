@@ -1,18 +1,22 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
+using Cads.Cds.BuildingBlocks.Application.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
+using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Setup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Setup;
 
-/// <summary>
-/// Module used to register global dependencies such as AWS clients.
-/// </summary>
 public static class ServiceCollectionExtensions
 {
-    public static void AddBuildBlocksModule(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddBuildBlocksModule(this IServiceCollection services, IConfiguration config)
     {
-        services.AddAmazonSQSDependencies(config);
+        services.AddAmazonS3Core(config);
+        services.AddAmazonSQSCore(config);
         services.ConfigureDatabase(config);
+
+        services.AddBuildBlocksApplicationLayer();
+
+        return services;
     }
 }
