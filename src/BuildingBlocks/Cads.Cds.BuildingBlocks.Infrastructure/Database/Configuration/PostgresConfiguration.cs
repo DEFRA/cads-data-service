@@ -6,8 +6,7 @@ public class PostgresConfiguration
 
     // Traditional connection strings (for local/non-IAM)
     public string DefaultConnection { get; init; } = string.Empty;
-    public string? ReadOnlyConnection { get;init; }
-    
+    public string ReadOnlyConnection { get; init; } = string.Empty;
     // IAM Authentication settings
     public bool UseIamAuthentication { get; init; } = false;
     public string? DbHost { get; init; }
