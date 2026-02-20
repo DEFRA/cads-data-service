@@ -96,6 +96,6 @@ public class ServiceCollectionExtensionsTests
         context.Should().NotBeNull();
 
         var connection = context.Database.GetDbConnection();
-        connection.ConnectionString.Should().Be("Host=localhost;Database=test;");
+        connection.ConnectionString.Should().Be("Host=localhost;Database=test");
     }
 }
