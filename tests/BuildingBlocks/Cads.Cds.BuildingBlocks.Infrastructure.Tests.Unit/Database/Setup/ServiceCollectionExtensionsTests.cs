@@ -48,7 +48,7 @@ public class ServiceCollectionExtensionsTests
             .Throw<InvalidOperationException>()
             .WithMessage("Configuration section 'Postgres' is missing");
     }
-    
+
     [Fact]
     public void Throws_When_DefaultConnection_Is_Missing()
     {
@@ -79,8 +79,7 @@ public class ServiceCollectionExtensionsTests
             .Throw<InvalidOperationException>()
             .WithMessage("IAM authentication requires DbHost, DbName, and DbUser to be configured");
     }
-    
-    
+
     [Fact]
     public void Registers_PostgresConfiguration_And_Services_When_Using_Connection_String()
     {
@@ -101,7 +100,7 @@ public class ServiceCollectionExtensionsTests
         provider.GetRequiredService<IPostgresStatusService>()
             .Should().BeOfType<PostgresStatusService>();
     }
-    
+
     [Fact]
     public void Registers_PostgresConfiguration_And_Services_When_Using_IAM()
     {
@@ -136,7 +135,7 @@ public class ServiceCollectionExtensionsTests
 
         provider.GetRequiredService<IPostgresDataSourceFactory>()
             .Should().BeOfType<PostgresDataSourceFactory>();
-        
+
         provider.GetRequiredService<PostgresHealthCheck>()
             .Should().BeOfType<PostgresHealthCheck>();
 
