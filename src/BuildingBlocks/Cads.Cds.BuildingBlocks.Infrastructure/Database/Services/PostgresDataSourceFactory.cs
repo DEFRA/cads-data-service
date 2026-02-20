@@ -3,13 +3,16 @@ using Npgsql;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
-public class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIamTokenGenerator? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
+public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIamTokenGenerator? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
 {
     private readonly Dictionary<string, NpgsqlDataSource> _dataSources = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
+    private bool _disposed;
 
     public NpgsqlDataSource CreateDataSource(string connectionIdentifier)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
         // Use cached data source if available
         if (_dataSources.TryGetValue(connectionIdentifier, out var existingDataSource))
         {
@@ -104,11 +107,18 @@ public class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIa
 
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         foreach (var dataSource in _dataSources.Values)
         {
             dataSource.Dispose();
         }
         _dataSources.Clear();
         _lock.Dispose();
+
+        _disposed = true;
     }
 }
