@@ -1,12 +1,8 @@
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
-public class PostgresStatusService : IPostgresStatusService
+public class PostgresStatusService(HealthCheckDbContext context) : IPostgresStatusService
 {
-    private readonly ApplicationDbContext _context;
-    public PostgresStatusService(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly HealthCheckDbContext _context = context;
 
     public Task<bool> CanConnect(CancellationToken cancellationToken = default)
     {

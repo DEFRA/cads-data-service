@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Microsoft.EntityFrameworkCore;
@@ -9,16 +9,36 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        var postgresConfig = configuration.GetSection(PostgresConfiguration.SectionName).Get<PostgresConfiguration>();
+        var postgresConfig = configuration
+            .GetSection(PostgresConfiguration.SectionName)
+            .Get<PostgresConfiguration>()
+            ?? throw new InvalidOperationException(
+                $"Configuration section '{PostgresConfiguration.SectionName}' is missing");
 
-        var connectionString = postgresConfig?.DefaultConnection ?? throw new InvalidOperationException("Connection string"
-            + "'DefaultConnection' not found.");
+        services.AddSingleton(postgresConfig);
 
-        services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+        if (string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection))
+        {
+            throw new InvalidOperationException(
+                "Connection string 'DefaultConnection' not found or empty");
+        }
+
+        services.AddPostgresDbContext<HealthCheckDbContext>(postgresConfig.DefaultConnection);
 
         services.AddScoped<PostgresHealthCheck>();
         services.AddScoped<IPostgresStatusService, PostgresStatusService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services, string connectionString)
+        where TContext : DbContext
+    {
+        services.AddDbContext<TContext>(options =>
+            options.UseNpgsql(connectionString));
+
+        return services;
     }
 }
