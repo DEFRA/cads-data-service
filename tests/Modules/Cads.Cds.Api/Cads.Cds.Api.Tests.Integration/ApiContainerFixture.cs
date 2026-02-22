@@ -22,14 +22,20 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
           .WithEnvironment("ASPNETCORE_HTTP_PORTS", "5555")
           .WithEnvironment("AWS__ServiceURL", "http://localstack:4566")
-          .WithEnvironment("StorageConfiguration__ComparisonReportsStorage__BucketName", "test-comparison-reports-bucket")
+          .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
+          .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsIntakeQueueUrl)
+          .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
           .WithEnvironment("LOCALSTACK_ENDPOINT", "http://localstack:4566")
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ConnectionString)
+          .WithEnvironment("AWS_REGION", "eu-west-2")
+          .WithEnvironment("AWS_DEFAULT_REGION", "eu-west-2")
+          .WithEnvironment("AWS_ACCESS_KEY_ID", "test")
+          .WithEnvironment("AWS_SECRET_ACCESS_KEY", "test")
           .WithNetwork(NetworkName)
           .WithNetworkAliases("cads_cds")
-          .WithWaitStrategy(Wait.ForUnixContainer() /// for path health
-              .UntilHttpRequestIsSucceeded(req => req.ForPort(5555).ForPath("/"), o => o.WithTimeout(TimeSpan.FromSeconds(25))))
+          .WithWaitStrategy(Wait.ForUnixContainer()
+              .UntilHttpRequestIsSucceeded(req => req.ForPort(5555).ForPath("/health"), o => o.WithTimeout(TimeSpan.FromSeconds(25))))
           .Build();
 
         await ApiContainer.StartAsync();
