@@ -1,0 +1,133 @@
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.SQS;
+using Amazon.SQS.Model;
+using Testcontainers.LocalStack;
+
+namespace Cads.Cds.Api.Tests.Integration;
+
+// ReSharper disable once ClassNeverInstantiated.Global
+public class LocalStackFixture : IAsyncLifetime
+{
+    public LocalStackContainer? LocalStackContainer { get; private set; }
+
+    public IAmazonSQS SqsClient { get; private set; } = null!;
+    public IAmazonS3 S3Client { get; private set; } = null!;
+    public static Amazon.Runtime.BasicAWSCredentials GetBasicAWSCredentials => new("test", "test");
+    public string? SqsEndpoint { get; private set; }
+
+    public const string ServiceUrl = "http://localhost:4566";
+    public const string AuthenticationRegion = "eu-west-2";
+    public const string NetworkName = "integration-test-network";
+
+    public const string CadsInternalBucketName = "cads-internal-bucket";
+    public const string CadsQueueName = "cads-cds-queue";
+    public const string CadsDeadletterQueueName = "cads-cds-queue-deadletter";
+
+    public const string CadsIntakeQueueUrl = "http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/cads-cds-queue";
+
+    public const string CadsDeadLetterQueueUrl = "http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/cads-cds-queue-deadletter";
+
+    public async ValueTask InitializeAsync()
+    {
+        DockerNetworkHelper.EnsureNetworkExists(NetworkName);
+
+        LocalStackContainer = new LocalStackBuilder("localstack/localstack:3.0.2")
+            .WithName("localstack")
+            .WithEnvironment("SERVICES", "s3,sqs")
+            .WithEnvironment("DEBUG", "1")
+            .WithEnvironment("AWS_DEFAULT_REGION", "eu-west-2")
+            .WithEnvironment("AWS_ACCESS_KEY_ID", "test")
+            .WithEnvironment("AWS_SECRET_ACCESS_KEY", "test")
+            .WithEnvironment("EDGE_PORT", "4566")
+            .WithPortBinding(4566, 4566)
+            .WithNetwork(NetworkName)
+            .WithNetworkAliases("localstack")
+            .Build();
+
+        await LocalStackContainer.StartAsync();
+
+        InitialiseClients();
+        await InitialiseResourcesAsync();
+        await VerifyResourcesAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            S3Client?.Dispose();
+            SqsClient?.Dispose();
+        }
+        finally
+        {
+            await LocalStackContainer!.DisposeAsync();
+        }
+    }
+
+    private void InitialiseClients()
+    {
+        // S3
+        S3Client = new AmazonS3Client("test", "test", new AmazonS3Config
+        {
+            ServiceURL = ServiceUrl,
+            ForcePathStyle = true
+        });
+
+        // SQS
+        SqsClient = new AmazonSQSClient(GetBasicAWSCredentials, new AmazonSQSConfig
+        {
+            ServiceURL = ServiceUrl,
+            AuthenticationRegion = AuthenticationRegion,
+            UseHttp = true
+        });
+
+        SqsEndpoint = SqsClient.Config.ServiceURL!;
+    }
+
+    private async Task InitialiseResourcesAsync()
+    {
+        await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsInternalBucketName });
+
+        var intakeDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = CadsDeadletterQueueName });
+        var intakeDlqAttr = await SqsClient.GetQueueAttributesAsync(new GetQueueAttributesRequest
+        {
+            QueueUrl = intakeDlqCreated.QueueUrl,
+            AttributeNames = ["QueueArn"]
+        });
+
+        var intakeQueueCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = CadsQueueName });
+
+        if (CadsDeadLetterQueueUrl != intakeDlqCreated.QueueUrl || CadsIntakeQueueUrl != intakeQueueCreated.QueueUrl)
+        {
+            throw new ApplicationException("Localstack queues have unexpected urls");
+        }
+
+        var intakeQueueAttr = await SqsClient.GetQueueAttributesAsync(new GetQueueAttributesRequest
+        {
+            QueueUrl = CadsIntakeQueueUrl,
+            AttributeNames = ["QueueArn"]
+        });
+
+        var redrivePolicy = $"{{\"deadLetterTargetArn\":\"{intakeDlqAttr.QueueARN}\",\"maxReceiveCount\":\"3\"}}";
+        await SqsClient.SetQueueAttributesAsync(new SetQueueAttributesRequest
+        {
+            QueueUrl = CadsIntakeQueueUrl,
+            Attributes = new Dictionary<string, string>
+            {
+                { "RedrivePolicy", redrivePolicy }
+            }
+        });
+    }
+
+    private async Task VerifyResourcesAsync()
+    {
+        await S3Client.ListObjectsV2Async(new ListObjectsV2Request
+        {
+            BucketName = CadsInternalBucketName
+        });
+
+        await SqsClient.GetQueueAttributesAsync(CadsDeadletterQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(CadsQueueName, ["All"], CancellationToken.None);
+    }
+}
