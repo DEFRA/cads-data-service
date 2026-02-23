@@ -58,7 +58,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         var connectionString = connectionIdentifier switch
         {
             DefaultConnectionIdentifier => config.DefaultConnection,
-            ReadOnlyConnectionIdentifier => config.ReadOnlyConnection ?? config.DefaultConnection,
+            ReadOnlyConnectionIdentifier => config.ReadOnlyConnection,
             _ => throw new ArgumentException($"Unknown connection identifier: {connectionIdentifier}")
         };
 
@@ -70,7 +70,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         var host = connectionIdentifier switch
         {
             DefaultConnectionIdentifier => config.DefaultHost,
-            ReadOnlyConnectionIdentifier => config.ReadOnlyHost ?? config.DefaultConnection,
+            ReadOnlyConnectionIdentifier => config.ReadOnlyHost,
             _ => throw new ArgumentException($"Unknown connection identifier: {connectionIdentifier}")
         };
 
