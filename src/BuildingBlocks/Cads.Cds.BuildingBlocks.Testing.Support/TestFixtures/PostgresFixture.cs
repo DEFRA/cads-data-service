@@ -29,8 +29,6 @@ public class PostgresFixture : IAsyncLifetime
             .WithPortBinding(5432, 5432)
             .WithEnvironment("POSTGRES_USER", POSTGRES_USER)
             .WithEnvironment("POSTGRES_PASSWORD", POSTGRES_PASSWORD)
-            .WithEnvironment("Postgres__DefaultConnection", ConnectionString)
-            .WithEnvironment("Postgres__ReadOnlyConnection", ConnectionString)
             .WithNetwork(NetworkName)
             .WithNetworkAliases("postgres")
             .Build();
