@@ -1,7 +1,9 @@
 using Amazon;
 using Amazon.Runtime;
 using Amazon.Runtime.Credentials;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Microsoft.EntityFrameworkCore;
@@ -26,21 +28,22 @@ public static class ServiceCollectionExtensions
 
             if (postgresConfig.UseIamAuthentication)
             {
-                if (string.IsNullOrWhiteSpace(postgresConfig.DbHost) ||
-                    string.IsNullOrWhiteSpace(postgresConfig.DbName) ||
-                    string.IsNullOrWhiteSpace(postgresConfig.DbUser))
+                if (string.IsNullOrWhiteSpace(postgresConfig.DefaultHost) ||
+                    string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyHost) ||
+                    string.IsNullOrWhiteSpace(postgresConfig.Name) ||
+                    string.IsNullOrWhiteSpace(postgresConfig.User))
                 {
                     throw new InvalidOperationException(
-                        "IAM authentication requires DbHost, DbName, and DbUser to be configured");
+                        "IAM authentication requires DefaultHost, ReadOnlyHost, Name, and User to be configured");
                 }
 
-                services.AddSingleton<IPostgresIamTokenGenerator>(sp =>
+                services.AddSingleton<IPostgresIamTokenGeneratorService>(sp =>
                 {
                     var credentials = sp.GetService<AWSCredentials>()
                                       ?? DefaultAWSCredentialsIdentityResolver.GetCredentials();
                     var region = RegionEndpoint.GetBySystemName(
                         configuration.GetValue<string>("AWS:Region") ?? "eu-west-2");
-                    return new PostgresIamTokenGenerator(credentials, region);
+                    return new PostgresIamTokenGeneratorService(credentials, region);
                 });
             }
             else
@@ -60,22 +63,19 @@ public static class ServiceCollectionExtensions
             return services;
         }
 
-        public IServiceCollection AddPostgresDbContext<TContext>()
-            where TContext : DbContext
+        public IServiceCollection AddPostgresDbContext<TContext>() where TContext : DbContext
         {
             services.AddDbContext<TContext>((sp, options) =>
             {
                 var dataSourceFactory = sp.GetRequiredService<IPostgresDataSourceFactory>();
-                var dataSource = dataSourceFactory.CreateDataSource("Default");
+                var dataSource = dataSourceFactory.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier);
                 options.UseNpgsql(dataSource);
             });
-
             return services;
         }
 
         // Overload for modules that need to specify connection identifier
-        public IServiceCollection AddPostgresDbContext<TContext>(string connectionIdentifier)
-            where TContext : DbContext
+        public IServiceCollection AddPostgresDbContext<TContext>(string connectionIdentifier) where TContext : DbContext
         {
             services.AddDbContext<TContext>((sp, options) =>
             {
@@ -83,7 +83,6 @@ public static class ServiceCollectionExtensions
                 var dataSource = dataSourceFactory.CreateDataSource(connectionIdentifier);
                 options.UseNpgsql(dataSource);
             });
-
             return services;
         }
     }

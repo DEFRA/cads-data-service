@@ -9,8 +9,9 @@ public class PostgresConfiguration
     public string ReadOnlyConnection { get; init; } = string.Empty;
     // IAM Authentication settings
     public bool UseIamAuthentication { get; init; } = false;
-    public string? DbHost { get; init; }
-    public int DbPort { get; init; } = 5432;
-    public string? DbName { get; init; }
-    public string? DbUser { get; init; }
+    public string DefaultHost { get; init; } = string.Empty;
+    public string ReadOnlyHost { get; init; } = string.Empty;
+    public int Port { get; init; } = 5432;
+    public string Name { get; init; } = string.Empty;
+    public string User { get; init; } = string.Empty;
 }
