@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.22" />
+    <PackageReference Include="AWSSDK.RDS" Version="4.0.18" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" Version="10.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
