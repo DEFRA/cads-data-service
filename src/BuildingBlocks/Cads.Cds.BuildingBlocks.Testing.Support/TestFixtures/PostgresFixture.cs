@@ -18,7 +18,7 @@ public class PostgresFixture : IAsyncLifetime
 
     private string ConnectionStringWithoutDatabase =>
         $"Host=127.0.0.1;Port=5432;Database=postgres;Username={POSTGRES_USER};Password={POSTGRES_PASSWORD}";
-    //TODO readonly connection
+    // TODO readonly connection / update after ULITP-4531
 
     public async ValueTask InitializeAsync()
     {
@@ -39,7 +39,6 @@ public class PostgresFixture : IAsyncLifetime
         var conn = Container.GetConnectionString();
 
         InitialiseDatabaseSchema();
-        // possible TODO verify initialised
     }
 
     public async ValueTask DisposeAsync()
@@ -50,7 +49,7 @@ public class PostgresFixture : IAsyncLifetime
     private void InitialiseDatabaseSchema()
     {
         using var connection = new NpgsqlConnection(ConnectionStringWithoutDatabase);
-        var createDbCommand = new NpgsqlCommand( //TODO replace with trycatch and if not exists
+        var createDbCommand = new NpgsqlCommand(
             @$"
             CREATE DATABASE {CadsDatabaseName}
                 WITH OWNER = postgres
