@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using System.Net;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
 
@@ -63,7 +64,7 @@ public abstract class WebAppFactoryBase<TStart>(
         builder.ConfigureServices(services =>
         {
             var mockService = new Mock<IPostgresStatusService>();
-            mockService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+            mockService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(new PostgresStatusServiceResult { CanConnect = true });
             services.RemoveAll<IPostgresStatusService>();
             services.AddScoped<IPostgresStatusService>(x => mockService.Object);
         });
