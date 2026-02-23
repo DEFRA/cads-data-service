@@ -1,7 +1,8 @@
 using Npgsql;
 using Testcontainers.PostgreSql;
+using Xunit;
 
-namespace Cads.Cds.Api.Tests.Integration;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
 
 public class PostgresFixture : IAsyncLifetime
 {

@@ -1,6 +1,7 @@
 using DotNet.Testcontainers.Builders;
+using Xunit;
 
-namespace Cads.Cds.Api.Tests.Integration;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
 
 using IContainer = DotNet.Testcontainers.Containers.IContainer;
 
@@ -10,7 +11,7 @@ public class ApiContainerFixture : IAsyncLifetime
     public IContainer ApiContainer { get; private set; } = null!;
     public HttpClient HttpClient { get; private set; } = null!;
 
-    public string NetworkName { get; } = "integration-test-network";
+    private const string NetworkName = "integration-test-network";
 
     public async ValueTask InitializeAsync()
     {
@@ -21,17 +22,17 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithPortBinding(5555, 5555)
           .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
           .WithEnvironment("ASPNETCORE_HTTP_PORTS", "5555")
-          .WithEnvironment("AWS__ServiceURL", "http://localstack:4566")
+          .WithEnvironment("AWS__ServiceURL", LocalStackFixture.ServiceUrl)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsIntakeQueueUrl)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
-          .WithEnvironment("LOCALSTACK_ENDPOINT", "http://localstack:4566")
+          .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.ServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ConnectionString)
-          .WithEnvironment("AWS_REGION", "eu-west-2")
-          .WithEnvironment("AWS_DEFAULT_REGION", "eu-west-2")
-          .WithEnvironment("AWS_ACCESS_KEY_ID", "test")
-          .WithEnvironment("AWS_SECRET_ACCESS_KEY", "test")
+          .WithEnvironment("AWS_REGION", LocalStackFixture.AuthenticationRegion)
+          .WithEnvironment("AWS_DEFAULT_REGION", LocalStackFixture.AuthenticationRegion)
+          .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
+          .WithEnvironment("AWS_SECRET_ACCESS_KEY", LocalStackFixture.AwsSecretAccessKey)
           .WithNetwork(NetworkName)
           .WithNetworkAliases("cads_cds")
           .WithWaitStrategy(Wait.ForUnixContainer()
