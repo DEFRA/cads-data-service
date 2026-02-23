@@ -1,14 +1,18 @@
 using System.Diagnostics.CodeAnalysis;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Npgsql;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 
-public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIamTokenGenerator? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
+public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIamTokenGeneratorService? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
 {
     private readonly Dictionary<string, NpgsqlDataSource> _dataSources = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
     private bool _disposed;
+
+    public const string DefaultConnectionIdentifier = "Default";
+    public const string ReadOnlyConnectionIdentifier = "ReadOnly";
 
     public NpgsqlDataSource CreateDataSource(string connectionIdentifier)
     {
@@ -33,7 +37,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
 
             if (config.UseIamAuthentication)
             {
-                dataSource = CreateIamAuthDataSource();
+                dataSource = CreateIamAuthDataSource(connectionIdentifier);
             }
             else
             {
@@ -53,25 +57,31 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
     {
         var connectionString = connectionIdentifier switch
         {
-            "Default" => config.DefaultConnection,
-            "ReadOnly" => config.ReadOnlyConnection ?? config.DefaultConnection,
+            DefaultConnectionIdentifier => config.DefaultConnection,
+            ReadOnlyConnectionIdentifier => config.ReadOnlyConnection ?? config.DefaultConnection,
             _ => throw new ArgumentException($"Unknown connection identifier: {connectionIdentifier}")
         };
 
         return NpgsqlDataSource.Create(connectionString);
     }
 
-    private NpgsqlDataSource CreateIamAuthDataSource()
+    private NpgsqlDataSource CreateIamAuthDataSource(string connectionIdentifier)
     {
-        // TODO: add support for using a connection identifier to specify a different IAM role
+        var host = connectionIdentifier switch
+        {
+            DefaultConnectionIdentifier => config.DefaultHost,
+            ReadOnlyConnectionIdentifier => config.ReadOnlyHost ?? config.DefaultConnection,
+            _ => throw new ArgumentException($"Unknown connection identifier: {connectionIdentifier}")
+        };
+
         var builder = new NpgsqlDataSourceBuilder
         {
             ConnectionStringBuilder =
             {
-                Host = config.DbHost,
-                Port = config.DbPort,
-                Database = config.DbName,
-                Username = config.DbUser,
+                Host = host,
+                Port = config.Port,
+                Database = config.Name,
+                Username = config.User,
                 SslMode = SslMode.Require // AWS RDS requires SSL
              }
         };
@@ -81,9 +91,9 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
             passwordProvider: async (_, ct) =>
             {
                 var token = await iamTokenGenerator!.GenerateAuthTokenAsync(
-                    config.DbHost!,
-                    config.DbPort,
-                    config.DbUser!);
+                    config.DefaultHost!,
+                    config.Port,
+                    config.User!);
                 return token;
             },
             successRefreshInterval: TimeSpan.FromMinutes(10), // Refresh every 10 minutes

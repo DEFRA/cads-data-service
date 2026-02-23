@@ -1,6 +1,6 @@
 using Npgsql;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 
 public interface IPostgresDataSourceFactory
 {

@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
+
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
 public class PostgresStatusService(HealthCheckDbContext context) : IPostgresStatusService

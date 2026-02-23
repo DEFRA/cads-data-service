@@ -2,7 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;

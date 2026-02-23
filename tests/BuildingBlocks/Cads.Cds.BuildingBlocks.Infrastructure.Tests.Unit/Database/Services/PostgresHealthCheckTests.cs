@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using FluentAssertions;

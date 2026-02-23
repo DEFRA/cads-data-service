@@ -1,7 +1,9 @@
 using Amazon.Runtime;
 using Amazon.Runtime.Credentials;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
@@ -105,7 +107,7 @@ public class ServiceCollectionExtensionsTests
 
         act.Should()
             .Throw<InvalidOperationException>()
-            .WithMessage("IAM authentication requires DbHost, DbName, and DbUser to be configured");
+            .WithMessage("IAM authentication requires DefaultHost, ReadOnlyHost, Name, and User to be configured");
     }
 
     [Fact]
@@ -135,9 +137,10 @@ public class ServiceCollectionExtensionsTests
         var config = new Dictionary<string, string>
         {
             ["Postgres:UseIamAuthentication"] = "true",
-            ["Postgres:DbHost"] = "localhost",
-            ["Postgres:DbName"] = "test",
-            ["Postgres:DbUser"] = "test"
+            ["Postgres:DefaultHost"] = "localhost",
+            ["Postgres:ReadOnlyHost"] = "localhost",
+            ["Postgres:Name"] = "test",
+            ["Postgres:User"] = "test"
         };
 
         var configuration = new ConfigurationBuilder()
@@ -158,8 +161,8 @@ public class ServiceCollectionExtensionsTests
         var pgConfig = provider.GetRequiredService<PostgresConfiguration>();
         pgConfig.Should().BeOfType<PostgresConfiguration>();
 
-        provider.GetRequiredService<IPostgresIamTokenGenerator>()
-            .Should().BeOfType<PostgresIamTokenGenerator>();
+        provider.GetRequiredService<IPostgresIamTokenGeneratorService>()
+            .Should().BeOfType<PostgresIamTokenGeneratorService>();
 
         provider.GetRequiredService<IPostgresDataSourceFactory>()
             .Should().BeOfType<PostgresDataSourceFactory>();
