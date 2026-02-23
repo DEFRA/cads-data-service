@@ -22,11 +22,11 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithPortBinding(5555, 5555)
           .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
           .WithEnvironment("ASPNETCORE_HTTP_PORTS", "5555")
-          .WithEnvironment("AWS__ServiceURL", LocalStackFixture.ServiceUrl)
+          .WithEnvironment("AWS__ServiceURL", "http://localstack:4566") // this
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsIntakeQueueUrl)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
-          .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.ServiceUrl)
+          .WithEnvironment("LOCALSTACK_ENDPOINT", "http://localstack:4566") // this
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("AWS_REGION", LocalStackFixture.AuthenticationRegion)
