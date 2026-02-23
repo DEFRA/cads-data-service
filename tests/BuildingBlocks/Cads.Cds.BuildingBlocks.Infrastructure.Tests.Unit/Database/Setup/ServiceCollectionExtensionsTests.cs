@@ -1,5 +1,4 @@
 using Amazon.Runtime;
-using Amazon.Runtime.Credentials;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
@@ -40,6 +39,7 @@ public class ServiceCollectionExtensionsTests
                 (new Dictionary<string, string>
                 {
                     ["Postgres:DefaultConnection"] = "Host=localhost;Database=test",
+                    ["Postgres:ReadOnlyConnection"] = "Host=localhost;Database=test",
                     ["Postgres:UseIamAuthentication"] = "false"
                 })
                 .ToDictionary(kvp => kvp.Key, kvp => (string?)kvp.Value)
@@ -85,6 +85,7 @@ public class ServiceCollectionExtensionsTests
         var config = new Dictionary<string, string>
         {
             ["Postgres:DefaultConnection"] = "",
+            ["Postgres:ReadOnlyConnection"] = "Host=localhost;Database=test;",
             ["Postgres:UseIamAuthentication"] = "false"
         };
 
@@ -93,6 +94,23 @@ public class ServiceCollectionExtensionsTests
         act.Should()
             .Throw<InvalidOperationException>()
             .WithMessage("Connection string 'DefaultConnection' not found or empty");
+    }
+
+    [Fact]
+    public void Throws_When_ReadOnlyConnection_Is_Missing()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "",
+            ["Postgres:UseIamAuthentication"] = "false"
+        };
+
+        Action act = () => BuildProvider(config);
+
+        act.Should()
+            .Throw<InvalidOperationException>()
+            .WithMessage("Connection string 'ReadOnlyConnection' not found or empty");
     }
 
     [Fact]
@@ -116,6 +134,7 @@ public class ServiceCollectionExtensionsTests
         var config = new Dictionary<string, string>
         {
             ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "Host=localhost-ro;Database=test;",
             ["Postgres:UseIamAuthentication"] = "false"
         };
 
@@ -123,6 +142,7 @@ public class ServiceCollectionExtensionsTests
 
         var pgConfig = provider.GetRequiredService<PostgresConfiguration>();
         pgConfig.DefaultConnection.Should().Be("Host=localhost;Database=test;");
+        pgConfig.ReadOnlyConnection.Should().Be("Host=localhost-ro;Database=test;");
 
         provider.GetRequiredService<PostgresHealthCheck>()
             .Should().BeOfType<PostgresHealthCheck>();
@@ -180,7 +200,8 @@ public class ServiceCollectionExtensionsTests
     {
         var config = new Dictionary<string, string>
         {
-            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;"
+            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "Host=localhost;Database=test;"
         };
 
         var provider = BuildProvider(config);
