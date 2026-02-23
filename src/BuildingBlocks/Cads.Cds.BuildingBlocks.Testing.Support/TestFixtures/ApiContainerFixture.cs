@@ -33,7 +33,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
           .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
-          .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ConnectionString)
+          .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ReadConnectionString)
           .WithEnvironment("AWS_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_DEFAULT_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
