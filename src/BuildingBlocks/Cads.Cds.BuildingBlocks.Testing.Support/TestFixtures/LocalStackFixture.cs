@@ -24,10 +24,13 @@ public class LocalStackFixture : IAsyncLifetime
     private const string CadsQueueName = "cads-cds-queue";
     private const string CadsDeadLetterQueueName = "cads-cds-queue-deadletter";
 
-    public const string ServiceUrl = "http://localhost:4566";
+    public const string NetworkAlias = "localstack";
+    public const int Port = 4566;
+    public string ServiceUrl => $"http://localhost:{Port}";
+    public string NetworkServiceUrl => $"http://{NetworkAlias}:{Port}";
     public const string CadsInternalBucketName = "cads-internal-bucket";
-    public const string CadsIntakeQueueUrl = "http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/cads-cds-queue";
-    public const string CadsDeadLetterQueueUrl = "http://sqs.eu-west-2.localhost.localstack.cloud:4566/000000000000/cads-cds-queue-deadletter";
+    public string CadsIntakeQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue";
+    public string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue-deadletter";
 
     public async ValueTask InitializeAsync()
     {
@@ -40,10 +43,10 @@ public class LocalStackFixture : IAsyncLifetime
             .WithEnvironment("AWS_DEFAULT_REGION", AuthenticationRegion)
             .WithEnvironment("AWS_ACCESS_KEY_ID", AwsAccessKeyId)
             .WithEnvironment("AWS_SECRET_ACCESS_KEY", AwsSecretAccessKey)
-            .WithEnvironment("EDGE_PORT", "4566")
-            .WithPortBinding(4566, 4566)
+            .WithEnvironment("EDGE_PORT", $"{Port}")
+            .WithPortBinding(Port, Port)
             .WithNetwork(NetworkName)
-            .WithNetworkAliases("localstack")
+            .WithNetworkAliases(NetworkAlias)
             .Build();
 
         await LocalStackContainer.StartAsync();
