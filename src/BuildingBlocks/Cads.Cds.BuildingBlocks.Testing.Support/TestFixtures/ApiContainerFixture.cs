@@ -10,11 +10,16 @@ public class ApiContainerFixture : IAsyncLifetime
 {
     public IContainer ApiContainer { get; private set; } = null!;
     public HttpClient HttpClient { get; private set; } = null!;
+    public PostgresFixture PostgresFixture { get; } = new();
+    public LocalStackFixture LocalStackFixture { get; } = new();
 
     private const string NetworkName = "integration-test-network";
 
     public async ValueTask InitializeAsync()
     {
+        await PostgresFixture.InitializeAsync();
+        await LocalStackFixture.InitializeAsync();
+
         DockerNetworkHelper.EnsureNetworkExists(NetworkName);
 
         ApiContainer = new ContainerBuilder("cads_cds:latest")
@@ -22,11 +27,11 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithPortBinding(5555, 5555)
           .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
           .WithEnvironment("ASPNETCORE_HTTP_PORTS", "5555")
-          .WithEnvironment("AWS__ServiceURL", "http://localstack:4566") // this
+          .WithEnvironment("AWS__ServiceURL", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsIntakeQueueUrl)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
-          .WithEnvironment("LOCALSTACK_ENDPOINT", "http://localstack:4566") // this
+          .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("AWS_REGION", LocalStackFixture.AuthenticationRegion)
@@ -46,6 +51,8 @@ public class ApiContainerFixture : IAsyncLifetime
 
     public async ValueTask DisposeAsync()
     {
+        await PostgresFixture.DisposeAsync();
+        await LocalStackFixture.DisposeAsync();
         HttpClient?.Dispose();
         await ApiContainer.DisposeAsync();
     }
