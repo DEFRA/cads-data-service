@@ -48,15 +48,17 @@ public static class ServiceCollectionExtensions
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection))
+                if (string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection) || string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyConnection))
                 {
+                    var missingString = postgresConfig.DefaultConnection == string.Empty ? "DefaultConnection" : "ReadOnlyConnection";
                     throw new InvalidOperationException(
-                        "Connection string 'DefaultConnection' not found or empty");
+                        $"Connection string '{missingString}' not found or empty");
                 }
             }
 
             services.AddSingleton<IPostgresDataSourceFactory, PostgresDataSourceFactory>();
             services.AddPostgresDbContext<HealthCheckDbContext>();
+            services.AddPostgresDbContext<HealthCheckDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
             services.AddScoped<PostgresHealthCheck>();
             services.AddScoped<IPostgresStatusService, PostgresStatusService>();
 

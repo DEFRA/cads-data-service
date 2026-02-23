@@ -2,12 +2,15 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
-public class PostgresStatusService(HealthCheckDbContext context) : IPostgresStatusService
+public class PostgresStatusService(IEnumerable<HealthCheckDbContext> contexts) : IPostgresStatusService
 {
-    private readonly HealthCheckDbContext _context = context;
-
-    public Task<bool> CanConnect(CancellationToken cancellationToken = default)
+    public async Task<bool> CanConnect(CancellationToken cancellationToken = default)
     {
-        return _context.Database.CanConnectAsync(cancellationToken);
+        foreach (var healthCheckDbContext in contexts)
+        {
+            var canConnect = await healthCheckDbContext.Database.CanConnectAsync(cancellationToken);
+            if (!canConnect) return false;
+        }
+        return true;
     }
 }
