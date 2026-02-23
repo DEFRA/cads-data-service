@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using FluentAssertions;
@@ -14,7 +15,7 @@ public class PostgresHealthCheckTests
     public async Task PostgresHealthCheckService_ReturnsHealthy()
     {
         var mockPostgresStatusService = new Mock<IPostgresStatusService>();
-        mockPostgresStatusService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        mockPostgresStatusService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(new PostgresStatusServiceResult { CanConnect = true });
         var unitUnderTest = new PostgresHealthCheck(mockPostgresStatusService.Object);
 
         var healthCheckResult = await unitUnderTest.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
@@ -26,7 +27,7 @@ public class PostgresHealthCheckTests
     public async Task PostgresHealthCheckService_ReturnsUnHealthy()
     {
         var mockPostgresStatusService = new Mock<IPostgresStatusService>();
-        mockPostgresStatusService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        mockPostgresStatusService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(new PostgresStatusServiceResult { CanConnect = false });
         var unitUnderTest = new PostgresHealthCheck(mockPostgresStatusService.Object);
 
         var healthCheckResult = await unitUnderTest.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
@@ -38,10 +39,11 @@ public class PostgresHealthCheckTests
     public async Task PostgresStatusService_CanConnect_ReturnsTrue()
     {
         var dbContext = new HealthCheckDbContext(new DbContextOptionsBuilder<HealthCheckDbContext>().UseInMemoryDatabase("cads").Options);
-        var postgresStatusService = new PostgresStatusService(dbContext);
+        var dbReadOnlyContext = new HealthCheckReadOnlyDbContext(new DbContextOptionsBuilder<HealthCheckReadOnlyDbContext>().UseInMemoryDatabase("cads-ro").Options);
+        var postgresStatusService = new PostgresStatusService(dbContext, dbReadOnlyContext);
 
-        var canConnect = await postgresStatusService.CanConnect(CancellationToken.None);
+        var postgresStatusServiceResult = await postgresStatusService.CanConnect(CancellationToken.None);
 
-        canConnect.Should().BeTrue();
+        postgresStatusServiceResult.CanConnect.Should().BeTrue();
     }
 }
