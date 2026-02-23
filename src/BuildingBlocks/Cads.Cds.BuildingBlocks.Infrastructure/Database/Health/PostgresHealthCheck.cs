@@ -8,13 +8,13 @@ public class PostgresHealthCheck(IPostgresStatusService postgresStatusService) :
 {
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
     {
-        var canConnect = await postgresStatusService.CanConnect(cancellationToken);
+        var postgresStatusServiceResult = await postgresStatusService.CanConnect(cancellationToken);
 
         return new HealthCheckResult(
-            status: canConnect ? HealthStatus.Healthy : HealthStatus.Unhealthy,
+            status: postgresStatusServiceResult.CanConnect ? HealthStatus.Healthy : HealthStatus.Unhealthy,
             description: "Health check on Postgres database",
-            data: canConnect
+            data: postgresStatusServiceResult.CanConnect
                 ? null
-                : new Dictionary<string, object> { { "error", "Could not connect to Postgres database" } });
+                : new Dictionary<string, object> { { "error", postgresStatusServiceResult.ErrorMessage } });
     }
 }
