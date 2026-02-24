@@ -28,6 +28,7 @@ public static class WebApplicationExtensions
         }
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseMiddleware<ApiResponseMiddleware>();
         app.UseCorrelationId();
 
         app.UseHeaderPropagation();
