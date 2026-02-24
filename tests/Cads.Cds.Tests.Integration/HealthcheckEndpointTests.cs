@@ -1,9 +1,10 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
 using FluentAssertions;
+using Xunit;
 
-namespace Cads.Cds.Api.Tests.Integration;
+namespace Cads.Cds.Tests.Integration;
 
-[Collection("Integration"), Trait("Dependence", "testcontainers")]
+[Collection("CadsIntegration"), Trait("Dependence", "testcontainers")]
 public class HealthcheckEndpointTests(ApiContainerFixture apiContainerFixture)
 {
     [Fact]

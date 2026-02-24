@@ -73,5 +73,11 @@ public class PostgresFixture : IAsyncLifetime
         createDbCommand.ExecuteNonQuery();
         createROUserCommand.ExecuteNonQuery();
         connection.Close();
+
+        ApplyDatabaseMigrations();
+    }
+
+    private void ApplyDatabaseMigrations()
+    {
     }
 }
