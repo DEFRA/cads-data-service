@@ -56,13 +56,18 @@ services:
       - cdp-tenant
 
   liquibase:
-    image: liquibase:4.33.0
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM liquibase/liquibase:5.0.1
+        RUN lpm add postgresql --global
+        USER liquibase
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - "./changelog:/liquibase/changelog"
-    command: sh -c "liquibase --url=jdbc:postgresql://postgres:5432/${POSTGRES_DB} --username=${POSTGRES_USER} --password=${POSTGRES_PASSWORD} --changelog-file=changelog/db.changelog.xml update && tail -f /dev/null"
+    command: sh -c "liquibase --url=jdbc:postgresql://postgres:5432/${POSTGRES_DB} --username=${POSTGRES_USER} --password=${POSTGRES_PASSWORD} --changelog-file=db.changelog.xml update && tail -f /dev/null"
     networks:
       - cdp-tenant
 
