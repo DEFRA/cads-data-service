@@ -285,8 +285,10 @@ dotnet test Cads.Cds.sln --filter Dependence!=testcontainers
 To execute all integration tests:
 
 ```
-dotnet test Cads.Cds.sln --filter Dependence=testcontainers
+dotnet test cads.integrationtests.proj --filter Dependence=testcontainers -p:BuildInParallel=false
 ```
+
+Note: All test classes in *Tests.Integration.csproj projects must be decorated with Dependence=testcontainers, or this readme and check-pull-request.yml workflow must be updated
 
 #### Test Code Coverage Reports
 

@@ -29,7 +29,7 @@ public class LocalStackFixture : IAsyncLifetime
     public string ServiceUrl => $"http://localhost:{Port}";
     public string NetworkServiceUrl => $"http://{NetworkAlias}:{Port}";
     public const string CadsInternalBucketName = "cads-internal-bucket";
-    public string CadsIntakeQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue";
+    public string CadsQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue";
     public string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue-deadletter";
 
     public async ValueTask InitializeAsync()
@@ -102,7 +102,7 @@ public class LocalStackFixture : IAsyncLifetime
 
         var intakeQueueCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = CadsQueueName });
 
-        if (CadsDeadLetterQueueUrl != intakeDlqCreated.QueueUrl || CadsIntakeQueueUrl != intakeQueueCreated.QueueUrl)
+        if (CadsDeadLetterQueueUrl != intakeDlqCreated.QueueUrl || CadsQueueUrl != intakeQueueCreated.QueueUrl)
         {
             throw new ApplicationException("Localstack queues have unexpected urls");
         }
@@ -110,7 +110,7 @@ public class LocalStackFixture : IAsyncLifetime
         var redrivePolicy = $"{{\"deadLetterTargetArn\":\"{intakeDlqAttr.QueueARN}\",\"maxReceiveCount\":\"3\"}}";
         await SqsClient.SetQueueAttributesAsync(new SetQueueAttributesRequest
         {
-            QueueUrl = CadsIntakeQueueUrl,
+            QueueUrl = CadsQueueUrl,
             Attributes = new Dictionary<string, string>
             {
                 { "RedrivePolicy", redrivePolicy }

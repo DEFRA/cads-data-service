@@ -82,7 +82,7 @@ jobs:
           docker pull localstack/localstack:3.0.2
           docker pull mongo:6.0.13
       - name: Run integration tests
-        run: dotnet test ./working-dir/Cads.Cds.sln --filter Dependence=testcontainers
+        run: dotnet test ./working-dir/cads.integrationtests.proj --filter Dependence=testcontainers -p:BuildInParallel=false
 
   sonarcloud-scan:
     name: CDP SonarCloud Scan
