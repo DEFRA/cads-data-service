@@ -27,7 +27,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish database schema with liquibase
-        users: DEFRA/cdp-build-action/publish-db-migrations@main
+        uses: DEFRA/cdp-build-action/publish-db-migrations@main
         with:
           path: ./changelog
           github-token: ${{ secrets.GITHUB_TOKEN }}
