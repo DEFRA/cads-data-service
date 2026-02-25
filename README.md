@@ -9,7 +9,8 @@
   - [Local Development Setup](#local-development-setup)
   - [Running the Application](#running-the-application)
 - [Testing](#testing)
-- [Development](#development)
+- [Development](#development) 
+  - [Database](#database)
   - [Building](#building)
   - [Code Quality](#code-quality)
   - [Contributing](#contributing)
@@ -230,6 +231,7 @@ This structure ensures clarity, isolation, and high coverage.
    ```bash
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=*****
+   POSTGRES_DB=cads
    PGADMIN_EMAIL=pgadmin@pgadmin.com
    PGADMIN_PASSWORD=*****
    ```
@@ -247,6 +249,9 @@ This structure ensures clarity, isolation, and high coverage.
    This starts:
    - Redis
    - LocalStack (S3, SQS)
+   - PostgreSQL
+   - pgAdmin4
+   - liquibase
    - This service
      - root: `http://localhost:5555`
 
@@ -318,6 +323,26 @@ Before running steps 2 & 3, it is a good idea to delete any existing coverage re
 Get-ChildItem -Directory -Recurse -Filter "TestResults" | Remove-Item -Recurse -Force
 Get-ChildItem -Directory -Recurse -Filter "coverage-report" | Remove-Item -Recurse -Force
 ```
+
+## Development
+
+### Database
+The database schema is managed using [Liquibase](https://www.liquibase.org/).
+The database schema is defined in the `changelog` directory with the various migrations defined in the `db.changelog.xml` file.
+When docker-compose is run, any outstanding migrations will be applied to the database automatically and the liquibase container will continue to run.
+A migration can be automatically generated using the following command:
+
+```
+docker exec -it cads_cds-liquibase-1 liquibase \
+  --url=jdbc:postgresql://postgres:5432/<POSTGRES_DB> \
+  --username=<POSTGRES_USER> \
+  --password=<POSTGRES_PASSWORD> \
+  --changelog-file=changelog/<new-migration-name>.sql \
+  generate-changelog
+```
+
+Ensure to replace the postgres username, password and database name with the values from the `.env` file and specify the new migration name.
+The newly generated migration will be placed in the `changelog` directory. Ensure that this is reviewd before adding an entry for this in the `db.changelog.xml` file and committing the change.
 
 ### About the licence
 
