@@ -1,4 +1,4 @@
-﻿namespace Cads.Cds.MiBff.Application.Services
+namespace Cads.Cds.MiBff.Application.Services
 {
     public interface IService
     {

@@ -26,7 +26,7 @@ public class HoldingsQueryAdapterTests
             PageSize = 20
         };
 
-        var (items, count) = await adapter.GetHoldingsAsync(query,TestContext.Current.CancellationToken);
+        var (items, count) = await adapter.GetHoldingsAsync(query, TestContext.Current.CancellationToken);
 
         items.Should().BeEquivalentTo(holdings);
         count.Should().Be(5);

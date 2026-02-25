@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
 
         services.RegisterAdapters();
         services.RegisterServices(Assembly.GetExecutingAssembly());
-        
+
         return services;
     }
 
