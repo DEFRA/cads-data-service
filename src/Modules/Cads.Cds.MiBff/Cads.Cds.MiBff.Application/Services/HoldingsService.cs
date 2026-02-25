@@ -1,11 +1,12 @@
 using Cads.Cds.MiBff.Application.Configuration;
 using Cads.Cds.MiBff.Core.DTOs;
 using Cads.Cds.MiBff.Core.Helpers;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Cads.Cds.MiBff.Application.Services
 {
-    public class HoldingsService(IOptions<MiBffConfig> options) : IHoldingsService
+    public class HoldingsService(IOptions<MiBffConfig> options, IWebHostEnvironment env) : IHoldingsService
     {
         private const string StaticDataFileName = "ukv_holdings.json";
 
@@ -35,9 +36,10 @@ namespace Cads.Cds.MiBff.Application.Services
 
         private async Task<IEnumerable<HoldingDTO>> LoadHoldingsFromFileAsync(CancellationToken cancellationToken = default)
         {
-            var filePath = Path.Combine(options.Value.StaticData.Path, StaticDataFileName);
+            var staticRoot = Path.Combine(env.ContentRootPath, options.Value.StaticData.Path);
+            var fullPath = Path.Combine(staticRoot, StaticDataFileName);
 
-            return await FileHelper.ReadJsonFileAsync<List<HoldingDTO>>(filePath, cancellationToken);
+            return await FileHelper.ReadJsonFileAsync<List<HoldingDTO>>(fullPath, cancellationToken);
         }
     }
 }
