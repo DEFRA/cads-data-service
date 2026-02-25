@@ -5,7 +5,7 @@ using Amazon.SQS.Model;
 using Testcontainers.LocalStack;
 using Xunit;
 
-namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class LocalStackFixture : IAsyncLifetime

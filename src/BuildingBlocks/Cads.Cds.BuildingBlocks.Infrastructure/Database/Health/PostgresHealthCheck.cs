@@ -1,5 +1,4 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
