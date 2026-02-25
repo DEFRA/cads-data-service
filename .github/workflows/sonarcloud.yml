@@ -55,13 +55,15 @@ jobs:
       - name: Install SonarCloud scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         run: |
-          mkdir -p ./.sonar/scanner
-          dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner --ignore-failed-sources
+          mkdir tools
+          cd tools
+          dotnet tool install dotnet-sonarscanner --tool-path ../.sonar/scanner --ignore-failed-sources
       - name: Install dotNet code coverage
         if: steps.cache-sonar-coverage.outputs.cache-hit != 'true'
         run: |
-          mkdir -p ./.sonar/coverage
-          dotnet tool update dotnet-coverage --tool-path ./.sonar/coverage --ignore-failed-sources
+          mkdir tools
+          cd tools
+          dotnet tool install dotnet-coverage --tool-path ../.sonar/coverage --ignore-failed-sources
       - name: Build and analyze
         if: github.actor != 'dependabot[bot]'
         env:
