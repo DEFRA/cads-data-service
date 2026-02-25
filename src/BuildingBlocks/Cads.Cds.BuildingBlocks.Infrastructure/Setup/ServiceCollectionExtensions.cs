@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
+using Cads.Cds.BuildingBlocks.Infrastructure.Files.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Setup;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ public static class ServiceCollectionExtensions
         services.AddAmazonS3Core(config);
         services.AddAmazonSQSCore(config);
         services.ConfigureDatabase(config);
+        services.AddFileInfrastructure();
 
         services.AddBuildBlocksApplicationLayer();
 

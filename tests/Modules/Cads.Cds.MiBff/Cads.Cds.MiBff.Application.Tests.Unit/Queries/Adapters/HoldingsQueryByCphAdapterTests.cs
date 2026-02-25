@@ -1,6 +1,7 @@
 using Cads.Cds.MiBff.Application.Queries.Holdings;
 using Cads.Cds.MiBff.Application.Queries.Holdings.Adapters;
-using Cads.Cds.MiBff.Application.Services;
+using Cads.Cds.MiBff.Application.Tests.Unit.Specimens;
+using Cads.Cds.MiBff.Core.Services;
 using FluentAssertions;
 using Moq;
 

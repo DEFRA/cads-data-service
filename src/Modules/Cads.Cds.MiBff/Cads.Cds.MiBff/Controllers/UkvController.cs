@@ -1,8 +1,9 @@
+using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.MiBff.Application.Controllers.Requests;
 using Cads.Cds.MiBff.Application.Queries.Holdings;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Cads.Cds.MiBff.Application.Controllers;
+namespace Cads.Cds.MiBff.Controllers;
 
 [ApiController]
 [Route("api/v1/bff/[controller]")]
@@ -34,9 +35,6 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
 
         var result = await _executor.ExecuteQuery(query);
 
-        if (result.Count > 0)
-            return Ok(result);
-        else
-            return NotFound(result);
+        return Ok(result);
     }
 }
