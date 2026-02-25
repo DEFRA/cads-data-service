@@ -1,5 +1,5 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Application.Setup;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Setup;
 using Microsoft.Extensions.Configuration;

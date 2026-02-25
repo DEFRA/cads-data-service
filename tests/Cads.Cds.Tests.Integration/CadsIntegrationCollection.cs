@@ -1,5 +1,4 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
-using Xunit;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 namespace Cads.Cds.Tests.Integration;
 

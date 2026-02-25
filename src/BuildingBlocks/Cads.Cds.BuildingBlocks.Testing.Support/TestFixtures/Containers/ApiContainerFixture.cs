@@ -1,7 +1,7 @@
 using DotNet.Testcontainers.Builders;
 using Xunit;
 
-namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 using IContainer = DotNet.Testcontainers.Containers.IContainer;
 

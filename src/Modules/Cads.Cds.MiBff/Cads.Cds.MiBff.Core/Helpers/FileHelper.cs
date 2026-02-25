@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Options;
-
 namespace Cads.Cds.MiBff.Core.Helpers
 {
     public static class FileHelper

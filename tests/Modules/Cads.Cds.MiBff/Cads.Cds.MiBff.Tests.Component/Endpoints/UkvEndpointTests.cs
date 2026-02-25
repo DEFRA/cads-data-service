@@ -1,12 +1,7 @@
-using Cads.Cds.MiBff.Application;
-using Cads.Cds.MiBff.Application.Services;
-using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Moq;
 
-namespace Cads.Cds.MiBff.Tests.Component.TestFixtures.Controllers;
+namespace Cads.Cds.MiBff.Tests.Component.Endpoints;
 
 public class UkvEndpointTests(MiBffTestFixture testFixture) : IClassFixture<MiBffTestFixture>
 {
