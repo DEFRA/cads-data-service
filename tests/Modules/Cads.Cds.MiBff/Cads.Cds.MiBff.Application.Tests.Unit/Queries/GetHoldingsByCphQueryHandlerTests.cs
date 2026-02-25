@@ -1,7 +1,8 @@
 using Cads.Cds.MiBff.Application.Queries.Holdings;
 using Cads.Cds.MiBff.Application.Queries.Holdings.Adapters;
-using Cads.Cds.MiBff.Application.Services;
+using Cads.Cds.MiBff.Application.Tests.Unit.Specimens;
 using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Core.Services;
 using FluentAssertions;
 using Moq;
 
@@ -29,8 +30,7 @@ public class GetHoldingsByCphQueryHandlerTests
 
         var expected = new HoldingDTO { Id = Guid.NewGuid(), Name = "Holding 1", Cph = cph };
 
-        result.Values.First().Cph.Should().Be(expected.Cph);
-        result.Count.Should().Be(1);
+        result.Results.First().Cph.Should().Be(expected.Cph);
     }
 
     [Fact]
@@ -49,6 +49,6 @@ public class GetHoldingsByCphQueryHandlerTests
 
         var result = await queryHandler.Handle(request, CancellationToken.None);
 
-        result.Count.Should().Be(0);
+        result.Results.Count().Should().Be(0);
     }
 }

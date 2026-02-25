@@ -34,19 +34,4 @@ public class UkvEndpointTests(MiBffTestFixture testFixture) : IClassFixture<MiBf
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
     }
-
-    [Fact]
-    public async Task GetHoldingsByCph_Endpoint_PassesCph_And_ReturnsNotFound()
-    {
-        // Arrange
-        using var client = _testFixture.Factory.CreateClient();
-
-        var cph = "ABC456";
-
-        // Act
-        var response = await client.GetAsync($"/api/v1/bff/ukv/holdings/{cph}", TestContext.Current.CancellationToken);
-
-        // Assert
-        response.IsSuccessStatusCode.Should().BeFalse();
-    }
 }

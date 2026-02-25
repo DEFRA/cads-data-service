@@ -1,6 +1,7 @@
 using Cads.Cds.MiBff.Application.Queries.Holdings;
 using Cads.Cds.MiBff.Application.Queries.Holdings.Adapters;
-using Cads.Cds.MiBff.Application.Services;
+using Cads.Cds.MiBff.Application.Tests.Unit.Specimens;
+using Cads.Cds.MiBff.Core.Services;
 using FluentAssertions;
 using Moq;
 
@@ -24,7 +25,7 @@ public class GetHoldingsQueryHandlerTests
 
         var result = await queryHandler.Handle(request, CancellationToken.None);
 
-        result.Values.Should().BeEquivalentTo(holdings);
+        result.Results.Should().BeEquivalentTo(holdings);
         result.Count.Should().Be(holdings.Count);
     }
 }

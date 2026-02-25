@@ -7,16 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="14.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Cads.Cds.BuildingBlocks.Core\Cads.Cds.BuildingBlocks.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Domain\Enums\" />
-    <Folder Include="Domain\Shared\" />
   </ItemGroup>
 
 </Project>

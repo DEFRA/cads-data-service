@@ -13,7 +13,6 @@ namespace Cads.Cds.MiBff.Core.DTOs
         [JsonPropertyName("cph")]
         public required string Cph { get; set; }
 
-
         [JsonPropertyName("lastModified")]
         public DateTime? LastModified { get; set; }
     }
