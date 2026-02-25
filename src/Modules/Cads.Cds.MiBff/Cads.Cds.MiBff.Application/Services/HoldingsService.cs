@@ -13,8 +13,8 @@ namespace Cads.Cds.MiBff.Application.Services
         {
             if (options.Value.StaticData.Enabled)
             {
-                var holdings = await LoadHoldingsFromFileAsync(cancellationToken); 
-                
+                var holdings = await LoadHoldingsFromFileAsync(cancellationToken);
+
                 return holdings;
             }
 

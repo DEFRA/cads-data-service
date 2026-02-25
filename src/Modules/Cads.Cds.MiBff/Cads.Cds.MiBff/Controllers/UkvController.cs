@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Application.Controllers;
 
-[ApiController] 
+[ApiController]
 [Route("api/v1/bff/[controller]")]
 public class UkvController(IRequestExecutor executor) : ControllerBase
 {
@@ -31,7 +31,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     public async Task<IActionResult> GetHoldingsByCph([FromRoute] string cph)
     {
         var query = new GetHoldingsByCphQuery(cph);
-        
+
         var result = await _executor.ExecuteQuery(query);
 
         if (result.Count > 0)

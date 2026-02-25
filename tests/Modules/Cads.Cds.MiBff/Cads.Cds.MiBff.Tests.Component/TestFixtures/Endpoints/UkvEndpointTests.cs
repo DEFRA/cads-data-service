@@ -39,7 +39,7 @@ public class UkvEndpointTests(MiBffTestFixture testFixture) : IClassFixture<MiBf
         // Assert
         response.IsSuccessStatusCode.Should().BeTrue();
     }
-   
+
     [Fact]
     public async Task GetHoldingsByCph_Endpoint_PassesCph_And_ReturnsNotFound()
     {

@@ -16,7 +16,7 @@ public class HoldingsQueryAdapter(IHoldingsService service)
         var results = items
             .Where(c => !query.LastModified.HasValue || c.LastModified >= query.LastModified.Value)
             .Where(c => string.IsNullOrEmpty(query.Name) || c.Name.Contains(query.Name, StringComparison.InvariantCultureIgnoreCase));
-           
+
         var sortedResults = query.Order switch
         {
             "name" => query.Sort != "desc" ? results.OrderBy(c => c.Name) : results.OrderByDescending(c => c.Name),

@@ -20,7 +20,7 @@ public class GetHoldingsByCphQueryHandlerTests
           .ReturnsAsync(holdings.Take(1));
 
         var cph = "ABC123";
-       
+
         var request = new GetHoldingsByCphQuery(cph);
         var adapter = new HoldingsQueryByCphAdapter(mockHoldingService.Object);
         var queryHandler = new GetHoldingByCphQueryHandler(adapter);
@@ -28,7 +28,7 @@ public class GetHoldingsByCphQueryHandlerTests
         var result = await queryHandler.Handle(request, CancellationToken.None);
 
         var expected = new HoldingDTO { Id = Guid.NewGuid(), Name = "Holding 1", Cph = cph };
-       
+
         result.Values.First().Cph.Should().Be(expected.Cph);
         result.Count.Should().Be(1);
     }

@@ -4,7 +4,7 @@ using Cads.Cds.MiBff.Core.DTOs;
 
 namespace Cads.Cds.MiBff.Application.Queries.Holdings;
 
-public class GetHoldingsQueryHandler(HoldingsQueryAdapter adapter) 
+public class GetHoldingsQueryHandler(HoldingsQueryAdapter adapter)
     : PagedQueryHandler<GetHoldingsQuery, HoldingDTO>
 {
     private readonly HoldingsQueryAdapter _adapter = adapter;
