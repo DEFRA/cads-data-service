@@ -54,5 +54,6 @@ ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY static_data ./StaticData
 EXPOSE 8085
 ENTRYPOINT ["dotnet", "Cads.Cds.dll"]

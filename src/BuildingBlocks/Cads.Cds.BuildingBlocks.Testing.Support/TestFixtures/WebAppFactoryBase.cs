@@ -36,6 +36,7 @@ public abstract class WebAppFactoryBase<TStart>(
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting(WebHostDefaults.ApplicationKey, typeof(TStart).Assembly.FullName);
+        builder.UseContentRoot(AppContext.BaseDirectory);
 
         SetTestEnvironmentVariables();
 
