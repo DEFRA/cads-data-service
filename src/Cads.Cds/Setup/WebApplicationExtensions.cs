@@ -3,6 +3,7 @@ using Cads.Cds.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics.CodeAnalysis;
+using Cads.Cds.Api.Setup;
 
 namespace Cads.Cds.Setup;
 
@@ -33,11 +34,14 @@ public static class WebApplicationExtensions
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
+        app.UseMiddleware<SoapResponseHeaderMiddleware>();
 
         app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.UseApiSoapEndpoints();
 
         app.MapGet("/", () => "Alive!");
 
