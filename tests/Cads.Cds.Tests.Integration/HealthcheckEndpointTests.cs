@@ -1,6 +1,5 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using FluentAssertions;
-using Xunit;
 
 namespace Cads.Cds.Tests.Integration;
 

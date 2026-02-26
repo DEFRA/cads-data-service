@@ -1,0 +1,32 @@
+[
+  {
+    "id": "e6f2cb0f-6702-4060-951f-b32e018b3b92",
+    "name": "Holdings 1",
+    "cph": "ABC123",
+    "lastModified": "2024-06-01T12:00:00Z"
+  },
+  {
+    "id": "5a45bbbf-9b32-4e23-9b69-407bee41285b",
+    "name": "Holdings 2",
+    "cph": "DEF123",
+    "lastModified": "2024-06-01T12:00:00Z"
+  },
+  {
+    "id": "ed178cce-de69-4c55-bbd4-c7448fb25936",
+    "name": "Holdings 3",
+    "cph": "GHI123",
+    "lastModified": "2024-06-01T12:00:00Z"
+  },
+  {
+    "id": "a20b08d7-6eb3-4272-a155-c37bfb24ef75",
+    "name": "Holdings 4",
+    "cph": "JKL123",
+    "lastModified": "2024-06-01T12:00:00Z"
+  },
+  {
+    "id": "76ceb308-885b-4b18-8efd-38c4fb5c2491",
+    "name": "Holdings 5",
+    "cph": "MNO123",
+    "lastModified": "2024-06-01T12:00:00Z"
+  }
+]
