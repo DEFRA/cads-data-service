@@ -27,10 +27,10 @@ public static class ServiceCollectionExtensions
 
         services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssembly(typeof(ApiApplicationMarker).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(IngesterApplicationMarker).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(MiBffApplicationMarker).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(StorageBridgeApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IApiApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IIngesterApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
         });
 
         services.AddModules(configuration);

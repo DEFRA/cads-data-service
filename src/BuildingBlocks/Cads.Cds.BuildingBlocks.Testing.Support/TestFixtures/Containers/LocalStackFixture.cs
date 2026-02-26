@@ -10,7 +10,7 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class LocalStackFixture : IAsyncLifetime
 {
-    public LocalStackContainer? LocalStackContainer { get; private set; }
+    public static LocalStackContainer? LocalStackContainer { get; private set; }
 
     public IAmazonSQS SqsClient { get; private set; } = null!;
     public IAmazonS3 S3Client { get; private set; } = null!;
@@ -26,11 +26,11 @@ public class LocalStackFixture : IAsyncLifetime
 
     public const string NetworkAlias = "localstack";
     public const int Port = 4566;
-    public string ServiceUrl => $"http://localhost:{Port}";
-    public string NetworkServiceUrl => $"http://{NetworkAlias}:{Port}";
+    public static string ServiceUrl => $"http://localhost:{Port}";
+    public static string NetworkServiceUrl => $"http://{NetworkAlias}:{Port}";
     public const string CadsInternalBucketName = "cads-internal-bucket";
-    public string CadsQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue";
-    public string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue-deadletter";
+    public static string CadsQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue";
+    public static string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue-deadletter";
 
     public async ValueTask InitializeAsync()
     {
@@ -58,15 +58,28 @@ public class LocalStackFixture : IAsyncLifetime
 
     public async ValueTask DisposeAsync()
     {
-        try
+        Exception? error = null;
+
+        async ValueTask Safe(Func<ValueTask> f)
         {
-            S3Client?.Dispose();
-            SqsClient?.Dispose();
+            try { await f(); }
+            catch (Exception ex) { error ??= ex; }
         }
-        finally
-        {
-            await LocalStackContainer!.DisposeAsync();
-        }
+
+        // Synchronous disposals wrapped safely
+        try { S3Client?.Dispose(); }
+        catch (Exception ex) { error ??= ex; }
+
+        try { SqsClient?.Dispose(); }
+        catch (Exception ex) { error ??= ex; }
+
+        // Async disposal using the same Safe pattern
+        await Safe(() => LocalStackContainer!.DisposeAsync());
+
+        GC.SuppressFinalize(this);
+
+        if (error is not null)
+            throw error;
     }
 
     private void InitialiseClients()

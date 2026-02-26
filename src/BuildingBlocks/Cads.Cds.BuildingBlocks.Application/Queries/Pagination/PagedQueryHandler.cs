@@ -8,17 +8,17 @@ public abstract class PagedQueryHandler<TQuery, TDocument>
 {
     protected abstract Task<(IEnumerable<TDocument> Items, int TotalCount)> FetchAsync(TQuery request, CancellationToken cancellationToken);
 
-    public async Task<PaginatedResult<TDocument>> Handle(TQuery query, CancellationToken cancellationToken)
+    public async Task<PaginatedResult<TDocument>> Handle(TQuery request, CancellationToken cancellationToken)
     {
-        var (items, totalCount) = await FetchAsync(query, cancellationToken);
+        var (items, totalCount) = await FetchAsync(request, cancellationToken);
 
         return new PaginatedResult<TDocument>
         {
             Results = items,
             Count = items.Count(),
             TotalCount = totalCount,
-            Page = query.Page,
-            PageSize = query.PageSize
+            Page = request.Page,
+            PageSize = request.PageSize
         };
     }
 }
