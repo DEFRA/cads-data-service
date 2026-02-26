@@ -6,10 +6,10 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using FluentAssertions;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Database.Setup;
 
