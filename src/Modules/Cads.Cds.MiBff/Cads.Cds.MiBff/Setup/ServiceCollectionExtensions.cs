@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddMiBffInfrastructureLayer(config);
 
-        services.AddMiBffApplicationLayer();
+        services.AddMiBffApplicationLayer(config);
 
         return services;
     }

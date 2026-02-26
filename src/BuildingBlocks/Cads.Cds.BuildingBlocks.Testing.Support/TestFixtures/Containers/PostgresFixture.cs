@@ -2,7 +2,7 @@ using Npgsql;
 using Testcontainers.PostgreSql;
 using Xunit;
 
-namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 public class PostgresFixture : IAsyncLifetime
 {
@@ -21,7 +21,7 @@ public class PostgresFixture : IAsyncLifetime
     public static string ReadConnectionString =>
         $"Host=postgres;Port=5432;Database={CadsDatabaseName};Username={PostgresReadUser};Password={PostgresReadPassword}";
 
-    private string InitialisationConnectionString =>
+    private static string InitialisationConnectionString =>
         $"Host=127.0.0.1;Port=5432;Database=postgres;Username={PostgresUserName};Password={PostgresPassword}";
 
     public async ValueTask InitializeAsync()
@@ -38,17 +38,30 @@ public class PostgresFixture : IAsyncLifetime
             .Build();
 
         await Container.StartAsync();
-        var conn = Container.GetConnectionString();
+        Container.GetConnectionString();
 
         InitialiseDatabaseSchema();
     }
 
     public async ValueTask DisposeAsync()
     {
-        await Container!.DisposeAsync();
+        Exception? error = null;
+
+        async ValueTask Safe(Func<ValueTask> f)
+        {
+            try { await f(); }
+            catch (Exception ex) { error ??= ex; }
+        }
+
+        await Safe(() => Container!.DisposeAsync());
+
+        GC.SuppressFinalize(this);
+
+        if (error is not null)
+            throw error;
     }
 
-    private void InitialiseDatabaseSchema()
+    private static void InitialiseDatabaseSchema()
     {
         using var connection = new NpgsqlConnection(InitialisationConnectionString);
         var createDbCommand = new NpgsqlCommand(
@@ -77,7 +90,7 @@ public class PostgresFixture : IAsyncLifetime
         ApplyDatabaseMigrations();
     }
 
-    private void ApplyDatabaseMigrations()
+    private static void ApplyDatabaseMigrations()
     {
     }
 }

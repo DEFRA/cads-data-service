@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
 namespace Cads.Cds.Tests.Unit.TestFixtures;
 

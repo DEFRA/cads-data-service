@@ -87,6 +87,8 @@ services:
     build: ./
     ports:
       - '5555:5555'
+    volumes:
+      - ./static_data:/app/StaticData
     depends_on:
       localstack:
         condition: service_healthy

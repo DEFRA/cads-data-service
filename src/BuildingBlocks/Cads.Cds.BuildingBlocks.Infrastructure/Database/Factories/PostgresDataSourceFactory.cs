@@ -1,7 +1,7 @@
-using System.Diagnostics.CodeAnalysis;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Npgsql;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 
