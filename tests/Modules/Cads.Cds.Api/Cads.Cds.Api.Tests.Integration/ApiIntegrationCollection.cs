@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 namespace Cads.Cds.Api.Tests.Integration;
 

@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 
-namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
 public abstract class TestFixtureBase<TStart, TFactory>
     where TStart : class

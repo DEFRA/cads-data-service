@@ -1,5 +1,9 @@
+using Cads.Cds.Api.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Configuration.Aws;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
+using Cads.Cds.Ingester.Application;
+using Cads.Cds.MiBff.Application;
+using Cads.Cds.StorageBridge.Application;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json.Serialization;
 
@@ -20,6 +24,14 @@ public static class ServiceCollectionExtensions
         services.Configure<AwsConfig>(configuration.GetSection(AwsConfig.SectionName));
 
         services.ConfigureHealthChecks();
+
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(IApiApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IIngesterApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
+        });
 
         services.AddModules(configuration);
     }

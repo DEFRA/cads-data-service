@@ -55,20 +55,28 @@ jobs:
       - name: Install SonarCloud scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         run: |
-          mkdir -p ./.sonar/scanner
-          dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
+          [ -d tools ] || mkdir tools
+          cd tools
+          dotnet tool install dotnet-sonarscanner --tool-path ../.sonar/scanner --ignore-failed-sources
       - name: Install dotNet code coverage
         if: steps.cache-sonar-coverage.outputs.cache-hit != 'true'
         run: |
-          mkdir -p ./.sonar/coverage
-          dotnet tool update dotnet-coverage --tool-path ./.sonar/coverage
+          [ -d tools ] || mkdir tools
+          cd tools
+          dotnet tool install dotnet-coverage --tool-path ../.sonar/coverage --ignore-failed-sources
       - name: Build and analyze
         if: github.actor != 'dependabot[bot]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./.sonar/scanner/dotnet-sonarscanner begin /k:"DEFRA_cads-data-service" /o:"defra" /d:sonar.token="$SONAR_TOKEN" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+          ./.sonar/scanner/dotnet-sonarscanner begin \
+            /k:"DEFRA_cads-data-service" \
+            /o:"defra" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.projectBaseDir="${{ github.workspace }}" \
+            /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
           dotnet build Cads.Cds.sln --no-incremental
           ./.sonar/coverage/dotnet-coverage collect "dotnet test Cads.Cds.sln --filter \"Dependence!=testcontainers\"" -f xml -o "coverage.xml"
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
