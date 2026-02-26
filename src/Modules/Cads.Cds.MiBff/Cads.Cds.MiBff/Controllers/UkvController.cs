@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application;
+using Cads.Cds.BuildingBlocks.Application.Attributes;
 using Cads.Cds.MiBff.Application.Controllers.Requests;
 using Cads.Cds.MiBff.Application.Queries.Holdings;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
 
+    [ResponseWithMetaData]
     [HttpGet("holdings")]
     public async Task<IActionResult> GetHoldings([FromQuery] GetHoldingsRequest request)
     {
@@ -28,6 +30,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
         return Ok(result);
     }
 
+    [ResponseWithMetaData]
     [HttpGet("holdings/{cph}")]
     public async Task<IActionResult> GetHoldingsByCph([FromRoute] string cph)
     {

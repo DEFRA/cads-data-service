@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Cads.Cds.BuildingBlocks.Core.Domain;
 
+[ExcludeFromCodeCoverage]
 public abstract class ValueObject
 {
     public abstract IEnumerable<object> GetEqualityComponents();

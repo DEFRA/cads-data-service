@@ -4,21 +4,21 @@ using System.Text.Json;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Files.Services;
 
-public class FileService : IFileService
+public class FileService(IFileSystem fileSystem) : IFileService
 {
     public async Task<T?> ReadJsonFromFileAndReturnAsModelAsync<T>(string filePath, CancellationToken cancellationToken = default)
         where T : class
     {
         byte[] fileData;
 
-        if (!File.Exists(filePath))
+        if (!fileSystem.Exists(filePath))
         {
             throw new FileNotFoundException($"File not found: {filePath}");
         }
 
         try
         {
-            fileData = await File.ReadAllBytesAsync(filePath, cancellationToken);
+            fileData = await fileSystem.ReadAllBytesAsync(filePath, cancellationToken);
         }
         catch (Exception ex)
         {
