@@ -1,4 +1,7 @@
+using Cads.Cds.ApiSurface.Dtos.Common.JsonResponsesWrap;
+using Cads.Cds.BuildingBlocks.Application.Attributes;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
+using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using System.Text;
 using System.Text.Json;
 
@@ -8,20 +11,17 @@ public class ApiResponseMiddleware(RequestDelegate next)
 {
     private readonly RequestDelegate _next = next;
 
-    // Cache JsonSerializerOptions to avoid CA1869
-    private static readonly JsonSerializerOptions DeserializeOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
-    private static readonly JsonSerializerOptions SerializeOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true
-    };
-
     public async Task InvokeAsync(HttpContext context)
     {
+        var endpoint = context.GetEndpoint();
+        var shouldWrap = endpoint?.Metadata.GetMetadata<ResponseWithMetaDataAttribute>() != null;
+
+        if (!shouldWrap)
+        {
+            await _next(context);
+            return;
+        }
+
         var originalBodyStream = context.Response.Body;
 
         using var memoryStream = new MemoryStream();
@@ -40,30 +40,32 @@ public class ApiResponseMiddleware(RequestDelegate next)
             object? parsedData = null;
             try
             {
-                parsedData = JsonSerializer.Deserialize<object>(bodyText, DeserializeOptions) ?? bodyText;
+                parsedData = JsonSerializer.Deserialize<object>(bodyText, JsonDefaults.DefaultOptions) ?? bodyText;
             }
             catch
             {
                 parsedData = bodyText;
             }
 
-            var apiResponse = new
+            var apiResponse = new JsonResponseWithMetaData
             {
-                meta = new
+                Meta = new JsonResponseMetaData
                 {
-                    status = context.Response.StatusCode,
-                    message = GetDefaultMessage(context.Response.StatusCode),
-                    timestamp = DateTime.UtcNow,
-                    requestId = CorrelationIdContext.Value
+                    Service = string.Empty,
+                    Version = string.Empty,
+                    RequestId = CorrelationIdContext.Value,
+                    Timestamp = DateTime.UtcNow,
+                    Endpoint = string.Empty,
+                    Status = GetDefaultMessage(context.Response.StatusCode)
                 },
-                data = parsedData,
-                links = new
+                Data = parsedData,
+                Links = new JsonResponseLinks
                 {
-                    self = $"{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}{context.Request.QueryString}"
+                    Self = $"{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}{context.Request.QueryString}"
                 }
             };
 
-            var wrappedJson = JsonSerializer.Serialize(apiResponse, SerializeOptions);
+            var wrappedJson = JsonSerializer.Serialize(apiResponse, JsonDefaults.DefaultOptionsWithIndented);
 
             context.Response.ContentType = "application/json";
             context.Response.ContentLength = Encoding.UTF8.GetByteCount(wrappedJson);
