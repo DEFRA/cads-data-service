@@ -30,7 +30,7 @@ public class CattleStatusService : ICattleStatusService
 
         _logger.LogInformation(
             "Received GetCattleStatusRequest for HoldingId: {HoldingId}, SystemUser: {SystemUser}, EndUser: {EndUser}, ClientRequestId: {ClientRequestId}",
-            HoldingId ?? "null",
+            HoldingId,
             systemUser ?? "null",
             endUser ?? "null",
             clientRequestId ?? "null");
@@ -44,7 +44,7 @@ public class CattleStatusService : ICattleStatusService
             var response = new GetCattleStatusResponse
             {
                 HoldingId = HoldingId!,
-                CattleStatusCSV = await GetCattleStatusData(HoldingId!)
+                CattleStatusCSV = await GetCattleStatusData()
             };
 
             _logger.LogInformation("Successfully processed GetCattleStatusRequest for HoldingId: {HoldingId}", HoldingId);
@@ -53,14 +53,14 @@ public class CattleStatusService : ICattleStatusService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing GetCattleStatusRequest for HoldingId: {HoldingId}", HoldingId ?? "null");
+            _logger.LogError(ex, "Error processing GetCattleStatusRequest for HoldingId: {HoldingId}", HoldingId);
 
             // Throw SOAP fault
             throw new FaultException($"Error processing request: {ex.Message}");
         }
     }
 
-    private async Task<string> GetCattleStatusData(string HoldingId)
+    private async Task<string> GetCattleStatusData()
     {
         // TODO: Implement actual data retrieval logic
         // Mock CSV data matching the expected format
