@@ -27,11 +27,12 @@ public static class WebApplicationExtensions
                 logger.LogInformation("{ApplicationName} stopped", env.ApplicationName));
         }
 
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseCorrelationId();
-
         app.UseHeaderPropagation();
         app.UseRouting();
+
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseCorrelationId();
+        app.UseMiddleware<ApiResponseMiddleware>();
 
         app.UseAuthentication();
         app.UseAuthorization();

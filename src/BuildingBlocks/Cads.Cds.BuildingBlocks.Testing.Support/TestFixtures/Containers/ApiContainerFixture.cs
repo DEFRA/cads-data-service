@@ -1,7 +1,7 @@
 using DotNet.Testcontainers.Builders;
 using Xunit;
 
-namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 using IContainer = DotNet.Testcontainers.Containers.IContainer;
 
@@ -51,9 +51,25 @@ public class ApiContainerFixture : IAsyncLifetime
 
     public async ValueTask DisposeAsync()
     {
-        await PostgresFixture.DisposeAsync();
-        await LocalStackFixture.DisposeAsync();
-        HttpClient?.Dispose();
-        await ApiContainer.DisposeAsync();
+        Exception? error = null;
+
+        async ValueTask Safe(Func<ValueTask> f)
+        {
+            try { await f(); }
+            catch (Exception ex) { error ??= ex; }
+        }
+
+        await Safe(() => PostgresFixture.DisposeAsync());
+        await Safe(() => LocalStackFixture.DisposeAsync());
+
+        try { HttpClient?.Dispose(); }
+        catch (Exception ex) { error ??= ex; }
+
+        await Safe(() => ApiContainer.DisposeAsync());
+
+        GC.SuppressFinalize(this);
+
+        if (error is not null)
+            throw error;
     }
 }

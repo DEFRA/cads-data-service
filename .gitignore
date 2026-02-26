@@ -277,3 +277,4 @@ library.db
 /pgadmin-data
 /coverage
 /coverage-report
+.sonar/

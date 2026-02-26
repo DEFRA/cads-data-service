@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 public static class DockerNetworkHelper
 {
