@@ -1,4 +1,3 @@
-using Cads.Cds.BuildingBlocks.Core.Correlation;
 using System.Text;
 using System.Text.Json;
 
@@ -22,6 +21,8 @@ public class ApiResponseMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context)
     {
+        var requestId = Guid.NewGuid().ToString();
+        context.Items["RequestId"] = requestId;
         var originalBodyStream = context.Response.Body;
 
         using var memoryStream = new MemoryStream();
@@ -54,7 +55,7 @@ public class ApiResponseMiddleware(RequestDelegate next)
                     status = context.Response.StatusCode,
                     message = GetDefaultMessage(context.Response.StatusCode),
                     timestamp = DateTime.UtcNow,
-                    requestId = CorrelationIdContext.Value
+                    requestId = requestId
                 },
                 data = parsedData,
                 links = new
