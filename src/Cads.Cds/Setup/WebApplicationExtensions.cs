@@ -38,7 +38,7 @@ public static class WebApplicationExtensions
 
         app.MapControllers();
 
-        app.MapGet("/", () => "Alive!");
+        app.MapGet("/", () => "Alive!").AllowAnonymous();
 
         app.MapHealthChecks("/health", new HealthCheckOptions()
         {
@@ -46,7 +46,11 @@ public static class WebApplicationExtensions
             ResponseWriter = (context, healthReport) =>
             {
                 context.Response.ContentType = "application/json; charset=utf-8";
-                return context.Response.WriteAsync(HealthCheckWriter.WriteHealthStatusAsJson(healthReport, healthcheckMaskingEnabled: healthcheckMaskingEnabled, excludeHealthy: false, indented: true));
+                return context.Response.WriteAsync(HealthCheckWriter.WriteHealthStatusAsJson(
+                    healthReport,
+                    healthcheckMaskingEnabled: healthcheckMaskingEnabled,
+                    excludeHealthy: false,
+                    indented: true));
             },
             ResultStatusCodes =
             {
@@ -54,6 +58,6 @@ public static class WebApplicationExtensions
                 [HealthStatus.Degraded] = StatusCodes.Status200OK,
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
-        });
+        }).AllowAnonymous();
     }
 }
