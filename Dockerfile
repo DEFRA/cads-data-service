@@ -1,4 +1,4 @@
-﻿# This stage is used when running from VS in fast mode (Default for Debug configuration)
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 80
@@ -54,5 +54,6 @@ ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY static_data ./StaticData
 EXPOSE 8085
 ENTRYPOINT ["dotnet", "Cads.Cds.dll"]

@@ -3,6 +3,7 @@ using Amazon.S3.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
@@ -16,9 +17,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using System.Net;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
-namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
+namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
 public abstract class WebAppFactoryBase<TStart>(
     IDictionary<string, string?>? configOverrides = null,
@@ -36,6 +36,7 @@ public abstract class WebAppFactoryBase<TStart>(
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting(WebHostDefaults.ApplicationKey, typeof(TStart).Assembly.FullName);
+        builder.UseContentRoot(AppContext.BaseDirectory);
 
         SetTestEnvironmentVariables();
 
