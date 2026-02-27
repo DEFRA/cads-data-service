@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Npgsql;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -8,32 +9,25 @@ public class PostgresFixture : IAsyncLifetime
 {
     public PostgreSqlContainer? Container { get; private set; }
 
-    public string NetworkName { get; } = "integration-test-network";
-    private const string CadsDatabaseName = "cads";
-    private const string PostgresUserName = "postgres";
-    private const string PostgresPassword = "password";
-    private const string PostgresReadUser = "readonlyuser";
-    private const string PostgresReadPassword = "readonly";
-
     public static string ConnectionString =>
-        $"Host=postgres;Port=5432;Database={CadsDatabaseName};Username={PostgresUserName};Password={PostgresPassword}";
+        $"Host=postgres;Port=5432;Database={TestDatabaseConstants.TestCadsDatabaseName};Username={TestDatabaseConstants.PostgresUserName};Password={TestDatabaseConstants.PostgresPassword}";
 
     public static string ReadConnectionString =>
-        $"Host=postgres;Port=5432;Database={CadsDatabaseName};Username={PostgresReadUser};Password={PostgresReadPassword}";
+        $"Host=postgres;Port=5432;Database={TestDatabaseConstants.TestCadsDatabaseName};Username={TestDatabaseConstants.PostgresReadUser};Password={TestDatabaseConstants.PostgresReadPassword}";
 
     private static string InitialisationConnectionString =>
-        $"Host=127.0.0.1;Port=5432;Database=postgres;Username={PostgresUserName};Password={PostgresPassword}";
+        $"Host=127.0.0.1;Port=5432;Database=postgres;Username={TestDatabaseConstants.PostgresUserName};Password={TestDatabaseConstants.PostgresPassword}";
 
     public async ValueTask InitializeAsync()
     {
-        DockerNetworkHelper.EnsureNetworkExists(NetworkName);
+        DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
         Container = new PostgreSqlBuilder("postgres:16.6")
             .WithName("postgres")
             .WithPortBinding(5432, 5432)
-            .WithEnvironment("POSTGRES_USER", PostgresUserName)
-            .WithEnvironment("POSTGRES_PASSWORD", PostgresPassword)
-            .WithNetwork(NetworkName)
+            .WithEnvironment("POSTGRES_USER", TestDatabaseConstants.PostgresUserName)
+            .WithEnvironment("POSTGRES_PASSWORD", TestDatabaseConstants.PostgresPassword)
+            .WithNetwork(TestContainerConstants.NetworkName)
             .WithNetworkAliases("postgres")
             .Build();
 
@@ -64,22 +58,20 @@ public class PostgresFixture : IAsyncLifetime
     private static void InitialiseDatabaseSchema()
     {
         using var connection = new NpgsqlConnection(InitialisationConnectionString);
-        var createDbCommand = new NpgsqlCommand(
-            @$"
-            CREATE DATABASE {CadsDatabaseName}
+        var createDbCommand = new NpgsqlCommand(@$"
+            CREATE DATABASE ""{TestDatabaseConstants.TestCadsDatabaseName}""
                 WITH OWNER = postgres
                 ENCODING = 'UTF8'
                 CONNECTION LIMIT = -1",
             connection);
 
-        var createROUserCommand = new NpgsqlCommand(
-            @$"
-            CREATE ROLE {PostgresReadUser} WITH LOGIN PASSWORD '{PostgresReadPassword}';
-            GRANT CONNECT ON DATABASE {CadsDatabaseName} TO {PostgresReadUser};
-            GRANT USAGE ON SCHEMA public TO {PostgresReadUser};
-            GRANT SELECT ON ALL TABLES IN SCHEMA public TO {PostgresReadUser};
+        var createROUserCommand = new NpgsqlCommand(@$"
+            CREATE ROLE ""{TestDatabaseConstants.PostgresReadUser}"" WITH LOGIN PASSWORD '{TestDatabaseConstants.PostgresReadPassword}';
+            GRANT CONNECT ON DATABASE ""{TestDatabaseConstants.TestCadsDatabaseName}"" TO ""{TestDatabaseConstants.PostgresReadUser}"";
+            GRANT USAGE ON SCHEMA public TO ""{TestDatabaseConstants.PostgresReadUser}"";
+            GRANT SELECT ON ALL TABLES IN SCHEMA public TO ""{TestDatabaseConstants.PostgresReadUser}"";
             REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO {PostgresReadUser};",
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO ""{TestDatabaseConstants.PostgresReadUser}"";",
             connection);
 
         connection.Open();

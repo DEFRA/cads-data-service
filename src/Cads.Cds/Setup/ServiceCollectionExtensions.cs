@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
     {
         services.ConfigureAuthentication(configuration);
 
-        services.AddControllers(options => 
+        services.AddControllers(options =>
         {
             options.Filters.Add(new AuthorizeFilter("BasicOrBearer"));
         })
