@@ -75,8 +75,65 @@ public abstract class WebAppFactoryBase<TStart>(
         });
     }
 
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        if (_configOverrides.Count > 0)
+        {
+            builder.ConfigureAppConfiguration(config =>
+            {
+                config.AddInMemoryCollection(_configOverrides);
+            });
+        }
+
+        return base.CreateHost(builder);
+    }
+
+    public T GetService<T>() where T : notnull
+    {
+        return Services.GetRequiredService<T>();
+    }
+
     public void OverrideService(Action<IServiceCollection> action)
         => _serviceOverrides.Add(action);
+
+    public void OverrideServiceAsSingleton<T>(T implementation) where T : class
+    {
+        _serviceOverrides.Add(services =>
+        {
+            services.RemoveAll<T>();
+            services.AddSingleton(implementation);
+        });
+    }
+
+    public void OverrideServiceAsTransient<T, TH>()
+        where T : class
+        where TH : class, T
+    {
+        _serviceOverrides.Add(services =>
+        {
+            services.RemoveAll<T>();
+            services.AddTransient<T, TH>();
+        });
+    }
+
+    public void OverrideServiceAsTransient<T>(T instance)
+        where T : class
+    {
+        _serviceOverrides.Add(services =>
+        {
+            services.RemoveAll<T>();
+            services.AddTransient(_ => instance);
+        });
+    }
+
+    public void OverrideServiceAsScoped<T>(T implementation) where T : class
+    {
+        _serviceOverrides.Add(services =>
+        {
+            services.RemoveAll<T>();
+            services.AddScoped(_ => implementation);
+        });
+    }
 
     public void ResetMocks()
     {

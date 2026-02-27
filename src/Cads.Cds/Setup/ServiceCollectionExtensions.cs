@@ -73,7 +73,6 @@ public static class ServiceCollectionExtensions
             configuration.GetSection("AuthenticationConfiguration"));
 
         services.AddSingleton<IConfigureOptions<AuthenticationOptions>, AuthenticationOptionsConfigurator>();
-        services.AddSingleton<IConfigureNamedOptions<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions>, JwtBearerOptionsConfigurator>();
 
         var authBuilder = services.AddAuthentication();
 
