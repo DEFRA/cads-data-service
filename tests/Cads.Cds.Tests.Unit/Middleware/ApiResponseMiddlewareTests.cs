@@ -62,6 +62,140 @@ public class ApiResponseMiddlewareTests
     }
 
     [Fact]
+    public async Task Should_not_process_when_content_type_is_not_json()
+    {
+        var (context, originalStream) = CreateContext(
+            body: "not-json",
+            contentType: "text/plain"
+        );
+
+        var middleware = new ApiResponseMiddleware(FakeNext("not-json"));
+
+        await middleware.InvokeAsync(context);
+
+        var output = ReadBody(originalStream);
+        output.Should().Be("not-json");
+    }
+
+    [Fact]
+    public async Task Should_not_process_when_already_wrapped_json()
+    {
+        var wrapped = "{\"meta\":{},\"data\":{\"results\":[]}}";
+
+        var (context, originalStream) = CreateContext(body: wrapped);
+
+        var middleware = new ApiResponseMiddleware(FakeNext(wrapped));
+
+        await middleware.InvokeAsync(context);
+
+        ReadBody(originalStream).Should().Be(wrapped);
+    }
+
+    [Fact]
+    public async Task Should_wrap_raw_json_array_into_results()
+    {
+        var (context, originalStream) = CreateContext(body: "[1,2,3]");
+
+        var middleware = new ApiResponseMiddleware(FakeNext("[1,2,3]"));
+
+        await middleware.InvokeAsync(context);
+
+        var json = ReadBody(originalStream);
+
+        json.Should().MatchRegex("\"results\"\\s*:\\s*\\[");
+        json.Should().MatchRegex("\\[\\s*1\\s*,\\s*2\\s*,\\s*3\\s*\\]");
+    }
+
+    [Fact]
+    public async Task Should_not_override_existing_parameters()
+    {
+        var body = """
+        {
+            "message": null,
+            "description": null,
+            "parameters": { "path": "/x", "query": "?y=1" },
+            "results": []
+        }
+        """;
+
+        var (context, originalStream) = CreateContext(body: body);
+
+        var middleware = new ApiResponseMiddleware(FakeNext(body));
+
+        await middleware.InvokeAsync(context);
+
+        var json = ReadBody(originalStream);
+
+        json.Should().MatchRegex("\"path\"\\s*:\\s*\"/x\"");
+        json.Should().MatchRegex("\"query\"\\s*:\\s*\"\\?y=1\"");
+    }
+
+    [Fact]
+    public async Task Should_generate_correct_self_link()
+    {
+        var (context, originalStream) = CreateContext(body: "{\"results\":[]}");
+
+        context.Request.Scheme = "https";
+        context.Request.Host = new HostString("example.com");
+        context.Request.Path = "/abc";
+        context.Request.QueryString = new QueryString("?q=1");
+
+        var middleware = new ApiResponseMiddleware(FakeNext("{\"results\":[]}"));
+
+        await middleware.InvokeAsync(context);
+
+        var json = ReadBody(originalStream);
+
+        json.Should().MatchRegex("\"self\"\\s*:\\s*\"https://example.com/abc\\?q=1\"");
+    }
+
+    [Fact]
+    public async Task Should_not_wrap_when_only_message_attribute_present()
+    {
+        var msgAttr = new ApiMessageAttribute("x", "y");
+
+        var (context, originalStream) = CreateContext(
+            body: "{\"results\":[]}",
+            addAttribute: false,
+            msgAttr: msgAttr
+        );
+
+        var middleware = new ApiResponseMiddleware(FakeNext("{\"results\":[]}"));
+
+        await middleware.InvokeAsync(context);
+
+        ReadBody(originalStream).Should().Be("{\"results\":[]}");
+    }
+
+    [Fact]
+    public async Task Should_handle_empty_body()
+    {
+        var (context, originalStream) = CreateContext(body: "");
+
+        var middleware = new ApiResponseMiddleware(FakeNext(""));
+
+        await middleware.InvokeAsync(context);
+
+        var json = ReadBody(originalStream);
+
+        json.Should().MatchRegex("\"results\"");
+    }
+
+    [Fact]
+    public async Task Should_fallback_when_invalid_json_is_returned()
+    {
+        var (context, originalStream) = CreateContext(body: "{invalid json");
+
+        var middleware = new ApiResponseMiddleware(FakeNext("{invalid json"));
+
+        await middleware.InvokeAsync(context);
+
+        var json = ReadBody(originalStream);
+
+        json.Should().MatchRegex("\"results\"\\s*:\\s*\\[");
+    }
+
+    [Fact]
     public async Task Should_not_wrap_when_attribute_missing()
     {
         var (context, originalStream) = CreateContext(
