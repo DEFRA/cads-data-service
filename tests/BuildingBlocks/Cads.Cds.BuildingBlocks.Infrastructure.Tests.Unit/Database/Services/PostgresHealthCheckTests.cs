@@ -2,6 +2,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -38,8 +39,8 @@ public class PostgresHealthCheckTests
     [Fact]
     public async Task PostgresStatusService_CanConnect_ReturnsTrue()
     {
-        var dbContext = new HealthCheckDbContext(new DbContextOptionsBuilder<HealthCheckDbContext>().UseInMemoryDatabase("cads").Options);
-        var dbReadOnlyContext = new HealthCheckReadOnlyDbContext(new DbContextOptionsBuilder<HealthCheckReadOnlyDbContext>().UseInMemoryDatabase("cads-ro").Options);
+        var dbContext = new HealthCheckDbContext(new DbContextOptionsBuilder<HealthCheckDbContext>().UseInMemoryDatabase(TestDatabaseConstants.TestCadsDatabaseName).Options);
+        var dbReadOnlyContext = new HealthCheckReadOnlyDbContext(new DbContextOptionsBuilder<HealthCheckReadOnlyDbContext>().UseInMemoryDatabase(TestDatabaseConstants.TestCadsReadOnlyDatabaseName).Options);
         var postgresStatusService = new PostgresStatusService(dbContext, dbReadOnlyContext);
 
         var postgresStatusServiceResult = await postgresStatusService.CanConnect(CancellationToken.None);
