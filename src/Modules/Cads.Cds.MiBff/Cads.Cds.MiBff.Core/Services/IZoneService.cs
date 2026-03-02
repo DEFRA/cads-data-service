@@ -6,5 +6,5 @@ public interface IZoneService
 {
     Task<IEnumerable<UkvDto>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<UkvDto>> GetByZoneIdAsync(Guid zoneId, CancellationToken ct = default);
+    Task<IEnumerable<UkvDto>> GetByZoneIdAsync(Guid zoneId, CancellationToken cancellationToken = default);
 }
