@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Testcontainers.LocalStack;
 using Xunit;
 
@@ -14,27 +15,23 @@ public class LocalStackFixture : IAsyncLifetime
 
     public IAmazonSQS SqsClient { get; private set; } = null!;
     public IAmazonS3 S3Client { get; private set; } = null!;
+
+    public string? SqsEndpoint { get; private set; }
+    public static string ServiceUrl => $"http://localhost:{TestContainerConstants.LocalStackPort}";
+    public static string NetworkServiceUrl => $"http://{TestContainerConstants.NetworkAlias}:{TestContainerConstants.LocalStackPort}";
+    public static string CadsQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{TestContainerConstants.LocalStackPort}/000000000000/{TestSqsConstants.CadsQueueName}";
+    public static string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{TestContainerConstants.LocalStackPort}/000000000000/{TestSqsConstants.CadsDeadLetterQueueName}";
+
     public const string AwsAccessKeyId = "test";
     public const string AwsSecretAccessKey = "test";
+    public const string AuthenticationRegion = TestAwsConstants.AwsRegion;
+    public const string CadsInternalBucketName = TestS3Constants.TestCadsInternalBucketName;
+
     private static Amazon.Runtime.BasicAWSCredentials GetBasicAWSCredentials => new(AwsAccessKeyId, AwsSecretAccessKey);
-    public string? SqsEndpoint { get; private set; }
-
-    public const string AuthenticationRegion = "eu-west-2";
-    private const string NetworkName = "integration-test-network";
-    private const string CadsQueueName = "cads-cds-queue";
-    private const string CadsDeadLetterQueueName = "cads-cds-queue-deadletter";
-
-    public const string NetworkAlias = "localstack";
-    public const int Port = 4566;
-    public static string ServiceUrl => $"http://localhost:{Port}";
-    public static string NetworkServiceUrl => $"http://{NetworkAlias}:{Port}";
-    public const string CadsInternalBucketName = "cads-internal-bucket";
-    public static string CadsQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue";
-    public static string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{Port}/000000000000/cads-cds-queue-deadletter";
 
     public async ValueTask InitializeAsync()
     {
-        DockerNetworkHelper.EnsureNetworkExists(NetworkName);
+        DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
         LocalStackContainer = new LocalStackBuilder("localstack/localstack:3.0.2")
             .WithName("localstack")
@@ -43,10 +40,10 @@ public class LocalStackFixture : IAsyncLifetime
             .WithEnvironment("AWS_DEFAULT_REGION", AuthenticationRegion)
             .WithEnvironment("AWS_ACCESS_KEY_ID", AwsAccessKeyId)
             .WithEnvironment("AWS_SECRET_ACCESS_KEY", AwsSecretAccessKey)
-            .WithEnvironment("EDGE_PORT", $"{Port}")
-            .WithPortBinding(Port, Port)
-            .WithNetwork(NetworkName)
-            .WithNetworkAliases(NetworkAlias)
+            .WithEnvironment("EDGE_PORT", $"{TestContainerConstants.LocalStackPort}")
+            .WithPortBinding(TestContainerConstants.LocalStackPort, TestContainerConstants.LocalStackPort)
+            .WithNetwork(TestContainerConstants.NetworkName)
+            .WithNetworkAliases(TestContainerConstants.NetworkAlias)
             .Build();
 
         await LocalStackContainer.StartAsync();
@@ -106,14 +103,14 @@ public class LocalStackFixture : IAsyncLifetime
     {
         await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsInternalBucketName });
 
-        var intakeDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = CadsDeadLetterQueueName });
+        var intakeDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = TestSqsConstants.CadsDeadLetterQueueName });
         var intakeDlqAttr = await SqsClient.GetQueueAttributesAsync(new GetQueueAttributesRequest
         {
             QueueUrl = intakeDlqCreated.QueueUrl,
             AttributeNames = ["QueueArn"]
         });
 
-        var intakeQueueCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = CadsQueueName });
+        var intakeQueueCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = TestSqsConstants.CadsQueueName });
 
         if (CadsDeadLetterQueueUrl != intakeDlqCreated.QueueUrl || CadsQueueUrl != intakeQueueCreated.QueueUrl)
         {
@@ -138,7 +135,7 @@ public class LocalStackFixture : IAsyncLifetime
             BucketName = CadsInternalBucketName
         });
 
-        await SqsClient.GetQueueAttributesAsync(CadsDeadLetterQueueName, ["All"], CancellationToken.None);
-        await SqsClient.GetQueueAttributesAsync(CadsQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsDeadLetterQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsQueueName, ["All"], CancellationToken.None);
     }
 }

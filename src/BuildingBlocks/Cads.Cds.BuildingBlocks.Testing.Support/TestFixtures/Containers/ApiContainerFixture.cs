@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using DotNet.Testcontainers.Builders;
 using Xunit;
 
@@ -13,14 +15,12 @@ public class ApiContainerFixture : IAsyncLifetime
     public PostgresFixture PostgresFixture { get; } = new();
     public LocalStackFixture LocalStackFixture { get; } = new();
 
-    private const string NetworkName = "integration-test-network";
-
     public async ValueTask InitializeAsync()
     {
         await PostgresFixture.InitializeAsync();
         await LocalStackFixture.InitializeAsync();
 
-        DockerNetworkHelper.EnsureNetworkExists(NetworkName);
+        DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
         ApiContainer = new ContainerBuilder("cads_cds:latest")
           .WithName("cads_cds")
@@ -38,7 +38,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AWS_DEFAULT_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
           .WithEnvironment("AWS_SECRET_ACCESS_KEY", LocalStackFixture.AwsSecretAccessKey)
-          .WithNetwork(NetworkName)
+          .WithNetwork(TestContainerConstants.NetworkName)
           .WithNetworkAliases("cads_cds")
           .WithWaitStrategy(Wait.ForUnixContainer()
               .UntilHttpRequestIsSucceeded(req => req.ForPort(5555).ForPath("/health"), o => o.WithTimeout(TimeSpan.FromSeconds(25))))
@@ -47,6 +47,7 @@ public class ApiContainerFixture : IAsyncLifetime
         await ApiContainer.StartAsync();
 
         HttpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{ApiContainer.GetMappedPublicPort(5555)}") };
+        HttpClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
     }
 
     public async ValueTask DisposeAsync()
