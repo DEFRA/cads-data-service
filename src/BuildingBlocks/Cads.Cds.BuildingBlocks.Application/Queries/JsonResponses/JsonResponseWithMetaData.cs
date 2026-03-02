@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Cads.Cds.ApiSurface.Dtos.Common.JsonResponsesWrap;
+namespace Cads.Cds.BuildingBlocks.Application.Queries.JsonResponses;
 
 public class JsonResponseWithMetaData
 {
@@ -47,7 +47,7 @@ public class JsonResponseData<T>
     public JsonResponseDataParameters? Parameters { get; set; }
 
     [JsonPropertyName("results")]
-    public List<T> Results { get; set; } = [];
+    public IEnumerable<T> Results { get; set; } = [];
 }
 
 public class JsonResponseLinks
