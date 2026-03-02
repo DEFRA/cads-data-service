@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Cads.Cds.MiBff.Application.Queries.Holdings;
 
-public class GetHoldingsQuery : IPagedQuery<HoldingDTO>
+public class GetHoldingsQuery : IPagedQuery<HoldingDto>
 {
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 10;

@@ -14,16 +14,16 @@ public class HoldingsQueryByCphAdapterTests
     {
         var holdings = HoldingsSampleDataHelper.GetSampleHoldings();
 
-        var mockHoldingService = new Mock<IHoldingsService>();
+        var mockHoldingService = new Mock<IHoldingService>();
         mockHoldingService
           .Setup(s => s.GetByCphAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(holdings.Take(1));
 
-        var adapter = new HoldingsQueryByCphAdapter(mockHoldingService.Object);
+        var adapter = new HoldingsQueryAdapter(mockHoldingService.Object);
 
         var query = new GetHoldingsByCphQuery("ABC123");
 
-        var (items, count) = await adapter.GetHoldingsAsync(query, TestContext.Current.CancellationToken);
+        var (items, count) = await adapter.GetAsync(query, TestContext.Current.CancellationToken);
 
         items.Should().BeEquivalentTo(new[] { holdings[0] });
         count.Should().Be(1);

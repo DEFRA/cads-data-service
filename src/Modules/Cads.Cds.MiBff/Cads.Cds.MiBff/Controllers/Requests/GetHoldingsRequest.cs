@@ -1,8 +1,9 @@
+using Cads.Cds.BuildingBlocks.Application.Requests;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Cads.Cds.MiBff.Application.Controllers.Requests;
+namespace Cads.Cds.MiBff.Controllers.Requests;
 
-public class GetHoldingsRequest
+public class GetHoldingsRequest : IPagedRequest
 {
     [FromQuery] public int? Page { get; set; }
     [FromQuery] public int? PageSize { get; set; }
