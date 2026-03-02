@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 
-namespace Cads.Cds.Api.Application.Soap;
+namespace Cads.Cds.Api.Application.Soap.Messages;
 
 /// <summary>
 /// Request model for GetCattleStatus SOAP operation

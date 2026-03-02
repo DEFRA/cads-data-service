@@ -1,7 +1,7 @@
-using Cads.Cds.Api.Application.Soap;
+using Cads.Cds.Api.Application.Soap.Messages;
 using CoreWCF;
 
-namespace Cads.Cds.Api.Application.Services;
+namespace Cads.Cds.Api.Application.Soap.ServiceContracts;
 
 /// <summary>
 /// Service contract for Livestock Movements SOAP operations
@@ -10,5 +10,6 @@ namespace Cads.Cds.Api.Application.Services;
 public interface ILivestockMovementsService
 {
     [OperationContract(Action = "*", ReplyAction = "*")]
-    Task<GetAnimalCohortResponse> GetAnimalCohortRequest(GetAnimalCohortRequest request);
+    [XmlSerializerFormat(Style = OperationFormatStyle.Rpc)]
+    Task<GetAnimalCohortResponse> GetAnimalCohortRequest(ServiceOptions ServiceOptions, AnimalCohortQuery AnimalCohortQuery);
 }
