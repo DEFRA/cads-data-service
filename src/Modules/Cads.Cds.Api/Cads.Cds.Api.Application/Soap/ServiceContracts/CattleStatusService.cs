@@ -1,8 +1,8 @@
-using Microsoft.Extensions.Logging;
-using Cads.Cds.Api.Application.Soap;
+using Cads.Cds.Api.Application.Soap.Messages;
 using CoreWCF;
+using Microsoft.Extensions.Logging;
 
-namespace Cads.Cds.Api.Application.Services;
+namespace Cads.Cds.Api.Application.Soap.ServiceContracts;
 
 /// <summary>
 /// Implementation of ICattleStatusService
@@ -10,12 +10,10 @@ namespace Cads.Cds.Api.Application.Services;
 public class CattleStatusService : ICattleStatusService
 {
     private readonly ILogger<CattleStatusService> _logger;
-    private readonly SoapHeaderService _soapHeaderService;
-
-    public CattleStatusService(ILogger<CattleStatusService> logger, SoapHeaderService soapHeaderService)
+ 
+    public CattleStatusService(ILogger<CattleStatusService> logger)
     {
         _logger = logger;
-        _soapHeaderService = soapHeaderService;
     }
 
     public async Task<GetCattleStatusResponse> GetCattleStatusRequest(string HoldingId)
@@ -25,22 +23,8 @@ public class CattleStatusService : ICattleStatusService
             throw new FaultException($"Holding id cannot be null or whitespace");
         }
 
-        // Extract SOAP headers for authentication and correlation
-        var (systemUser, endUser, clientRequestId) = _soapHeaderService.ExtractHeaders();
-
-        _logger.LogInformation(
-            "Received GetCattleStatusRequest for HoldingId: {HoldingId}, SystemUser: {SystemUser}, EndUser: {EndUser}, ClientRequestId: {ClientRequestId}",
-            HoldingId,
-            systemUser ?? "null",
-            endUser ?? "null",
-            clientRequestId ?? "null");
-
         try
         {
-            // TODO: Implement actual business logic here
-            // This could call a repository, query handler, or external service
-            // For now, returning a mock response
-
             var response = new GetCattleStatusResponse
             {
                 HoldingId = HoldingId,
