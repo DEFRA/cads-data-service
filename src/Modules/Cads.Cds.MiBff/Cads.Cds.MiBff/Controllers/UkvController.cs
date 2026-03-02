@@ -12,12 +12,10 @@ using Cads.Cds.MiBff.Application.Queries.Movements;
 using Cads.Cds.MiBff.Application.Queries.Zones;
 using Cads.Cds.MiBff.Controllers.Requests;
 using Cads.Cds.MiBff.Core.DTOs;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
 
-[AllowAnonymous]
 [ApiController]
 [Route("api/v1/bff/[controller]")]
 public class UkvController(IRequestExecutor executor) : ControllerBase
