@@ -34,10 +34,6 @@ public static class WebApplicationExtensions
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
-        // NOTE: SoapResponseHeaderMiddleware disabled - incompatible with CoreWCF stream handling
-        // TODO: Implement response headers using CoreWCF IDispatchMessageInspector instead
-        // app.UseMiddleware<SoapResponseHeaderMiddleware>();
-
         app.UseAuthentication();
         app.UseAuthorization();
 

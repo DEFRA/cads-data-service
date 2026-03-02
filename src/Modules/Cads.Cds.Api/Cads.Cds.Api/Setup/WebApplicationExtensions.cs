@@ -22,7 +22,7 @@ public static class WebApplicationExtensions
                 }
             );
 
-            // Cattle Status endpoint - uses XmlSerializer for simple parameter unwrapping
+            // Cattle Status endpoint
             builder.AddService<CattleStatusService>(serviceOptions =>
             {
                 serviceOptions.DebugBehavior.IncludeExceptionDetailInFaults = true;

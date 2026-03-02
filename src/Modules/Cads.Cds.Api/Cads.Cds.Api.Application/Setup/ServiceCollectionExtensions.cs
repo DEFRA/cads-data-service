@@ -14,11 +14,7 @@ public static class ServiceCollectionExtensions
         // Register concrete service implementations (CoreWCF requires these)
         services.AddTransient<CattleStatusService>();
         services.AddTransient<LivestockMovementsService>();
-
-        // Register interfaces for backward compatibility
-        services.AddScoped<ICattleStatusService, CattleStatusService>();
-        services.AddScoped<ILivestockMovementsService, LivestockMovementsService>();
-
+        
         return services;
     }
 }
