@@ -6,5 +6,5 @@ public interface IAnimalService
 {
     Task<IEnumerable<UkvDto>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<UkvDto>> GetByAnimalIdAsync(Guid animalId, CancellationToken ct = default);
+    Task<IEnumerable<UkvDto>> GetByAnimalIdAsync(Guid animalId, CancellationToken cancellationToken = default);
 }
