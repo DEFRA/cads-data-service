@@ -12,8 +12,8 @@ public class AuditService(
     IFileService fileService,
     IOptions<MiBffModuleConfiguration> options) : UkvSampleDataService<UkvDto>(env, fileService, options), IAuditService
 {
-    public Task<IEnumerable<UkvDto>> GetScrapieAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UkvDto>> GetScrapieAsync(CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await GetAllAsync(cancellationToken);
     }
 }

@@ -1,11 +1,11 @@
 using Cads.Cds.BuildingBlocks.Application.Files.Abstractions;
-using Cads.Cds.MiBff.Application.Services;
 using Cads.Cds.MiBff.Core.Configuration;
 using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Core.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace Cads.Cds.MiBff.Core.Services;
+namespace Cads.Cds.MiBff.Application.Services;
 
 public class JourneyHaulierService(
     IWebHostEnvironment env,

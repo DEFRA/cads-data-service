@@ -11,8 +11,8 @@ public class AnimalService(
     IFileService fileService,
     IOptions<MiBffModuleConfiguration> options) : UkvSampleDataService<UkvDto>(env, fileService, options), IAnimalService
 {
-    public Task<IEnumerable<UkvDto>> GetByAnimalIdAsync(string animalId, CancellationToken ct = default)
+    public async Task<IEnumerable<UkvDto>> GetByAnimalIdAsync(Guid animalId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await GetByIdAsync(animalId, cancellationToken);
     }
 }

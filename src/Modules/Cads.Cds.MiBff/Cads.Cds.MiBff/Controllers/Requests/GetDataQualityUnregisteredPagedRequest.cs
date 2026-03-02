@@ -3,10 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers.Requests;
 
-public class GetCohortsRequest : IPagedRequest
+public class GetDataQualityUnregisteredPagedRequest : IPagedRequest
 {
-    [FromRoute] public string AnimalId { get; set; } = string.Empty;
-
     [FromQuery] public int? Page { get; set; }
 
     [FromQuery] public int? PageSize { get; set; }
