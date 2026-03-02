@@ -10,7 +10,7 @@ namespace Cads.Cds.Api.Application.Soap.ServiceContracts;
 public class CattleStatusService : ICattleStatusService
 {
     private readonly ILogger<CattleStatusService> _logger;
- 
+
     public CattleStatusService(ILogger<CattleStatusService> logger)
     {
         _logger = logger;
