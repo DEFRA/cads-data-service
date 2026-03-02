@@ -17,7 +17,7 @@ public static class TestEndpointConstants
 
     // UKV - DataQuality
     public const string BffUkvDataQualityUregisteredEndpoint = "/api/v1/bff/ukv/data-quality/unregistered";
-   
+
     // UKV - Holdings
     public const string BffUkvHoldingsEndpoint = "/api/v1/bff/ukv/holdings";
     public const string BffUkvHoldingsByCphEndpoint = "/api/v1/bff/ukv/holdings/{0}";
@@ -27,7 +27,7 @@ public static class TestEndpointConstants
 
     // UKV - JourneyHauliers
     public const string BffUkvJourneysHauliersEndpoint = "/api/v1/bff/ukv/journeys/hauliers";
-    
+
     // UKV - Movements
     public const string BffUkvMovementsEndpoint = "/api/v1/bff/ukv/movements";
 

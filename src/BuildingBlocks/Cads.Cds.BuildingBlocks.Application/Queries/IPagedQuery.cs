@@ -4,7 +4,7 @@ namespace Cads.Cds.BuildingBlocks.Application.Queries;
 
 public interface IPagedQuery<T> : IQuery<PaginatedResult<T>>
 {
-    int Page { get; set;  }
+    int Page { get; set; }
     int PageSize { get; set; }
 
     /// <summary>

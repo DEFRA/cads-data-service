@@ -5,7 +5,7 @@ namespace Cads.Cds.BuildingBlocks.Application.Queries
     public static class QueryFactory
     {
         public static TQuery CreatePagedQuery<TQuery, TDto>(IPagedRequest request)
-            where TQuery : IPagedQuery<TDto>,new()
+            where TQuery : IPagedQuery<TDto>, new()
         {
             return new TQuery
             {
