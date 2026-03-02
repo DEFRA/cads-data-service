@@ -1,5 +1,5 @@
-using System.ServiceModel;
 using Cads.Cds.Api.Application.Soap;
+using CoreWCF;
 
 namespace Cads.Cds.Api.Application.Services;
 
@@ -9,7 +9,7 @@ namespace Cads.Cds.Api.Application.Services;
 [ServiceContract(Namespace = "http://services.defra.gov.uk/ahw/tracing/cattle/holding")]
 public interface ICattleStatusService
 {
-    [OperationContract(Name = "GetCattleStatusRequest")]
-    [System.ServiceModel.XmlSerializerFormat(Style = System.ServiceModel.OperationFormatStyle.Document)]
+    [OperationContract(Name = "GetCattleStatusRequest", Action = "*", ReplyAction = "*")]
+    [XmlSerializerFormat(Style = OperationFormatStyle.Document)]
     Task<GetCattleStatusResponse> GetCattleStatusRequest(string HoldingId);
 }
