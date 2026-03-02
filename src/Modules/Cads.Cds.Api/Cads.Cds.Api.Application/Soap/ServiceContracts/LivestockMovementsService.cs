@@ -60,7 +60,7 @@ public class LivestockMovementsService : ILivestockMovementsService
     {
         // TODO: Implement actual data retrieval logic
         await Task.CompletedTask;
-        
+
         var cohortAnimals = new CohortAnimals();
         cohortAnimals.CohortAnimal.Add(new CohortAnimal
         {

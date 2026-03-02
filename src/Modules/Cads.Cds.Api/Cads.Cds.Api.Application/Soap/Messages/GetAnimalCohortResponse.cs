@@ -9,7 +9,7 @@ namespace Cads.Cds.Api.Application.Soap.Messages;
 public class GetAnimalCohortResponse
 {
     [XmlElement("CohortAnimals", Namespace = "")]
-     public CohortAnimals? CohortAnimals { get; set; }
+    public CohortAnimals? CohortAnimals { get; set; }
 
     [XmlElement("TraceIdentifier", Namespace = "")]
     public TraceIdentifier? TraceIdentifier { get; set; }
@@ -25,9 +25,8 @@ public class CohortAnimal
 {
     [XmlElement(Namespace = "")]
     public string CohortType { get; set; } = string.Empty;
-    
+
     [XmlElement(Namespace = "")]
     public string DateOfBirth { get; set; } = string.Empty;
 
 }
-

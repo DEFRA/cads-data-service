@@ -31,19 +31,19 @@ public class AnimalCohortQuery
 
     [XmlElement("Locations", Namespace = "")]
     public Locations? Locations { get; set; }
-    
+
     [XmlElement("Gender", Namespace = "")]
     public ReferenceDataType? Gender { get; set; }
-    
+
     [XmlElement("SpeciesCodesAndAnimals", Namespace = "")]
     public SpeciesCodesAndAnimals? SpeciesCodesAndAnimals { get; set; }
-    
+
     [XmlElement(Namespace = "")]
     public string DateOfBirth { get; set; } = string.Empty;
-    
+
     [XmlElement(Namespace = "")]
     public string BirthLocationIdentifier { get; set; } = string.Empty;
-    
+
     [XmlElement("BirthLocationIdentifierType", Namespace = "")]
     public ReferenceDataType? BirthLocationIdentifierType { get; set; }
 }
