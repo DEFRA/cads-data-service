@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using System.ServiceModel;
 using Cads.Cds.Api.Application.Soap;
+using CoreWCF;
 
 namespace Cads.Cds.Api.Application.Services;
 
@@ -43,7 +43,7 @@ public class CattleStatusService : ICattleStatusService
 
             var response = new GetCattleStatusResponse
             {
-                HoldingId = HoldingId!,
+                HoldingId = HoldingId,
                 CattleStatusCSV = await GetCattleStatusData()
             };
 
