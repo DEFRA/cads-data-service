@@ -7,14 +7,14 @@ using Microsoft.Extensions.Options;
 
 namespace Cads.Cds.MiBff.Application.Services;
 
-public class HoldingsService(
+public class HoldingService(
     IWebHostEnvironment env,
     IFileService fileService,
-    IOptions<MiBffModuleConfiguration> options) : IHoldingsService
+    IOptions<MiBffModuleConfiguration> options) : IHoldingService
 {
     private const string StaticDataFileName = "ukv_holdings.json";
 
-    public async Task<IEnumerable<HoldingDTO>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<HoldingDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         if (options.Value.StaticData.Enabled)
         {
@@ -26,7 +26,7 @@ public class HoldingsService(
         return [];
     }
 
-    public async Task<IEnumerable<HoldingDTO>> GetByCphAsync(string cph, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<HoldingDto>> GetByCphAsync(string cph, CancellationToken cancellationToken = default)
     {
         if (options.Value.StaticData.Enabled)
         {
@@ -38,11 +38,11 @@ public class HoldingsService(
         return [];
     }
 
-    private async Task<IEnumerable<HoldingDTO>> LoadHoldingsFromFileAsync(CancellationToken cancellationToken = default)
+    private async Task<IEnumerable<HoldingDto>> LoadHoldingsFromFileAsync(CancellationToken cancellationToken = default)
     {
         var staticRoot = Path.Combine(env.ContentRootPath, options.Value.StaticData.Path);
         var fullPath = Path.Combine(staticRoot, StaticDataFileName);
 
-        return await fileService.ReadJsonFromFileAndReturnAsModelAsync<IEnumerable<HoldingDTO>>(fullPath, cancellationToken) ?? [];
+        return await fileService.ReadJsonFromFileAndReturnAsModelAsync<IEnumerable<HoldingDto>>(fullPath, cancellationToken) ?? [];
     }
 }

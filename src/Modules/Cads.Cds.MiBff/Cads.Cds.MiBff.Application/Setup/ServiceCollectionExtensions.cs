@@ -22,11 +22,11 @@ public static class ServiceCollectionExtensions
     public static void RegisterAdapters(this IServiceCollection services)
     {
         services.AddScoped<HoldingsQueryAdapter>();
-        services.AddScoped<HoldingsQueryByCphAdapter>();
+        services.AddScoped<HoldingsQueryAdapter>();
     }
 
     public static void RegisterServices(this IServiceCollection services)
     {
-        services.AddTransient<IHoldingsService, HoldingsService>();
+        services.AddTransient<IHoldingService, HoldingService>();
     }
 }

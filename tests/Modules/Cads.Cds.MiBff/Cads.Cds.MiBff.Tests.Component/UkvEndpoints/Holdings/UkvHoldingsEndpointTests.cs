@@ -35,7 +35,7 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
         result.Links.Self.Should().NotBeNull().And.Contain("api/v1/bff/ukv/holdings");
 
         var dataStr = JsonSerializer.Serialize(result.Data);
-        var data = JsonSerializer.Deserialize<JsonResponseData<HoldingDTO>>(dataStr);
+        var data = JsonSerializer.Deserialize<JsonResponseData<HoldingDto>>(dataStr);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(5);
     }
@@ -66,7 +66,7 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
         result.Links.Self.Should().NotBeNull().And.Contain("api/v1/bff/ukv/holdings");
 
         var dataStr = JsonSerializer.Serialize(result.Data);
-        var data = JsonSerializer.Deserialize<JsonResponseData<HoldingDTO>>(dataStr);
+        var data = JsonSerializer.Deserialize<JsonResponseData<HoldingDto>>(dataStr);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(1);
     }
