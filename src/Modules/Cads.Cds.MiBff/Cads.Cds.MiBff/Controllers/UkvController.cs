@@ -12,6 +12,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
 
+    [ApiMessage("Message text from GetHoldings endpoint", "Description text from GetHoldings endpoint")]
     [ResponseWithMetaData]
     [HttpGet("holdings")]
     public async Task<IActionResult> GetHoldings([FromQuery] GetHoldingsRequest request)
@@ -30,6 +31,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
         return Ok(result);
     }
 
+    [ApiMessage("Message text from GetHoldingsByCph endpoint", "Description text from GetHoldingsByCph endpoint")]
     [ResponseWithMetaData]
     [HttpGet("holdings/{cph}")]
     public async Task<IActionResult> GetHoldingsByCph([FromRoute] string cph)
