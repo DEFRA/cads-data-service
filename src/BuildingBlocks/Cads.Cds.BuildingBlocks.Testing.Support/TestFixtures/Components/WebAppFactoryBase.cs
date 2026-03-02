@@ -7,7 +7,10 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -15,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Moq;
 using System.Net;
 
@@ -71,8 +75,65 @@ public abstract class WebAppFactoryBase<TStart>(
         });
     }
 
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        if (_configOverrides.Count > 0)
+        {
+            builder.ConfigureAppConfiguration(config =>
+            {
+                config.AddInMemoryCollection(_configOverrides);
+            });
+        }
+
+        return base.CreateHost(builder);
+    }
+
+    public T GetService<T>() where T : notnull
+    {
+        return Services.GetRequiredService<T>();
+    }
+
     public void OverrideService(Action<IServiceCollection> action)
         => _serviceOverrides.Add(action);
+
+    public void OverrideServiceAsSingleton<T>(T implementation) where T : class
+    {
+        _serviceOverrides.Add(services =>
+        {
+            services.RemoveAll<T>();
+            services.AddSingleton(implementation);
+        });
+    }
+
+    public void OverrideServiceAsTransient<T, TH>()
+        where T : class
+        where TH : class, T
+    {
+        _serviceOverrides.Add(services =>
+        {
+            services.RemoveAll<T>();
+            services.AddTransient<T, TH>();
+        });
+    }
+
+    public void OverrideServiceAsTransient<T>(T instance)
+        where T : class
+    {
+        _serviceOverrides.Add(services =>
+        {
+            services.RemoveAll<T>();
+            services.AddTransient(_ => instance);
+        });
+    }
+
+    public void OverrideServiceAsScoped<T>(T implementation) where T : class
+    {
+        _serviceOverrides.Add(services =>
+        {
+            services.RemoveAll<T>();
+            services.AddScoped(_ => implementation);
+        });
+    }
 
     public void ResetMocks()
     {
@@ -85,10 +146,31 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
+
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__EnableApiKey", "true");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__ApiGatewayExists", "true");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__Authority", "https://fake-authority/");
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)
     {
+        services.RemoveAll<IConfigureNamedOptions<JwtBearerOptions>>();
+
+        services.RemoveAll<IAuthenticationSchemeProvider>();
+
+        services.AddSingleton<IAuthenticationSchemeProvider>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<AuthenticationOptions>>();
+            var provider = new AuthenticationSchemeProvider(options);
+
+            provider.RemoveScheme("Bearer");
+            provider.AddScheme(new AuthenticationScheme(
+                FakeJwtHandler.SchemeName,
+                FakeJwtHandler.SchemeName,
+                typeof(FakeJwtHandler)));
+
+            return provider;
+        });
     }
 
     private void ResetInfrastructureMocks()

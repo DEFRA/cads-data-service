@@ -1,5 +1,5 @@
-using Cads.Cds.ApiSurface.Dtos.Common.JsonResponsesWrap;
 using Cads.Cds.BuildingBlocks.Application.Attributes;
+using Cads.Cds.BuildingBlocks.Application.Queries.JsonResponses;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using System.Text;
@@ -13,17 +13,13 @@ public class ApiResponseMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var endpoint = context.GetEndpoint();
-        var shouldWrap = endpoint?.Metadata.GetMetadata<ResponseWithMetaDataAttribute>() != null;
-
-        if (!shouldWrap)
+        if (!ShouldWrap(context))
         {
             await _next(context);
             return;
         }
 
         var originalBodyStream = context.Response.Body;
-
         using var memoryStream = new MemoryStream();
         context.Response.Body = memoryStream;
 
@@ -31,51 +27,113 @@ public class ApiResponseMiddleware(RequestDelegate next)
 
         memoryStream.Seek(0, SeekOrigin.Begin);
         var bodyText = await new StreamReader(memoryStream).ReadToEndAsync();
-        memoryStream.Seek(0, SeekOrigin.Begin);
 
-        if (context.Response.ContentType != null &&
-            context.Response.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase) &&
-            !bodyText.TrimStart().StartsWith("{\"meta\""))
+        if (!ShouldProcessJson(context, bodyText))
         {
-            object? parsedData = null;
-            try
-            {
-                parsedData = JsonSerializer.Deserialize<object>(bodyText, JsonDefaults.DefaultOptions) ?? bodyText;
-            }
-            catch
-            {
-                parsedData = bodyText;
-            }
-
-            var apiResponse = new JsonResponseWithMetaData
-            {
-                Meta = new JsonResponseMetaData
-                {
-                    Service = string.Empty,
-                    Version = string.Empty,
-                    RequestId = CorrelationIdContext.Value,
-                    Timestamp = DateTime.UtcNow,
-                    Endpoint = string.Empty,
-                    Status = GetDefaultMessage(context.Response.StatusCode)
-                },
-                Data = parsedData,
-                Links = new JsonResponseLinks
-                {
-                    Self = $"{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}{context.Request.QueryString}"
-                }
-            };
-
-            var wrappedJson = JsonSerializer.Serialize(apiResponse, JsonDefaults.DefaultOptionsWithIndented);
-
-            context.Response.ContentType = "application/json";
-            context.Response.ContentLength = Encoding.UTF8.GetByteCount(wrappedJson);
-
-            await originalBodyStream.WriteAsync(Encoding.UTF8.GetBytes(wrappedJson));
-        }
-        else
-        {
+            memoryStream.Seek(0, SeekOrigin.Begin);
             await memoryStream.CopyToAsync(originalBodyStream);
+            return;
         }
+
+        var dataEnvelope = ParseDataEnvelope(bodyText)
+            ?? WrapRawPayload(bodyText);
+
+        ApplyMessageAttributes(context, dataEnvelope);
+        EnsureParameters(context, dataEnvelope);
+
+        var apiResponse = BuildResponse(context, dataEnvelope);
+        var wrappedJson = JsonSerializer.Serialize(apiResponse, JsonDefaults.DefaultOptionsWithIndented);
+
+        context.Response.ContentType = "application/json";
+        context.Response.ContentLength = Encoding.UTF8.GetByteCount(wrappedJson);
+
+        await originalBodyStream.WriteAsync(Encoding.UTF8.GetBytes(wrappedJson));
+    }
+
+    private static bool ShouldWrap(HttpContext context)
+    {
+        var endpoint = context.GetEndpoint();
+        return endpoint?.Metadata.GetMetadata<ResponseWithMetaDataAttribute>() != null;
+    }
+
+    private static bool ShouldProcessJson(HttpContext context, string body)
+    {
+        var isJson = context.Response.ContentType?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true;
+        var alreadyWrapped = body.TrimStart().StartsWith("{\"meta\"", StringComparison.Ordinal);
+        return isJson && !alreadyWrapped;
+    }
+
+    private static JsonResponseData<object>? ParseDataEnvelope(string body)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<JsonResponseData<object>>(body, JsonDefaults.DefaultOptions);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static JsonResponseData<object> WrapRawPayload(string body)
+    {
+        object? raw;
+
+        try
+        {
+            raw = JsonSerializer.Deserialize<object>(body, JsonDefaults.DefaultOptions) ?? body;
+        }
+        catch
+        {
+            raw = body;
+        }
+
+        return new JsonResponseData<object>
+        {
+            Results = raw is IEnumerable<object> list ? list : [raw]
+        };
+    }
+
+    private static void ApplyMessageAttributes(HttpContext context, JsonResponseData<object> envelope)
+    {
+        var endpoint = context.GetEndpoint();
+        var attr = endpoint?.Metadata.GetMetadata<ApiMessageAttribute>();
+
+        if (attr != null)
+        {
+            envelope.Message = attr.Message;
+            envelope.Description = attr.Description;
+        }
+    }
+
+    private static void EnsureParameters(HttpContext context, JsonResponseData<object> envelope)
+    {
+        envelope.Parameters ??= new JsonResponseDataParameters
+        {
+            Path = context.Request.Path,
+            Query = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : null
+        };
+    }
+
+    private static JsonResponseWithMetaData BuildResponse(HttpContext context, JsonResponseData<object> envelope)
+    {
+        return new JsonResponseWithMetaData
+        {
+            Meta = new JsonResponseMetaData
+            {
+                Service = string.Empty,
+                Version = string.Empty,
+                RequestId = CorrelationIdContext.Value,
+                Timestamp = DateTime.UtcNow,
+                Endpoint = context.Request.Path,
+                Status = GetDefaultMessage(context.Response.StatusCode)
+            },
+            Data = envelope,
+            Links = new JsonResponseLinks
+            {
+                Self = $"{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}{context.Request.QueryString}"
+            }
+        };
     }
 
     private static string GetDefaultMessage(int statusCode) =>
