@@ -12,7 +12,6 @@ public static class ServiceCollectionExtensions
         services.AddApiInfrastructureLayer(config);
 
         services.AddApiApplicationLayer();
-
         return services;
     }
 }
