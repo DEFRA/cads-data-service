@@ -24,7 +24,7 @@ public abstract class UkvSampleDataService<TDto>(
         return [];
     }
 
-    public async Task<IEnumerable<TDto>> GetByidAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<TDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         if (options.Value.StaticData.Enabled)
         {

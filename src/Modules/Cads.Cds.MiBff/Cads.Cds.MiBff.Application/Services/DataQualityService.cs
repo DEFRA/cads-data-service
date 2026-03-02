@@ -12,8 +12,8 @@ public class DataQualityService(
     IFileService fileService,
     IOptions<MiBffModuleConfiguration> options) : UkvSampleDataService<UkvDto>(env, fileService, options), IDataQualityService
 {
-    public Task<IEnumerable<UkvDto>> GetUnregisteredAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UkvDto>> GetUnregisteredAsync(CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await GetAllAsync(cancellationToken);
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers.Requests;
 
-public class GetDataQualityUnregisteredRequest : IPagedRequest
+public class GetAnimalsPagedRequest : IPagedRequest
 {
     [FromQuery] public int? Page { get; set; }
 

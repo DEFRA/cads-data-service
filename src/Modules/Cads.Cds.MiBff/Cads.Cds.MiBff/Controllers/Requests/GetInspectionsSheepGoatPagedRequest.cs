@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers.Requests;
 
-public class GetMovementsRequest : IPagedRequest
+public class GetInspectionsSheepGoatPagedRequest : IPagedRequest
 {
     [FromQuery] public int? Page { get; set; }
+
     [FromQuery] public int? PageSize { get; set; }
+
     [FromQuery] public string? Order { get; set; }
+
     [FromQuery] public string? Sort { get; set; }
 }

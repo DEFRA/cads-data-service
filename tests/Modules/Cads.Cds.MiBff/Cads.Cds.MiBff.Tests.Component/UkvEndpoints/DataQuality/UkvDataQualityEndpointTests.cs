@@ -5,17 +5,17 @@ using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
 using System.Net.Http.Json;
 
-namespace Cads.Cds.MiBff.Tests.Component.UkvEndpoints.Holdings;
+namespace Cads.Cds.MiBff.Tests.Component.UkvEndpoints.DataQuality;
 
-public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixture<MiBffTestFixture>
+public class UkvDataQualityEndpointTests(MiBffTestFixture testFixture) : IClassFixture<MiBffTestFixture>
 {
     private readonly MiBffTestFixture _testFixture = testFixture;
 
     [Fact]
-    public async Task GetHoldings_Endpoint_Uses_Defaults_And_ReturnsOk()
+    public async Task GetHoldings_Endpoint_UsesDefaults_And_Returns_Ok()
     {
         // Arrange
-        var endpoint = TestEndpointConstants.BffUkvHoldingsEndpoint;
+        var endpoint = TestEndpointConstants.BffUkvDataQualityUregisteredEndpoint;
 
         // Act
         var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
@@ -28,32 +28,9 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
 
         ValidateResponseWithMetaData(result, endpoint);
 
-        var data = MiBffTestFixture.GetResponseData<HoldingDto>(result.Data);
+        var data = MiBffTestFixture.GetResponseData<UkvDto>(result.Data);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(5);
-    }
-
-    [Fact]
-    public async Task GetHoldingsByCph_Endpoint_Passes_Cph_And_Returns_Ok()
-    {
-        // Arrange
-        var cph = "ABC123";
-        var endpoint = string.Format(TestEndpointConstants.BffUkvHoldingsByCphEndpoint, cph);
-
-        // Act
-        var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
-
-        // Assert
-        response.IsSuccessStatusCode.Should().BeTrue();
-
-        var result = await response.Content.ReadFromJsonAsync<JsonResponseWithMetaData>(TestContext.Current.CancellationToken);
-        result.Should().NotBeNull();
-
-        ValidateResponseWithMetaData(result, endpoint);
-
-        var data = MiBffTestFixture.GetResponseData<HoldingDto>(result.Data);
-        data.Should().NotBeNull();
-        data.Results.Should().NotBeNull().And.HaveCount(1);
     }
 
     private static void ValidateResponseWithMetaData(JsonResponseWithMetaData response, string expectedEndpoint)

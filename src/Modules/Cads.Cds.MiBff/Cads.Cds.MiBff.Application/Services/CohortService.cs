@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Files.Abstractions;
 using Cads.Cds.MiBff.Core.Configuration;
 using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Core.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -11,8 +12,8 @@ public class CohortService(
     IFileService fileService,
     IOptions<MiBffModuleConfiguration> options) : UkvSampleDataService<UkvDto>(env, fileService, options), ICohortService
 {
-    public Task<IEnumerable<UkvDto>> GetByAnimalIdAsync(string animalId, CancellationToken ct = default)
+    public async Task<IEnumerable<UkvDto>> GetByAnimalIdAsync(Guid animalId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await GetByIdAsync(animalId, cancellationToken);
     }
 }

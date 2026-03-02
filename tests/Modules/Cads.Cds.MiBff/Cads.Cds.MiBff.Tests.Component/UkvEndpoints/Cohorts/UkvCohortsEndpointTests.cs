@@ -5,17 +5,17 @@ using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
 using System.Net.Http.Json;
 
-namespace Cads.Cds.MiBff.Tests.Component.UkvEndpoints.Holdings;
+namespace Cads.Cds.MiBff.Tests.Component.UkvEndpoints.Cohorts;
 
-public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixture<MiBffTestFixture>
+public class UkvCohortsEndpointTests(MiBffTestFixture testFixture) : IClassFixture<MiBffTestFixture>
 {
     private readonly MiBffTestFixture _testFixture = testFixture;
 
     [Fact]
-    public async Task GetHoldings_Endpoint_Uses_Defaults_And_ReturnsOk()
+    public async Task GetCohorts_Endpoint_Uses_Defaults_And_Returns_Ok()
     {
         // Arrange
-        var endpoint = TestEndpointConstants.BffUkvHoldingsEndpoint;
+        var endpoint = TestEndpointConstants.BffUkvCohortsEndpoint;
 
         // Act
         var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
@@ -28,17 +28,17 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
 
         ValidateResponseWithMetaData(result, endpoint);
 
-        var data = MiBffTestFixture.GetResponseData<HoldingDto>(result.Data);
+        var data = MiBffTestFixture.GetResponseData<UkvDto>(result.Data);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(5);
     }
 
     [Fact]
-    public async Task GetHoldingsByCph_Endpoint_Passes_Cph_And_Returns_Ok()
+    public async Task GetCohortsByAnimalId_Endpoint_Passes_AnimalId_And_Returns_Ok()
     {
         // Arrange
-        var cph = "ABC123";
-        var endpoint = string.Format(TestEndpointConstants.BffUkvHoldingsByCphEndpoint, cph);
+        var animalId = "e6f2cb0f-6702-4060-951f-b32e018b3b92";
+        var endpoint = string.Format(TestEndpointConstants.BffUkvCohortsByAnimalIdEndpoint, animalId);
 
         // Act
         var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
@@ -51,7 +51,7 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
 
         ValidateResponseWithMetaData(result, endpoint);
 
-        var data = MiBffTestFixture.GetResponseData<HoldingDto>(result.Data);
+        var data = MiBffTestFixture.GetResponseData<UkvDto>(result.Data);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(1);
     }

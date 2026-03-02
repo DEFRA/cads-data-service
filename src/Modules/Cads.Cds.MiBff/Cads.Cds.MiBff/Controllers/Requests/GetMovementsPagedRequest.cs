@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers.Requests;
 
-public class GetJourneyHauliersRequest : IPagedRequest
+public class GetMovementsPagedRequest : IPagedRequest
 {
     [FromQuery] public int? Page { get; set; }
     [FromQuery] public int? PageSize { get; set; }
