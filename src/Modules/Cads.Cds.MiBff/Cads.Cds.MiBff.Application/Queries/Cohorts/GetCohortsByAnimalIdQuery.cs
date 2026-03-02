@@ -6,7 +6,7 @@ namespace Cads.Cds.MiBff.Application.Queries.Cohorts;
 
 public class GetCohortsByAnimalIdQuery : IPagedQuery<UkvDto>
 {
-    public Guid AnimalId {get; set; }
+    public Guid AnimalId { get; set; }
 
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 10;
