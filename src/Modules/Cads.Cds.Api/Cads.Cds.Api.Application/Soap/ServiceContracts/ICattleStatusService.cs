@@ -1,7 +1,7 @@
-using Cads.Cds.Api.Application.Soap;
+using Cads.Cds.Api.Application.Soap.Messages;
 using CoreWCF;
 
-namespace Cads.Cds.Api.Application.Services;
+namespace Cads.Cds.Api.Application.Soap.ServiceContracts;
 
 /// <summary>
 /// Service contract for Cattle Status SOAP operations

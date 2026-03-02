@@ -1,5 +1,4 @@
-using Cads.Cds.Api.Application.Services;
-using CoreWCF;
+using Cads.Cds.Api.Application.Soap.ServiceContracts;
 using CoreWCF.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,9 +18,6 @@ public static class ServiceCollectionExtensions
         // Register interfaces for backward compatibility
         services.AddScoped<ICattleStatusService, CattleStatusService>();
         services.AddScoped<ILivestockMovementsService, LivestockMovementsService>();
-
-        // Register helper services
-        services.AddScoped<SoapHeaderService>();
 
         return services;
     }
