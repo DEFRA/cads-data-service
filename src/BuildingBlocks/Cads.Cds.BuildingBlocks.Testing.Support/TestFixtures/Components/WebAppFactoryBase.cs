@@ -41,6 +41,10 @@ public abstract class WebAppFactoryBase<TStart>(
     {
         builder.UseSetting(WebHostDefaults.ApplicationKey, typeof(TStart).Assembly.FullName);
         builder.UseContentRoot(AppContext.BaseDirectory);
+        builder.UseEnvironment("Test");
+
+        // Configure server URLs for CoreWCF
+        builder.UseUrls("http://localhost:5000");
 
         SetTestEnvironmentVariables();
 

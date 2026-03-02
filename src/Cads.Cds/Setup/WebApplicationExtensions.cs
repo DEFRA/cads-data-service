@@ -40,8 +40,6 @@ public static class WebApplicationExtensions
 
         app.MapControllers();
 
-        app.UseApiSoapEndpoints();
-
         app.MapGet("/", () => "Alive!").AllowAnonymous();
 
         app.MapHealthChecks("/health", new HealthCheckOptions()
@@ -63,5 +61,7 @@ public static class WebApplicationExtensions
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
         }).AllowAnonymous();
+
+        app.UseApiSoapEndpoints();
     }
 }
