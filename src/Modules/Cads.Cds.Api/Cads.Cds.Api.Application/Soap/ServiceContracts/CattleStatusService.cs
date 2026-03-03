@@ -16,7 +16,7 @@ public class CattleStatusService : ICattleStatusService
         _logger = logger;
     }
 
-    public async Task<GetCattleStatusResponse> GetCattleStatusRequest(string HoldingId)
+    public async Task<GetCattleStatusResponse> GetCattleStatusRequest(string? HoldingId)
     {
         if (string.IsNullOrWhiteSpace(HoldingId))
         {
