@@ -1,12 +1,9 @@
+using Cads.Cds.BuildingBlocks.Application.Requests;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Cads.Cds.MiBff.Application.Controllers.Requests;
+namespace Cads.Cds.MiBff.Controllers.Requests;
 
 public class GetHoldingsRequest
 {
-    [FromQuery] public int? Page { get; set; }
-    [FromQuery] public int? PageSize { get; set; }
-    [FromQuery] public string? Order { get; set; }
-    [FromQuery] public string? Sort { get; set; }
-    [FromQuery] public DateTime? LastModified { get; internal set; }
+    [FromRoute] public required string Cph { get; set; }
 }
