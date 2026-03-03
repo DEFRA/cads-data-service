@@ -10,7 +10,7 @@ namespace Cads.Cds.Tests.Unit.Authentication;
 
 public class AuthenticationHandlerTests
 {
-    private readonly Mock<IHoldingsService> _holdingsServiceMock = new();
+    private readonly Mock<IHoldingService> _holdingsServiceMock = new();
 
     private static string GetBffUkvHoldingsByCphEndpoint
         => string.Format(TestEndpointConstants.BffUkvHoldingsByCphEndpoint, Guid.NewGuid().ToString());

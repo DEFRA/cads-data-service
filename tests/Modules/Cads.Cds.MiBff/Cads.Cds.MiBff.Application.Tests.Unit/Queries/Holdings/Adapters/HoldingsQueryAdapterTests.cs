@@ -14,7 +14,7 @@ public class HoldingsQueryAdapterTests
     {
         var holdings = HoldingsSampleDataHelper.GetSampleHoldings();
 
-        var mockHoldingService = new Mock<IHoldingsService>();
+        var mockHoldingService = new Mock<IHoldingService>();
         mockHoldingService
           .Setup(s => s.GetAllAsync(It.IsAny<CancellationToken>()))
           .ReturnsAsync(holdings);
@@ -27,7 +27,7 @@ public class HoldingsQueryAdapterTests
             PageSize = 20
         };
 
-        var (items, count) = await adapter.GetHoldingsAsync(query, TestContext.Current.CancellationToken);
+        var (items, count) = await adapter.GetAsync(query, TestContext.Current.CancellationToken);
 
         items.Should().BeEquivalentTo(holdings);
         count.Should().Be(5);

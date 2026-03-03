@@ -5,12 +5,10 @@ using Cads.Cds.MiBff.Core.DTOs;
 namespace Cads.Cds.MiBff.Application.Queries.Holdings;
 
 public class GetHoldingsQueryHandler(HoldingsQueryAdapter adapter)
-    : PagedQueryHandler<GetHoldingsQuery, HoldingDTO>
+    : PagedQueryHandler<GetHoldingsQuery, HoldingDto>
 {
-    private readonly HoldingsQueryAdapter _adapter = adapter;
-
-    protected override async Task<(IEnumerable<HoldingDTO> Items, int TotalCount)> FetchAsync(GetHoldingsQuery query, CancellationToken cancellationToken)
+    protected override async Task<(IEnumerable<HoldingDto> Items, int TotalCount)> FetchAsync(GetHoldingsQuery query, CancellationToken cancellationToken)
     {
-        return await _adapter.GetHoldingsAsync(query, cancellationToken);
+        return await adapter.GetAsync(query, cancellationToken);
     }
 }

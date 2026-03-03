@@ -4,7 +4,7 @@ namespace Cads.Cds.MiBff.Application.Tests.Unit.Specimens;
 
 internal class HoldingsSampleDataHelper
 {
-    public static List<HoldingDTO> GetSampleHoldings() =>
+    public static List<HoldingDto> GetSampleHoldings() =>
     [
         new() { Id = Guid.NewGuid(), Name = "Holding 1", Cph = "ABC123" },
         new() { Id = Guid.NewGuid(), Name = "Holding 2", Cph = "DEF123" },

@@ -3,4 +3,4 @@ using Cads.Cds.MiBff.Core.DTOs;
 
 namespace Cads.Cds.MiBff.Application.Queries.Holdings;
 
-public record GetHoldingsByCphQuery(string cph) : IDefaultQuery<HoldingDTO>;
+public record GetHoldingsByCphQuery(string cph) : IDefaultQuery<HoldingDto>;

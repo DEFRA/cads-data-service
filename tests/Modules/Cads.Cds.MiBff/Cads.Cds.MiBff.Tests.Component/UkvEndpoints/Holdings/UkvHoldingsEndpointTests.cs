@@ -4,7 +4,6 @@ using Cads.Cds.MiBff.Core.DTOs;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Cads.Cds.MiBff.Tests.Component.UkvEndpoints.Holdings;
 
@@ -13,7 +12,7 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
     private readonly MiBffTestFixture _testFixture = testFixture;
 
     [Fact]
-    public async Task GetHoldings_Endpoint_UsesDefaults_And_ReturnsOk()
+    public async Task GetHoldings_Endpoint_Uses_Defaults_And_ReturnsOk()
     {
         // Arrange
         var endpoint = TestEndpointConstants.BffUkvHoldingsEndpoint;
@@ -29,13 +28,13 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
 
         ValidateResponseWithMetaData(result, endpoint);
 
-        var data = GetResponseData(result.Data);
+        var data = MiBffTestFixture.GetResponseData<HoldingDto>(result.Data);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(5);
     }
 
     [Fact]
-    public async Task GetHoldingsByCph_Endpoint_PassesCph_And_ReturnsOk()
+    public async Task GetHoldingsByCph_Endpoint_Passes_Cph_And_Returns_Ok()
     {
         // Arrange
         var cph = "ABC123";
@@ -52,7 +51,7 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
 
         ValidateResponseWithMetaData(result, endpoint);
 
-        var data = GetResponseData(result.Data);
+        var data = MiBffTestFixture.GetResponseData<HoldingDto>(result.Data);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(1);
     }
@@ -68,12 +67,5 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
         response.Links.Self.Should().NotBeNull().And.Contain(expectedEndpoint);
 
         response.Data.Should().NotBeNull();
-    }
-
-    private static JsonResponseData<HoldingDTO>? GetResponseData(object? responseData)
-    {
-        if (responseData == null) return null;
-
-        return JsonSerializer.Deserialize<JsonResponseData<HoldingDTO>>(JsonSerializer.Serialize(responseData));
     }
 }
