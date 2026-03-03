@@ -15,7 +15,7 @@ public class LivestockMovementsServiceTests
         var logger = Mock.Of<ILogger<LivestockMovementsService>>();
         var sut = new LivestockMovementsService(logger);
 
-        var act = () =>  sut.GetAnimalCohortRequest(null, null).GetAwaiter().GetResult();
+        var act = () => sut.GetAnimalCohortRequest(null, null).GetAwaiter().GetResult();
 
         act.Should().Throw<FaultException>().WithMessage("ServiceOptions cannot be null");
     }
@@ -26,8 +26,8 @@ public class LivestockMovementsServiceTests
         var logger = Mock.Of<ILogger<LivestockMovementsService>>();
         var sut = new LivestockMovementsService(logger);
         var serviceOptions = new ServiceOptions();
-        
-        var act = () =>  sut.GetAnimalCohortRequest(serviceOptions, null).GetAwaiter().GetResult();
+
+        var act = () => sut.GetAnimalCohortRequest(serviceOptions, null).GetAwaiter().GetResult();
 
         act.Should().Throw<FaultException>().WithMessage("AnimalCohortQuery cannot be null");
     }
@@ -47,7 +47,7 @@ public class LivestockMovementsServiceTests
             }
         };
 
-        var result =  sut.GetAnimalCohortRequest(serviceOptions, animalCohortQuery).GetAwaiter().GetResult();
+        var result = sut.GetAnimalCohortRequest(serviceOptions, animalCohortQuery).GetAwaiter().GetResult();
 
         result.Should().NotBeNull();
         result.TraceIdentifier.Should().Be(animalCohortQuery.TraceIdentifier);
