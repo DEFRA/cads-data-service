@@ -1,15 +1,11 @@
-using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
 using Cads.Cds.MiBff.Core.DTOs;
 using FluentValidation;
 
 namespace Cads.Cds.MiBff.Application.Queries.Inspections;
 
-public class GetInspectionsQuery : IPagedQuery<UkvDto>
+public class GetInspectionsQuery : PagedQuery<UkvDto>
 {
-    public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
-    public string? Order { get; set; }
-    public string? Sort { get; set; }
 }
 
 public class GetInspectionsQueryValidator : AbstractValidator<GetInspectionsQuery>

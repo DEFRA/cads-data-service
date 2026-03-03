@@ -1,16 +1,11 @@
-using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
 using Cads.Cds.MiBff.Core.DTOs;
 using FluentValidation;
 
 namespace Cads.Cds.MiBff.Application.Queries.Zones;
 
-public class GetZonesQuery : IPagedQuery<UkvDto>
+public class GetZonesQuery : PagedQuery<UkvDto>
 {
-    public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
-    public string? Order { get; set; }
-    public string? Sort { get; set; }
-    public DateTime? LastModified { get; set; }
 }
 
 public class GetZonesQueryValidator : AbstractValidator<GetZonesQuery>

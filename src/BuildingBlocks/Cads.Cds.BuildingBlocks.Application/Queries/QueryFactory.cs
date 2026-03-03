@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
 using Cads.Cds.BuildingBlocks.Application.Requests;
 
 namespace Cads.Cds.BuildingBlocks.Application.Queries
