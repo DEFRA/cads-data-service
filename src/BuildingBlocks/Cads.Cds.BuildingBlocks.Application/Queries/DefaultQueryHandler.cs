@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
+namespace Cads.Cds.BuildingBlocks.Application.Queries;
 
 public abstract class DefaultQueryHandler<TQuery, TItem>
     : IRequestHandler<TQuery, DefaultResult<TItem>>

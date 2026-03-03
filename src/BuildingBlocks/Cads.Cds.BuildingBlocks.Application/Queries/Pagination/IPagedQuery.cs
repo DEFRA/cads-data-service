@@ -1,6 +1,4 @@
-using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
-
-namespace Cads.Cds.BuildingBlocks.Application.Queries;
+namespace Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
 
 public interface IPagedQuery<T> : IQuery<PaginatedResult<T>>
 {

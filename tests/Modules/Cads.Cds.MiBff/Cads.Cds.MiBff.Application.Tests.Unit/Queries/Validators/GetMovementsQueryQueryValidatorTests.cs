@@ -1,16 +1,17 @@
-using Cads.Cds.MiBff.Application.Queries.Zones;
+using Cads.Cds.MiBff.Application.Queries.Holdings;
+using Cads.Cds.MiBff.Application.Queries.Movements;
 using FluentValidation.TestHelper;
 
-namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Holdings.Validators;
+namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;
 
-public class GetZonesQueryValidatorTests
+public class GetMovementsQueryQueryValidatorTests
 {
-    private readonly GetZonesQueryValidator _sut = new();
+    private readonly GetMovementsQueryQueryValidator _sut = new();
 
     [Fact]
     public void Page_WhenZeroOrNegative_ShouldHaveValidationError()
     {
-        var model = new GetZonesQuery { Page = 0 };
+        var model = new GetMovementsQuery { Page = 0 };
 
         var result = _sut.TestValidate(model);
 
@@ -20,7 +21,7 @@ public class GetZonesQueryValidatorTests
     [Fact]
     public void Page_WhenPositive_ShouldBeValid()
     {
-        var model = new GetZonesQuery { Page = 1 };
+        var model = new GetMovementsQuery { Page = 1 };
 
         var result = _sut.TestValidate(model);
 
@@ -30,7 +31,7 @@ public class GetZonesQueryValidatorTests
     [Fact]
     public void PageSize_WhenZeroOrNegative_ShouldHaveValidationError()
     {
-        var model = new GetZonesQuery { PageSize = 0 };
+        var model = new GetMovementsQuery { PageSize = 0 };
 
         var result = _sut.TestValidate(model);
 
@@ -40,7 +41,7 @@ public class GetZonesQueryValidatorTests
     [Fact]
     public void PageSize_WhenPositive_ShouldBeValid()
     {
-        var model = new GetZonesQuery { PageSize = 10 };
+        var model = new GetMovementsQuery { PageSize = 10 };
 
         var result = _sut.TestValidate(model);
 
@@ -52,7 +53,7 @@ public class GetZonesQueryValidatorTests
     [InlineData("desc")]
     public void Sort_WhenValid_ShouldNotHaveValidationError(string sort)
     {
-        var model = new GetZonesQuery { Sort = sort, Order = "name" };
+        var model = new GetMovementsQuery { Sort = sort, Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -65,7 +66,7 @@ public class GetZonesQueryValidatorTests
     [InlineData("invalid")]
     public void Sort_WhenInvalid_ShouldHaveValidationError(string sort)
     {
-        var model = new GetZonesQuery { Sort = sort, Order = "name" };
+        var model = new GetMovementsQuery { Sort = sort, Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -75,7 +76,7 @@ public class GetZonesQueryValidatorTests
     [Fact]
     public void Order_WhenSortProvidedAndOrderMissing_ShouldHaveValidationError()
     {
-        var model = new GetZonesQuery { Sort = "asc", Order = null };
+        var model = new GetMovementsQuery { Sort = "asc", Order = null };
 
         var result = _sut.TestValidate(model);
 
@@ -85,7 +86,7 @@ public class GetZonesQueryValidatorTests
     [Fact]
     public void Order_WhenSortProvidedAndOrderPresent_ShouldBeValid()
     {
-        var model = new GetZonesQuery { Sort = "asc", Order = "name" };
+        var model = new GetMovementsQuery { Sort = "asc", Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -95,7 +96,7 @@ public class GetZonesQueryValidatorTests
     [Fact]
     public void Order_WhenSortNotProvided_ShouldNotBeValidated()
     {
-        var model = new GetZonesQuery { Sort = null, Order = null };
+        var model = new GetMovementsQuery { Sort = null, Order = null };
 
         var result = _sut.TestValidate(model);
 

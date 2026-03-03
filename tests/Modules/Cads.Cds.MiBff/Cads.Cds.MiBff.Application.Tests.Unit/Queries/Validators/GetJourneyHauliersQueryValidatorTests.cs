@@ -1,7 +1,7 @@
 using Cads.Cds.MiBff.Application.Queries.JourneyHauliers;
 using FluentValidation.TestHelper;
 
-namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Holdings.Validators;
+namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;
 
 public class GetJourneyHauliersQueryValidatorTests
 {

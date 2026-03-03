@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
+using Cads.Cds.BuildingBlocks.Application.Queries;
 using Cads.Cds.MiBff.Application.Queries.Holdings.Adapters;
 using Cads.Cds.MiBff.Core.DTOs;
 
