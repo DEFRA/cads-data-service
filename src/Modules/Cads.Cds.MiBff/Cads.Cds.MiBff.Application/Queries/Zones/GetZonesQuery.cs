@@ -13,9 +13,9 @@ public class GetZonesQuery : IPagedQuery<UkvDto>
     public DateTime? LastModified { get; set; }
 }
 
-public class GetZonesQueryQueryQueryValidator : AbstractValidator<GetZonesQuery>
+public class GetZonesQueryValidator : AbstractValidator<GetZonesQuery>
 {
-    public GetZonesQueryQueryQueryValidator()
+    public GetZonesQueryValidator()
     {
         RuleFor(x => x.Page).GreaterThan(0);
         RuleFor(x => x.PageSize).GreaterThan(0);

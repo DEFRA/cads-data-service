@@ -2,7 +2,7 @@ using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Application.Attributes;
 using Cads.Cds.BuildingBlocks.Application.Queries;
 using Cads.Cds.MiBff.Application.Queries.Animals;
-using Cads.Cds.MiBff.Application.Queries.Audits;
+using Cads.Cds.MiBff.Application.Queries.Audit;
 using Cads.Cds.MiBff.Application.Queries.Cohorts;
 using Cads.Cds.MiBff.Application.Queries.DataQuality;
 using Cads.Cds.MiBff.Application.Queries.Holdings;

@@ -2,7 +2,7 @@ using Cads.Cds.BuildingBlocks.Application.Queries;
 using Cads.Cds.MiBff.Core.DTOs;
 using FluentValidation;
 
-namespace Cads.Cds.MiBff.Application.Queries.Audits;
+namespace Cads.Cds.MiBff.Application.Queries.Audit;
 
 public class GetAuditScrapieQuery : IPagedQuery<UkvDto>
 {
@@ -12,9 +12,9 @@ public class GetAuditScrapieQuery : IPagedQuery<UkvDto>
     public string? Sort { get; set; }
 }
 
-public class GetAuditsScrapieQueryValidator : AbstractValidator<GetAuditScrapieQuery>
+public class GetAuditScrapieQueryValidator : AbstractValidator<GetAuditScrapieQuery>
 {
-    public GetAuditsScrapieQueryValidator()
+    public GetAuditScrapieQueryValidator()
     {
         RuleFor(x => x.Page).GreaterThan(0);
         RuleFor(x => x.PageSize).GreaterThan(0);

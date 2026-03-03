@@ -1,7 +1,7 @@
 using Cads.Cds.MiBff.Core.DTOs;
 using Cads.Cds.MiBff.Core.Services;
 
-namespace Cads.Cds.MiBff.Application.Queries.Audits.Adapters;
+namespace Cads.Cds.MiBff.Application.Queries.Audit.Adapters;
 
 public class AuditQueryAdapter(IAuditService service)
 {

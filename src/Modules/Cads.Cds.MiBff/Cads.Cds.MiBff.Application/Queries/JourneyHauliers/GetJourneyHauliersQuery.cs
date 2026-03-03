@@ -12,9 +12,9 @@ public class GetJourneyHauliersQuery : IPagedQuery<UkvDto>
     public string? Sort { get; set; }
 }
 
-public class GetJourneyHauliersQueryyValidator : AbstractValidator<GetJourneyHauliersQuery>
+public class GetJourneyHauliersQueryValidator : AbstractValidator<GetJourneyHauliersQuery>
 {
-    public GetJourneyHauliersQueryyValidator()
+    public GetJourneyHauliersQueryValidator()
     {
         RuleFor(x => x.Page).GreaterThan(0);
         RuleFor(x => x.PageSize).GreaterThan(0);

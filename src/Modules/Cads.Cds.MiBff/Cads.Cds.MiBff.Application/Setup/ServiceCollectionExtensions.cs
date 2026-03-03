@@ -1,5 +1,5 @@
 using Cads.Cds.MiBff.Application.Queries.Animals.Adapters;
-using Cads.Cds.MiBff.Application.Queries.Audits.Adapters;
+using Cads.Cds.MiBff.Application.Queries.Audit.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Cohorts.Adapters;
 using Cads.Cds.MiBff.Application.Queries.DataQuality.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Holdings.Adapters;

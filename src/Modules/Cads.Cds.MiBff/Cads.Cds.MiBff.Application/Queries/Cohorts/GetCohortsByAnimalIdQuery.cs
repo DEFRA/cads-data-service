@@ -14,10 +14,11 @@ public class GetCohortsByAnimalIdQuery : IPagedQuery<UkvDto>
     public string? Sort { get; set; }
 }
 
-public class GetDataQualityUnregisteredQueryValidator : AbstractValidator<GetCohortsByAnimalIdQuery>
+public class GetCohortsByAnimalIdQueryValidator : AbstractValidator<GetCohortsByAnimalIdQuery>
 {
-    public GetDataQualityUnregisteredQueryValidator()
+    public GetCohortsByAnimalIdQueryValidator()
     {
+        RuleFor(x => x.AnimalId).NotEmpty();
         RuleFor(x => x.Page).GreaterThan(0);
         RuleFor(x => x.PageSize).GreaterThan(0);
         RuleFor(x => x.Sort).Must(s => s == "asc" || s == "desc").When(x => !string.IsNullOrEmpty(x.Sort));
