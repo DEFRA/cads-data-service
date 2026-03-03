@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Cads.Cds.MiBff.Core.DTOs
 {
-    public class HoldingDTO
+    public class HoldingDto : IDataIdentity
     {
         [JsonPropertyName("id")]
         public required Guid Id { get; set; }
