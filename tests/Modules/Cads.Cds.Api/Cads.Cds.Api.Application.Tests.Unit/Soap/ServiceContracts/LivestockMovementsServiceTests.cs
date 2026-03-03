@@ -10,7 +10,7 @@ namespace Cads.Cds.Api.Application.Tests.Unit.Soap.ServiceContracts;
 public class LivestockMovementsServiceTests
 {
     [Fact]
-    public async Task LivestockMovementsService_Should_Return_Fault_If_ServiceOptionsIsNull()
+    public async Task LivestockMovementsService_Should_Return_Fault_If_ServiceOptions_IsNull()
     {
         var logger = Mock.Of<ILogger<LivestockMovementsService>>();
         var sut = new LivestockMovementsService(logger);
@@ -21,7 +21,7 @@ public class LivestockMovementsServiceTests
     }
 
     [Fact]
-    public async Task LivestockMovementsService_Should_Return_Fault_If_AnimalCohortQueryIsNull()
+    public async Task LivestockMovementsService_Should_Return_Fault_If_AnimalCohortQuery_IsNull()
     {
         var logger = Mock.Of<ILogger<LivestockMovementsService>>();
         var sut = new LivestockMovementsService(logger);
@@ -51,5 +51,6 @@ public class LivestockMovementsServiceTests
 
         result.Should().NotBeNull();
         result.TraceIdentifier.Should().Be(animalCohortQuery.TraceIdentifier);
+        result.CohortAnimals.Should().NotBeNull();
     }
 }
