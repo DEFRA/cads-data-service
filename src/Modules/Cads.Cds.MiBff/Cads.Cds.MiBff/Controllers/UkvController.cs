@@ -101,7 +101,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     {
         var query = QueryFactory.CreatePagedQuery<GetHoldingsQuery, HoldingDto>(request);
         query.LastModified = request.LastModified;
-       
+
         var result = await _executor.ExecuteQuery(query);
 
         return Ok(result);
