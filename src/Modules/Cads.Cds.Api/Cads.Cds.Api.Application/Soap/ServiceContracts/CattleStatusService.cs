@@ -23,25 +23,15 @@ public class CattleStatusService : ICattleStatusService
             throw new FaultException($"Holding id cannot be null or whitespace");
         }
 
-        try
+        var response = new GetCattleStatusResponse
         {
-            var response = new GetCattleStatusResponse
-            {
-                HoldingId = HoldingId,
-                CattleStatusCSV = await GetCattleStatusData()
-            };
+            HoldingId = HoldingId,
+            CattleStatusCSV = await GetCattleStatusData()
+        };
 
-            _logger.LogInformation("Successfully processed GetCattleStatusRequest for HoldingId: {HoldingId}", HoldingId);
+        _logger.LogInformation("Successfully processed GetCattleStatusRequest for HoldingId: {HoldingId}", HoldingId);
 
-            return response;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing GetCattleStatusRequest for HoldingId: {HoldingId}", HoldingId);
-
-            // Throw SOAP fault
-            throw new FaultException($"Error processing request: {ex.Message}");
-        }
+        return response;
     }
 
     private async Task<string> GetCattleStatusData()
