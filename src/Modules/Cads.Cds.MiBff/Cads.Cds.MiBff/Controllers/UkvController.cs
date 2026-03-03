@@ -25,7 +25,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetAnimals)} endpoint", $"Description text from {nameof(GetAnimals)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("animals")]
-    public async Task<IActionResult> GetAnimals(GetAnimalsPagedRequest request)
+    public async Task<IActionResult> GetAnimals([FromQuery] GetAnimalsPagedRequest request)
     {
         var query = QueryFactory.CreatePagedQuery<GetAnimalsQuery, UkvDto>(request);
 
@@ -37,9 +37,9 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetAnimalsByAnimalId)} endpoint", $"Description text from {nameof(GetAnimalsByAnimalId)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("animals/{animalId}")]
-    public async Task<IActionResult> GetAnimalsByAnimalId(GetAnimalsByAnimalIdRequest request)
+    public async Task<IActionResult> GetAnimalsByAnimalId([FromRoute] Guid animalId)
     {
-        var query = new GetAnimalsByAnimalIdQuery(request.AnimalId);
+        var query = new GetAnimalsByAnimalIdQuery(animalId);
 
         var result = await _executor.ExecuteQuery(query);
 
@@ -49,7 +49,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetAuditsScrapie)} endpoint", $"Description text from {nameof(GetAuditsScrapie)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("audits/scrapie")]
-    public async Task<IActionResult> GetAuditsScrapie(GetAuditsScrapiePagedRequest request)
+    public async Task<IActionResult> GetAuditsScrapie([FromQuery] GetAuditsScrapiePagedRequest request)
     {
         var query = QueryFactory.CreatePagedQuery<GetAuditScrapieQuery, UkvDto>(request);
 
@@ -61,7 +61,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetCohorts)} endpoint", $"Description text from {nameof(GetCohorts)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("cohorts")]
-    public async Task<IActionResult> GetCohorts(GetCohortsPagedRequest request)
+    public async Task<IActionResult> GetCohorts([FromQuery] GetCohortsPagedRequest request)
     {
         var query = QueryFactory.CreatePagedQuery<GetCohortsQuery, UkvDto>(request);
 
@@ -73,10 +73,9 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetCohortsByAnimalId)} endpoint", $"Description text from {nameof(GetCohortsByAnimalId)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("cohorts/{animalId}")]
-    public async Task<IActionResult> GetCohortsByAnimalId(GetCohortsPagedRequest request)
+    public async Task<IActionResult> GetCohortsByAnimalId([FromRoute] Guid animalId)
     {
-        var query = QueryFactory.CreatePagedQuery<GetCohortsByAnimalIdQuery, UkvDto>(request);
-        query.AnimalId = request.AnimalId;
+        var query = new GetCohortsByAnimalIdQuery(animalId);
 
         var result = await _executor.ExecuteQuery(query);
 
@@ -86,7 +85,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetDataQualityUnregistered)} endpoint", $"Description text from {nameof(GetDataQualityUnregistered)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("data-quality/unregistered")]
-    public async Task<IActionResult> GetDataQualityUnregistered(GetDataQualityUnregisteredPagedRequest request)
+    public async Task<IActionResult> GetDataQualityUnregistered([FromQuery] GetDataQualityUnregisteredPagedRequest request)
     {
         var query = QueryFactory.CreatePagedQuery<GetDataQualityUnregisteredQuery, UkvDto>(request);
 
@@ -98,17 +97,11 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetHoldings)} endpoint", $"Description text from {nameof(GetHoldings)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("holdings")]
-    public async Task<IActionResult> GetHoldings(GetHoldingsPagedRequest request)
+    public async Task<IActionResult> GetHoldings([FromQuery] GetHoldingsPagedRequest request)
     {
-        var query = new GetHoldingsQuery
-        {
-            LastModified = request.LastModified,
-            Order = request.Order,
-            Sort = request.Sort,
-            Page = request.Page ?? 1,
-            PageSize = request.PageSize ?? 10
-        };
-
+        var query = QueryFactory.CreatePagedQuery<GetHoldingsQuery, HoldingDto>(request);
+        query.LastModified = request.LastModified;
+       
         var result = await _executor.ExecuteQuery(query);
 
         return Ok(result);
@@ -117,7 +110,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetHoldingsByCph)} endpoint", $"Description text from {nameof(GetHoldingsByCph)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("holdings/{cph}")]
-    public async Task<IActionResult> GetHoldingsByCph(GetHoldingsRequest request)
+    public async Task<IActionResult> GetHoldingsByCph([FromQuery] GetHoldingsRequest request)
     {
         var query = new GetHoldingsByCphQuery(request.Cph);
 
@@ -129,7 +122,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetInspectionsSheepGoat)} endpoint", $"Description text from {nameof(GetInspectionsSheepGoat)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("inspections/sheep-goat")]
-    public async Task<IActionResult> GetInspectionsSheepGoat(GetInspectionsSheepGoatPagedRequest request)
+    public async Task<IActionResult> GetInspectionsSheepGoat([FromQuery] GetInspectionsSheepGoatPagedRequest request)
     {
         var query = QueryFactory.CreatePagedQuery<GetInspectionsQuery, UkvDto>(request);
 
@@ -141,7 +134,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetJourneyHauliers)} endpoint", $"Description text from {nameof(GetJourneyHauliers)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("journeys/hauliers")]
-    public async Task<IActionResult> GetJourneyHauliers(GetJourneyHauliersPagedRequest request)
+    public async Task<IActionResult> GetJourneyHauliers([FromQuery] GetJourneyHauliersPagedRequest request)
     {
         var query = QueryFactory.CreatePagedQuery<GetJourneyHauliersQuery, UkvDto>(request);
 
@@ -153,7 +146,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetMovements)} endpoint", $"Description text from {nameof(GetMovements)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("movements")]
-    public async Task<IActionResult> GetMovements(GetMovementsPagedRequest request)
+    public async Task<IActionResult> GetMovements([FromQuery] GetMovementsPagedRequest request)
     {
         var query = QueryFactory.CreatePagedQuery<GetMovementsQuery, UkvDto>(request);
 
@@ -165,7 +158,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetZones)} endpoint", $"Description text from {nameof(GetZones)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("zones")]
-    public async Task<IActionResult> GetZones(GetZonesPagedRequest request)
+    public async Task<IActionResult> GetZones([FromQuery] GetZonesPagedRequest request)
     {
         var query = QueryFactory.CreatePagedQuery<GetZonesQuery, UkvDto>(request);
 
@@ -177,9 +170,9 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetZonesByZoneId)} endpoint", $"Description text from {nameof(GetZonesByZoneId)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("zones/{zoneId}")]
-    public async Task<IActionResult> GetZonesByZoneId(GetZonesByZoneIdRequest request)
+    public async Task<IActionResult> GetZonesByZoneId([FromRoute] Guid zoneId)
     {
-        var query = new GetZonesByZoneIdQuery(request.ZoneId);
+        var query = new GetZonesByZoneIdQuery(zoneId);
 
         var result = await _executor.ExecuteQuery(query);
 

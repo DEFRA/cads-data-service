@@ -5,7 +5,7 @@ using Cads.Cds.MiBff.Core.DTOs;
 namespace Cads.Cds.MiBff.Application.Queries.Cohorts;
 
 public class GetCohortsByAnimalIdQueryHandler(CohortsQueryAdapter adapter)
-    : PagedQueryHandler<GetCohortsByAnimalIdQuery, UkvDto>
+    : DefaultQueryHandler<GetCohortsByAnimalIdQuery, UkvDto>
 {
     protected override async Task<(IEnumerable<UkvDto> Items, int TotalCount)> FetchAsync(GetCohortsByAnimalIdQuery query, CancellationToken cancellationToken)
     {
