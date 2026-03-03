@@ -10,30 +10,30 @@ namespace Cads.Cds.Api.Application.Tests.Unit.Soap.ServiceContracts;
 public class LivestockMovementsServiceTests
 {
     [Fact]
-    public void LivestockMovementsService_Should_Return_Fault_If_ServiceOptionsIsNull()
+    public async Task LivestockMovementsService_Should_Return_Fault_If_ServiceOptionsIsNull()
     {
         var logger = Mock.Of<ILogger<LivestockMovementsService>>();
         var sut = new LivestockMovementsService(logger);
 
-        var act = () => sut.GetAnimalCohortRequest(null, null).GetAwaiter().GetResult();
+        var act = () => sut.GetAnimalCohortRequest(null, null);
 
-        act.Should().Throw<FaultException>().WithMessage("ServiceOptions cannot be null");
+        await act.Should().ThrowAsync<FaultException>().WithMessage("ServiceOptions cannot be null");
     }
 
     [Fact]
-    public void LivestockMovementsService_Should_Return_Fault_If_AnimalCohortQueryIsNull()
+    public async Task LivestockMovementsService_Should_Return_Fault_If_AnimalCohortQueryIsNull()
     {
         var logger = Mock.Of<ILogger<LivestockMovementsService>>();
         var sut = new LivestockMovementsService(logger);
         var serviceOptions = new ServiceOptions();
 
-        var act = () => sut.GetAnimalCohortRequest(serviceOptions, null).GetAwaiter().GetResult();
+        var act = () => sut.GetAnimalCohortRequest(serviceOptions, null);
 
-        act.Should().Throw<FaultException>().WithMessage("AnimalCohortQuery cannot be null");
+        await act.Should().ThrowAsync<FaultException>().WithMessage("AnimalCohortQuery cannot be null");
     }
 
     [Fact]
-    public void LivestockMovementsService_Should_Return_GetAnimalCohortResponse_On_Success()
+    public async Task LivestockMovementsService_Should_Return_GetAnimalCohortResponse_On_Success()
     {
         var logger = Mock.Of<ILogger<LivestockMovementsService>>();
         var sut = new LivestockMovementsService(logger);
@@ -47,7 +47,7 @@ public class LivestockMovementsServiceTests
             }
         };
 
-        var result = sut.GetAnimalCohortRequest(serviceOptions, animalCohortQuery).GetAwaiter().GetResult();
+        var result = await sut.GetAnimalCohortRequest(serviceOptions, animalCohortQuery);
 
         result.Should().NotBeNull();
         result.TraceIdentifier.Should().Be(animalCohortQuery.TraceIdentifier);
