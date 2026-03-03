@@ -44,6 +44,59 @@ public class LivestockMovementsServiceTests
             {
                 TraceIdentifierValue = "TestTraceIdentifier",
                 TraceSpecificationIdentifier = "TestTraceSpecificationIdentifier"
+            },
+            BirthLocationIdentifier = "TestBirthLocationIdentifier",
+            DateOfBirth = "01-01-1901",
+            Gender = new ReferenceDataType
+            {
+                Code = "M",
+                RefDataSetName = "Gender"
+            },
+            BirthLocationIdentifierType = new ReferenceDataType
+            {
+                Code = "TestBirthLocationIdentifierType",
+                RefDataSetName = "TestBirthLocationIdentifierType"
+            },
+            Locations = new Locations
+            {
+                Location = new List<Location>
+                {
+                    new Location
+                    {
+                        WindowStartDate = "01-01-2022",
+                        WindowEndDate = "01-01-2023",
+                        TargetLocationIdentifier = "TestLocationIdentifier",
+                        TargetLocationIdentifierType = new ReferenceDataType
+                        {
+                            Code = "TestLocationIdentifierType",
+                            RefDataSetName = "TestLocationIdentifierType"
+                        }
+                    }
+                }
+            },
+            SpeciesCodesAndAnimals = new SpeciesCodesAndAnimals
+            {
+                SpeciesCodeAndAnimalsList = new List<SpeciesCodeAndAnimals>
+                {
+                    new SpeciesCodeAndAnimals
+                    {
+                        AnimalIdentifiers = new AnimalIdentifiers
+                        {
+                            AnimalIdentifier = new List<AnimalIdentifier>
+                            {
+                                new AnimalIdentifier
+                                {
+                                    AnimalIdentifierValue = "TestAnimalIdentifierValue",
+                                    AnimalIdentifierType = new ReferenceDataType
+                                    {
+                                        Code = "TestAnimalIdentifierType",
+                                        RefDataSetName = "TestAnimalIdentifierType"
+                                    }   
+                                }
+                            }
+                        }
+                    }
+                }
             }
         };
 
