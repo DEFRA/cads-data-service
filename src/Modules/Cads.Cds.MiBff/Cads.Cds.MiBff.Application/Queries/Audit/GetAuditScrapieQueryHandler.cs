@@ -1,8 +1,8 @@
 using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
-using Cads.Cds.MiBff.Application.Queries.Audits.Adapters;
+using Cads.Cds.MiBff.Application.Queries.Audit.Adapters;
 using Cads.Cds.MiBff.Core.DTOs;
 
-namespace Cads.Cds.MiBff.Application.Queries.Audits;
+namespace Cads.Cds.MiBff.Application.Queries.Audit;
 
 public class GetAuditScrapieQueryHandler(AuditQueryAdapter adapter)
     : PagedQueryHandler<GetAuditScrapieQuery, UkvDto>
