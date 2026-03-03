@@ -30,23 +30,15 @@ public class LivestockMovementsService : ILivestockMovementsService
             throw new FaultException("AnimalCohortQuery cannot be null");
         }
 
-        try
+        var response = new GetAnimalCohortResponse
         {
-            var response = new GetAnimalCohortResponse
-            {
-                CohortAnimals = await GetMockCohortData(),
-                TraceIdentifier = AnimalCohortQuery.TraceIdentifier
-            };
+            CohortAnimals = await GetMockCohortData(),
+            TraceIdentifier = AnimalCohortQuery.TraceIdentifier
+        };
 
-            _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
+        _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
 
-            return response;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing GetAnimalCohortRequest");
-            throw new FaultException($"Error processing request: {ex.Message}");
-        }
+        return response;
     }
 
     private async Task<CohortAnimals> GetMockCohortData()
