@@ -3,15 +3,22 @@ using Cads.Cds.MiBff.Core.Services;
 
 namespace Cads.Cds.MiBff.Application.Queries.Holdings.Adapters;
 
-public class HoldingsQueryAdapter(IHoldingsService service)
+public class HoldingsQueryAdapter(IHoldingService service)
 {
-    private readonly IHoldingsService _service = service;
+    public async Task<(IEnumerable<HoldingDto> Items, int TotalCount)> GetAsync(
+        GetHoldingsByCphQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        var items = await service.GetByCphAsync(query.cph, cancellationToken);
 
-    public async Task<(IEnumerable<HoldingDTO> Items, int TotalCount)> GetHoldingsAsync(
+        return (items, items.Count());
+    }
+
+    public async Task<(IEnumerable<HoldingDto> Items, int TotalCount)> GetAsync(
         GetHoldingsQuery query,
         CancellationToken cancellationToken = default)
     {
-        var items = await _service.GetAllAsync(cancellationToken);
+        var items = await service.GetAllAsync(cancellationToken);
 
         return (items, items.Count());
     }
