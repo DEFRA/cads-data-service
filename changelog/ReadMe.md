@@ -175,6 +175,60 @@ Liquibase outputs a migration script containing:
 
 Review and commit this file.
 
+**Naming conventions:**
+
+```
+<sequence>_<scope>_<action>_<object>.postgresql.sql
+<sequence>_<domain>_seed_<object>_<purpose>.sql
+```
+
+Where:
+
+- sequence = a zero‑padded number (0010, 0020, 0030)
+- scope = the domain (user, report, permission, role, schema, etc.)
+- action = create, alter, add, drop, seed, view, etc.
+- object = the table/view/index/etc
+
+**Note.** You should break it into multiple changesets grouped by domain.
+
+### Examples
+
+New
+
+```
+0010_user_create_table.sql
+0020_role_create_table.sql
+0030_permission_create_table.sql
+0040_user_role_create_table.sql
+0050_permission_create_view_effective_report_permission.sql
+```
+
+Alterations
+
+```
+0011_user_add_column_last_login.sql
+0012_report_add_index_report_key.sql
+0013_permission_seed_initial_permissions.sql
+0014_user_role_add_fk_constraints.sql
+```
+
+Seeds
+
+```
+0110_permission_seed_initial_permissions.sql
+0120_report_seed_initial_reports.sql
+```
+
+Sequencing provides: spacing for future changes.
+
+Spacing changesets is a strategic choice, not a requirement.
+It gives you:
+- room to insert future changes
+- a clean, readable history
+- a timeline that tells a story
+- no renumbering headaches
+- a schema that scales with your platform
+
 ### Step 5 — Apply the migration to the CADS database
 
 ```
@@ -182,6 +236,12 @@ liquibase update --changelog-file=<migration-name>.postgresql.sql
 ```
 
 This updates the CADS database to match the reference schema.
+
+You can also update the CADS database using the below:
+
+```
+liquibase --url=jdbc:postgresql://localhost:5432/cads_data_service --username=postgres --password=postgres update
+```
 
 ## 7. Reference vs CADS Responsibilities
 
