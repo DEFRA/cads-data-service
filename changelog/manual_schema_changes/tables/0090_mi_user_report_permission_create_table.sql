@@ -22,6 +22,7 @@ create table mi_user_report_permission (
     constraint mi_user_report_permission_permission_id_fkey
         foreign key (permission_id)
         references mi_permission(permission_id)
+        on delete restrict
 );
 
 -- IDX: support fast lookup of user → report → permissions

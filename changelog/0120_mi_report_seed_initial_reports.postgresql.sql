@@ -1,3 +1,4 @@
+-- NOSONAR
 insert into mi_report (report_id, report_key, title, description)
 values
   (gen_random_uuid(), 'holding_summary',

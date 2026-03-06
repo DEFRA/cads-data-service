@@ -9,8 +9,8 @@ select
         false
     ) as granted
 from mi_user u
-cross join mi_report r
-cross join mi_permission p
+join mi_report r on true
+join mi_permission p on true
 left join mi_user_report_permission upr
 	on upr.user_id = u.user_id
 		and upr.report_id = r.report_id

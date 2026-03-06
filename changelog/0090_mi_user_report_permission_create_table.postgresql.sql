@@ -16,7 +16,7 @@ CREATE INDEX "mi_urp_report_idx" ON "mi_user_report_permission" USING btree("rep
 CREATE INDEX "mi_urp_permission_idx" ON "mi_user_report_permission" USING btree("permission_id");
 
 -- changeset MarkGent1:1772802524907-6 splitStatements:false
-ALTER TABLE "mi_user_report_permission" ADD CONSTRAINT "mi_user_report_permission_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "mi_permission" ("permission_id") ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "mi_user_report_permission" ADD CONSTRAINT "mi_user_report_permission_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "mi_permission" ("permission_id") ON UPDATE NO ACTION ON DELETE RESTRICT;
 
 -- changeset MarkGent1:1772802524907-7 splitStatements:false
 ALTER TABLE "mi_user_report_permission" ADD CONSTRAINT "mi_user_report_permission_report_id_fkey" FOREIGN KEY ("report_id") REFERENCES "mi_report" ("report_id") ON UPDATE NO ACTION ON DELETE CASCADE;
