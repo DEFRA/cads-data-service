@@ -1,6 +1,7 @@
 using System.Xml.Serialization;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
 
-namespace Cads.Cds.Api.Application.Soap.Messages;
+namespace Cads.Cds.Api.Application.Soap.Messages.AnimalCohort;
 
 /// <summary>
 /// Request model for GetAnimalCohort SOAP operation
@@ -13,15 +14,6 @@ public class GetAnimalCohortRequest
 
     [XmlElement("AnimalCohortQuery", Namespace = "")]
     public AnimalCohortQuery? AnimalCohortQuery { get; set; }
-}
-
-public class ServiceOptions
-{
-    [XmlElement(Namespace = "")]
-    public string DestinationDataBaseName { get; set; } = string.Empty;
-
-    [XmlElement(Namespace = "")]
-    public string DestinationStoredProcedure { get; set; } = string.Empty;
 }
 
 public class AnimalCohortQuery
