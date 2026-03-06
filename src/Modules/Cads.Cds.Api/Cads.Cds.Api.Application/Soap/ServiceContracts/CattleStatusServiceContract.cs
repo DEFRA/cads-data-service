@@ -1,4 +1,6 @@
 using Cads.Cds.Api.Application.Soap.Messages;
+using Cads.Cds.Api.Application.Soap.Messages.CattleStatus;
+using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 using CoreWCF;
 using Microsoft.Extensions.Logging;
 
@@ -7,11 +9,11 @@ namespace Cads.Cds.Api.Application.Soap.ServiceContracts;
 /// <summary>
 /// Implementation of ICattleStatusService
 /// </summary>
-public class CattleStatusService : ICattleStatusService
+public class CattleStatusServiceContract : ICattleStatusServiceContract
 {
-    private readonly ILogger<CattleStatusService> _logger;
+    private readonly ILogger<CattleStatusServiceContract> _logger;
 
-    public CattleStatusService(ILogger<CattleStatusService> logger)
+    public CattleStatusServiceContract(ILogger<CattleStatusServiceContract> logger)
     {
         _logger = logger;
     }

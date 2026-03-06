@@ -6,13 +6,13 @@ using Moq;
 
 namespace Cads.Cds.Api.Application.Tests.Unit.Soap.ServiceContracts;
 
-public class CattleStatusServiceTests
+public class CattleStatusServiceContractTests
 {
     [Fact]
     public async Task CattleStatusServiceTests_Should_Return_Fault_If_HoldingId_IsNull()
     {
-        var logger = Mock.Of<ILogger<CattleStatusService>>();
-        var sut = new CattleStatusService(logger);
+        var logger = Mock.Of<ILogger<CattleStatusServiceContract>>();
+        var sut = new CattleStatusServiceContract(logger);
 
         var act = () => sut.GetCattleStatusRequest(null);
 
@@ -22,8 +22,8 @@ public class CattleStatusServiceTests
     [Fact]
     public async Task CattleStatusServiceTests_Should_Return_GetAnimalCohortResponse_On_Success()
     {
-        var logger = Mock.Of<ILogger<CattleStatusService>>();
-        var sut = new CattleStatusService(logger);
+        var logger = Mock.Of<ILogger<CattleStatusServiceContract>>();
+        var sut = new CattleStatusServiceContract(logger);
         var holdingId = "123";
 
         var result = await sut.GetCattleStatusRequest(holdingId);

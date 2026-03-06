@@ -1,4 +1,5 @@
-using Cads.Cds.Api.Application.Soap.Messages;
+using Cads.Cds.Api.Application.Soap.Messages.AnimalCohort;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
 using Cads.Cds.Api.Application.Soap.ServiceContracts;
 using CoreWCF;
 using FluentAssertions;
@@ -7,13 +8,13 @@ using Moq;
 
 namespace Cads.Cds.Api.Application.Tests.Unit.Soap.ServiceContracts;
 
-public class LivestockMovementsServiceTests
+public class AnimalCohortServiceContractTests
 {
     [Fact]
     public async Task LivestockMovementsService_Should_Return_Fault_If_ServiceOptions_IsNull()
     {
-        var logger = Mock.Of<ILogger<LivestockMovementsService>>();
-        var sut = new LivestockMovementsService(logger);
+        var logger = Mock.Of<ILogger<AnimalCohortServiceContract>>();
+        var sut = new AnimalCohortServiceContract(logger);
 
         var act = () => sut.GetAnimalCohortRequest(null, null);
 
@@ -23,8 +24,8 @@ public class LivestockMovementsServiceTests
     [Fact]
     public async Task LivestockMovementsService_Should_Return_Fault_If_AnimalCohortQuery_IsNull()
     {
-        var logger = Mock.Of<ILogger<LivestockMovementsService>>();
-        var sut = new LivestockMovementsService(logger);
+        var logger = Mock.Of<ILogger<AnimalCohortServiceContract>>();
+        var sut = new AnimalCohortServiceContract(logger);
         var serviceOptions = new ServiceOptions();
 
         var act = () => sut.GetAnimalCohortRequest(serviceOptions, null);
@@ -35,8 +36,8 @@ public class LivestockMovementsServiceTests
     [Fact]
     public async Task LivestockMovementsService_Should_Return_GetAnimalCohortResponse_On_Success()
     {
-        var logger = Mock.Of<ILogger<LivestockMovementsService>>();
-        var sut = new LivestockMovementsService(logger);
+        var logger = Mock.Of<ILogger<AnimalCohortServiceContract>>();
+        var sut = new AnimalCohortServiceContract(logger);
         var serviceOptions = new ServiceOptions();
         var animalCohortQuery = new AnimalCohortQuery
         {
