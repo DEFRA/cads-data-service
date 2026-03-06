@@ -1,4 +1,4 @@
--- NOSONAR
+-- sonar-ignore-start
 insert into mi_report (report_id, report_key, title, description)
 values
   (gen_random_uuid(), 'holding_summary',
@@ -40,3 +40,4 @@ values
   (gen_random_uuid(), 'scrapie_flock_scheme_audit',
    'Scrapie flock scheme audit',
    'Compulsory Scrapie Flock Scheme audit view');
+-- sonar-ignore-end
