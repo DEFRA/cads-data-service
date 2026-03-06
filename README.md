@@ -231,7 +231,7 @@ This structure ensures clarity, isolation, and high coverage.
    ```bash
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=*****
-   POSTGRES_DB=cads-data-service
+   POSTGRES_DB=cads_data_service
    PGADMIN_EMAIL=pgadmin@pgadmin.com
    PGADMIN_PASSWORD=*****
    ```

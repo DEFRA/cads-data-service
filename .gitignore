@@ -274,6 +274,7 @@ library.db
 .env
 /localstack_data/cache
 /postgres-data
+/reference-postgres-data
 /pgadmin-data
 /coverage
 /coverage-report
