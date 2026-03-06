@@ -1,13 +1,14 @@
-using Cads.Cds.Api.Application.Soap.Messages;
+using Cads.Cds.Api.Application.Soap.Messages.AnimalCohort;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
 using CoreWCF;
 
-namespace Cads.Cds.Api.Application.Soap.ServiceContracts;
+namespace Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 
 /// <summary>
 /// Service contract for Livestock Movements SOAP operations
 /// </summary>
 [ServiceContract(Namespace = "http://services.defra.gov.uk/ahw/livestockmovements")]
-public interface ILivestockMovementsService
+public interface IAnimalCohortServiceContract
 {
     [OperationContract(Action = "*", ReplyAction = "*")]
     [XmlSerializerFormat(Style = OperationFormatStyle.Rpc)]
