@@ -231,7 +231,8 @@ This structure ensures clarity, isolation, and high coverage.
    ```bash
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=*****
-   POSTGRES_DB=cads
+   POSTGRES_DB=cads_data_service
+   POSTGRES_REF_DB=reference_schema
    PGADMIN_EMAIL=pgadmin@pgadmin.com
    PGADMIN_PASSWORD=*****
    ```
@@ -343,6 +344,10 @@ docker exec -it cads_cds-liquibase-1 liquibase \
 
 Ensure to replace the postgres username, password and database name with the values from the `.env` file and specify the new migration name.
 The newly generated migration will be placed in the `changelog` directory. Ensure that this is reviewd before adding an entry for this in the `db.changelog.xml` file and committing the change.
+
+### Liquibase Workflow Guide
+
+See detailed `Liquibase Workflow Guide` [here](./changelog/ReadMe.md)
 
 ### About the licence
 
