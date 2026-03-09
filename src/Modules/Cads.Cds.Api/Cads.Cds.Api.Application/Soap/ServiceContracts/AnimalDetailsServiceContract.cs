@@ -25,7 +25,7 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
 
         var response = new GetAnimalDetailsResponse
         {
-            SearchResults = GetMockSearchResults(request.Body.AnimalsIds.Eartag.First())
+            SearchResults = GetMockSearchResults(request.Body.AnimalsIds.Eartag[0])
         };
 
         _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
@@ -33,7 +33,7 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
         return response;
     }
 
-    private SearchResults GetMockSearchResults(string eartagId)
+    private static SearchResults GetMockSearchResults(string eartagId)
     {
         return new SearchResults
         {

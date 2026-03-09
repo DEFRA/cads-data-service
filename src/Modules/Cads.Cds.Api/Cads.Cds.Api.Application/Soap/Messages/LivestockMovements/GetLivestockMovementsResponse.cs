@@ -48,16 +48,16 @@ public class Species
     public string SpeciesCode { get; set; } = string.Empty;
 
     [XmlElement("Movements", Namespace = "")]
-    public Movements Movements { get; set; } = new();
+    public LivestockMovements Movements { get; set; } = new();
 }
 
-public class Movements
+public class LivestockMovements
 {
     [XmlElement(ElementName = "Movement", Namespace = "")]
-    public List<Movement> Movement { get; set; } = [];
+    public List<LivestockMovement> Movement { get; set; } = [];
 }
 
-public class Movement
+public class LivestockMovement
 {
     [XmlElement(ElementName = "AnimalIdentifier", Namespace = "")]
     public string AnimalIdentifier { get; set; } = string.Empty;

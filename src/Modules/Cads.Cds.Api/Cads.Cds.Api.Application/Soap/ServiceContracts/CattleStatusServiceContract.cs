@@ -35,9 +35,8 @@ public class CattleStatusServiceContract : ICattleStatusServiceContract
         return response;
     }
 
-    private string GetCattleStatusData()
+    private static string GetCattleStatusData()
     {
-        // TODO: Implement actual data retrieval logic
         // Mock CSV data matching the expected format
         return """
                CHD2026007WEP09461,H,14:37:41,07/01/2026,CHD

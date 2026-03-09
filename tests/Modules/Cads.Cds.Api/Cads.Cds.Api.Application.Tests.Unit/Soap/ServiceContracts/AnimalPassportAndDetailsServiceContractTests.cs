@@ -33,6 +33,6 @@ public class AnimalPassportAndDetailsServiceContractTests
         });
 
         result.Should().NotBeNull();
-        result.SearchResults!.EartagResults.Count().Should().Be(1);
+        result.SearchResults!.EartagResults.Count.Should().Be(1);
     }
 }
