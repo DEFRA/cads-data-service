@@ -1,4 +1,3 @@
-using Cads.Cds.Api.Application.Soap.Messages;
 using Cads.Cds.Api.Application.Soap.Messages.CattleStatus;
 using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 using CoreWCF;
@@ -18,25 +17,25 @@ public class CattleStatusServiceContract : ICattleStatusServiceContract
         _logger = logger;
     }
 
-    public async Task<GetCattleStatusResponse> GetCattleStatusRequest(string? HoldingId)
+    public GetCattleStatusResponse GetCattleStatus(GetCattleStatusRequest request)
     {
-        if (string.IsNullOrWhiteSpace(HoldingId))
+        if (string.IsNullOrWhiteSpace(request.HoldingId))
         {
             throw new FaultException($"Holding id cannot be null or whitespace");
         }
 
         var response = new GetCattleStatusResponse
         {
-            HoldingId = HoldingId,
-            CattleStatusCSV = await GetCattleStatusData()
+            HoldingId = request.HoldingId,
+            CattleStatusCSV = GetCattleStatusData()
         };
 
-        _logger.LogInformation("Successfully processed GetCattleStatusRequest for HoldingId: {HoldingId}", HoldingId);
+        _logger.LogInformation("Successfully processed GetCattleStatusRequest for HoldingId: {HoldingId}", request.HoldingId);
 
         return response;
     }
 
-    private async Task<string> GetCattleStatusData()
+    private string GetCattleStatusData()
     {
         // TODO: Implement actual data retrieval logic
         // Mock CSV data matching the expected format

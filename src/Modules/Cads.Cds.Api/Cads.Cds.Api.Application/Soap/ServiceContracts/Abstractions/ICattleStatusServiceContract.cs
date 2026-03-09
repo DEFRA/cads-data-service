@@ -1,4 +1,5 @@
 using Cads.Cds.Api.Application.Soap.Messages.CattleStatus;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
 using CoreWCF;
 
 namespace Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
@@ -6,10 +7,10 @@ namespace Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 /// <summary>
 /// Service contract for Cattle Status SOAP operations
 /// </summary>
-[ServiceContract(Namespace = "http://services.defra.gov.uk/ahw/tracing/cattle/holding")]
+[ServiceContract(Namespace = Namespaces.CattleHolding)]
 public interface ICattleStatusServiceContract
 {
-    [OperationContract(Name = "GetCattleStatusRequest", Action = "*", ReplyAction = "*")]
-    [XmlSerializerFormat(Style = OperationFormatStyle.Document)]
-    Task<GetCattleStatusResponse> GetCattleStatusRequest(string HoldingId);
+    [OperationContract(Name = "GetCattleStatus", Action = "*", ReplyAction = "*")]
+    [XmlSerializerFormat]
+    GetCattleStatusResponse GetCattleStatus(GetCattleStatusRequest request);
 }

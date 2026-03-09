@@ -1,4 +1,5 @@
 using Cads.Cds.Api.Application.Soap.Messages.AnimalDetails;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
 using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 using CoreWCF;
 using Microsoft.Extensions.Logging;
@@ -14,15 +15,9 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
         _logger = logger;
     }
 
-
-    public async Task<GetAnimalDetailsResponse> GetAnimalDetailsRequest(AnimalsIds? AnimalsIds)
+    public GetAnimalDetailsResponse GetAnimalDetails(GetAnimalDetailsRequest request)
     {
-        if (AnimalsIds == null)
-        {
-            _logger.LogWarning("AnimalsIds is null - CoreWCF deserialization failed");
-            throw new FaultException("ServiceOptions cannot be null");
-        }
-        if (AnimalsIds.Eartags.Count == 0)
+        if (request.Body.AnimalsIds.Eartag.Count == 0)
         {
             _logger.LogWarning("Eartags are null or has no values");
             throw new FaultException("Eartags cannot be null and must contain at least one value");
@@ -30,7 +25,7 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
 
         var response = new GetAnimalDetailsResponse
         {
-            SearchResults = await GetMockSearchResults()
+            SearchResults = GetMockSearchResults()
         };
 
         _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
@@ -38,7 +33,7 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
         return response;
     }
 
-    private async Task<SearchResults> GetMockSearchResults()
+    private SearchResults GetMockSearchResults()
     {
         return new SearchResults
         {
@@ -52,17 +47,17 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
                         AnimalRecord =
                             new AnimalRecord
                             {
-                                AnimalPk = 123456,
+                                AnimalPk = "123456",
                                 AnimalDetails =
                                     new AnimalDetails
                                     {
                                         AnimalSpecies =
-                                            new CodeType { Code = "MOCK_SPECIES_CODE" },
-                                        Breed = new CodeType { Code = "MOCK_BREED_CODE" },
-                                        AnimalType = new CodeType { Code = "MOCK_ANIMAL_TYPE" },
+                                            new RefDataSetCode { Code = "MOCK_SPECIES_CODE" },
+                                        Breed = new RefDataSetCode { Code = "MOCK_BREED_CODE" },
+                                        AnimalType = new RefDataSetCode { Code = "MOCK_ANIMAL_TYPE" },
                                         Gender = "MOCK_GENDER"
                                     },
-                                LivestockType = new CodeType { Code = "MOCK_LIVESTOCK_TYPE" },
+                                LivestockType = new RefDataSetCode { Code = "MOCK_LIVESTOCK_TYPE" },
                                 IndividualAnimalReference = "MOCK_INDIVIDUAL_ANIMAL_REFERENCE",
                                 DateOfBirth = "01/01/2020",
                                 IndvdlyRegstAnimalStatus = "MOCK_STATUS",
@@ -92,13 +87,13 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
                                     ReportRcvdDateTimeOn = "MOCK_REPORT_RCVD_DATE_TIME_ON",
                                     OnFeature = new OnFeature
                                     {
-                                        FeaturePK = 123456,
+                                        FeaturePK = "123456",
                                         FeatureDetails =
                                             new FeatureDetails
                                             {
                                                 FeatureName = "MOCK_FEATURE_NAME",
                                                 FeatureType =
-                                                    new CodeType
+                                                    new RefDataSetCode
                                                     {
                                                         Code =
                                                             "MOCK_FEATURE_TYPE"
@@ -112,9 +107,9 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
                                                     new AltFeatureIdentity
                                                     {
                                                         AltFeatureIdentityPK =
-                                                            123456,
+                                                            "123456",
                                                         AltFeatureIdentityType =
-                                                            new CodeType
+                                                            new RefDataSetCode
                                                             {
                                                                 Code =
                                                                     "MOCK_ALT_FEATURE_TYPE"
@@ -127,7 +122,7 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
                                                 }
                                         }
                                     },
-                                    CTSMovementType = 123,
+                                    CTSMovementType = "123",
                                     CTSMovementTypeDesc = "CTSMovementTypeDesc",
                                     MovementDirection = "MovementDirection",
                                     LocationType = "LocationType"

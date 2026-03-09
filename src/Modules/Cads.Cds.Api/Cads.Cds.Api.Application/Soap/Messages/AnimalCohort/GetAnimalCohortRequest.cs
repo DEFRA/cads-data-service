@@ -1,110 +1,97 @@
 using System.Xml.Serialization;
 using Cads.Cds.Api.Application.Soap.Messages.Shared;
+using CoreWCF;
 
 namespace Cads.Cds.Api.Application.Soap.Messages.AnimalCohort;
 
 /// <summary>
 /// Request model for GetAnimalCohort SOAP operation
 /// </summary>
-[XmlRoot("GetAnimalCohortRequest", Namespace = "http://services.defra.gov.uk/ahw/livestockmovements")]
+[XmlRoot("GetAnimalCohortRequest", Namespace = Namespaces.LivestockMovements)]
+[MessageContract(WrapperName = "GetAnimalCohortRequest", WrapperNamespace = Namespaces.LivestockMovements, IsWrapped = true)]
 public class GetAnimalCohortRequest
 {
     [XmlElement("ServiceOptions", Namespace = "")]
-    public ServiceOptions? ServiceOptions { get; set; }
+    [MessageBodyMember(Namespace = "", Order = 0)]
+    public ServiceOptions ServiceOptions { get; set; } = new();
 
     [XmlElement("AnimalCohortQuery", Namespace = "")]
-    public AnimalCohortQuery? AnimalCohortQuery { get; set; }
+    [MessageBodyMember(Namespace = "", Order = 1)]
+    public AnimalCohortQuery AnimalCohortQuery { get; set; } = new();
 }
 
 public class AnimalCohortQuery
 {
-    [XmlElement("TraceIdentifier", Namespace = "")]
-    public TraceIdentifier? TraceIdentifier { get; set; }
+    [XmlElement("TraceIdentifier")]
+    public TraceIdentifier TraceIdentifier { get; set; } = new();
 
-    [XmlElement("Locations", Namespace = "")]
-    public Locations? Locations { get; set; }
+    [XmlElement("Locations")]
+    public Locations Locations { get; set; } = new();
 
-    [XmlElement("Gender", Namespace = "")]
-    public ReferenceDataType? Gender { get; set; }
+    [XmlElement("Gender")]
+    public RefDataSetCode Gender { get; set; } = new();
 
-    [XmlElement("SpeciesCodesAndAnimals", Namespace = "")]
-    public SpeciesCodesAndAnimals? SpeciesCodesAndAnimals { get; set; }
+    [XmlElement("SpeciesCodesAndAnimals")]
+    public SpeciesCodesAndAnimals SpeciesCodesAndAnimals { get; set; } = new();
 
-    [XmlElement(Namespace = "")]
+    [XmlElement("DateOfBirth")]
     public string DateOfBirth { get; set; } = string.Empty;
 
-    [XmlElement(Namespace = "")]
+    [XmlElement("BirthLocationIdentifier")]
     public string BirthLocationIdentifier { get; set; } = string.Empty;
 
-    [XmlElement("BirthLocationIdentifierType", Namespace = "")]
-    public ReferenceDataType? BirthLocationIdentifierType { get; set; }
-}
-
-public class TraceIdentifier
-{
-    [XmlElement(Namespace = "")]
-    public string TraceSpecificationIdentifier { get; set; } = string.Empty;
-
-    [XmlElement("TraceIdentifier", Namespace = "")]
-    public string TraceIdentifierValue { get; set; } = string.Empty;
+    [XmlElement("BirthLocationIdentifierType")]
+    public RefDataSetCode BirthLocationIdentifierSetCode { get; set; } = new();
 }
 
 public class Locations
 {
-    [XmlElement("Location", Namespace = "")]
-    public List<Location> Location { get; set; } = new();
+    [XmlElement("Location")]
+    public List<Location> Location { get; set; } = [];
 }
 
 public class Location
 {
-    [XmlElement(Namespace = "")]
+    [XmlElement("WindowEndDate")]
     public string WindowEndDate { get; set; } = string.Empty;
 
-    [XmlElement(Namespace = "")]
+    [XmlElement("WindowStartDate")]
     public string WindowStartDate { get; set; } = string.Empty;
 
-    [XmlElement(Namespace = "")]
+    [XmlElement("TargetLocationIdentifier")]
     public string TargetLocationIdentifier { get; set; } = string.Empty;
 
-    [XmlElement("TargetLocationIdentifierType", Namespace = "")]
-    public ReferenceDataType? TargetLocationIdentifierType { get; set; }
+    [XmlElement("TargetLocationIdentifierType")]
+    public RefDataSetCode TargetLocationIdentifierSetCode { get; set; } = new();
 }
 
-public class ReferenceDataType
-{
-    [XmlAttribute(Namespace = "")]
-    public string RefDataSetName { get; set; } = string.Empty;
-
-    [XmlElement(Namespace = "http://types.defra.gov.uk/ahw/common/referencedatasets")]
-    public string Code { get; set; } = string.Empty;
-}
 
 public class SpeciesCodesAndAnimals
 {
-    [XmlElement("SpeciesCodeAndAnimals", Namespace = "")]
-    public List<SpeciesCodeAndAnimals> SpeciesCodeAndAnimalsList { get; set; } = new();
+    [XmlElement("SpeciesCodeAndAnimals")]
+    public List<SpeciesCodeAndAnimals> SpeciesCodeAndAnimalsList { get; set; } = [];
 }
 
 public class SpeciesCodeAndAnimals
 {
-    [XmlElement("AnimalSpecies", Namespace = "")]
-    public ReferenceDataType? AnimalSpecies { get; set; }
+    [XmlElement("AnimalSpecies")]
+    public RefDataSetCode AnimalSpecies { get; set; } = new();
 
-    [XmlElement("AnimalIdentifiers", Namespace = "")]
-    public AnimalIdentifiers? AnimalIdentifiers { get; set; }
+    [XmlElement("AnimalIdentifiers")]
+    public AnimalIdentifiers AnimalIdentifiers { get; set; } = new();
 }
 
 public class AnimalIdentifiers
 {
-    [XmlElement("AnimalIdentifier", Namespace = "")]
-    public List<AnimalIdentifier> AnimalIdentifier { get; set; } = new();
+    [XmlElement("AnimalIdentifier")]
+    public List<AnimalIdentifier> AnimalIdentifier { get; set; } = [];
 }
 
 public class AnimalIdentifier
 {
-    [XmlElement("AnimalIdentifier", Namespace = "")]
+    [XmlElement("AnimalIdentifier")]
     public string AnimalIdentifierValue { get; set; } = string.Empty;
 
-    [XmlElement("AnimalIdentifierType", Namespace = "")]
-    public ReferenceDataType? AnimalIdentifierType { get; set; }
+    [XmlElement("AnimalIdentifierType")]
+    public RefDataSetCode AnimalIdentifierSetCode { get; set; } = new();
 }

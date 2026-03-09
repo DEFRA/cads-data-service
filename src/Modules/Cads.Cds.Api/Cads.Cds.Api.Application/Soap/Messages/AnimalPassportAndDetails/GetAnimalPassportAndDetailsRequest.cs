@@ -1,19 +1,23 @@
 using System.Xml.Serialization;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
+using CoreWCF;
 
 namespace Cads.Cds.Api.Application.Soap.Messages.AnimalPassportAndDetails;
 
 /// <summary>
 /// Request model for GetAnimalPassportAndDetails SOAP operation
 /// </summary>
-[XmlRoot(ElementName = "GetAnimalPassportAndDetailsRequest", Namespace = "http://services.defra.gov.uk/ahw/animalpassport")]
+[XmlRoot("GetAnimalPassportAndDetailsRequest", Namespace = Namespaces.AnimalPassport)]
+[MessageContract(WrapperName = "GetAnimalPassportAndDetailsRequest", WrapperNamespace = Namespaces.AnimalPassport, IsWrapped = true)]
 public class GetAnimalPassportAndDetailsRequest
 {
-    [XmlElement(ElementName = "AnimalsIds", Namespace = "")]
-    public AnimalsIds? AnimalsIds { get; set; }
+    [MessageBodyMember(Name = "AnimalsIds", Namespace = Namespaces.AnimalPassport, Order = 0)]
+    [XmlElement("AnimalsIds", Namespace = Namespaces.AnimalPassport)]
+    public AnimalsIds AnimalsIds { get; set; } = new();
 }
 
 public class AnimalsIds
 {
-    [XmlElement("Eartag", Namespace = "http://services.defra.gov.uk/ahw/tracing/cattle/animal")]
-    public List<string> Eartag { get; set; } = new();
+    [XmlElement("Eartag", Namespace = Namespaces.CattleAnimal)]
+    public List<string> Eartag { get; set; } = [];
 }
