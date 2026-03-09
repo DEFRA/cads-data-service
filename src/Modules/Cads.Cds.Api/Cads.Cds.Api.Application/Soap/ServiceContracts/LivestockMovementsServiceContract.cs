@@ -48,7 +48,7 @@ public class LivestockMovementsServiceContract : ILivestockMovementsServiceContr
         return response;
     }
 
-    private SpeciesList GetMockSpeciesList()
+    private static SpeciesList GetMockSpeciesList()
     {
         return new SpeciesList
         {
@@ -57,11 +57,11 @@ public class LivestockMovementsServiceContract : ILivestockMovementsServiceContr
                 new Species
                 {
                     SpeciesCode = "MOCK_SPECIES_CODE_1",
-                    Movements = new Movements
+                    Movements = new LivestockMovements
                     {
-                        Movement = new List<Movement>
+                        Movement = new List<LivestockMovement>
                         {
-                            new Movement
+                            new LivestockMovement
                             {
                                 AnimalIdentifier = "MOCK_ANIMAL_IDENTIFIER_1",
                                 AnimalIdentifierType = "MOCK_ANIMAL_IDENTIFIER_TYPE_1",

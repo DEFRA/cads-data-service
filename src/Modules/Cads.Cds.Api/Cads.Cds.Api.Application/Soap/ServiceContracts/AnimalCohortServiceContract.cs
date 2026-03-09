@@ -33,7 +33,7 @@ public class AnimalCohortServiceContract : IAnimalCohortServiceContract
         return response;
     }
 
-    private CohortAnimals GetMockCohortData()
+    private static CohortAnimals GetMockCohortData()
     {
         var cohortAnimals = new CohortAnimals();
         cohortAnimals.CohortAnimal.Add(new CohortAnimal
