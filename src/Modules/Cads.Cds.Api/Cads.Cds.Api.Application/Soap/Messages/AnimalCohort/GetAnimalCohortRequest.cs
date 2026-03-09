@@ -29,7 +29,7 @@ public class AnimalCohortQuery
     public Locations Locations { get; set; } = new();
 
     [XmlElement("Gender")]
-    public RefDataSetCode Gender { get; set; } = new();
+    public CommonRefDataSetCode Gender { get; set; } = new();
 
     [XmlElement("SpeciesCodesAndAnimals")]
     public SpeciesCodesAndAnimals SpeciesCodesAndAnimals { get; set; } = new();
@@ -41,7 +41,7 @@ public class AnimalCohortQuery
     public string BirthLocationIdentifier { get; set; } = string.Empty;
 
     [XmlElement("BirthLocationIdentifierType")]
-    public RefDataSetCode BirthLocationIdentifierSetCode { get; set; } = new();
+    public CommonRefDataSetCode BirthLocationIdentifierSetCode { get; set; } = new();
 }
 
 public class Locations
@@ -62,7 +62,7 @@ public class Location
     public string TargetLocationIdentifier { get; set; } = string.Empty;
 
     [XmlElement("TargetLocationIdentifierType")]
-    public RefDataSetCode TargetLocationIdentifierSetCode { get; set; } = new();
+    public CommonRefDataSetCode TargetLocationIdentifierSetCode { get; set; } = new();
 }
 
 
@@ -75,7 +75,7 @@ public class SpeciesCodesAndAnimals
 public class SpeciesCodeAndAnimals
 {
     [XmlElement("AnimalSpecies")]
-    public RefDataSetCode AnimalSpecies { get; set; } = new();
+    public CommonRefDataSetCode AnimalSpecies { get; set; } = new();
 
     [XmlElement("AnimalIdentifiers")]
     public AnimalIdentifiers AnimalIdentifiers { get; set; } = new();
@@ -93,5 +93,5 @@ public class AnimalIdentifier
     public string AnimalIdentifierValue { get; set; } = string.Empty;
 
     [XmlElement("AnimalIdentifierType")]
-    public RefDataSetCode AnimalIdentifierSetCode { get; set; } = new();
+    public CommonRefDataSetCode AnimalIdentifierSetCode { get; set; } = new();
 }
