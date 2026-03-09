@@ -26,7 +26,6 @@ public class LivestockMovementServiceContractTests
     {
         var logger = Mock.Of<ILogger<LivestockMovementsServiceContract>>();
         var sut = new LivestockMovementsServiceContract(logger);
-        var holdingId = "123";
 
         var act = () => sut.GetLivestockMovements(new GetLivestockMovementsRequest { ServiceOptions = new ServiceOptions() });
         act.Should().Throw<FaultException>().WithMessage("MovementQuery cannot be null");
@@ -37,7 +36,6 @@ public class LivestockMovementServiceContractTests
     {
         var logger = Mock.Of<ILogger<LivestockMovementsServiceContract>>();
         var sut = new LivestockMovementsServiceContract(logger);
-        var eartagId = "123";
 
         var result = sut.GetLivestockMovements(new GetLivestockMovementsRequest
         {
