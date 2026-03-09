@@ -5,7 +5,7 @@ namespace Cads.Cds.MiBff.Application.Queries.Ukv.Holdings.Adapters;
 
 public class HoldingsQueryAdapter(IHoldingService service)
 {
-    public async Task<(IEnumerable<UkvDto> Items, int TotalCount)> GetAsync(
+    public async Task<(IEnumerable<HoldingDto> Items, int TotalCount)> GetAsync(
         GetHoldingsByCphQuery query,
         CancellationToken cancellationToken = default)
     {
@@ -14,7 +14,7 @@ public class HoldingsQueryAdapter(IHoldingService service)
         return (items, items.Count());
     }
 
-    public async Task<(IEnumerable<UkvDto> Items, int TotalCount)> GetAsync(
+    public async Task<(IEnumerable<HoldingDto> Items, int TotalCount)> GetAsync(
         GetHoldingsQuery query,
         CancellationToken cancellationToken = default)
     {

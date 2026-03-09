@@ -3,7 +3,7 @@ using Cads.Cds.MiBff.Core.DTOs;
 
 namespace Cads.Cds.MiBff.Application.Queries.Ukv.Holdings;
 
-public class GetHoldingsQuery : PagedQuery<UkvDto>
+public class GetHoldingsQuery : PagedQuery<HoldingDto>
 {
     public DateTime? LastModified { get; set; }
 }
