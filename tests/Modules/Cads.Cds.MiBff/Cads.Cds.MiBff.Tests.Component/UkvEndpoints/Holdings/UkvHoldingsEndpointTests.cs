@@ -28,7 +28,7 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
 
         ValidateResponseWithMetaData(result, endpoint);
 
-        var data = MiBffTestFixture.GetResponseData<HoldingDto>(result.Data);
+        var data = MiBffTestFixture.GetResponseData<UkvDto>(result.Data);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(5);
     }
@@ -51,7 +51,7 @@ public class UkvHoldingsEndpointTests(MiBffTestFixture testFixture) : IClassFixt
 
         ValidateResponseWithMetaData(result, endpoint);
 
-        var data = MiBffTestFixture.GetResponseData<HoldingDto>(result.Data);
+        var data = MiBffTestFixture.GetResponseData<UkvDto>(result.Data);
         data.Should().NotBeNull();
         data.Results.Should().NotBeNull().And.HaveCount(1);
     }

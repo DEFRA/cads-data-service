@@ -1,4 +1,5 @@
-using Cads.Cds.MiBff.Application.Queries.Holdings;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Holdings;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Holdings.Validators;
 using FluentValidation.TestHelper;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;

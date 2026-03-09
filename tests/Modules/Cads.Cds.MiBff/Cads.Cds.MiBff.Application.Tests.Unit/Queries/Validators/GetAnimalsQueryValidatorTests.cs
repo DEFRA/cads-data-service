@@ -1,4 +1,5 @@
-using Cads.Cds.MiBff.Application.Queries.Animals;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Animals;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Animals.Validators;
 using FluentValidation.TestHelper;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;

@@ -1,4 +1,5 @@
-using Cads.Cds.MiBff.Application.Queries.JourneyHauliers;
+using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers;
+using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers.Validators;
 using FluentValidation.TestHelper;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;

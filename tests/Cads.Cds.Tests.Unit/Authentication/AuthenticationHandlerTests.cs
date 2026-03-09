@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
-using Cads.Cds.MiBff.Core.Services;
+using Cads.Cds.MiBff.Core.Services.Ukv;
 using Cads.Cds.Tests.Unit.TestFixtures;
 using FluentAssertions;
 using Moq;
