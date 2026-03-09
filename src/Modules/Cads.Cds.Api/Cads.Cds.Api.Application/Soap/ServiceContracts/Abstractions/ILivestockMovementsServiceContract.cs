@@ -7,11 +7,11 @@ namespace Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 /// <summary>
 /// Service contract for Livestock movement SOAP operations
 /// </summary>
-[ServiceContract(Namespace = "http://services.defra.gov.uk/ahw/livestockmovements")]
+[ServiceContract(Namespace = Namespaces.LivestockMovements)]
 public interface ILivestockMovementsServiceContract
 {
-    [OperationContract(Name = "GetLivestockMovementsRequest", Action = "*", ReplyAction = "*")]
-    [XmlSerializerFormat(Style = OperationFormatStyle.Rpc)]
-    Task<GetLivestockMovementsResponse> GetLivestockMovementsRequest(MovementQuery MovementQuery, ServiceOptions ServiceOptions);
+    [OperationContract(Name = "GetLivestockMovements", Action = "*", ReplyAction = "*")]
+    [XmlSerializerFormat]
+    GetLivestockMovementsResponse GetLivestockMovements(GetLivestockMovementsRequest request);
 
 }

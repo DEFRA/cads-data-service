@@ -1,4 +1,5 @@
 using Cads.Cds.Api.Application.Soap.Messages.AnimalPassportAndDetails;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
 using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 using CoreWCF;
 using Microsoft.Extensions.Logging;
@@ -14,28 +15,22 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
         _logger = logger;
     }
 
-    public async Task<GetAnimalPassportAndDetailsResponse> GetAnimalPassportAndDetailsRequest(AnimalsIds? AnimalsIds)
+    public GetAnimalPassportAndDetailsResponse GetAnimalPassportAndDetails(GetAnimalPassportAndDetailsRequest request)
     {
-        if (AnimalsIds == null)
-        {
-            _logger.LogWarning("AnimalsIds is null - CoreWCF deserialization failed");
-            throw new FaultException("AnimalsIds cannot be null");
-        }
-
-        if (AnimalsIds.Eartag.Count == 0)
+        if (request.AnimalsIds.Eartag.Count == 0)
         {
             _logger.LogWarning("Eartags are null or has no values");
             throw new FaultException("Eartags cannot be null and must contain at least one value");
         }
 
-        var response = new GetAnimalPassportAndDetailsResponse { SearchResults = await GetMockSearchResults() };
+        var response = new GetAnimalPassportAndDetailsResponse { SearchResults = GetMockSearchResults() };
 
         _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
 
         return response;
     }
 
-    private async Task<SearchResults?> GetMockSearchResults()
+    private SearchResults? GetMockSearchResults()
     {
         return new SearchResults
         {
@@ -52,12 +47,12 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
                                 AnimalDetails =
                                     new AnimalDetails
                                     {
-                                        AnimalSpecies = new CodeType { Code = "MOCK_SPECIES_CODE" },
-                                        Breed = new CodeType { Code = "MOCK_BREED_CODE" },
-                                        AnimalType = new CodeType { Code = "MOCK_ANIMAL_TYPE" },
+                                        AnimalSpecies = new RefDataSetCode { Code = "MOCK_SPECIES_CODE" },
+                                        Breed = new RefDataSetCode { Code = "MOCK_BREED_CODE" },
+                                        AnimalType = new RefDataSetCode { Code = "MOCK_ANIMAL_TYPE" },
                                         Gender = "MOCK_GENDER"
                                     },
-                                LivestockType = new CodeType { Code = "MOCK_LIVESTOCK_TYPE" },
+                                LivestockType = new RefDataSetCode { Code = "MOCK_LIVESTOCK_TYPE" },
                                 IndividualAnimalReference = "MOCK_INDIVIDUAL_ANIMAL_REFERENCE",
                                 DateOfBirth = "01/01/2020",
                                 IndvdlyRegstAnimalStatus = "MOCK_STATUS",
@@ -106,7 +101,7 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
                                             {
                                                 FeatureName = "MOCK_FEATURE_NAME",
                                                 FeatureType =
-                                                    new CodeType { Code = "MOCK_FEATURE_TYPE" }
+                                                    new RefDataSetCode { Code = "MOCK_FEATURE_TYPE" }
                                             },
                                         AltFeatureIdentities = new AltFeatureIdentities
                                         {
@@ -116,7 +111,7 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
                                                 {
                                                     AltFeatureIdentityPK = 123456,
                                                     AltFeatureIdentityType =
-                                                        new CodeType { Code = "MOCK_ALT_FEATURE_TYPE" },
+                                                        new RefDataSetCode { Code = "MOCK_ALT_FEATURE_TYPE" },
                                                     AltFeatureIdentityValue = "MOCK_ALT_FEATURE_VALUE",
                                                     AltFeatureIdFromDate = "MOCK_ALT_FEATURE_ID_FROM_DATE"
                                                 }

@@ -1,4 +1,5 @@
 using Cads.Cds.Api.Application.Soap.Messages.AnimalPassportAndDetails;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
 using CoreWCF;
 
 namespace Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
@@ -6,10 +7,10 @@ namespace Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 // <summary>
 /// Service contract for Animal passport and details SOAP operations
 /// </summary>
-[ServiceContract(Namespace = "http://services.defra.gov.uk/ahw/animalpassport")]
+[ServiceContract(Namespace = Namespaces.AnimalPassport)]
 public interface IAnimalPassportAndDetailsServiceContract
 {
-    [OperationContract(Name = "GetAnimalPassportAndDetailsRequest", Action = "*", ReplyAction = "*")]
-    [XmlSerializerFormat(Style = OperationFormatStyle.Document)]
-    Task<GetAnimalPassportAndDetailsResponse> GetAnimalPassportAndDetailsRequest(AnimalsIds AnimalsIds);
+    [OperationContract(Name = "GetAnimalPassportAndDetails", Action = "*", ReplyAction = "*")]
+    [XmlSerializerFormat]
+    GetAnimalPassportAndDetailsResponse GetAnimalPassportAndDetails(GetAnimalPassportAndDetailsRequest request);
 }

@@ -1,25 +1,34 @@
 using System.Xml.Serialization;
+using Cads.Cds.Api.Application.Soap.Messages.Shared;
+using CoreWCF;
 
 namespace Cads.Cds.Api.Application.Soap.Messages.AnimalDetails;
 
 /// <summary>
 /// Request model for GetAnimalDetails SOAP operation
 /// </summary>
-[XmlRoot(ElementName = "GetAnimalDetailsRequest", Namespace = "http://services.defra.gov.uk/ahw/tracing/cattle/animal")]
+[MessageContract(IsWrapped = false)]
 public class GetAnimalDetailsRequest
 {
-    [XmlAttribute(AttributeName = "IncludeRecentMovements")]
+    [MessageBodyMember(Name = "GetAnimalDetailsRequest", Namespace = Namespaces.CattleAnimal, Order = 0)]
+    public GetAnimalDetailsRequestBody Body { get; set; } = new();
+}
+
+
+public class GetAnimalDetailsRequestBody
+{
+    [XmlAttribute("IncludeRecentMovements")]
     public bool IncludeRecentMovements { get; set; }
 
-    [XmlAttribute(AttributeName = "IncludeFeedback")]
+    [XmlAttribute("IncludeFeedback")]
     public bool IncludeFeedback { get; set; }
 
-    [XmlElement(ElementName = "AnimalsIds", Namespace = "http://services.defra.gov.uk/ahw/tracing/cattle/animal")]
-    public AnimalsIds? AnimalsIds { get; set; }
+    [XmlElement("AnimalsIds", Namespace = Namespaces.CattleAnimal)]
+    public AnimalsIds AnimalsIds { get; set; } = new();
 }
 
 public class AnimalsIds
 {
-    [XmlElement(ElementName = "Eartag", Namespace = "http://services.defra.gov.uk/ahw/tracing/cattle/animal")]
-    public List<string> Eartags { get; set; } = new();
+    [XmlElement("Eartag", Namespace = Namespaces.CattleAnimal)]
+    public List<string> Eartag { get; set; } = [];
 }
