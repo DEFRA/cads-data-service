@@ -7,9 +7,9 @@ using Microsoft.Extensions.Options;
 
 namespace Cads.Cds.MiBff.Application.Services.Amsl2;
 
-public class MovementInSuspenseService(
+public class MovementsInSuspenseService(
     IWebHostEnvironment env,
     IFileService fileService,
-    IOptions<MiBffModuleConfiguration> options) : Amsl2SampleDataService<Amsl2Dto>(env, fileService, options), IMovementInSuspenseService
+    IOptions<MiBffModuleConfiguration> options) : Amsl2SampleDataService<Amsl2Dto>(env, fileService, options), IMovementsInSuspenseService
 {
 }

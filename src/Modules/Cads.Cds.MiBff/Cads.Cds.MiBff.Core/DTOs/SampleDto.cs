@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Cads.Cds.MiBff.Core.DTOs;
 
-public abstract class SampleDto : IDataIdentity, IDataCode
+public abstract class SampleDto : IDataIdentity
 {
     [JsonPropertyName("id")]
     public required Guid Id { get; set; }

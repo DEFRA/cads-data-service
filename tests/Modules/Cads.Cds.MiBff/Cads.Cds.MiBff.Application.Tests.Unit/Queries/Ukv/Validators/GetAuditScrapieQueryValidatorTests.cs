@@ -1,17 +1,17 @@
-using Cads.Cds.MiBff.Application.Queries.Ukv.DataQuality;
-using Cads.Cds.MiBff.Application.Queries.Ukv.DataQuality.Validators;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Audit;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Audit.Validators;
 using FluentValidation.TestHelper;
 
-namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;
+namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Ukv.Validators;
 
-public class GetDataQualityUnregisteredQueryValidatorTests
+public class GetAuditScrapieQueryValidatorTests
 {
-    private readonly GetDataQualityUnregisteredQueryValidator _sut = new();
+    private readonly GetAuditScrapieQueryValidator _sut = new();
 
     [Fact]
     public void Page_WhenZeroOrNegative_ShouldHaveValidationError()
     {
-        var model = new GetDataQualityUnregisteredQuery { Page = 0 };
+        var model = new GetAuditScrapieQuery { Page = 0 };
 
         var result = _sut.TestValidate(model);
 
@@ -21,7 +21,7 @@ public class GetDataQualityUnregisteredQueryValidatorTests
     [Fact]
     public void Page_WhenPositive_ShouldBeValid()
     {
-        var model = new GetDataQualityUnregisteredQuery { Page = 1 };
+        var model = new GetAuditScrapieQuery { Page = 1 };
 
         var result = _sut.TestValidate(model);
 
@@ -31,7 +31,7 @@ public class GetDataQualityUnregisteredQueryValidatorTests
     [Fact]
     public void PageSize_WhenZeroOrNegative_ShouldHaveValidationError()
     {
-        var model = new GetDataQualityUnregisteredQuery { PageSize = 0 };
+        var model = new GetAuditScrapieQuery { PageSize = 0 };
 
         var result = _sut.TestValidate(model);
 
@@ -41,7 +41,7 @@ public class GetDataQualityUnregisteredQueryValidatorTests
     [Fact]
     public void PageSize_WhenPositive_ShouldBeValid()
     {
-        var model = new GetDataQualityUnregisteredQuery { PageSize = 10 };
+        var model = new GetAuditScrapieQuery { PageSize = 10 };
 
         var result = _sut.TestValidate(model);
 
@@ -53,7 +53,7 @@ public class GetDataQualityUnregisteredQueryValidatorTests
     [InlineData("desc")]
     public void Sort_WhenValid_ShouldNotHaveValidationError(string sort)
     {
-        var model = new GetDataQualityUnregisteredQuery { Sort = sort, Order = "name" };
+        var model = new GetAuditScrapieQuery { Sort = sort, Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -66,7 +66,7 @@ public class GetDataQualityUnregisteredQueryValidatorTests
     [InlineData("invalid")]
     public void Sort_WhenInvalid_ShouldHaveValidationError(string sort)
     {
-        var model = new GetDataQualityUnregisteredQuery { Sort = sort, Order = "name" };
+        var model = new GetAuditScrapieQuery { Sort = sort, Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -76,7 +76,7 @@ public class GetDataQualityUnregisteredQueryValidatorTests
     [Fact]
     public void Order_WhenSortProvidedAndOrderMissing_ShouldHaveValidationError()
     {
-        var model = new GetDataQualityUnregisteredQuery { Sort = "asc", Order = null };
+        var model = new GetAuditScrapieQuery { Sort = "asc", Order = null };
 
         var result = _sut.TestValidate(model);
 
@@ -86,7 +86,7 @@ public class GetDataQualityUnregisteredQueryValidatorTests
     [Fact]
     public void Order_WhenSortProvidedAndOrderPresent_ShouldBeValid()
     {
-        var model = new GetDataQualityUnregisteredQuery { Sort = "asc", Order = "name" };
+        var model = new GetAuditScrapieQuery { Sort = "asc", Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -96,7 +96,7 @@ public class GetDataQualityUnregisteredQueryValidatorTests
     [Fact]
     public void Order_WhenSortNotProvided_ShouldNotBeValidated()
     {
-        var model = new GetDataQualityUnregisteredQuery { Sort = null, Order = null };
+        var model = new GetAuditScrapieQuery { Sort = null, Order = null };
 
         var result = _sut.TestValidate(model);
 

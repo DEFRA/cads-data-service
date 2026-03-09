@@ -15,6 +15,6 @@ public abstract class Amsl2SampleDataService<TDto>(
      env,
      fileService,
      options)
-    where TDto : class, IDataIdentity, IDataCode
+    where TDto : class, IDataIdentity
 {
 }

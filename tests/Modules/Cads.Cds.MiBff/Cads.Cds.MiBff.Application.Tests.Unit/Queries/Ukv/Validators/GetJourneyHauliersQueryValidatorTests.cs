@@ -1,17 +1,17 @@
-using Cads.Cds.MiBff.Application.Queries.Ukv.Holdings;
-using Cads.Cds.MiBff.Application.Queries.Ukv.Holdings.Validators;
+using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers;
+using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers.Validators;
 using FluentValidation.TestHelper;
 
-namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;
+namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Ukv.Validators;
 
-public class GetHoldingsQueryValidatorTests
+public class GetJourneyHauliersQueryValidatorTests
 {
-    private readonly GetHoldingsQueryValidator _sut = new();
+    private readonly GetJourneyHauliersQueryValidator _sut = new();
 
     [Fact]
     public void Page_WhenZeroOrNegative_ShouldHaveValidationError()
     {
-        var model = new GetHoldingsQuery { Page = 0 };
+        var model = new GetJourneyHauliersQuery { Page = 0 };
 
         var result = _sut.TestValidate(model);
 
@@ -21,7 +21,7 @@ public class GetHoldingsQueryValidatorTests
     [Fact]
     public void Page_WhenPositive_ShouldBeValid()
     {
-        var model = new GetHoldingsQuery { Page = 1 };
+        var model = new GetJourneyHauliersQuery { Page = 1 };
 
         var result = _sut.TestValidate(model);
 
@@ -31,7 +31,7 @@ public class GetHoldingsQueryValidatorTests
     [Fact]
     public void PageSize_WhenZeroOrNegative_ShouldHaveValidationError()
     {
-        var model = new GetHoldingsQuery { PageSize = 0 };
+        var model = new GetJourneyHauliersQuery { PageSize = 0 };
 
         var result = _sut.TestValidate(model);
 
@@ -41,7 +41,7 @@ public class GetHoldingsQueryValidatorTests
     [Fact]
     public void PageSize_WhenPositive_ShouldBeValid()
     {
-        var model = new GetHoldingsQuery { PageSize = 10 };
+        var model = new GetJourneyHauliersQuery { PageSize = 10 };
 
         var result = _sut.TestValidate(model);
 
@@ -53,7 +53,7 @@ public class GetHoldingsQueryValidatorTests
     [InlineData("desc")]
     public void Sort_WhenValid_ShouldNotHaveValidationError(string sort)
     {
-        var model = new GetHoldingsQuery { Sort = sort, Order = "name" };
+        var model = new GetJourneyHauliersQuery { Sort = sort, Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -66,7 +66,7 @@ public class GetHoldingsQueryValidatorTests
     [InlineData("invalid")]
     public void Sort_WhenInvalid_ShouldHaveValidationError(string sort)
     {
-        var model = new GetHoldingsQuery { Sort = sort, Order = "name" };
+        var model = new GetJourneyHauliersQuery { Sort = sort, Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -76,7 +76,7 @@ public class GetHoldingsQueryValidatorTests
     [Fact]
     public void Order_WhenSortProvidedAndOrderMissing_ShouldHaveValidationError()
     {
-        var model = new GetHoldingsQuery { Sort = "asc", Order = null };
+        var model = new GetJourneyHauliersQuery { Sort = "asc", Order = null };
 
         var result = _sut.TestValidate(model);
 
@@ -86,7 +86,7 @@ public class GetHoldingsQueryValidatorTests
     [Fact]
     public void Order_WhenSortProvidedAndOrderPresent_ShouldBeValid()
     {
-        var model = new GetHoldingsQuery { Sort = "asc", Order = "name" };
+        var model = new GetJourneyHauliersQuery { Sort = "asc", Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -96,7 +96,7 @@ public class GetHoldingsQueryValidatorTests
     [Fact]
     public void Order_WhenSortNotProvided_ShouldNotBeValidated()
     {
-        var model = new GetHoldingsQuery { Sort = null, Order = null };
+        var model = new GetJourneyHauliersQuery { Sort = null, Order = null };
 
         var result = _sut.TestValidate(model);
 

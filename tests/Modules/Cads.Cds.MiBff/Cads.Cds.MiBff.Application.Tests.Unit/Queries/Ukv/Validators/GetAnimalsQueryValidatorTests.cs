@@ -1,17 +1,17 @@
-using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts;
-using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts.Adapters;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Animals;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Animals.Validators;
 using FluentValidation.TestHelper;
 
-namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;
+namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Ukv.Validators;
 
-public class GetCohortsQueryValidatorTests
+public class GetAnimalsQueryValidatorTests
 {
-    private readonly GetCohortsQueryValidator _sut = new();
+    private readonly GetAnimalsQueryValidator _sut = new();
 
     [Fact]
     public void Page_WhenZeroOrNegative_ShouldHaveValidationError()
     {
-        var model = new GetCohortsQuery { Page = 0 };
+        var model = new GetAnimalsQuery { Page = 0 };
 
         var result = _sut.TestValidate(model);
 
@@ -21,7 +21,7 @@ public class GetCohortsQueryValidatorTests
     [Fact]
     public void Page_WhenPositive_ShouldBeValid()
     {
-        var model = new GetCohortsQuery { Page = 1 };
+        var model = new GetAnimalsQuery { Page = 1 };
 
         var result = _sut.TestValidate(model);
 
@@ -31,7 +31,7 @@ public class GetCohortsQueryValidatorTests
     [Fact]
     public void PageSize_WhenZeroOrNegative_ShouldHaveValidationError()
     {
-        var model = new GetCohortsQuery { PageSize = 0 };
+        var model = new GetAnimalsQuery { PageSize = 0 };
 
         var result = _sut.TestValidate(model);
 
@@ -41,7 +41,7 @@ public class GetCohortsQueryValidatorTests
     [Fact]
     public void PageSize_WhenPositive_ShouldBeValid()
     {
-        var model = new GetCohortsQuery { PageSize = 10 };
+        var model = new GetAnimalsQuery { PageSize = 10 };
 
         var result = _sut.TestValidate(model);
 
@@ -53,7 +53,7 @@ public class GetCohortsQueryValidatorTests
     [InlineData("desc")]
     public void Sort_WhenValid_ShouldNotHaveValidationError(string sort)
     {
-        var model = new GetCohortsQuery { Sort = sort, Order = "name" };
+        var model = new GetAnimalsQuery { Sort = sort, Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -66,7 +66,7 @@ public class GetCohortsQueryValidatorTests
     [InlineData("invalid")]
     public void Sort_WhenInvalid_ShouldHaveValidationError(string sort)
     {
-        var model = new GetCohortsQuery { Sort = sort, Order = "name" };
+        var model = new GetAnimalsQuery { Sort = sort, Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -76,7 +76,7 @@ public class GetCohortsQueryValidatorTests
     [Fact]
     public void Order_WhenSortProvidedAndOrderMissing_ShouldHaveValidationError()
     {
-        var model = new GetCohortsQuery { Sort = "asc", Order = null };
+        var model = new GetAnimalsQuery { Sort = "asc", Order = null };
 
         var result = _sut.TestValidate(model);
 
@@ -86,7 +86,7 @@ public class GetCohortsQueryValidatorTests
     [Fact]
     public void Order_WhenSortProvidedAndOrderPresent_ShouldBeValid()
     {
-        var model = new GetCohortsQuery { Sort = "asc", Order = "name" };
+        var model = new GetAnimalsQuery { Sort = "asc", Order = "name" };
 
         var result = _sut.TestValidate(model);
 
@@ -96,7 +96,7 @@ public class GetCohortsQueryValidatorTests
     [Fact]
     public void Order_WhenSortNotProvided_ShouldNotBeValidated()
     {
-        var model = new GetCohortsQuery { Sort = null, Order = null };
+        var model = new GetAnimalsQuery { Sort = null, Order = null };
 
         var result = _sut.TestValidate(model);
 

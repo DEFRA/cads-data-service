@@ -13,13 +13,4 @@ public class DetailedMovementsQueryAdapter(IDetailedMovementsService service)
 
         return (items, items.Count());
     }
-
-    public async Task<(IEnumerable<Amsl2Dto> Items, int TotalCount)> GetAsync(
-        GetDetailedMovementsQuery query,
-        CancellationToken cancellationToken = default)
-    {
-        var items = await service.GetAllAsync(cancellationToken);
-
-        return (items, items.Count());
-    }
 }

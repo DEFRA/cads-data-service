@@ -15,7 +15,7 @@ public class Amsl2MovementsInSuspenseEndpointTests(MiBffTestFixture testFixture)
     public async Task GetMovementsInSuspense_Endpoint_Uses_Defaults_And_Returns_Ok()
     {
         // Arrange
-        var endpoint = TestEndpointConstants.BffUkvAnimalsEndpoint;
+        var endpoint = TestEndpointConstants.BffAmsl2MovementsInSuspenseEndpoint;
 
         // Act
         var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);

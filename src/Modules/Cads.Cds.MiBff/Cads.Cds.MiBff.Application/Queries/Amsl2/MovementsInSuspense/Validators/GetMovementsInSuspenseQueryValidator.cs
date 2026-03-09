@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace Cads.Cds.MiBff.Application.Queries.Amsl2.MovementsInSuspense.Validators;
 
-public class GetMovementInSuspenseQueryValidator : AbstractValidator<GetMovementInSuspenseQuery>
+public class GetMovementsInSuspenseQueryValidator : AbstractValidator<GetMovementsInSuspenseQuery>
 {
-    public GetMovementInSuspenseQueryValidator()
+    public GetMovementsInSuspenseQueryValidator()
     {
         RuleFor(x => x.Page).GreaterThan(0);
         RuleFor(x => x.PageSize).GreaterThan(0);
