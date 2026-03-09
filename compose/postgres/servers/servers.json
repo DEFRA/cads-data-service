@@ -1,0 +1,28 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "CDS Postgres",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "postgres",
+      "SSLMode": "prefer",
+      "PassFile": "/pgpass",
+      "Comment": "CDS Postgres instance",
+      "DBRestriction": ""
+    },
+    "2": {
+      "Name": "Reference Postgres",
+      "Group": "Servers",
+      "Host": "reference-postgres",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "postgres",
+      "SSLMode": "prefer",
+      "PassFile": "/pgpass",
+      "Comment": "Reference schema for Liquibase diff",
+      "DBRestriction": ""
+    }
+  }
+}
