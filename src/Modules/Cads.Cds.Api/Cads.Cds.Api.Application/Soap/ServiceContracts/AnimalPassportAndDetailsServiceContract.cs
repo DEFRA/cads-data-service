@@ -30,7 +30,7 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
         return response;
     }
 
-    private SearchResults? GetMockSearchResults()
+    private static SearchResults GetMockSearchResults()
     {
         return new SearchResults
         {
@@ -95,7 +95,7 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
                                     ReportRcvdDateTimeOn = "MOCK_REPORT_RCVD_DATE_TIME_ON",
                                     OnFeature = new OnFeature
                                     {
-                                        FeaturePK = 123456,
+                                        FeaturePK = "123456",
                                         FeatureDetails =
                                             new FeatureDetails
                                             {
@@ -109,7 +109,7 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
                                             {
                                                 new AltFeatureIdentity
                                                 {
-                                                    AltFeatureIdentityPK = 123456,
+                                                    AltFeatureIdentityPK = "123456",
                                                     AltFeatureIdentityType =
                                                         new RefDataSetCode { Code = "MOCK_ALT_FEATURE_TYPE" },
                                                     AltFeatureIdentityValue = "MOCK_ALT_FEATURE_VALUE",
@@ -118,7 +118,7 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
                                             }
                                         }
                                     },
-                                    CTSMovementType = 123,
+                                    CTSMovementType = "123",
                                     CTSMovementTypeDesc = "CTSMovementTypeDesc",
                                     MovementDirection = "MOCK_MOVEMENT_DIRECTION",
                                     LocationType = "MOCK_LOCATION_TYPE"
