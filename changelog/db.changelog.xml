@@ -4,5 +4,21 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-  <include  file="db.changelog-1.0.sql"/>
+  <include file="db.changelog-1.0.sql"/>
+  <include file="0010_mi_user_create_table.postgresql.sql"/>
+  <include file="0020_mi_role_create_table.postgresql.sql"/>
+  <include file="0030_mi_user_role_create_table.postgresql.sql"/>
+  <include file="0040_mi_report_create_table.postgresql.sql"/>
+  <include file="0050_mi_report_group_create_table.postgresql.sql"/>
+  <include file="0060_mi_report_group_map_create_table.postgresql.sql"/>
+  <include file="0070_mi_permission_create_table.postgresql.sql"/>
+  <include file="0080_mi_role_report_permission_create_table.postgresql.sql"/>
+  <include file="0090_mi_user_report_permission_create_table.postgresql.sql"/>
+  <include file="0100_mi_effective_report_permission_create_view.postgresql.sql"/>
+  <include file="0110_mi_permission_seed_initial_permissions.postgresql.sql"/>
+  <include file="0120_mi_report_seed_initial_reports.postgresql.sql"/>
+  <include file="0130_mi_role_seed_initial_roles.postgresql.sql"/>
+  <include file="0140_mi_role_report_permission_seed_initial_permissions.postgresql.sql"/>
+  <include file="0150_mi_user_seed_initial_users.postgresql.sql"/>
+  <include file="0160_mi_user_role_seed_initial_user_roles.postgresql.sql"/>
 </databaseChangeLog>
