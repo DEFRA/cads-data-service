@@ -101,7 +101,7 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [HttpGet("holdings")]
     public async Task<IActionResult> GetHoldings([FromQuery] GetHoldingsPagedRequest request)
     {
-        var query = QueryFactory.CreatePagedQuery<GetHoldingsQuery, UkvDto>(request);
+        var query = QueryFactory.CreatePagedQuery<GetHoldingsQuery, HoldingDto>(request);
         query.LastModified = request.LastModified;
 
         var result = await _executor.ExecuteQuery(query);
