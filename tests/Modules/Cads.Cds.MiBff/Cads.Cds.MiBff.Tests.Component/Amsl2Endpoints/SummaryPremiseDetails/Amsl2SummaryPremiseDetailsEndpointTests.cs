@@ -15,7 +15,7 @@ public class SummaryPremiseDetailsyEndpointTests(MiBffTestFixture testFixture) :
     public async Task GetAnimals_Endpoint_Uses_Defaults_And_Returns_Ok()
     {
         // Arrange
-        var endpoint = TestEndpointConstants.BffUkvAnimalsEndpoint;
+        var endpoint = TestEndpointConstants.BffAmsl2SummaryPremiseDetailsEndpoint;
 
         // Act
         var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);

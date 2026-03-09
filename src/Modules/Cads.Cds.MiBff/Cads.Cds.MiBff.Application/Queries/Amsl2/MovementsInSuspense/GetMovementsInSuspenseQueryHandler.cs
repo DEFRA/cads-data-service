@@ -4,10 +4,10 @@ using Cads.Cds.MiBff.Core.DTOs;
 
 namespace Cads.Cds.MiBff.Application.Queries.Amsl2.MovementsInSuspense;
 
-public class GetMovementInSuspenseQueryHandler(MovementsInSuspenseQueryAdapter adapter)
-    : PagedQueryHandler<GetMovementInSuspenseQuery, Amsl2Dto>
+public class GetMovementsInSuspenseQueryHandler(MovementsInSuspenseQueryAdapter adapter)
+    : PagedQueryHandler<GetMovementsInSuspenseQuery, Amsl2Dto>
 {
-    protected override async Task<(IEnumerable<Amsl2Dto> Items, int TotalCount)> FetchAsync(GetMovementInSuspenseQuery query, CancellationToken cancellationToken)
+    protected override async Task<(IEnumerable<Amsl2Dto> Items, int TotalCount)> FetchAsync(GetMovementsInSuspenseQuery query, CancellationToken cancellationToken)
     {
         return await adapter.GetAsync(query, cancellationToken);
     }

@@ -5,9 +5,9 @@ using Cads.Cds.MiBff.Core.Services.Ukv;
 using FluentAssertions;
 using Moq;
 
-namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Holdings.Adapters;
+namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Ukv.Holdings.Adapters;
 
-public class HoldingsQueryAdapterTests
+public class HoldingsQueryByCphAdapterTests
 {
     [Fact]
     public async Task GetHoldingsAsync_ShouldCallServiceWithCorrectParameters()
@@ -16,20 +16,16 @@ public class HoldingsQueryAdapterTests
 
         var mockHoldingService = new Mock<IHoldingService>();
         mockHoldingService
-          .Setup(s => s.GetAllAsync(It.IsAny<CancellationToken>()))
-          .ReturnsAsync(holdings);
+          .Setup(s => s.GetByCphAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(holdings.Take(1));
 
         var adapter = new HoldingsQueryAdapter(mockHoldingService.Object);
 
-        var query = new GetHoldingsQuery
-        {
-            Page = 1,
-            PageSize = 20
-        };
+        var query = new GetHoldingsByCphQuery("ABC123");
 
         var (items, count) = await adapter.GetAsync(query, TestContext.Current.CancellationToken);
 
-        items.Should().BeEquivalentTo(holdings);
-        count.Should().Be(5);
+        items.Should().BeEquivalentTo(new[] { holdings[0] });
+        count.Should().Be(1);
     }
 }

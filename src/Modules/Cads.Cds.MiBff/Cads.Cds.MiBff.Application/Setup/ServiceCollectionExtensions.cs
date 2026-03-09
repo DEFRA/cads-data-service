@@ -67,7 +67,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IDepartureDetailsService, DepartureDetailsService>();
         services.AddTransient<IDestinationDetailsService, DestinationDetailsService>();
         services.AddTransient<IDetailedMovementsService, DetailedMovementsService>();
-        services.AddTransient<IMovementInSuspenseService, MovementInSuspenseService>();
+        services.AddTransient<IMovementsInSuspenseService, MovementsInSuspenseService>();
         services.AddTransient<ISummaryPremiseDetailsService, SummaryPremiseDetailsService>();
 
         // Ukv Sevices

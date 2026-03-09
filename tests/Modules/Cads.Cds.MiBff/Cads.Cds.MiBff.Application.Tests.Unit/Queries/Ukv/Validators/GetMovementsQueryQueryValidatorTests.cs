@@ -2,7 +2,7 @@ using Cads.Cds.MiBff.Application.Queries.Ukv.Movements;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Movements.Validators;
 using FluentValidation.TestHelper;
 
-namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;
+namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Ukv.Validators;
 
 public class GetMovementsQueryQueryValidatorTests
 {

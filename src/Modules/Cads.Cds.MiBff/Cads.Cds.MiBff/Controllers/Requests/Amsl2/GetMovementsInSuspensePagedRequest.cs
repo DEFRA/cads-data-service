@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers.Requests.Amsl2;
 
-public class GetMovementsInSuspenseRequest : IPagedRequest
+public class GetMovementsInSuspensePagedRequest : IPagedRequest
 {
     [FromQuery] public int? Page { get; set; }
     [FromQuery] public int? PageSize { get; set; }

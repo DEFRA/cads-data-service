@@ -1,7 +1,6 @@
-using Cads.Cds.MiBff.Application.Queries.Amsl2.SummaryPremiseDetails;
 using FluentValidation;
 
-namespace Cads.Cds.MiBff.Application.Queries.Ukv.Animals.Validators;
+namespace Cads.Cds.MiBff.Application.Queries.Amsl2.SummaryPremiseDetails.Validators;
 
 public class GetSummaryPremiseDetailsQueryValidator : AbstractValidator<GetSummaryPremiseDetailsQuery>
 {

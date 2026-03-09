@@ -11,25 +11,13 @@ public abstract class SampleDataService<TDto>(
     IWebHostEnvironment env,
     IFileService fileService,
     IOptions<MiBffModuleConfiguration> options)
-    where TDto : class, IDataIdentity, IDataCode
+    where TDto : class, IDataIdentity
 {
     public virtual async Task<IEnumerable<TDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         if (options.Value.StaticData.Enabled)
         {
             return await LoadFromFileAsync(cancellationToken);
-        }
-
-        return [];
-    }
-
-    public virtual async Task<IEnumerable<TDto>> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
-    {
-        if (options.Value.StaticData.Enabled)
-        {
-            var data = await LoadFromFileAsync(cancellationToken);
-
-            return data.Where(h => h.Code == code);
         }
 
         return [];

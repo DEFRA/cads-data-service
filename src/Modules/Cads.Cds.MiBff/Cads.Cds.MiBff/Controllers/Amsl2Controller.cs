@@ -70,18 +70,6 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
         return Ok(result);
     }
 
-    [ApiMessage($"Message text from {nameof(GetDetailedMovements)} endpoint", $"Description text from {nameof(GetDetailedMovements)} endpoint")]
-    [ResponseWithMetaData]
-    [HttpGet("detailed-movements")]
-    public async Task<IActionResult> GetDetailedMovements([FromQuery] GetDetailedMovementsPagedRequest request)
-    {
-        var query = QueryFactory.CreatePagedQuery<GetDetailedMovementsQuery, Amsl2Dto>(request);
-
-        var result = await _executor.ExecuteQuery(query);
-
-        return Ok(result);
-    }
-
     [ApiMessage($"Message text from {nameof(GetDetailedMovementsById)} endpoint", $"Description text from {nameof(GetDetailedMovementsById)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("detailed-movement/{movementId}")]
@@ -97,9 +85,9 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetMovementsInSuspense)} endpoint", $"Description text from {nameof(GetMovementsInSuspense)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("movements-in-suspense")]
-    public async Task<IActionResult> GetMovementsInSuspense([FromQuery] GetMovementsInSuspenseRequest request)
+    public async Task<IActionResult> GetMovementsInSuspense([FromQuery] GetMovementsInSuspensePagedRequest request)
     {
-        var query = QueryFactory.CreatePagedQuery<GetMovementInSuspenseQuery, Amsl2Dto>(request);
+        var query = QueryFactory.CreatePagedQuery<GetMovementsInSuspenseQuery, Amsl2Dto>(request);
 
         var result = await _executor.ExecuteQuery(query);
 

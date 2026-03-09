@@ -3,10 +3,10 @@ using Cads.Cds.MiBff.Core.Services.Amsl2;
 
 namespace Cads.Cds.MiBff.Application.Queries.Amsl2.MovementsInSuspense.Adapters;
 
-public class MovementsInSuspenseQueryAdapter(IMovementInSuspenseService service)
+public class MovementsInSuspenseQueryAdapter(IMovementsInSuspenseService service)
 {
     public async Task<(IEnumerable<Amsl2Dto> Items, int TotalCount)> GetAsync(
-        GetMovementInSuspenseQuery query,
+        GetMovementsInSuspenseQuery query,
         CancellationToken cancellationToken = default)
     {
         var items = await service.GetAllAsync(cancellationToken);

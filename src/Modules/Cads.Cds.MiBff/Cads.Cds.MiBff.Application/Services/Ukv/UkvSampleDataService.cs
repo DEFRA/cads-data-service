@@ -15,5 +15,5 @@ public abstract class UkvSampleDataService<TDto>(
      env,
      fileService,
      options)
-    where TDto : class, IDataIdentity, IDataCode
+    where TDto : class, IDataIdentity
 { }
