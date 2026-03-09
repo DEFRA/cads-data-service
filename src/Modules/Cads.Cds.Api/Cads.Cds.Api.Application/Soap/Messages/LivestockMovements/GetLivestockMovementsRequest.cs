@@ -64,12 +64,3 @@ public class SpeciesCodes
     [XmlElement(ElementName = "AnimalSpecies")]
     public List<CommonRefDataSetCode> AnimalSpecies { get; set; } = [];
 }
-
-public class CommonRefDataSetCode
-{
-    [XmlAttribute("RefDataSetName")]
-    public string RefDataSetName { get; set; } = string.Empty;
-
-    [XmlElement("Code", Namespace = Namespaces.CommonReferenceDataSetTypes)]
-    public string Code { get; set; } = string.Empty;
-}

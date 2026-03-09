@@ -22,17 +22,6 @@ public class AnimalCohortServiceContract : IAnimalCohortServiceContract
     // ReSharper disable once InconsistentNaming
     public GetAnimalCohortResponse GetAnimalCohort(GetAnimalCohortRequest request)
     {
-        if (request?.ServiceOptions == null)
-        {
-            _logger.LogWarning("ServiceOptions is null - CoreWCF deserialization failed.");
-            throw new FaultException("ServiceOptions cannot be null");
-        }
-        if (request?.AnimalCohortQuery == null)
-        {
-            _logger.LogWarning("AnimalCohortQuery is null - CoreWCF deserialization failed.");
-            throw new FaultException("AnimalCohortQuery cannot be null");
-        }
-
         var response = new GetAnimalCohortResponse
         {
             CohortAnimals = GetMockCohortData(),
@@ -59,7 +48,7 @@ public class AnimalCohortServiceContract : IAnimalCohortServiceContract
                 {
                     AnimalIdentifier = new List<AnimalIdentifier>
                     {
-                        new() { AnimalIdentifierValue = "MOCK_ANIMAL_IDENTIFIER", AnimalIdentifierSetCode = new RefDataSetCode { Code = "MOCK_ANIMAL_IDENTIFIER_TYPE"} }
+                        new() { AnimalIdentifierValue = "MOCK_ANIMAL_IDENTIFIER", AnimalIdentifierSetCode = new CommonRefDataSetCode { Code = "MOCK_ANIMAL_IDENTIFIER_TYPE"} }
                     }
                 },
                 AnimalSpecies = new RefDataSetCode { Code = "MOCK_SPECIES_CODE" }

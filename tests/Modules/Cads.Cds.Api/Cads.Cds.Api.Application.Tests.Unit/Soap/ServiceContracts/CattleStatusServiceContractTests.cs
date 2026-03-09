@@ -21,7 +21,7 @@ public class CattleStatusServiceContractTests
     }
 
     [Fact]
-    public async Task CattleStatusServiceTests_Should_Return_GetAnimalCohortResponse_On_Success()
+    public async Task CattleStatusServiceTests_Should_Return_GetCattleStatusResponse_On_Success()
     {
         var logger = Mock.Of<ILogger<CattleStatusServiceContract>>();
         var sut = new CattleStatusServiceContract(logger);
