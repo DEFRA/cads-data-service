@@ -19,28 +19,28 @@ public class LivestockMovementsServiceContract : ILivestockMovementsServiceContr
     }
 
     // ReSharper disable once InconsistentNaming
-    public async Task<GetLivestockMovementsResponse> GetLivestockMovementsRequest(MovementQuery? MovementQuery, ServiceOptions? ServiceOptions)
+    public GetLivestockMovementsResponse GetLivestockMovements(GetLivestockMovementsRequest request)
     {
-        if (ServiceOptions == null)
+        if (request.ServiceOptions == null)
         {
             _logger.LogWarning("ServiceOptions is null - CoreWCF deserialization failed.");
             throw new FaultException("ServiceOptions cannot be null");
         }
-        if (MovementQuery == null)
+        if (request.MovementQuery == null)
         {
             _logger.LogWarning("MovementQuery is null - CoreWCF deserialization failed.");
             throw new FaultException("MovementQuery cannot be null");
         }
         var response = new GetLivestockMovementsResponse
         {
-            TraceIdentifier = MovementQuery.TraceIdentifier,
+            TraceIdentifier = request.MovementQuery.TraceIdentifier,
             TraceParameter = new TraceParameter
             {
-                TraceType = MovementQuery.TraceType,
-                WindowStartDate = MovementQuery.WindowStartDate,
-                WindowEndDate = MovementQuery.WindowEndDate
+                TraceType = request.MovementQuery.TraceType,
+                WindowStartDate = request.MovementQuery.WindowStartDate,
+                WindowEndDate = request.MovementQuery.WindowEndDate
             },
-            SpeciesList = await GetMockSpeciesList()
+            SpeciesList = GetMockSpeciesList()
         };
 
         _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
@@ -48,7 +48,7 @@ public class LivestockMovementsServiceContract : ILivestockMovementsServiceContr
         return response;
     }
 
-    private async Task<SpeciesList?> GetMockSpeciesList()
+    private SpeciesList GetMockSpeciesList()
     {
         return new SpeciesList
         {

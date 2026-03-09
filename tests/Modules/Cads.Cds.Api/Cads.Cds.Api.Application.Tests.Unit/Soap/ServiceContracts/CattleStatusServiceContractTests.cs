@@ -1,3 +1,4 @@
+using Cads.Cds.Api.Application.Soap.Messages.CattleStatus;
 using Cads.Cds.Api.Application.Soap.ServiceContracts;
 using CoreWCF;
 using FluentAssertions;
@@ -14,9 +15,9 @@ public class CattleStatusServiceContractTests
         var logger = Mock.Of<ILogger<CattleStatusServiceContract>>();
         var sut = new CattleStatusServiceContract(logger);
 
-        var act = () => sut.GetCattleStatusRequest(null);
+        var act = () => sut.GetCattleStatus(new GetCattleStatusRequest());
 
-        await act.Should().ThrowAsync<FaultException>().WithMessage("Holding id cannot be null or whitespace");
+        act.Should().Throw<FaultException>().WithMessage("Holding id cannot be null or whitespace");
     }
 
     [Fact]
@@ -26,7 +27,7 @@ public class CattleStatusServiceContractTests
         var sut = new CattleStatusServiceContract(logger);
         var holdingId = "123";
 
-        var result = await sut.GetCattleStatusRequest(holdingId);
+        var result = sut.GetCattleStatus(new GetCattleStatusRequest { HoldingId = holdingId });
 
         result.Should().NotBeNull();
         result.HoldingId.Should().Be(holdingId);

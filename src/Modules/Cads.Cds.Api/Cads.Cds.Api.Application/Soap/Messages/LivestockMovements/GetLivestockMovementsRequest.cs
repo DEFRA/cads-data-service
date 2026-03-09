@@ -1,18 +1,22 @@
 using System.Xml.Serialization;
 using Cads.Cds.Api.Application.Soap.Messages.Shared;
+using CoreWCF;
 
 namespace Cads.Cds.Api.Application.Soap.Messages.LivestockMovements;
 
 /// <summary>
 /// Request model for GetLivestockMovements SOAP operation
 /// </summary>
-[XmlRoot("GetLivestockMovementsRequest", Namespace = "http://services.defra.gov.uk/ahw/livestockmovements")]
+[XmlRoot("GetLivestockMovementsRequest", Namespace = Namespaces.LivestockMovements)]
+[MessageContract(WrapperName = "GetLivestockMovementsRequest", WrapperNamespace = Namespaces.LivestockMovements, IsWrapped = true)]
 public class GetLivestockMovementsRequest
 {
-    [XmlElement(ElementName = "MovementQuery", Namespace = "")]
+    [XmlElement("MovementQuery", Namespace = "")]
+    [MessageBodyMember(Namespace = "", Order = 0)]
     public MovementQuery? MovementQuery { get; set; }
 
     [XmlElement("ServiceOptions", Namespace = "")]
+    [MessageBodyMember(Namespace = "", Order = 1)]
     public ServiceOptions? ServiceOptions { get; set; }
 }
 
@@ -28,28 +32,19 @@ public class MovementQuery
     public string WindowEndDate { get; set; } = string.Empty;
 
     [XmlElement("TraceIdentifier", Namespace = "")]
-    public TraceIdentifier? TraceIdentifier { get; set; }
+    public TraceIdentifier TraceIdentifier { get; set; } = new();
 
     [XmlElement("LocationsAndSpeciesCodes", Namespace = "")]
-    public LocationsAndSpeciesCodes? LocationsAndSpeciesCodes { get; set; }
+    public LocationsAndSpeciesCodes LocationsAndSpeciesCodes { get; set; } = new();
 
     [XmlElement("MaxiRowsToBeReturned", Namespace = "")]
     public int MaxiRowsToBeReturned { get; set; }
 }
 
-public class TraceIdentifier
-{
-    [XmlElement(ElementName = "TraceSpecificationIdentifier")]
-    public string TraceSpecificationIdentifier { get; set; } = string.Empty;
-
-    [XmlElement(ElementName = "TraceIdentifier")]
-    public string TraceIdentifierValue { get; set; } = string.Empty;
-}
-
 public class LocationsAndSpeciesCodes
 {
-    [XmlElement(ElementName = "LocationAndSpeciesCodes")]
-    public List<LocationAndSpeciesCodes> LocationAndSpeciesCodesList { get; set; } = new();
+    [XmlElement(ElementName = "LocationAndSpeciesCodes", Namespace = "")]
+    public List<LocationAndSpeciesCodes> LocationAndSpeciesCodesList { get; set; } = [];
 }
 
 public class LocationAndSpeciesCodes
@@ -58,32 +53,23 @@ public class LocationAndSpeciesCodes
     public string LocationIdentifier { get; set; } = string.Empty;
 
     [XmlElement(ElementName = "LocationIdentifierType")]
-    public LocationIdentifierType? LocationIdentifierType { get; set; }
+    public CommonRefDataSetCode LocationIdentifierType { get; set; } = new();
 
     [XmlElement(ElementName = "SpeciesCodes")]
-    public SpeciesCodes? SpeciesCodes { get; set; }
-}
-
-public class LocationIdentifierType
-{
-    [XmlAttribute(AttributeName = "RefDataSetName")]
-    public string RefDataSetName { get; set; } = string.Empty;
-
-    [XmlElement(ElementName = "Code", Namespace = "http://types.defra.gov.uk/ahw/common/referencedatasets")]
-    public string Code { get; set; } = string.Empty;
+    public SpeciesCodes SpeciesCodes { get; set; } = new();
 }
 
 public class SpeciesCodes
 {
     [XmlElement(ElementName = "AnimalSpecies")]
-    public List<AnimalSpecies> AnimalSpecies { get; set; } = new();
+    public List<CommonRefDataSetCode> AnimalSpecies { get; set; } = [];
 }
 
-public class AnimalSpecies
+public class CommonRefDataSetCode
 {
-    [XmlAttribute(AttributeName = "RefDataSetName")]
+    [XmlAttribute("RefDataSetName")]
     public string RefDataSetName { get; set; } = string.Empty;
 
-    [XmlElement(ElementName = "Code", Namespace = "http://types.defra.gov.uk/ahw/common/referencedatasets")]
+    [XmlElement("Code", Namespace = Namespaces.CommonReferenceDataSetTypes)]
     public string Code { get; set; } = string.Empty;
 }
