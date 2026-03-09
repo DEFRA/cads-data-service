@@ -1,4 +1,5 @@
-using Cads.Cds.MiBff.Application.Queries.Inspections;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Inspections;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Inspections.Validators;
 using FluentValidation.TestHelper;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;

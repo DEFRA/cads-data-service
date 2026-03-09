@@ -1,4 +1,5 @@
-using Cads.Cds.MiBff.Application.Queries.Zones;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Zones;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Zones.Validators;
 using FluentValidation.TestHelper;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;

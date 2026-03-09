@@ -1,4 +1,5 @@
-using Cads.Cds.MiBff.Application.Queries.Cohorts;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts.Adapters;
 using FluentValidation.TestHelper;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Queries.Validators;
