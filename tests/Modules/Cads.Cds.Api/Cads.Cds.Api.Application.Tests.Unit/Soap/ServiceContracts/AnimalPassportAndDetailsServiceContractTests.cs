@@ -17,7 +17,7 @@ public class AnimalPassportAndDetailsServiceContractTests
 
         var act = () => sut.GetAnimalPassportAndDetails(new GetAnimalPassportAndDetailsRequest());
 
-        act.Should().Throw<FaultException>().WithMessage("Eartags cannot be null and must contain at least one value");
+        await act.Should().ThrowAsync<FaultException>().WithMessage("Eartags cannot be null and must contain at least one value");
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class AnimalPassportAndDetailsServiceContractTests
         var sut = new AnimalPassportAndDetailsServiceContract(logger);
         var eartagId = "123";
 
-        var result = sut.GetAnimalPassportAndDetails(new GetAnimalPassportAndDetailsRequest
+        var result = await sut.GetAnimalPassportAndDetails(new GetAnimalPassportAndDetailsRequest
         {
             AnimalsIds = new AnimalsIds { Eartag = new() { eartagId } }
         });

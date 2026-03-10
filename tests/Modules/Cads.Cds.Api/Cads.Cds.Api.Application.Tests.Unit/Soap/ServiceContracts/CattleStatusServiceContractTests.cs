@@ -17,7 +17,7 @@ public class CattleStatusServiceContractTests
 
         var act = () => sut.GetCattleStatus(new GetCattleStatusRequest());
 
-        act.Should().Throw<FaultException>().WithMessage("Holding id cannot be null or whitespace");
+        await act.Should().ThrowAsync<FaultException>().WithMessage("Holding id cannot be null or whitespace");
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class CattleStatusServiceContractTests
         var sut = new CattleStatusServiceContract(logger);
         var holdingId = "123";
 
-        var result = sut.GetCattleStatus(new GetCattleStatusRequest { HoldingId = holdingId });
+        var result = await sut.GetCattleStatus(new GetCattleStatusRequest { HoldingId = holdingId });
 
         result.Should().NotBeNull();
         result.HoldingId.Should().Be(holdingId);

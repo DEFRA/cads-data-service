@@ -19,7 +19,7 @@ public class LivestockMovementsServiceContract : ILivestockMovementsServiceContr
     }
 
     // ReSharper disable once InconsistentNaming
-    public GetLivestockMovementsResponse GetLivestockMovements(GetLivestockMovementsRequest request)
+    public async Task<GetLivestockMovementsResponse> GetLivestockMovements(GetLivestockMovementsRequest request)
     {
         if (request.ServiceOptions == null)
         {
@@ -40,7 +40,7 @@ public class LivestockMovementsServiceContract : ILivestockMovementsServiceContr
                 WindowStartDate = request.MovementQuery.WindowStartDate,
                 WindowEndDate = request.MovementQuery.WindowEndDate
             },
-            SpeciesList = GetMockSpeciesList()
+            SpeciesList = await GetMockSpeciesList()
         };
 
         _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
@@ -48,9 +48,9 @@ public class LivestockMovementsServiceContract : ILivestockMovementsServiceContr
         return response;
     }
 
-    private static SpeciesList GetMockSpeciesList()
+    private static async Task<SpeciesList> GetMockSpeciesList()
     {
-        return new SpeciesList
+        var speciesList = new SpeciesList
         {
             Species = new List<Species>
             {
@@ -85,5 +85,7 @@ public class LivestockMovementsServiceContract : ILivestockMovementsServiceContr
                 }
             }
         };
+        // Mock awaited species list data - replace with actual implementation
+        return await Task.FromResult(speciesList);
     }
 }

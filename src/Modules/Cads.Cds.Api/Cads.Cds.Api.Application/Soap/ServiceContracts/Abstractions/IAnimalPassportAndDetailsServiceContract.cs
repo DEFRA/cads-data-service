@@ -12,5 +12,5 @@ public interface IAnimalPassportAndDetailsServiceContract
 {
     [OperationContract(Name = "GetAnimalPassportAndDetails", Action = "*", ReplyAction = "*")]
     [XmlSerializerFormat]
-    GetAnimalPassportAndDetailsResponse GetAnimalPassportAndDetails(GetAnimalPassportAndDetailsRequest request);
+    Task<GetAnimalPassportAndDetailsResponse> GetAnimalPassportAndDetails(GetAnimalPassportAndDetailsRequest request);
 }
