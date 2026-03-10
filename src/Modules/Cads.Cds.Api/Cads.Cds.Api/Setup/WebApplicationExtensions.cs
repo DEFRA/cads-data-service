@@ -8,46 +8,44 @@ namespace Cads.Cds.Api.Setup;
 
 public static class WebApplicationExtensions
 {
+    private static readonly CustomBinding _soap12BindingHttp = new(
+        new TextMessageEncodingBindingElement { MessageVersion = MessageVersion.Soap12 },
+        new HttpTransportBindingElement());
+    private static readonly CustomBinding _soap12BindingHttps = new(
+        new TextMessageEncodingBindingElement { MessageVersion = MessageVersion.Soap12 },
+        new HttpsTransportBindingElement());
+
     public static IApplicationBuilder UseApiSoapEndpoints(this IApplicationBuilder app)
     {
         app.UseServiceModel(builder =>
         {
-            // Create SOAP 1.2 binding for both endpoints (without WS-Addressing)
-            var soap12Binding = new CustomBinding(
-                new TextMessageEncodingBindingElement { MessageVersion = MessageVersion.Soap12 },
-                new HttpTransportBindingElement());
-
-            // Animal Cohorts endpoint
-            builder.AddService<AnimalCohortServiceContract>();
-            builder.AddServiceEndpoint<AnimalCohortServiceContract, IAnimalCohortServiceContract>(
-                    soap12Binding,
-                    "/api/soap/AnimalCohorts.asmx");
-
-            // Animal Details endpoint
-            builder.AddService<AnimalDetailsServiceContract>();
-            builder.AddServiceEndpoint<AnimalDetailsServiceContract, IAnimalDetailsServiceContract>(
-                soap12Binding,
-                "/api/soap/AnimalDetails.asmx");
-
-            // Animal Passport and Details endpoint
-            builder.AddService<AnimalPassportAndDetailsServiceContract>();
-            builder.AddServiceEndpoint<AnimalPassportAndDetailsServiceContract, IAnimalPassportAndDetailsServiceContract>(
-                    soap12Binding,
-                    "/api/soap/AnimalPassportAndDetails.asmx");
-
-            // Cattle Status endpoint
-            builder.AddService<CattleStatusServiceContract>();
-            builder.AddServiceEndpoint<CattleStatusServiceContract, ICattleStatusServiceContract>(
-                    soap12Binding,
-                    "/api/soap/CattleStatus.asmx");
-
-            // Livestock Movements endpoint
-            builder.AddService<LivestockMovementsServiceContract>();
-            builder.AddServiceEndpoint<LivestockMovementsServiceContract, ILivestockMovementsServiceContract>(
-                    soap12Binding,
+            builder.AddServiceEndpoints<IAnimalCohortServiceContract, AnimalCohortServiceContract>(
+                    "/api/soap/AnimalCohorts.asmx")
+                .AddServiceEndpoints<IAnimalDetailsServiceContract, AnimalDetailsServiceContract>(
+                    "/api/soap/AnimalDetails.asmx")
+                .AddServiceEndpoints<IAnimalPassportAndDetailsServiceContract, AnimalPassportAndDetailsServiceContract>(
+                    "/api/soap/AnimalPassportAndDetails.asmx")
+                .AddServiceEndpoints<ICattleStatusServiceContract, CattleStatusServiceContract>(
+                    "/api/soap/CattleStatus.asmx")
+                .AddServiceEndpoints<ILivestockMovementsServiceContract, LivestockMovementsServiceContract>(
                     "/api/soap/LivestockMovements.asmx");
         });
 
         return app;
+    }
+
+    private static IServiceBuilder AddServiceEndpoints<TServiceContract, TServiceImplementation>(this IServiceBuilder builder, string path)
+        where TServiceContract : class
+        where TServiceImplementation : class, TServiceContract
+    {
+        builder.AddService<TServiceImplementation>();
+        builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
+            _soap12BindingHttp,
+            path);
+        builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
+            _soap12BindingHttps,
+            path);
+
+        return builder;
     }
 }
