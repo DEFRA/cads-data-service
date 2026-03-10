@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
 
-[AllowAnonymous]
 [ApiController]
 [Route("api/v1/bff/mi/[controller]")]
 public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
