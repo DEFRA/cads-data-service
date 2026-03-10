@@ -40,7 +40,7 @@ public static class WebApplicationExtensions
 
         app.MapControllers();
 
-        app.UseApiSoapEndpoints();
+        app.UseApiSoapEndpoints(app.Environment.IsDevelopment());
 
         app.MapGet("/", () => "Alive!").AllowAnonymous();
 
