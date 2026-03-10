@@ -12,5 +12,5 @@ public interface ICattleStatusServiceContract
 {
     [OperationContract(Name = "GetCattleStatus", Action = "*", ReplyAction = "*")]
     [XmlSerializerFormat]
-    GetCattleStatusResponse GetCattleStatus(GetCattleStatusRequest request);
+    Task<GetCattleStatusResponse> GetCattleStatus(GetCattleStatusRequest request);
 }
