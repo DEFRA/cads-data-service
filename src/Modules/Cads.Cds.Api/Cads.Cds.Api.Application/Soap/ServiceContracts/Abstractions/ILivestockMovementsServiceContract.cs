@@ -12,6 +12,6 @@ public interface ILivestockMovementsServiceContract
 {
     [OperationContract(Name = "GetLivestockMovements", Action = "*", ReplyAction = "*")]
     [XmlSerializerFormat]
-    Task<GetLivestockMovementsResponse> GetLivestockMovements(GetLivestockMovementsRequest request);
+    GetLivestockMovementsResponse GetLivestockMovements(GetLivestockMovementsRequest request);
 
 }
