@@ -10,7 +10,7 @@ namespace Cads.Cds.Api.Application.Tests.Unit.Soap.ServiceContracts;
 public class AnimalCohortServiceContractTests
 {
     [Fact]
-    public async Task AnimalCohortServiceContract_Should_Return_GetAnimalCohortResponse_On_Success()
+    public void AnimalCohortServiceContract_Should_Return_GetAnimalCohortResponse_On_Success()
     {
         var logger = Mock.Of<ILogger<AnimalCohortServiceContract>>();
         var sut = new AnimalCohortServiceContract(logger);
@@ -77,7 +77,7 @@ public class AnimalCohortServiceContractTests
             }
         };
 
-        var result = await sut.GetAnimalCohort(new GetAnimalCohortRequest { ServiceOptions = serviceOptions, AnimalCohortQuery = animalCohortQuery });
+        var result = sut.GetAnimalCohort(new GetAnimalCohortRequest { ServiceOptions = serviceOptions, AnimalCohortQuery = animalCohortQuery });
 
         result.Should().NotBeNull();
         result.TraceIdentifier.Should().Be(animalCohortQuery.TraceIdentifier);
