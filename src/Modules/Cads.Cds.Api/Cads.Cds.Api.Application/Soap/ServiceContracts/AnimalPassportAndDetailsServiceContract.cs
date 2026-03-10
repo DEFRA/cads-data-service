@@ -15,7 +15,7 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
         _logger = logger;
     }
 
-    public async Task<GetAnimalPassportAndDetailsResponse> GetAnimalPassportAndDetails(GetAnimalPassportAndDetailsRequest request)
+    public GetAnimalPassportAndDetailsResponse GetAnimalPassportAndDetails(GetAnimalPassportAndDetailsRequest request)
     {
         if (request.AnimalsIds.Eartag.Count == 0)
         {
@@ -23,16 +23,16 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
             throw new FaultException("Eartags cannot be null and must contain at least one value");
         }
 
-        var response = new GetAnimalPassportAndDetailsResponse { SearchResults = await GetMockSearchResults() };
+        var response = new GetAnimalPassportAndDetailsResponse { SearchResults = GetMockSearchResults() };
 
         _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
 
         return response;
     }
 
-    private static async Task<SearchResults> GetMockSearchResults()
+    private static SearchResults GetMockSearchResults()
     {
-        var searchResults = new SearchResults
+        return new SearchResults
         {
             EartagResults = new List<EartagResult>
             {
@@ -129,7 +129,5 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
                 }
             }
         };
-        // Mock awaited animal passport details search results data - replace with actual implementation
-        return await Task.FromResult(searchResults);
     }
 }

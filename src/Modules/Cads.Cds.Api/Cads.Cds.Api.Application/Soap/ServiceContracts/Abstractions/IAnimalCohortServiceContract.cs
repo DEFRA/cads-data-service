@@ -12,5 +12,5 @@ public interface IAnimalCohortServiceContract
 {
     [OperationContract(Name = "GetAnimalCohort", Action = "*", ReplyAction = "*")]
     [XmlSerializerFormat]
-    Task<GetAnimalCohortResponse> GetAnimalCohort(GetAnimalCohortRequest request);
+    GetAnimalCohortResponse GetAnimalCohort(GetAnimalCohortRequest request);
 }
