@@ -41,9 +41,9 @@ public class AnimalPassportAndDetailsServiceContract : IAnimalPassportAndDetails
                     DetailsFound = new DetailsFound
                     {
                         AnimalRecord =
-                            new AnimalRecord
+                            new AnimalPassportRecord()
                             {
-                                AnimalPk = 123456,
+                                AnimalPk = "123456",
                                 AnimalDetails =
                                     new AnimalDetails
                                     {
