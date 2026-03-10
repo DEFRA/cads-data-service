@@ -15,26 +15,26 @@ public static class WebApplicationExtensions
         new TextMessageEncodingBindingElement { MessageVersion = MessageVersion.Soap12 },
         new HttpsTransportBindingElement());
 
-    public static IApplicationBuilder UseApiSoapEndpoints(this IApplicationBuilder app)
+    public static IApplicationBuilder UseApiSoapEndpoints(this IApplicationBuilder app, bool isDevelopment = false)
     {
         app.UseServiceModel(builder =>
         {
             builder.AddServiceEndpoints<IAnimalCohortServiceContract, AnimalCohortServiceContract>(
-                    "/api/soap/AnimalCohorts.asmx")
+                    "/api/soap/AnimalCohorts.asmx", isDevelopment)
                 .AddServiceEndpoints<IAnimalDetailsServiceContract, AnimalDetailsServiceContract>(
-                    "/api/soap/AnimalDetails.asmx")
+                    "/api/soap/AnimalDetails.asmx", isDevelopment)
                 .AddServiceEndpoints<IAnimalPassportAndDetailsServiceContract, AnimalPassportAndDetailsServiceContract>(
-                    "/api/soap/AnimalPassportAndDetails.asmx")
+                    "/api/soap/AnimalPassportAndDetails.asmx", isDevelopment)
                 .AddServiceEndpoints<ICattleStatusServiceContract, CattleStatusServiceContract>(
-                    "/api/soap/CattleStatus.asmx")
+                    "/api/soap/CattleStatus.asmx", isDevelopment)
                 .AddServiceEndpoints<ILivestockMovementsServiceContract, LivestockMovementsServiceContract>(
-                    "/api/soap/LivestockMovements.asmx");
+                    "/api/soap/LivestockMovements.asmx", isDevelopment);
         });
 
         return app;
     }
 
-    private static IServiceBuilder AddServiceEndpoints<TServiceContract, TServiceImplementation>(this IServiceBuilder builder, string path)
+    private static IServiceBuilder AddServiceEndpoints<TServiceContract, TServiceImplementation>(this IServiceBuilder builder, string path, bool isDevelopment = false)
         where TServiceContract : class
         where TServiceImplementation : class, TServiceContract
     {
@@ -42,9 +42,12 @@ public static class WebApplicationExtensions
         builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
             _soap12BindingHttp,
             path);
-        builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
-            _soap12BindingHttps,
-            path);
+        if (!isDevelopment)
+        {
+            builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
+                _soap12BindingHttps,
+                path);
+        }
 
         return builder;
     }
