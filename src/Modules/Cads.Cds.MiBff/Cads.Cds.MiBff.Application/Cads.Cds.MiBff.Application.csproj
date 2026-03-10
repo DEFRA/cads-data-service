@@ -12,4 +12,12 @@
     <ProjectReference Include="..\Cads.Cds.MiBff.Core\Cads.Cds.MiBff.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Queries\Amsl2\AnimalSummary\Validators\" />
+    <Folder Include="Queries\Amsl2\DepartureDetails\Validators\" />
+    <Folder Include="Queries\Amsl2\DestinationDetails\Validators\" />
+    <Folder Include="Queries\Amsl2\DetailedMovements\Validators\" />
+    <Folder Include="Queries\Ukv\Cohorts\Validators\" />
+  </ItemGroup>
+
 </Project>
