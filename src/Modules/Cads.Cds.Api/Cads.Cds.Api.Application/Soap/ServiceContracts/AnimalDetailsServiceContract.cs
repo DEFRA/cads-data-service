@@ -15,7 +15,7 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
         _logger = logger;
     }
 
-    public GetAnimalDetailsResponse GetAnimalDetails(GetAnimalDetailsRequest request)
+    public async Task<GetAnimalDetailsResponse> GetAnimalDetails(GetAnimalDetailsRequest request)
     {
         if (request.Body.AnimalsIds.Eartag.Count == 0)
         {
@@ -25,7 +25,7 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
 
         var response = new GetAnimalDetailsResponse
         {
-            SearchResults = GetMockSearchResults(request.Body.AnimalsIds.Eartag[0])
+            SearchResults = await GetMockSearchResults(request.Body.AnimalsIds.Eartag[0])
         };
 
         _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
@@ -33,9 +33,9 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
         return response;
     }
 
-    private static SearchResults GetMockSearchResults(string eartagId)
+    private static async Task<SearchResults> GetMockSearchResults(string eartagId)
     {
-        return new SearchResults
+        var searchResults = new SearchResults
         {
             EartagResults = new List<EartagResult>
             {
@@ -133,5 +133,7 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
                 }
             }
         };
+        // Mock awaited animal details search results data - replace with actual implementation
+        return await Task.FromResult(searchResults);
     }
 }

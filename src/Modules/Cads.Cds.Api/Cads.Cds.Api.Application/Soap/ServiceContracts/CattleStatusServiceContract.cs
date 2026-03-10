@@ -17,21 +17,21 @@ public class CattleStatusServiceContract : ICattleStatusServiceContract
         _logger = logger;
     }
 
-    public GetCattleStatusResponse GetCattleStatus(GetCattleStatusRequest request)
+    public async Task<GetCattleStatusResponse> GetCattleStatus(GetCattleStatusRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.HoldingId))
         {
             throw new FaultException($"Holding id cannot be null or whitespace");
         }
         var holdingId = request.HoldingId;
-        var response = GetCattleStatusResponseMessage(holdingId);
+        var response = await GetMockCattleStatusResponseMessage(holdingId);
 
         _logger.LogInformation("Successfully processed GetCattleStatusRequest for HoldingId: {HoldingId}", holdingId);
 
         return response;
     }
 
-    private static GetCattleStatusResponse GetCattleStatusResponseMessage(string holdingId)
+    private static async Task<GetCattleStatusResponse> GetMockCattleStatusResponseMessage(string holdingId)
     {
         var cattleStatusResponseMessage = new GetCattleStatusResponse
         {
@@ -45,6 +45,7 @@ public class CattleStatusServiceContract : ICattleStatusServiceContract
                               CHD2026007WEP09461,A,5,UK300088201719,HF,F,21/10/2021,UK300088301251,,CB0137,14/08/2024,,,,,,,,,,,,,,,,,,,,
                               """
         };
-        return cattleStatusResponseMessage;
+        // Mock awaited cattle status data - replace with actual implementation
+        return await Task.FromResult(cattleStatusResponseMessage);
     }
 }
