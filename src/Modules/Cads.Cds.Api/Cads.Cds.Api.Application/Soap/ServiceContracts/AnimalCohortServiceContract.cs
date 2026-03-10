@@ -20,11 +20,11 @@ public class AnimalCohortServiceContract : IAnimalCohortServiceContract
     }
 
     // ReSharper disable once InconsistentNaming
-    public async Task<GetAnimalCohortResponse> GetAnimalCohort(GetAnimalCohortRequest request)
+    public GetAnimalCohortResponse GetAnimalCohort(GetAnimalCohortRequest request)
     {
         var response = new GetAnimalCohortResponse
         {
-            CohortAnimals = await GetMockCohortData(),
+            CohortAnimals = GetMockCohortData(),
             TraceIdentifier = request.AnimalCohortQuery.TraceIdentifier
         };
 
@@ -33,7 +33,7 @@ public class AnimalCohortServiceContract : IAnimalCohortServiceContract
         return response;
     }
 
-    private static async Task<CohortAnimals> GetMockCohortData()
+    private static CohortAnimals GetMockCohortData()
     {
         var cohortAnimals = new CohortAnimals();
         cohortAnimals.CohortAnimal.Add(new CohortAnimal
@@ -77,8 +77,7 @@ public class AnimalCohortServiceContract : IAnimalCohortServiceContract
             CohortType = "MOCK_COHORT_TYPE_2",
             DateOfBirth = "MOCK_DATE_OF_BIRTH_2"
         });
-
-        // Mock awaited cohort data - replace with actual implementation
-        return await Task.FromResult(cohortAnimals);
+        // Mock cohort data - replace with actual implementation
+        return cohortAnimals;
     }
 }
