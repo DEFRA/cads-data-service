@@ -15,7 +15,7 @@ public static class WebApplicationExtensions
             // Create SOAP 1.2 binding for both endpoints (without WS-Addressing)
             var soap12Binding = new CustomBinding(
                 new TextMessageEncodingBindingElement { MessageVersion = MessageVersion.Soap12 },
-                new HttpsTransportBindingElement());
+                new HttpTransportBindingElement());
 
             // Animal Cohorts endpoint
             builder.AddService<AnimalCohortServiceContract>();
