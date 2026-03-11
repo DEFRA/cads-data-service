@@ -7,11 +7,23 @@ namespace Cads.Cds.Tests.Integration.Endpoints;
 public class HealthcheckEndpointTests(ApiContainerFixture apiContainerFixture)
 {
     [Fact]
-    public async Task GivenValidHealthCheckRequest_ShouldSucceed()
+    public async Task GivenValidHttpHealthCheckRequest_ShouldSucceed()
     {
         var response = await apiContainerFixture.HttpClient.GetAsync("health", TestContext.Current.CancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-
+    
+        response.EnsureSuccessStatusCode();
+        responseBody.Should().NotBeNullOrEmpty().And.Contain("\"status\": \"Healthy\"");
+        responseBody.Should().NotContain("\"status\": \"Degraded\"");
+        responseBody.Should().NotContain("\"status\": \"Unhealthy\"");
+    }
+    
+    [Fact]
+    public async Task GivenValidHttpsHealthCheckRequest_ShouldSucceed()
+    {
+        var response = await apiContainerFixture.HttpsClient.GetAsync("health", TestContext.Current.CancellationToken);
+        var responseBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+    
         response.EnsureSuccessStatusCode();
         responseBody.Should().NotBeNullOrEmpty().And.Contain("\"status\": \"Healthy\"");
         responseBody.Should().NotContain("\"status\": \"Degraded\"");
