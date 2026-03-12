@@ -19,7 +19,7 @@ public class MiController(IRequestExecutor executor) : ControllerBase
     public async Task<IActionResult> GetDashboardIndex([FromQuery] GetDashboardsPagedRequest request)
     {
         /// HttpContext.User.Identity.Name;
-        var userId = "user"; // TODO get logged in user identity
+        var userId = "user"; // TODO get logged in user identity //NOSONAR
 
         var query = QueryFactory.CreatePagedQuery<GetDashboardsQuery, DashboardListingDto>(request);
         query.UserId = userId;

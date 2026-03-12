@@ -18,7 +18,4 @@ public class DashboardListingDto
 
     [JsonPropertyName("isActive")]
     public bool IsActive { get; set; }
-
-    [JsonPropertyName("createdAt")]
-    public DateTime CreatedAt { get; set; }
 }

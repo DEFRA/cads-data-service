@@ -10,6 +10,6 @@ public class DashboardsQueryAdapter(IDashboardService service)
         CancellationToken cancellationToken = default)
     {
         var items = (await service.GetAllForUserAsync(query.UserId, cancellationToken)).ToList();
-        return (items, items.Count());
+        return (items, items.Count);
     }
 }
