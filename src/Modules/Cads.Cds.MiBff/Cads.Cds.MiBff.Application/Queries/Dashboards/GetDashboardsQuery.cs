@@ -5,5 +5,5 @@ namespace Cads.Cds.MiBff.Application.Queries.Dashboards;
 
 public class GetDashboardsQuery : PagedQuery<DashboardListingDto>
 {
-    public string UserId { get; set; }
+    public string? UserId { get; set; }
 }

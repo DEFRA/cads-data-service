@@ -231,7 +231,8 @@ This structure ensures clarity, isolation, and high coverage.
    ```bash
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=*****
-   POSTGRES_DB=cads
+   POSTGRES_DB=cads_data_service
+   POSTGRES_REF_DB=reference_schema
    PGADMIN_EMAIL=pgadmin@pgadmin.com
    PGADMIN_PASSWORD=*****
    ```
@@ -275,11 +276,7 @@ A more extensive setup is available in [github.com/DEFRA/cdp-local-environment](
 
 A guide for the testing standards can be [found here](https://eaflood.atlassian.net/wiki/spaces/LDD/pages/6435308220/Backend+development+testing+baseline).
 
-To execute all tests you can use the following command:
-
-```
-dotnet test Cads.Cds.sln
-```
+Because the integration tests projects must be run in sequence they must be run using a special command - an unfiltere `dotnet test` of the whole solution will fail the integration tests. 
 
 To execute all tests except integration tests:
 
@@ -343,6 +340,10 @@ docker exec -it cads_cds-liquibase-1 liquibase \
 
 Ensure to replace the postgres username, password and database name with the values from the `.env` file and specify the new migration name.
 The newly generated migration will be placed in the `changelog` directory. Ensure that this is reviewd before adding an entry for this in the `db.changelog.xml` file and committing the change.
+
+### Liquibase Workflow Guide
+
+See detailed `Liquibase Workflow Guide` [here](./changelog/ReadMe.md)
 
 ### About the licence
 

@@ -5,7 +5,7 @@ namespace Cads.Cds.MiBff.Application.Services;
 
 public class DashboardService : IDashboardService
 {
-    public Task<IEnumerable<DashboardListingDto>> GetAllForUserAsync(string queryUserId, CancellationToken cancellationToken)
+    public Task<IEnumerable<DashboardListingDto>> GetAllForUserAsync(string? queryUserId, CancellationToken cancellationToken)
     {
         // TODO get from DB, filter to reports that user has permission for
         return Task.FromResult(
