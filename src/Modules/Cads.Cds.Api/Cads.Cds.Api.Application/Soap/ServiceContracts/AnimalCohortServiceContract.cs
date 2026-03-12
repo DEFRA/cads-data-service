@@ -1,8 +1,8 @@
 using Cads.Cds.Api.Application.Soap.Messages.AnimalCohort;
 using Cads.Cds.Api.Application.Soap.Messages.Shared;
+using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 using CoreWCF;
 using Microsoft.Extensions.Logging;
-using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 
 namespace Cads.Cds.Api.Application.Soap.ServiceContracts;
 

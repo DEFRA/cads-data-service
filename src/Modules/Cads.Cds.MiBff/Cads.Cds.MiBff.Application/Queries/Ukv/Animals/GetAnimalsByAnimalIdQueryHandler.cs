@@ -1,11 +1,11 @@
-using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Application.Queries.JsonResponses;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Animals.Adapters;
-using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Core.DTOs.Ukv;
 
 namespace Cads.Cds.MiBff.Application.Queries.Ukv.Animals;
 
 public class GetAnimalsByAnimalsIdQueryHandler(AnimalsQueryAdapter adapter)
-    : DefaultQueryHandler<GetAnimalsByAnimalIdQuery, UkvDto>
+    : JsonResponseDataQueryHandler<GetAnimalsByAnimalIdQuery, UkvDto>
 {
     protected override async Task<(IEnumerable<UkvDto> Items, int TotalCount)> FetchAsync(GetAnimalsByAnimalIdQuery query, CancellationToken cancellationToken)
     {
