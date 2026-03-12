@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.AnnualInventory.Adapters;
-using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Core.DTOs.Amls2;
 
 namespace Cads.Cds.MiBff.Application.Queries.Amsl2.AnnualInventory;
 

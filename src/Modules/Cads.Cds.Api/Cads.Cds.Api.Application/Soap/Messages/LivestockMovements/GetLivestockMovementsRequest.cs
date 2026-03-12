@@ -1,6 +1,6 @@
-using System.Xml.Serialization;
 using Cads.Cds.Api.Application.Soap.Messages.Shared;
 using CoreWCF;
+using System.Xml.Serialization;
 
 namespace Cads.Cds.Api.Application.Soap.Messages.LivestockMovements;
 

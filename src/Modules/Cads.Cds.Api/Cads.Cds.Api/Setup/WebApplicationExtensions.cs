@@ -1,8 +1,8 @@
+using Cads.Cds.Api.Application.Soap.ServiceContracts;
+using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 using CoreWCF.Channels;
 using CoreWCF.Configuration;
 using Microsoft.AspNetCore.Builder;
-using Cads.Cds.Api.Application.Soap.ServiceContracts;
-using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 
 namespace Cads.Cds.Api.Setup;
 

@@ -1,16 +1,3 @@
-using Cads.Cds.BuildingBlocks.Application.Attributes;
-using Cads.Cds.BuildingBlocks.Application.Queries;
-using Cads.Cds.MiBff.Application.Queries.Amsl2.AnimalSummary;
-using Cads.Cds.MiBff.Application.Queries.Amsl2.AnnualInventory;
-using Cads.Cds.MiBff.Application.Queries.Amsl2.DepartureDetails;
-using Cads.Cds.MiBff.Application.Queries.Amsl2.DestinationDetails;
-using Cads.Cds.MiBff.Application.Queries.Amsl2.DetailedMovements;
-using Cads.Cds.MiBff.Application.Queries.Amsl2.MovementsInSuspense;
-using Cads.Cds.MiBff.Application.Queries.Amsl2.SummaryPremiseDetails;
-using Cads.Cds.MiBff.Core.DTOs;
-using Elastic.CommonSchema;
-using Microsoft.AspNetCore.Mvc;
-
 namespace Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 
 public static class TestEndpointConstants
