@@ -276,11 +276,7 @@ A more extensive setup is available in [github.com/DEFRA/cdp-local-environment](
 
 A guide for the testing standards can be [found here](https://eaflood.atlassian.net/wiki/spaces/LDD/pages/6435308220/Backend+development+testing+baseline).
 
-To execute all tests you can use the following command:
-
-```
-dotnet test Cads.Cds.sln
-```
+Because the integration tests projects must be run in sequence they must be run using a special command - an unfiltere `dotnet test` of the whole solution will fail the integration tests. 
 
 To execute all tests except integration tests:
 
