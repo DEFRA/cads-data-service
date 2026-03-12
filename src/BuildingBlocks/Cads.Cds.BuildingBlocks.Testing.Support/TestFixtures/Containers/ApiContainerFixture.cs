@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
 using Xunit;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
@@ -12,6 +13,7 @@ public class ApiContainerFixture : IAsyncLifetime
 {
     public IContainer ApiContainer { get; private set; } = null!;
     public HttpClient HttpClient { get; private set; } = null!;
+    public HttpClient HttpsClient { get; private set; } = null!;
     public PostgresFixture PostgresFixture { get; } = new();
     public LocalStackFixture LocalStackFixture { get; } = new();
 
@@ -22,11 +24,19 @@ public class ApiContainerFixture : IAsyncLifetime
 
         DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
+        var certPath = Path.Combine(AppContext.BaseDirectory, "certs");
+
         ApiContainer = new ContainerBuilder("cads_cds:latest")
           .WithName("cads_cds")
-          .WithPortBinding(5555, 5555)
           .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+          .WithEnvironment("ASPNETCORE_URLS", "http://0.0.0.0:5555;https://0.0.0.0:5556")
+          .WithPortBinding(5555, 5555)
+          .WithPortBinding(5556, 5556)
           .WithEnvironment("ASPNETCORE_HTTP_PORTS", "5555")
+          .WithEnvironment("ASPNETCORE_HTTPS_PORTS", "5556")
+          .WithBindMount(certPath, "/https", AccessMode.ReadOnly)
+          .WithEnvironment("Kestrel__Certificates__Default__Path", "/https/https-dev-cert.pfx")
+          .WithEnvironment("Kestrel__Certificates__Default__Password", "testpassword")
           .WithEnvironment("AWS__ServiceURL", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsQueueUrl)
@@ -38,6 +48,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AWS_DEFAULT_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
           .WithEnvironment("AWS_SECRET_ACCESS_KEY", LocalStackFixture.AwsSecretAccessKey)
+          .WithEnvironment("DOTNET_SYSTEM_NET_SOCKETS_HTTP_USEIPV6", "false")
           .WithNetwork(TestContainerConstants.NetworkName)
           .WithNetworkAliases("cads_cds")
           .WithWaitStrategy(Wait.ForUnixContainer()
@@ -48,6 +59,11 @@ public class ApiContainerFixture : IAsyncLifetime
 
         HttpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{ApiContainer.GetMappedPublicPort(5555)}") };
         HttpClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
+
+        var handler = new HttpClientHandler();
+        handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true;
+        HttpsClient = new HttpClient(handler) { BaseAddress = new Uri($"https://localhost:{ApiContainer.GetMappedPublicPort(5556)}") };
+        HttpsClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
     }
 
     public async ValueTask DisposeAsync()
