@@ -14,9 +14,11 @@ using Cads.Cds.MiBff.Application.Queries.Ukv.Inspections.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Movements.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Zones.Adapters;
+using Cads.Cds.MiBff.Application.Services;
 using Cads.Cds.MiBff.Application.Services.Amsl2;
 using Cads.Cds.MiBff.Application.Services.Ukv;
 using Cads.Cds.MiBff.Core.Configuration;
+using Cads.Cds.MiBff.Core.Services;
 using Cads.Cds.MiBff.Core.Services.Amsl2;
 using Cads.Cds.MiBff.Core.Services.Ukv;
 using Microsoft.Extensions.Configuration;
@@ -80,5 +82,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IJourneyHaulierService, JourneyHaulierService>();
         services.AddTransient<IMovementService, MovementService>();
         services.AddTransient<IZoneService, ZoneService>();
+
+        services.AddTransient<IReportService, ReportService>();
     }
 }
