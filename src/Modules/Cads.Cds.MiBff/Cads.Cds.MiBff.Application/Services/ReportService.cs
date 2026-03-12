@@ -26,7 +26,8 @@ public class ReportService : IReportService
 
     private static ReportListingDto ReportItem(string id, string key, string title, string description)
     {
-        return new ReportListingDto() {
+        return new ReportListingDto()
+        {
             ReportId = id,
             ReportKey = key,
             Title = title,
