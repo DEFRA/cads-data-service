@@ -1,15 +1,15 @@
+using Cads.Cds.BuildingBlocks.Application.Queries;
 using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
-using Cads.Cds.MiBff.Application.Queries.Dashboards.Adapters;
-using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts.Adapters;
 using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Core.Services;
 
 namespace Cads.Cds.MiBff.Application.Queries.Dashboards;
 
-public class GetDashboardsQueryHandler(DashboardsQueryAdapter adapter)
-    : PagedQueryHandler<GetDashboardsQuery, DashboardListingDto>
+public class GetDashboardsQueryHandler(IDashboardService service)
+    : QueryHandler<GetUserReportListQuery, ReportListingDto>
 {
-    protected override async Task<(IEnumerable<DashboardListingDto> Items, int TotalCount)> FetchAsync(GetDashboardsQuery query, CancellationToken cancellationToken)
+    protected override Task<IEnumerable<ReportListingDto>> FetchAsync(GetUserReportListQuery request, CancellationToken cancellationToken)
     {
-        return await adapter.GetAsync(query, cancellationToken);
+        return service.GetUserReportListAsync(request.UserId, cancellationToken);
     }
 }

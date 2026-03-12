@@ -4,5 +4,5 @@ namespace Cads.Cds.MiBff.Core.Services;
 
 public interface IDashboardService
 {
-    Task<IEnumerable<DashboardListingDto>> GetAllForUserAsync(string? queryUserId, CancellationToken cancellationToken);
+    Task<IEnumerable<ReportListingDto>> GetUserReportListAsync(string? queryUserId, CancellationToken cancellationToken);
 }

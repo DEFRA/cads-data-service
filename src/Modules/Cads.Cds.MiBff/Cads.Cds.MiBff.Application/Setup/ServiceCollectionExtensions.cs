@@ -5,7 +5,6 @@ using Cads.Cds.MiBff.Application.Queries.Amsl2.DestinationDetails.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.DetailedMovements.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.MovementsInSuspense.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.SummaryPremiseDetails.Adapters;
-using Cads.Cds.MiBff.Application.Queries.Dashboards.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Animals.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Audit.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts.Adapters;
@@ -60,8 +59,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<JourneyHauliersQueryAdapter>();
         services.AddScoped<MovementsQueryAdapter>();
         services.AddScoped<ZonesQueryAdapter>();
-
-        services.AddScoped<DashboardsQueryAdapter>();
     }
 
     public static void RegisterServices(this IServiceCollection services)

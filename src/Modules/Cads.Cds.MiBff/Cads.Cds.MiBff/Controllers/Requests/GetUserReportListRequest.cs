@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers.Requests;
 
-public class GetDashboardsPagedRequest : IPagedRequest
+public class GetUserReportListRequest : IPagedRequest
 {
     [FromQuery] public int? Page { get; set; }
 

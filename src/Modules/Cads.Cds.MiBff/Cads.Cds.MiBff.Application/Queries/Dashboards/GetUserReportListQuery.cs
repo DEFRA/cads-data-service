@@ -1,9 +1,9 @@
-using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
+using Cads.Cds.BuildingBlocks.Application.Queries;
 using Cads.Cds.MiBff.Core.DTOs;
 
 namespace Cads.Cds.MiBff.Application.Queries.Dashboards;
 
-public class GetDashboardsQuery : PagedQuery<DashboardListingDto>
+public class GetUserReportListQuery : IQuery<IEnumerable<ReportListingDto>>
 {
     public string? UserId { get; set; }
 }
