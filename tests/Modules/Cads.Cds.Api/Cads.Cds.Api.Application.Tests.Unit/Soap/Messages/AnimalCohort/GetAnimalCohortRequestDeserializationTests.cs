@@ -1,6 +1,6 @@
-using System.Xml.Serialization;
 using Cads.Cds.Api.Application.Soap.Messages.AnimalCohort;
 using FluentAssertions;
+using System.Xml.Serialization;
 
 namespace Cads.Cds.Api.Application.Tests.Unit.Soap.Messages.AnimalCohort;
 

@@ -14,12 +14,12 @@ using Cads.Cds.MiBff.Application.Queries.Ukv.Inspections.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Movements.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Zones.Adapters;
-using Cads.Cds.MiBff.Application.Services;
 using Cads.Cds.MiBff.Application.Services.Amsl2;
+using Cads.Cds.MiBff.Application.Services.Reports;
 using Cads.Cds.MiBff.Application.Services.Ukv;
 using Cads.Cds.MiBff.Core.Configuration;
-using Cads.Cds.MiBff.Core.Services;
 using Cads.Cds.MiBff.Core.Services.Amsl2;
+using Cads.Cds.MiBff.Core.Services.Reports;
 using Cads.Cds.MiBff.Core.Services.Ukv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
 
     public static void RegisterAdapters(this IServiceCollection services)
     {
-        // Amsl2 Adapters
+        // Amsl2 adapters
         services.AddScoped<AnnualSummaryQueryAdapter>();
         services.AddScoped<AnnualInventoryQueryAdapter>();
         services.AddScoped<DepartureDetailsQueryAdapter>();
@@ -49,7 +49,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<MovementsInSuspenseQueryAdapter>();
         services.AddScoped<SummaryPremiseDetailsQueryAdapter>();
 
-        // Ukv Adapters
+        // Ukv adapters
         services.AddScoped<AnimalsQueryAdapter>();
         services.AddScoped<AuditQueryAdapter>();
         services.AddScoped<CohortsQueryAdapter>();
@@ -63,7 +63,7 @@ public static class ServiceCollectionExtensions
 
     public static void RegisterServices(this IServiceCollection services)
     {
-        // Amsl2 Services
+        // Amsl2 services
         services.AddTransient<IAnimalSummaryService, AnimalSummaryService>();
         services.AddTransient<IAnnualInventoryService, AnnualInventoryService>();
         services.AddTransient<IDepartureDetailsService, DepartureDetailsService>();
@@ -72,7 +72,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IMovementsInSuspenseService, MovementsInSuspenseService>();
         services.AddTransient<ISummaryPremiseDetailsService, SummaryPremiseDetailsService>();
 
-        // Ukv Sevices
+        // Ukv sevices
         services.AddTransient<IAnimalService, AnimalService>();
         services.AddTransient<IAuditService, AuditService>();
         services.AddTransient<ICohortService, CohortService>();
@@ -83,6 +83,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IMovementService, MovementService>();
         services.AddTransient<IZoneService, ZoneService>();
 
+        // Report and permission services
         services.AddTransient<IReportService, ReportService>();
     }
 }

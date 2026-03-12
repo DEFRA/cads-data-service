@@ -1,11 +1,11 @@
-using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Application.Queries.JsonResponses;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.DestinationDetails.Adapters;
-using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Core.DTOs.Amls2;
 
 namespace Cads.Cds.MiBff.Application.Queries.Amsl2.DestinationDetails;
 
 public class GetDestinationDetailsQueryHandler(DestinationDetailsQueryAdapter adapter)
-    : DefaultQueryHandler<GetDestinationDetailsQuery, DestinationDetailsDto>
+    : JsonResponseDataQueryHandler<GetDestinationDetailsQuery, DestinationDetailsDto>
 {
     protected override async Task<(IEnumerable<DestinationDetailsDto> Items, int TotalCount)> FetchAsync(GetDestinationDetailsQuery query, CancellationToken cancellationToken)
     {
