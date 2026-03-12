@@ -11,7 +11,7 @@ public class FakeJwtHandler(
     ILoggerFactory logger,
     UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    public const string SchemeName = "Bearer";
+    public const string SchemeName = "Cognito";
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
