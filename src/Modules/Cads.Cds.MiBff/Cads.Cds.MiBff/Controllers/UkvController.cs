@@ -1,23 +1,24 @@
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Application.Attributes;
 using Cads.Cds.BuildingBlocks.Application.Queries;
-using Cads.Cds.MiBff.Application.Queries.Animals;
-using Cads.Cds.MiBff.Application.Queries.Audit;
-using Cads.Cds.MiBff.Application.Queries.Cohorts;
-using Cads.Cds.MiBff.Application.Queries.DataQuality;
-using Cads.Cds.MiBff.Application.Queries.Holdings;
-using Cads.Cds.MiBff.Application.Queries.Inspections;
-using Cads.Cds.MiBff.Application.Queries.JourneyHauliers;
-using Cads.Cds.MiBff.Application.Queries.Movements;
-using Cads.Cds.MiBff.Application.Queries.Zones;
-using Cads.Cds.MiBff.Controllers.Requests;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Animals;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Audit;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts;
+using Cads.Cds.MiBff.Application.Queries.Ukv.DataQuality;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Holdings;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Inspections;
+using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Movements;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Zones;
+using Cads.Cds.MiBff.Controllers.Requests.Ukv;
 using Cads.Cds.MiBff.Core.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
 
 [ApiController]
-[Route("api/v1/bff/[controller]")]
+[Route("api/v1/bff/mi/[controller]")]
 public class UkvController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;

@@ -1,7 +1,6 @@
-namespace Cads.Cds.MiBff.Core.DTOs
+namespace Cads.Cds.MiBff.Core.DTOs;
+
+public interface IDataIdentity
 {
-    public interface IDataIdentity
-    {
-        Guid Id { get; set; }
-    }
+    Guid Id { get; set; }
 }

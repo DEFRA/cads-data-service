@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
-using Cads.Cds.MiBff.Application.Queries.Cohorts.Adapters;
+using Cads.Cds.MiBff.Application.Queries.Dashboards.Adapters;
+using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts.Adapters;
 using Cads.Cds.MiBff.Core.DTOs;
 
 namespace Cads.Cds.MiBff.Application.Queries.Dashboards;
