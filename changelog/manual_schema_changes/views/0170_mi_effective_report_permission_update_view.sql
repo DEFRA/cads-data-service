@@ -37,4 +37,4 @@ having coalesce(
        upr.granted,
        bool_or(rpr.granted),
        false
-       )= true;
+       );
