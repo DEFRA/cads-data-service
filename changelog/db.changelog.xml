@@ -21,4 +21,5 @@
   <include file="0140_mi_role_report_permission_seed_initial_permissions.postgresql.sql"/>
   <include file="0150_mi_user_seed_initial_users.postgresql.sql"/>
   <include file="0160_mi_user_role_seed_initial_user_roles.postgresql.sql"/>
+  <include file="0170_mi_effective_report_permission_update_view.postgresql.sql"/>
 </databaseChangeLog>
