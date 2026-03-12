@@ -5,7 +5,7 @@ using Cads.Cds.MiBff.Core.Services;
 
 namespace Cads.Cds.MiBff.Application.Queries.Dashboards;
 
-public class GetDashboardsQueryHandler(IDashboardService service)
+public class GetDashboardsQueryHandler(IReportService service)
     : QueryHandler<GetUserReportListQuery, ReportListingDto>
 {
     protected override Task<IEnumerable<ReportListingDto>> FetchAsync(GetUserReportListQuery request, CancellationToken cancellationToken)
