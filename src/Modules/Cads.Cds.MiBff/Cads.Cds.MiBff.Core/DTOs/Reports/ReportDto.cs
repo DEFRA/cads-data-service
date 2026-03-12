@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Cads.Cds.MiBff.Core.DTOs;
+namespace Cads.Cds.MiBff.Core.DTOs.Reports;
 
-public class ReportListingDto
+public class ReportDto
 {
     [JsonPropertyName("reportId")]
     public required string ReportId { get; set; }

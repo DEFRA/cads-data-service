@@ -10,8 +10,8 @@ public class AuthenticationOptionsConfigurator(IOptions<AuthenticationConfigurat
 
     public void Configure(AuthenticationOptions options)
     {
-        var scheme = _authConfig.ApiGatewayExists
-            ? "Bearer"
+        var scheme = _authConfig.Cognito.Enabled
+            ? "Cognito"
             : BasicAuthenticationHandler.SchemeName;
 
         options.DefaultScheme = scheme;
