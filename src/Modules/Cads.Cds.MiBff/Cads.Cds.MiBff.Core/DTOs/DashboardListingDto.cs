@@ -4,14 +4,21 @@ namespace Cads.Cds.MiBff.Core.DTOs;
 
 public class DashboardListingDto
 {
-    [JsonRequired]
+    [JsonPropertyName("reportId")]
     public required string ReportId { get; set; }
-    [JsonRequired]
+
+    [JsonPropertyName("reportKey")]
     public required string ReportKey { get; set; }
-    [JsonRequired]
+
+    [JsonPropertyName("title")]
     public required string Title { get; set; }
-    [JsonRequired]
+
+    [JsonPropertyName("description")]
     public required string Description { get; set; }
+
+    [JsonPropertyName("isActive")]
     public bool IsActive { get; set; }
+
+    [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
 }

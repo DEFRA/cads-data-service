@@ -18,8 +18,7 @@ public class DashboardIndexEndpointTests(MiBffTestFixture testFixture) : IClassF
         var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
 
         response.IsSuccessStatusCode.Should().BeTrue();
-
-        var result = await response.Content.ReadFromJsonAsync<JsonResponseWithMetaData>(TestContext.Current.CancellationToken);
+        var result = await response!.Content.ReadFromJsonAsync<JsonResponseWithMetaData>(TestContext.Current.CancellationToken);
         result.Should().NotBeNull();
 
         ValidateResponseWithMetaData(result, endpoint);
