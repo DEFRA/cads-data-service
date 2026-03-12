@@ -38,6 +38,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<JourneyHauliersQueryAdapter>();
         services.AddScoped<MovementsQueryAdapter>();
         services.AddScoped<ZonesQueryAdapter>();
+
+        services.AddScoped<DashboardsQueryAdapter>();
     }
 
     public static void RegisterServices(this IServiceCollection services)
@@ -51,5 +53,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IJourneyHaulierService, JourneyHaulierService>();
         services.AddTransient<IMovementService, MovementService>();
         services.AddTransient<IZoneService, ZoneService>();
+
+        services.AddTransient<IDashboardService, DashboardService>();
     }
 }
