@@ -1,46 +1,51 @@
 using CoreWCF.Channels;
 using CoreWCF.Configuration;
 using Microsoft.AspNetCore.Builder;
-using System.Text;
 using Cads.Cds.Api.Application.Soap.ServiceContracts;
+using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 
 namespace Cads.Cds.Api.Setup;
 
 public static class WebApplicationExtensions
 {
+    private static readonly CustomBinding _soap12BindingHttp = new(
+        new TextMessageEncodingBindingElement { MessageVersion = MessageVersion.Soap12 },
+        new HttpTransportBindingElement());
+    private static readonly CustomBinding _soap12BindingHttps = new(
+        new TextMessageEncodingBindingElement { MessageVersion = MessageVersion.Soap12 },
+        new HttpsTransportBindingElement());
+
     public static IApplicationBuilder UseApiSoapEndpoints(this IApplicationBuilder app)
     {
         app.UseServiceModel(builder =>
         {
-            // Create SOAP 1.2 binding for both endpoints (without WS-Addressing)
-            var soap12Binding = new CustomBinding(
-                new TextMessageEncodingBindingElement(MessageVersion.Soap12, Encoding.UTF8),
-                new HttpTransportBindingElement
-                {
-                    MaxReceivedMessageSize = int.MaxValue,
-                    MaxBufferSize = int.MaxValue
-                }
-            );
-
-            // Cattle Status endpoint
-            builder.AddService<CattleStatusService>(serviceOptions =>
-            {
-                serviceOptions.DebugBehavior.IncludeExceptionDetailInFaults = true;
-            })
-                .AddServiceEndpoint<CattleStatusService, ICattleStatusService>(
-                    soap12Binding,
-                    "/api/soap/CattleStatus.asmx");
-
-            // Livestock Movements endpoint
-            builder.AddService<LivestockMovementsService>(wcfOptions =>
-            {
-                wcfOptions.DebugBehavior.IncludeExceptionDetailInFaults = true;
-            })
-                .AddServiceEndpoint<LivestockMovementsService, ILivestockMovementsService>(
-                    soap12Binding,
+            builder.AddServiceEndpoints<IAnimalCohortServiceContract, AnimalCohortServiceContract>(
+                    "/api/soap/AnimalCohorts.asmx")
+                .AddServiceEndpoints<IAnimalDetailsServiceContract, AnimalDetailsServiceContract>(
+                    "/api/soap/AnimalDetails.asmx")
+                .AddServiceEndpoints<IAnimalPassportAndDetailsServiceContract, AnimalPassportAndDetailsServiceContract>(
+                    "/api/soap/AnimalPassportAndDetails.asmx")
+                .AddServiceEndpoints<ICattleStatusServiceContract, CattleStatusServiceContract>(
+                    "/api/soap/CattleStatus.asmx")
+                .AddServiceEndpoints<ILivestockMovementsServiceContract, LivestockMovementsServiceContract>(
                     "/api/soap/LivestockMovements.asmx");
         });
 
         return app;
+    }
+
+    private static IServiceBuilder AddServiceEndpoints<TServiceContract, TServiceImplementation>(this IServiceBuilder builder, string path)
+        where TServiceContract : class
+        where TServiceImplementation : class, TServiceContract
+    {
+        builder.AddService<TServiceImplementation>();
+        builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
+            _soap12BindingHttp,
+            path);
+        builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
+            _soap12BindingHttps,
+            path);
+
+        return builder;
     }
 }
