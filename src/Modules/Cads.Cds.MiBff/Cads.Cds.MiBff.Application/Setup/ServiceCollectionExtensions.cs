@@ -83,6 +83,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IMovementService, MovementService>();
         services.AddTransient<IZoneService, ZoneService>();
 
-        services.AddTransient<IDashboardService, DashboardService>();
+        services.AddTransient<IReportService, ReportService>();
     }
 }
