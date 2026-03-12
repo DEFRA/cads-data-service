@@ -1,9 +1,9 @@
+using Cads.Cds.Api.Setup;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics.CodeAnalysis;
-using Cads.Cds.Api.Setup;
 
 namespace Cads.Cds.Setup;
 
