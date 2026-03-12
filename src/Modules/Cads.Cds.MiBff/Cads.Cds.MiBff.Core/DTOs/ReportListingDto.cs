@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Cads.Cds.MiBff.Core.DTOs;
 
-public class DashboardListingDto
+public class ReportListingDto
 {
     [JsonPropertyName("reportId")]
     public required string ReportId { get; set; }
