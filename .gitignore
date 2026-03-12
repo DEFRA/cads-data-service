@@ -279,3 +279,5 @@ library.db
 /coverage
 /coverage-report
 .sonar/
+*
+!.gitkeep

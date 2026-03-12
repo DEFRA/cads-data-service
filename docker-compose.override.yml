@@ -3,8 +3,6 @@ services:
     labels:
       com.microsoft.visual-studio.project-name: "Cads.Cds"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=5555
       - AWS__ServiceURL=http://cds-localstack-emulator:4566
       - Postgres__DefaultConnection=Host=postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - Postgres__ReadOnlyConnection=Host=postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
