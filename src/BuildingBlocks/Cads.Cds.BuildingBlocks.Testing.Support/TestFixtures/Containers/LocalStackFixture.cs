@@ -17,7 +17,8 @@ public class LocalStackFixture : IAsyncLifetime
     public IAmazonS3 S3Client { get; private set; } = null!;
 
     public string? SqsEndpoint { get; private set; }
-    public static string ServiceUrl => $"http://localhost:{TestContainerConstants.LocalStackPort}";
+
+    public static string ServiceUrl => $"http://localhost:{LocalStackContainer!.GetMappedPublicPort(TestContainerConstants.LocalStackPort)}";
     public static string NetworkServiceUrl => $"http://{TestContainerConstants.NetworkAlias}:{TestContainerConstants.LocalStackPort}";
     public static string CadsQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{TestContainerConstants.LocalStackPort}/000000000000/{TestSqsConstants.CadsQueueName}";
     public static string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{TestContainerConstants.LocalStackPort}/000000000000/{TestSqsConstants.CadsDeadLetterQueueName}";
@@ -34,14 +35,11 @@ public class LocalStackFixture : IAsyncLifetime
         DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
         LocalStackContainer = new LocalStackBuilder("localstack/localstack:3.0.2")
-            .WithName("localstack")
             .WithEnvironment("SERVICES", "s3,sqs")
             .WithEnvironment("DEBUG", "1")
             .WithEnvironment("AWS_DEFAULT_REGION", AuthenticationRegion)
             .WithEnvironment("AWS_ACCESS_KEY_ID", AwsAccessKeyId)
             .WithEnvironment("AWS_SECRET_ACCESS_KEY", AwsSecretAccessKey)
-            .WithEnvironment("EDGE_PORT", $"{TestContainerConstants.LocalStackPort}")
-            .WithPortBinding(TestContainerConstants.LocalStackPort, TestContainerConstants.LocalStackPort)
             .WithNetwork(TestContainerConstants.NetworkName)
             .WithNetworkAliases(TestContainerConstants.NetworkAlias)
             .Build();
