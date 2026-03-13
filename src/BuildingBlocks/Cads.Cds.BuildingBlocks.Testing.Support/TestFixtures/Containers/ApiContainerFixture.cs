@@ -61,8 +61,10 @@ public class ApiContainerFixture : IAsyncLifetime
         HttpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{ApiContainer.GetMappedPublicPort(5555)}") };
         HttpClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
 
-        var handler = new HttpClientHandler();
-        handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true;
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true
+        };
         HttpsClient = new HttpClient(handler) { BaseAddress = new Uri($"https://localhost:{ApiContainer.GetMappedPublicPort(5556)}") };
         HttpsClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
     }

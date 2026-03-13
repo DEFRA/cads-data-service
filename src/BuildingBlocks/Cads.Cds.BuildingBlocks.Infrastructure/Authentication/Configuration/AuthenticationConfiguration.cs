@@ -17,3 +17,17 @@ public class AuthenticationProviderConfiguration : AuthenticationStateConfigurat
     public string? Authority { get; set; }
     public string? Audience { get; set; }
 }
+
+public static class AuthenticationConstants
+{
+    public const string ApiKeySchemeName = "Basic";
+    public const string CognitoSchemeName = "Cognito";
+    public const string AzureADSchemeName = "AzureAd";
+
+    public const string ScopeClaimType = "scp";
+
+    public static class AzureADClaims
+    {
+        public const string ReportsReadScopeName = "reports.read";
+    }
+}

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Cads.Cds.Setup;
 
@@ -78,32 +79,82 @@ public static class ServiceCollectionExtensions
 
         if (authConfig.ApiKey.Enabled)
         {
-            authBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
-                BasicAuthenticationHandler.SchemeName, _ => { });
+            authBuilder.AddApiKeyScheme();
         }
 
         if (authConfig.Cognito.Enabled)
         {
-            authBuilder.AddJwtBearer("Cognito", (options) =>
-            {
-                options.Authority = authConfig.Cognito.Authority;
-                options.TokenValidationParameters.ValidateAudience = false;
-                options.BackchannelHttpHandler = new ProxyHttpMessageHandler();
-            });
+            authBuilder.AddCognitoScheme(authConfig.Cognito);
         }
 
+        if (authConfig.AzureAD.Enabled)
+        {
+            authBuilder.AddAzureADScheme(authConfig.AzureAD);
+        }
+
+        services.AddAuthorisationPolicies(authConfig);
+    }
+
+    private static void AddApiKeyScheme(this AuthenticationBuilder authenticationBuilder)
+    {
+        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
+            AuthenticationConstants.ApiKeySchemeName, _ => { });
+    }
+
+    private static void AddCognitoScheme(this AuthenticationBuilder authenticationBuilder, AuthenticationProviderConfiguration authenticationProviderConfiguration)
+    {
+        authenticationBuilder.AddJwtBearer(AuthenticationConstants.CognitoSchemeName, (options) =>
+        {
+            options.Authority = authenticationProviderConfiguration.Authority;
+            options.TokenValidationParameters.ValidateAudience = false;
+            options.BackchannelHttpHandler = new ProxyHttpMessageHandler();
+        });
+    }
+
+    private static void AddAzureADScheme(this AuthenticationBuilder authenticationBuilder, AuthenticationProviderConfiguration authenticationProviderConfiguration)
+    {
+        authenticationBuilder.AddJwtBearer(AuthenticationConstants.AzureADSchemeName, options =>
+        {
+            options.Authority = authenticationProviderConfiguration.Authority;
+            options.Audience = authenticationProviderConfiguration.Audience;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = authenticationProviderConfiguration.Authority,
+                ValidateAudience = true,
+                ValidAudience = authenticationProviderConfiguration.Audience,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidTypes = ["JWT", "at+jwt"]
+            };
+            options.BackchannelHttpHandler = new ProxyHttpMessageHandler();
+        });
+    }
+
+    private static void AddAuthorisationPolicies(this IServiceCollection services, AuthenticationConfiguration authenticationConfiguration)
+    {
         services.AddAuthorizationBuilder()
             .AddPolicy("BasicOrBearer", policy =>
             {
-                if (authConfig.ApiKey.Enabled)
+                if (authenticationConfiguration.ApiKey.Enabled)
                 {
-                    policy.AddAuthenticationSchemes("Basic");
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.ApiKeySchemeName);
                 }
-                if (authConfig.Cognito.Enabled)
+                if (authenticationConfiguration.Cognito.Enabled)
                 {
-                    policy.AddAuthenticationSchemes("Cognito");
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
+                }
+                if (authenticationConfiguration.AzureAD.Enabled)
+                {
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
                 }
                 policy.RequireAuthenticatedUser();
+            })
+            .AddPolicy("ReportsRead", policy =>
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, AuthenticationConstants.AzureADClaims.ReportsReadScopeName);
             });
     }
 }
