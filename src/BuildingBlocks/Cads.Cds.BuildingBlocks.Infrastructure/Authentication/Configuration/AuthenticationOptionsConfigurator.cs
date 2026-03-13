@@ -1,4 +1,3 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
@@ -11,8 +10,8 @@ public class AuthenticationOptionsConfigurator(IOptions<AuthenticationConfigurat
     public void Configure(AuthenticationOptions options)
     {
         var scheme = _authConfig.Cognito.Enabled
-            ? "Cognito"
-            : BasicAuthenticationHandler.SchemeName;
+            ? AuthenticationConstants.CognitoSchemeName
+            : AuthenticationConstants.ApiKeySchemeName;
 
         options.DefaultScheme = scheme;
         options.DefaultAuthenticateScheme = scheme;

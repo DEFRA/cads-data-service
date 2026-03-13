@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -11,6 +12,6 @@ public static class BasicAuthorizationUtilities
         var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(raw));
 
         client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Basic", base64);
+            new AuthenticationHeaderValue(AuthenticationConstants.ApiKeySchemeName, base64);
     }
 }

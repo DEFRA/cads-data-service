@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,18 +12,16 @@ public class FakeJwtHandler(
     ILoggerFactory logger,
     UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    public const string SchemeName = "Cognito";
-
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var identity = new ClaimsIdentity(
         [
             new Claim(ClaimTypes.Name, "jwt-user"),
         new Claim("scope", "read")
-        ], SchemeName);
+        ], AuthenticationConstants.CognitoSchemeName);
 
         var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, SchemeName);
+        var ticket = new AuthenticationTicket(principal, AuthenticationConstants.CognitoSchemeName);
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }

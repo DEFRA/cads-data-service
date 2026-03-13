@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
@@ -169,10 +170,10 @@ public abstract class WebAppFactoryBase<TStart>(
             var options = sp.GetRequiredService<IOptions<AuthenticationOptions>>();
             var provider = new AuthenticationSchemeProvider(options);
 
-            provider.RemoveScheme("Cognito");
+            provider.RemoveScheme(AuthenticationConstants.CognitoSchemeName);
             provider.AddScheme(new AuthenticationScheme(
-                FakeJwtHandler.SchemeName,
-                FakeJwtHandler.SchemeName,
+                AuthenticationConstants.CognitoSchemeName,
+                AuthenticationConstants.CognitoSchemeName,
                 typeof(FakeJwtHandler)));
 
             return provider;
