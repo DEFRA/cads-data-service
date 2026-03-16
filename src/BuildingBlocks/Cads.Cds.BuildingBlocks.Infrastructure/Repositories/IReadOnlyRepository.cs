@@ -7,7 +7,7 @@ public interface IReadOnlyRepository<TEntity>
 {
     Task<TEntity?> GetByKeyAsync(params object[] keyValues);
 
-    Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken);
+    Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
 
     Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>>? filter = null,
        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
