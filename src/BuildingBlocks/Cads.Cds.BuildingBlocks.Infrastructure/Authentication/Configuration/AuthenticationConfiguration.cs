@@ -28,14 +28,4 @@ public static class AuthenticationConstants
 
     public const string ApiKeyOrCognitoPolicy = "ApiKeyOrCognito";
     public const string AadReportsReadPolicy = "AadReportsRead";
-
-    public static class CognitoClaims
-    {
-        public const string AccessScopeName = "access";
-    }
-
-    public static class AzureADClaims
-    {
-        public const string ReportsReadScopeName = "reports.read";
-    }
 }
