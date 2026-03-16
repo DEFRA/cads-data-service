@@ -9,7 +9,6 @@ using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
 using Cads.Cds.StorageBridge.Application;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -22,10 +21,7 @@ public static class ServiceCollectionExtensions
     {
         services.ConfigureAuthentication(configuration);
 
-        services.AddControllers(options =>
-        {
-            options.Filters.Add(new AuthorizeFilter("BasicOrBearer"));
-        })
+        services.AddControllers()
             .AddJsonOptions(opts =>
             {
                 opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptions.PropertyNamingPolicy;
@@ -134,7 +130,7 @@ public static class ServiceCollectionExtensions
     private static void AddAuthorisationPolicies(this IServiceCollection services, AuthenticationConfiguration authenticationConfiguration)
     {
         services.AddAuthorizationBuilder()
-            .AddPolicy("BasicOrBearer", policy =>
+            .AddPolicy(AuthenticationConstants.ApiKeyOrCognitoPolicy, policy =>
             {
                 if (authenticationConfiguration.ApiKey.Enabled)
                 {
@@ -144,15 +140,18 @@ public static class ServiceCollectionExtensions
                 {
                     policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
                 }
+                policy.RequireAuthenticatedUser();
+            })
+            .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy =>
+            {
+                if (authenticationConfiguration.ApiKey.Enabled)
+                {
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.ApiKeySchemeName);
+                }
                 if (authenticationConfiguration.AzureAD.Enabled)
                 {
                     policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
                 }
-                policy.RequireAuthenticatedUser();
-            })
-            .AddPolicy("ReportsRead", policy =>
-            {
-                policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
                 policy.RequireAuthenticatedUser();
                 policy.RequireClaim(AuthenticationConstants.ScopeClaimType, AuthenticationConstants.AzureADClaims.ReportsReadScopeName);
             });

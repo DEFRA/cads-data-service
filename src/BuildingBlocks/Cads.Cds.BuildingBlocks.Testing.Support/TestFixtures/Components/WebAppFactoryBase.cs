@@ -3,6 +3,7 @@ using Amazon.S3.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
@@ -42,6 +43,7 @@ public abstract class WebAppFactoryBase<TStart>(
     {
         builder.UseSetting(WebHostDefaults.ApplicationKey, typeof(TStart).Assembly.FullName);
         builder.UseContentRoot(AppContext.BaseDirectory);
+        builder.UseEnvironment("Test");
 
         // Configure server URLs for CoreWCF
         builder.UseUrls("http://localhost:5000", "https://localhost:5001");
@@ -74,8 +76,11 @@ public abstract class WebAppFactoryBase<TStart>(
         {
             var mockService = new Mock<IPostgresStatusService>();
             mockService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(new PostgresStatusServiceResult { CanConnect = true });
+
             services.RemoveAll<IPostgresStatusService>();
-            services.AddScoped<IPostgresStatusService>(x => mockService.Object);
+            services.AddScoped(x => mockService.Object);
+
+            services.AddTransient<IStartupFilter, TestEndpointStartupFilter>();
         });
     }
 
@@ -153,31 +158,24 @@ public abstract class WebAppFactoryBase<TStart>(
 
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__ApiKey__Enabled", "true");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Enabled", "true");
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Authority", "https://fake-authority/");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Authority", TestAuthConstants.FakeCongnitoAuthority);
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Enabled", "true");
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Authority", "https://fake-authority/");
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Audience", "https://fake-audience/");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Authority", TestAuthConstants.FakeAzureAdAuthority);
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Audience", TestAuthConstants.FakeAzureAdAudience);
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)
     {
+        services.RemoveAll<IConfigureOptions<AuthenticationOptions>>();
         services.RemoveAll<IConfigureNamedOptions<JwtBearerOptions>>();
 
-        services.RemoveAll<IAuthenticationSchemeProvider>();
+        services.RemoveAll<JwtBearerHandler>();
+        services.RemoveAll<BasicAuthenticationHandler>();
 
-        services.AddSingleton<IAuthenticationSchemeProvider>(sp =>
-        {
-            var options = sp.GetRequiredService<IOptions<AuthenticationOptions>>();
-            var provider = new AuthenticationSchemeProvider(options);
-
-            provider.RemoveScheme(AuthenticationConstants.CognitoSchemeName);
-            provider.AddScheme(new AuthenticationScheme(
-                AuthenticationConstants.CognitoSchemeName,
-                AuthenticationConstants.CognitoSchemeName,
-                typeof(FakeJwtHandler)));
-
-            return provider;
-        });
+        services.AddAuthentication()
+            .AddScheme<AuthenticationSchemeOptions, FakeJwtHandler>(AuthenticationConstants.CognitoSchemeName, _ => { })
+            .AddScheme<AuthenticationSchemeOptions, FakeJwtHandler>(AuthenticationConstants.AzureADSchemeName, _ => { })
+            .AddScheme<AuthenticationSchemeOptions, FakeApiKeyHandler>(AuthenticationConstants.ApiKeySchemeName, _ => { });
     }
 
     private void ResetInfrastructureMocks()

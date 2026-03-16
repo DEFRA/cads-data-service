@@ -24,7 +24,15 @@ public static class AuthenticationConstants
     public const string CognitoSchemeName = "Cognito";
     public const string AzureADSchemeName = "AzureAd";
 
-    public const string ScopeClaimType = "scp";
+    public const string ScopeClaimType = "scope";
+
+    public const string ApiKeyOrCognitoPolicy = "ApiKeyOrCognito";
+    public const string AadReportsReadPolicy = "AadReportsRead";
+
+    public static class CognitoClaims
+    {
+        public const string AccessScopeName = "access";
+    }
 
     public static class AzureADClaims
     {
