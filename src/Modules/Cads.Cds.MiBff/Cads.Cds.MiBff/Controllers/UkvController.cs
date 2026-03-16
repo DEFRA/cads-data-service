@@ -11,8 +11,7 @@ using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Movements;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Zones;
 using Cads.Cds.MiBff.Controllers.Requests.Ukv;
-using Cads.Cds.MiBff.Core.DTOs;
-using Microsoft.AspNetCore.Authorization;
+using Cads.Cds.MiBff.Core.DTOs.Ukv;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
