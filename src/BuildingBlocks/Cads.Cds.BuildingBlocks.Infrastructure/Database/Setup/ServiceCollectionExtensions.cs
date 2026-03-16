@@ -57,8 +57,8 @@ public static class ServiceCollectionExtensions
             }
 
             services.AddSingleton<IPostgresDataSourceFactory, PostgresDataSourceFactory>();
-            services.AddPostgresDbContext<HealthCheckDbContext>();
-            services.AddPostgresDbContext<HealthCheckReadOnlyDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+            services.AddPostgresDbContext<CadsDbContext>();
+            services.AddPostgresDbContext<CadsReadOnlyDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
             services.AddScoped<PostgresHealthCheck>();
             services.AddScoped<IPostgresStatusService, PostgresStatusService>();
 

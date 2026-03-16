@@ -2,7 +2,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 
-public class PostgresStatusService(HealthCheckDbContext healthCheckDbContext, HealthCheckReadOnlyDbContext healthCheckReadOnlyDbContext) : IPostgresStatusService
+public class PostgresStatusService(CadsDbContext healthCheckDbContext, CadsReadOnlyDbContext healthCheckReadOnlyDbContext) : IPostgresStatusService
 {
     public async Task<PostgresStatusServiceResult> CanConnect(CancellationToken cancellationToken = default)
     {

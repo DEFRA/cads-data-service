@@ -39,8 +39,8 @@ public class PostgresHealthCheckTests
     [Fact]
     public async Task PostgresStatusService_CanConnect_ReturnsTrue()
     {
-        var dbContext = new HealthCheckDbContext(new DbContextOptionsBuilder<HealthCheckDbContext>().UseInMemoryDatabase(TestDatabaseConstants.TestCadsDatabaseName).Options);
-        var dbReadOnlyContext = new HealthCheckReadOnlyDbContext(new DbContextOptionsBuilder<HealthCheckReadOnlyDbContext>().UseInMemoryDatabase(TestDatabaseConstants.TestCadsReadOnlyDatabaseName).Options);
+        var dbContext = new CadsDbContext(new DbContextOptionsBuilder<CadsDbContext>().UseInMemoryDatabase(TestDatabaseConstants.TestCadsDatabaseName).Options);
+        var dbReadOnlyContext = new CadsReadOnlyDbContext(new DbContextOptionsBuilder<CadsReadOnlyDbContext>().UseInMemoryDatabase(TestDatabaseConstants.TestCadsReadOnlyDatabaseName).Options);
         var postgresStatusService = new PostgresStatusService(dbContext, dbReadOnlyContext);
 
         var postgresStatusServiceResult = await postgresStatusService.CanConnect(CancellationToken.None);
