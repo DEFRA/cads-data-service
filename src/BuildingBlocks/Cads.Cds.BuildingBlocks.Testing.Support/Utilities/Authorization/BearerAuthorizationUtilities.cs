@@ -7,6 +7,6 @@ public static class BearerAuthorizationUtilities
     public static void AddJwt(this HttpClient client)
     {
         client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", "fake-jwt-token");
+            new AuthenticationHeaderValue("Cognito", "fake-jwt-token");
     }
 }

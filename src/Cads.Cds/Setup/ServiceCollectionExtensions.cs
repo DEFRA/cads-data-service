@@ -76,17 +76,17 @@ public static class ServiceCollectionExtensions
 
         var authBuilder = services.AddAuthentication();
 
-        if (authConfig.EnableApiKey)
+        if (authConfig.ApiKey.Enabled)
         {
             authBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
                 BasicAuthenticationHandler.SchemeName, _ => { });
         }
 
-        if (authConfig.ApiGatewayExists)
+        if (authConfig.Cognito.Enabled)
         {
-            authBuilder.AddJwtBearer("Bearer", (options) =>
+            authBuilder.AddJwtBearer("Cognito", (options) =>
             {
-                options.Authority = authConfig.Authority;
+                options.Authority = authConfig.Cognito.Authority;
                 options.TokenValidationParameters.ValidateAudience = false;
                 options.BackchannelHttpHandler = new ProxyHttpMessageHandler();
             });
@@ -95,13 +95,13 @@ public static class ServiceCollectionExtensions
         services.AddAuthorizationBuilder()
             .AddPolicy("BasicOrBearer", policy =>
             {
-                if (authConfig.EnableApiKey)
+                if (authConfig.ApiKey.Enabled)
                 {
                     policy.AddAuthenticationSchemes("Basic");
                 }
-                if (authConfig.ApiGatewayExists)
+                if (authConfig.Cognito.Enabled)
                 {
-                    policy.AddAuthenticationSchemes("Bearer");
+                    policy.AddAuthenticationSchemes("Cognito");
                 }
                 policy.RequireAuthenticatedUser();
             });
