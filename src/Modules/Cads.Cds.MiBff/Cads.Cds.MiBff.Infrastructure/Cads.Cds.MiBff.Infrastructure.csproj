@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Cads.Cds.MiBff.Application\Cads.Cds.MiBff.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+
 </Project>

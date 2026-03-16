@@ -2,6 +2,7 @@ using Cads.Cds.BuildingBlocks.Application.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Files.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
+using Cads.Cds.BuildingBlocks.Infrastructure.Repositories.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Setup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,8 +17,8 @@ public static class ServiceCollectionExtensions
         services.AddAmazonSQSCore(config);
         services.ConfigureDatabase(config);
         services.AddFileInfrastructure();
-
         services.AddBuildBlocksApplicationLayer();
+        services.AddRepositories(config);
 
         return services;
     }
