@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using DotNet.Testcontainers.Builders;
@@ -27,7 +28,7 @@ public class ApiContainerFixture : IAsyncLifetime
         var certPath = Path.Combine(AppContext.BaseDirectory, "certs");
 
         ApiContainer = new ContainerBuilder("cads_cds:latest")
-          .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+          .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Test")
           .WithEnvironment("ASPNETCORE_URLS", "http://0.0.0.0:5555;https://0.0.0.0:5556")
           .WithPortBinding(5555, true)
           .WithPortBinding(5556, true)

@@ -14,14 +14,23 @@ public class FakeJwtHandler(
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var identity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Name, "jwt-user"),
-        new Claim("scope", "read")
-        ], AuthenticationConstants.CognitoSchemeName);
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, "jwt-user")
+        };
 
+        if (Scheme.Name == AuthenticationConstants.AzureADSchemeName)
+        {
+            claims.Add(new Claim("scope", AuthenticationConstants.AzureADClaims.ReportsReadScopeName));
+        }
+        else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
+        {
+            claims.Add(new Claim("scope", AuthenticationConstants.CognitoClaims.AccessScopeName));
+        }
+
+        var identity = new ClaimsIdentity(claims, Scheme.Name);
         var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, AuthenticationConstants.CognitoSchemeName);
+        var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }
