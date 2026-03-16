@@ -9,12 +9,9 @@ public class AuthenticationOptionsConfigurator(IOptions<AuthenticationConfigurat
 
     public void Configure(AuthenticationOptions options)
     {
-        var scheme = _authConfig.Cognito.Enabled
-            ? AuthenticationConstants.CognitoSchemeName
-            : AuthenticationConstants.ApiKeySchemeName;
-
-        options.DefaultScheme = scheme;
-        options.DefaultAuthenticateScheme = scheme;
-        options.DefaultChallengeScheme = scheme;
+        // Neutral fallback; policies decide the real scheme
+        options.DefaultScheme = AuthenticationConstants.ApiKeySchemeName;
+        options.DefaultAuthenticateScheme = AuthenticationConstants.ApiKeySchemeName;
+        options.DefaultChallengeScheme = AuthenticationConstants.ApiKeySchemeName;
     }
 }
