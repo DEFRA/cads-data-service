@@ -41,6 +41,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsQueueUrl)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
+          .WithEnvironment("AuthenticationConfiguration__ApiKey__Enabled", "true")
           .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ReadConnectionString)

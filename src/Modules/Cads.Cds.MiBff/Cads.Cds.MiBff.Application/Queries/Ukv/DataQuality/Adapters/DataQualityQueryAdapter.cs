@@ -1,5 +1,4 @@
-using Cads.Cds.MiBff.Application.Queries.Ukv.DataQuality;
-using Cads.Cds.MiBff.Core.DTOs;
+using Cads.Cds.MiBff.Core.DTOs.Ukv;
 using Cads.Cds.MiBff.Core.Services.Ukv;
 
 namespace Cads.Cds.MiBff.Application.Queries.Ukv.DataQuality.Adapters;

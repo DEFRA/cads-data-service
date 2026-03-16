@@ -150,9 +150,12 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
 
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__EnableApiKey", "true");
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__ApiGatewayExists", "true");
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__Authority", "https://fake-authority/");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__ApiKey__Enabled", "true");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Enabled", "true");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Authority", "https://fake-authority/");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Enabled", "true");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Authority", "https://fake-authority/");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Audience", "https://fake-audience/");
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)
@@ -166,7 +169,7 @@ public abstract class WebAppFactoryBase<TStart>(
             var options = sp.GetRequiredService<IOptions<AuthenticationOptions>>();
             var provider = new AuthenticationSchemeProvider(options);
 
-            provider.RemoveScheme("Bearer");
+            provider.RemoveScheme("Cognito");
             provider.AddScheme(new AuthenticationScheme(
                 FakeJwtHandler.SchemeName,
                 FakeJwtHandler.SchemeName,

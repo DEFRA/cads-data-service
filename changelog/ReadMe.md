@@ -138,6 +138,10 @@ Liquibase then generates migration scripts to bring CADS in line with the refere
 ```
 liquibase --url=jdbc:postgresql://localhost:55432/reference_schema --username=postgres --password=postgres update
 ```
+If the changelog file can't be found you can use:
+```
+liquibase --url=jdbc:postgresql://localhost:55432/reference_schema --username=postgres --password=postgres --changeLogFile=changelog/db.changelog.xml update
+```
 
 ### Step 2 — Make schema changes in the Reference DB
 
@@ -153,7 +157,12 @@ Never manually modify the CADS database.
 ### Step 3 — Detect differences
 
 ```
-liquibase diff
+iquibase diff 
+	--url=jdbc:postgresql://localhost:5432/<POSTGRES_DB> 
+	--username=<POSTGRES_USER> 
+	--password=<POSTGRES_PASSWORD> 
+	--reference-url=jdbc:postgresql://localhost:55432/<POSTGRES_REF_DB> 
+	--reference-username=<POSTGRES_USER> 
 ```
 
 This shows what changed between:
@@ -163,7 +172,14 @@ This shows what changed between:
 ### Step 4 — Generate a migration changelog
 
 ```
-liquibase diffChangelog --changelog-file=<migration-name>.postgresql.sql
+liquibase diff-changelog 
+	--changelog-file=changelog/<XXXX_NEW_CHANGESET_NAME>.postgresql.sql 
+	--url=jdbc:postgresql://localhost:5432/<POSTGRES_DB> 
+	--username=<POSTGRES_USER> 
+	--password=<POSTGRES_PASSWORD> 
+	--reference-url=jdbc:postgresql://localhost:55432/<POSTGRES_REF_DB> 
+	--reference-username=<POSTGRES_USER> 
+	--reference-password=<POSTGRES_PASSWORD>
 ```
 
 Liquibase outputs a migration script containing:
@@ -229,7 +245,15 @@ It gives you:
 - no renumbering headaches
 - a schema that scales with your platform
 
-### Step 5 — Apply the migration to the CADS database
+### Step 5
+
+Update the master changelog file, `changelog/db.changelog.xml`, with the new changeset.
+
+```
+<include file="changelog/<XXXX_NEW_CHANGESET_NAME>.postgresql.sql" />
+```
+
+### Step 6 — Apply the migration to the CADS database
 
 ```
 liquibase update --changelog-file=<migration-name>.postgresql.sql

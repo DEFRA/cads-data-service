@@ -116,8 +116,10 @@ services:
     build: ./
     ports:
       - '5555:5555'
+      - '5556:5556'
     volumes:
       - ./static_data:/app/StaticData
+      - ./certs:/https:ro
     depends_on:
       localstack:
         condition: service_healthy
@@ -126,6 +128,12 @@ services:
     env_file:
       - 'compose/aws.env'
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://0.0.0.0:5555;https://0.0.0.0:5556"
+      ASPNETCORE_HTTP_PORTS: "5555"
+      ASPNETCORE_HTTPS_PORTS: "5556"
+      Kestrel__Certificates__Default__Path: "/https/https-dev-cert.pfx"
+      Kestrel__Certificates__Default__Password: "testpassword"
       PORT: 5555
       LOCALSTACK_ENDPOINT: http://cds-localstack-emulator:4566
     networks:
