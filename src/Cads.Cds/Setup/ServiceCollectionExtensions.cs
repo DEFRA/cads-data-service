@@ -1,9 +1,11 @@
 using Cads.Cds.Api.Application;
+using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Configuration.Aws;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Http;
+using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
@@ -89,6 +91,12 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddAuthorisationPolicies(authConfig);
+        services.AddUserContext();
+    }
+
+    private static void AddUserContext(this IServiceCollection services)
+    {
+        services.AddScoped<IUserContext, UserContext>();
     }
 
     private static void AddApiKeyScheme(this AuthenticationBuilder authenticationBuilder)
@@ -153,7 +161,7 @@ public static class ServiceCollectionExtensions
                     policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
                 }
                 policy.RequireAuthenticatedUser();
-                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, AuthenticationConstants.AzureADClaims.ReportsReadScopeName);
+                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, ScopeNames.ReportsRead);
             });
     }
 }

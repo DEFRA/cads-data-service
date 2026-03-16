@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
@@ -16,16 +17,22 @@ public class FakeJwtHandler(
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, "jwt-user")
+            new(ClaimTypes.Name, "test-jwt-user"),
+            new(ClaimTypes.Email, "test-jwt-user@example.com"),
+            new("name", "Test JWT User")
         };
 
         if (Scheme.Name == AuthenticationConstants.AzureADSchemeName)
         {
-            claims.Add(new Claim("scope", AuthenticationConstants.AzureADClaims.ReportsReadScopeName));
+            claims.Add(new Claim(CustomClaimTypes.Oid, Guid.NewGuid().ToString()));
+            claims.Add(new Claim(CustomClaimTypes.TenantId, "test-aad-tenant"));
+            claims.Add(new Claim("scope", ScopeNames.ReportsRead));
         }
         else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
         {
-            claims.Add(new Claim("scope", AuthenticationConstants.CognitoClaims.AccessScopeName));
+            claims.Add(new Claim(CustomClaimTypes.CognitoSub, Guid.NewGuid().ToString()));
+            claims.Add(new Claim(CustomClaimTypes.CustomTenantId, "test-cognito-tenant"));
+            claims.Add(new Claim("scope", ScopeNames.Access));
         }
 
         var identity = new ClaimsIdentity(claims, Scheme.Name);
