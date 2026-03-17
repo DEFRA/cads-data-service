@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Application.Attributes;
 using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.AnimalSummary;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.AnnualInventory;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.DepartureDetails;
@@ -10,10 +11,12 @@ using Cads.Cds.MiBff.Application.Queries.Amsl2.MovementsInSuspense;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.SummaryPremiseDetails;
 using Cads.Cds.MiBff.Controllers.Requests.Amsl2;
 using Cads.Cds.MiBff.Core.DTOs.Amls2;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
 
+[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
 [ApiController]
 [Route("api/v1/bff/mi/[controller]")]
 public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
