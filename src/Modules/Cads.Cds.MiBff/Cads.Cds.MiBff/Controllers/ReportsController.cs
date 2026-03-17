@@ -1,10 +1,13 @@
 using Cads.Cds.BuildingBlocks.Application;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.MiBff.Application.Queries.Reports;
 using Cads.Cds.MiBff.Controllers.Requests.Reports;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
 
+[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
 [ApiController]
 [Route("api/v1/bff/mi/[controller]")]
 public class ReportsController(IRequestExecutor executor) : ControllerBase

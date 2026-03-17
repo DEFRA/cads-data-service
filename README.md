@@ -212,6 +212,20 @@ Tests are structured to mirror the production code:
 
 This structure ensures clarity, isolation, and high coverage.
 
+## Authentication
+
+### API Key
+Used for internal service‑to‑service calls.
+
+### Cognito
+Used for external user authentication (e.g., mobile/web).
+
+### Azure AD
+Used for internal staff / enterprise users.
+
+### Policies
+Different scheme support applies for different groups of endpoints.
+
 ## Getting Started
 
 ### Local Development Setup

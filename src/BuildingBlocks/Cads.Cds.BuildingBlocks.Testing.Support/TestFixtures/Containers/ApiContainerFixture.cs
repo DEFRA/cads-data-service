@@ -27,13 +27,10 @@ public class ApiContainerFixture : IAsyncLifetime
         var certPath = Path.Combine(AppContext.BaseDirectory, "certs");
 
         ApiContainer = new ContainerBuilder("cads_cds:latest")
-          .WithName("cads_cds")
-          .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
+          .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Test")
           .WithEnvironment("ASPNETCORE_URLS", "http://0.0.0.0:5555;https://0.0.0.0:5556")
-          .WithPortBinding(5555, 5555)
-          .WithPortBinding(5556, 5556)
-          .WithEnvironment("ASPNETCORE_HTTP_PORTS", "5555")
-          .WithEnvironment("ASPNETCORE_HTTPS_PORTS", "5556")
+          .WithPortBinding(5555, true)
+          .WithPortBinding(5556, true)
           .WithBindMount(certPath, "/https", AccessMode.ReadOnly)
           .WithEnvironment("Kestrel__Certificates__Default__Path", "/https/https-dev-cert.pfx")
           .WithEnvironment("Kestrel__Certificates__Default__Password", "testpassword")
@@ -61,8 +58,10 @@ public class ApiContainerFixture : IAsyncLifetime
         HttpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{ApiContainer.GetMappedPublicPort(5555)}") };
         HttpClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
 
-        var handler = new HttpClientHandler();
-        handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true;
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true
+        };
         HttpsClient = new HttpClient(handler) { BaseAddress = new Uri($"https://localhost:{ApiContainer.GetMappedPublicPort(5556)}") };
         HttpsClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
     }
