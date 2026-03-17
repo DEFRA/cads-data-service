@@ -1,17 +1,19 @@
 using Cads.Cds.Api.Application;
+using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Configuration.Aws;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Http;
+using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
 using Cads.Cds.StorageBridge.Application;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Cads.Cds.Setup;
 
@@ -21,10 +23,7 @@ public static class ServiceCollectionExtensions
     {
         services.ConfigureAuthentication(configuration);
 
-        services.AddControllers(options =>
-        {
-            options.Filters.Add(new AuthorizeFilter("BasicOrBearer"));
-        })
+        services.AddControllers()
             .AddJsonOptions(opts =>
             {
                 opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptions.PropertyNamingPolicy;
@@ -78,32 +77,91 @@ public static class ServiceCollectionExtensions
 
         if (authConfig.ApiKey.Enabled)
         {
-            authBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
-                BasicAuthenticationHandler.SchemeName, _ => { });
+            authBuilder.AddApiKeyScheme();
         }
 
         if (authConfig.Cognito.Enabled)
         {
-            authBuilder.AddJwtBearer("Cognito", (options) =>
-            {
-                options.Authority = authConfig.Cognito.Authority;
-                options.TokenValidationParameters.ValidateAudience = false;
-                options.BackchannelHttpHandler = new ProxyHttpMessageHandler();
-            });
+            authBuilder.AddCognitoScheme(authConfig.Cognito);
         }
 
-        services.AddAuthorizationBuilder()
-            .AddPolicy("BasicOrBearer", policy =>
+        if (authConfig.AzureAD.Enabled)
+        {
+            authBuilder.AddAzureADScheme(authConfig.AzureAD);
+        }
+
+        services.AddAuthorisationPolicies(authConfig);
+        services.AddUserContext();
+    }
+
+    private static void AddUserContext(this IServiceCollection services)
+    {
+        services.AddScoped<IUserContext, UserContext>();
+    }
+
+    private static void AddApiKeyScheme(this AuthenticationBuilder authenticationBuilder)
+    {
+        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
+            AuthenticationConstants.ApiKeySchemeName, _ => { });
+    }
+
+    private static void AddCognitoScheme(this AuthenticationBuilder authenticationBuilder, AuthenticationProviderConfiguration authenticationProviderConfiguration)
+    {
+        authenticationBuilder.AddJwtBearer(AuthenticationConstants.CognitoSchemeName, (options) =>
+        {
+            options.Authority = authenticationProviderConfiguration.Authority;
+            options.TokenValidationParameters.ValidateAudience = false;
+            options.BackchannelHttpHandler = new ProxyHttpMessageHandler();
+        });
+    }
+
+    private static void AddAzureADScheme(this AuthenticationBuilder authenticationBuilder, AuthenticationProviderConfiguration authenticationProviderConfiguration)
+    {
+        authenticationBuilder.AddJwtBearer(AuthenticationConstants.AzureADSchemeName, options =>
+        {
+            options.Authority = authenticationProviderConfiguration.Authority;
+            options.Audience = authenticationProviderConfiguration.Audience;
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                if (authConfig.ApiKey.Enabled)
+                ValidateIssuer = true,
+                ValidIssuer = authenticationProviderConfiguration.Authority,
+                ValidateAudience = true,
+                ValidAudience = authenticationProviderConfiguration.Audience,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidTypes = ["JWT", "at+jwt"]
+            };
+            options.BackchannelHttpHandler = new ProxyHttpMessageHandler();
+        });
+    }
+
+    private static void AddAuthorisationPolicies(this IServiceCollection services, AuthenticationConfiguration authenticationConfiguration)
+    {
+        services.AddAuthorizationBuilder()
+            .AddPolicy(AuthenticationConstants.ApiKeyOrCognitoPolicy, policy =>
+            {
+                if (authenticationConfiguration.ApiKey.Enabled)
                 {
-                    policy.AddAuthenticationSchemes("Basic");
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.ApiKeySchemeName);
                 }
-                if (authConfig.Cognito.Enabled)
+                if (authenticationConfiguration.Cognito.Enabled)
                 {
-                    policy.AddAuthenticationSchemes("Cognito");
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
                 }
                 policy.RequireAuthenticatedUser();
+            })
+            .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy =>
+            {
+                if (authenticationConfiguration.ApiKey.Enabled)
+                {
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.ApiKeySchemeName);
+                }
+                if (authenticationConfiguration.AzureAD.Enabled)
+                {
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
+                }
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, ScopeNames.ReportsRead);
             });
     }
 }
