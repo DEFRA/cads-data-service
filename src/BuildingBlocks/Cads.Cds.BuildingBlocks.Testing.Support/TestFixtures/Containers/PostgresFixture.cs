@@ -15,16 +15,14 @@ public class PostgresFixture : IAsyncLifetime
     public static string ReadConnectionString =>
         $"Host=postgres;Port=5432;Database={TestDatabaseConstants.TestCadsDatabaseName};Username={TestDatabaseConstants.PostgresReadUser};Password={TestDatabaseConstants.PostgresReadPassword}";
 
-    private static string InitialisationConnectionString =>
-        $"Host=127.0.0.1;Port=5432;Database=postgres;Username={TestDatabaseConstants.PostgresUserName};Password={TestDatabaseConstants.PostgresPassword}";
+    private string InitialisationConnectionString =>
+        $"Host=127.0.0.1;Port={Container!.GetMappedPublicPort(5432)};Database=postgres;Username={TestDatabaseConstants.PostgresUserName};Password={TestDatabaseConstants.PostgresPassword}";
 
     public async ValueTask InitializeAsync()
     {
         DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
         Container = new PostgreSqlBuilder("postgres:16.6")
-            .WithName("postgres")
-            .WithPortBinding(5432, 5432)
             .WithEnvironment("POSTGRES_USER", TestDatabaseConstants.PostgresUserName)
             .WithEnvironment("POSTGRES_PASSWORD", TestDatabaseConstants.PostgresPassword)
             .WithNetwork(TestContainerConstants.NetworkName)
@@ -55,7 +53,7 @@ public class PostgresFixture : IAsyncLifetime
             throw error;
     }
 
-    private static void InitialiseDatabaseSchema()
+    private void InitialiseDatabaseSchema()
     {
         using var connection = new NpgsqlConnection(InitialisationConnectionString);
         var createDbCommand = new NpgsqlCommand(@$"
