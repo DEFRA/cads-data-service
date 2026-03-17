@@ -18,8 +18,6 @@ public class BasicAuthenticationHandler(
     IOptions<AclOptions> aclOptions
 ) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    public const string SchemeName = "Basic";
-
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         // Skip if endpoint allows anonymous
@@ -32,7 +30,7 @@ public class BasicAuthenticationHandler(
             return NoResult();
 
         var header = AuthenticationHeaderValue.Parse(headerValue!);
-        if (!string.Equals(header.Scheme, SchemeName, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(header.Scheme, AuthenticationConstants.ApiKeySchemeName, StringComparison.OrdinalIgnoreCase))
             return NoResult();
 
         // Decode Basic credentials

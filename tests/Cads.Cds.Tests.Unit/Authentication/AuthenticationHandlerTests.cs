@@ -1,55 +1,99 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
-using Cads.Cds.MiBff.Core.Services.Ukv;
 using Cads.Cds.Tests.Unit.TestFixtures;
 using FluentAssertions;
-using Moq;
 using System.Net;
+using System.Net.Http.Headers;
 
 namespace Cads.Cds.Tests.Unit.Authentication;
 
 public class AuthenticationHandlerTests
 {
-    private readonly Mock<IHoldingService> _holdingsServiceMock = new();
-
-    private static string GetBffUkvHoldingsByCphEndpoint
-        => string.Format(TestEndpointConstants.BffUkvHoldingsByCphEndpoint, Guid.NewGuid().ToString());
-
-    private CdsWebApplicationFactory GetFactory(IDictionary<string, string?>? configOverrides = null)
+    private static CdsWebApplicationFactory GetFactory(bool useFakeAuth = false)
     {
-        var factory = new CdsWebApplicationFactory(configOverrides: configOverrides, useFakeAuth: true);
-        factory.OverrideServiceAsTransient(_holdingsServiceMock.Object);
+        var factory = new CdsWebApplicationFactory(useFakeAuth: useFakeAuth);
         return factory;
     }
 
-    public AuthenticationHandlerTests()
+    [Fact]
+    public async Task GivenTheApiKeyOrCognitoPolicyExists_WhenApiKeyEndpointRequested_AndNoTokenProvided_ReturnsUnauthorized()
     {
-        _holdingsServiceMock.Setup(x => x.GetByCphAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+        var factory = GetFactory();
+        var client = factory.CreateClient();
+
+        var response = await client.GetAsync("test-auth/basic/apikey", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
-    public async Task WhenApiGatewayExists_JwtSchemeSucceeds()
+    public async Task GivenTheApiKeyOrCognitoPolicyExists_WhenApiKeyEndpointRequested_AndInvalidBasicTokenProvided_ReturnsUnauthorized()
     {
         var factory = GetFactory();
-
         var client = factory.CreateClient();
-        client.AddJwt();
+        client.AddBasicApiKey(TestAuthConstants.BasicApiKey, Guid.NewGuid().ToString());
 
-        var response = await client.GetAsync(GetBffUkvHoldingsByCphEndpoint, TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("test-auth/basic/apikey", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GivenTheApiKeyOrCognitoPolicyExists_WhenApiKeyEndpointRequested_AndValidBasicTokenProvided_ReturnsOk()
+    {
+        var factory = GetFactory();
+        var client = factory.CreateClient();
+        client.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
+
+        var response = await client.GetAsync("test-auth/basic/apikey", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
-    public async Task WhenApiKeyEnabled_BasicSchemeSucceeds()
+    public async Task GivenTheApiKeyOrCognitoPolicyExists_WhenCognitoEndpointRequested_AndInvalidCognitoTokenProvided_ReturnsUnauthorized()
     {
         var factory = GetFactory();
-
         var client = factory.CreateClient();
-        client.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "invalid-token");
 
-        var response = await client.GetAsync(GetBffUkvHoldingsByCphEndpoint, TestContext.Current.CancellationToken);
+        var response = await client.GetAsync("test-auth/bearer/cognito", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GivenTheApiKeyOrCognitoPolicyExists_WhenCognitoEndpointRequested_AndValidCognitoTokenProvided_ReturnsOk()
+    {
+        var factory = GetFactory(true);
+        var client = factory.CreateClient();
+        client.AddJwt();
+
+        var response = await client.GetAsync("test-auth/bearer/cognito", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task GivenTheAadReportsReadPolicy_WhenReportsEndpointRequested_AndInvalidAadTokenProvided_ReturnsUnauthorized()
+    {
+        var factory = GetFactory();
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "invalid-token");
+
+        var response = await client.GetAsync("test-auth/azuread/reports", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GivenTheAadReportsReadPolicy_WhenReportsEndpointRequested_AndValidAadTokenProvided_ReturnsOk()
+    {
+        var factory = GetFactory(true);
+        var client = factory.CreateClient();
+        client.AddJwt();
+
+        var response = await client.GetAsync("test-auth/azuread/reports", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }

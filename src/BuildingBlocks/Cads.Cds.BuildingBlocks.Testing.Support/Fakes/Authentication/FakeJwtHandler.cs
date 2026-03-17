@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Identity;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,18 +13,31 @@ public class FakeJwtHandler(
     ILoggerFactory logger,
     UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    public const string SchemeName = "Cognito";
-
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var identity = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Name, "jwt-user"),
-        new Claim("scope", "read")
-        ], SchemeName);
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, "test-jwt-user"),
+            new(ClaimTypes.Email, "test-jwt-user@example.com"),
+            new("name", "Test JWT User")
+        };
 
+        if (Scheme.Name == AuthenticationConstants.AzureADSchemeName)
+        {
+            claims.Add(new Claim(CustomClaimTypes.Oid, Guid.NewGuid().ToString()));
+            claims.Add(new Claim(CustomClaimTypes.TenantId, "test-aad-tenant"));
+            claims.Add(new Claim("scope", ScopeNames.ReportsRead));
+        }
+        else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
+        {
+            claims.Add(new Claim(CustomClaimTypes.CognitoSub, Guid.NewGuid().ToString()));
+            claims.Add(new Claim(CustomClaimTypes.CustomTenantId, "test-cognito-tenant"));
+            claims.Add(new Claim("scope", ScopeNames.Access));
+        }
+
+        var identity = new ClaimsIdentity(claims, Scheme.Name);
         var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, SchemeName);
+        var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }
