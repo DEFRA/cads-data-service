@@ -30,12 +30,12 @@ public class BasicAuthenticationHandlerTests
             new OptionsWrapper<AclOptions>(_aclOptions)
         );
 
-        _optionsMonitor.Get(BasicAuthenticationHandler.SchemeName)
+        _optionsMonitor.Get(AuthenticationConstants.ApiKeySchemeName)
             .Returns(new AuthenticationSchemeOptions());
     }
 
     private static AuthenticationScheme Scheme() =>
-        new(BasicAuthenticationHandler.SchemeName, BasicAuthenticationHandler.SchemeName, typeof(BasicAuthenticationHandler));
+        new(AuthenticationConstants.ApiKeySchemeName, AuthenticationConstants.ApiKeySchemeName, typeof(BasicAuthenticationHandler));
 
     private async Task<AuthenticateResult> Authenticate(HttpContext context)
     {
