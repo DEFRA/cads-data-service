@@ -205,7 +205,7 @@ public class ServiceCollectionExtensionsTests
         };
 
         var provider = BuildProvider(config);
-        var context = provider.GetRequiredService<CadsDbContext>();
+        var context = provider.GetRequiredService<HealthCheckDbContext>();
 
         context.Should().NotBeNull();
 

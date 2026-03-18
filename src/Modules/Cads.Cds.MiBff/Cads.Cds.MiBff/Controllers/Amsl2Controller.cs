@@ -9,7 +9,7 @@ using Cads.Cds.MiBff.Application.Queries.Amsl2.DetailedMovements;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.MovementsInSuspense;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.SummaryPremiseDetails;
 using Cads.Cds.MiBff.Controllers.Requests.Amsl2;
-using Cads.Cds.MiBff.Core.DTOs.Amls2;
+using Cads.Cds.MiBff.Core.Domain.DTOs.Amls2;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
