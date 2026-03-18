@@ -1,4 +1,4 @@
-using Cads.Cds.MiBff.Core.DTOs.Reports;
+using Cads.Cds.MiBff.Core.Domain.DTOs.Reports;
 using Cads.Cds.MiBff.Core.Services.Reports;
 
 namespace Cads.Cds.MiBff.Application.Services.Reports;

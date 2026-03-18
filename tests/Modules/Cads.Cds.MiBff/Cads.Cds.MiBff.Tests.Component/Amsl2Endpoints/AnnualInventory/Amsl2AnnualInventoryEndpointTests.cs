@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Queries.JsonResponses;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
-using Cads.Cds.MiBff.Core.DTOs.Amls2;
+using Cads.Cds.MiBff.Core.Domain.DTOs.Amls2;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
 using System.Net.Http.Json;

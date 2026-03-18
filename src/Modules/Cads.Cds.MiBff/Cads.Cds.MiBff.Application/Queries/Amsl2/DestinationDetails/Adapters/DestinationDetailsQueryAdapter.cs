@@ -1,4 +1,4 @@
-using Cads.Cds.MiBff.Core.DTOs.Amls2;
+using Cads.Cds.MiBff.Core.Domain.DTOs.Amls2;
 using Cads.Cds.MiBff.Core.Services.Amsl2;
 
 namespace Cads.Cds.MiBff.Application.Queries.Amsl2.DestinationDetails.Adapters;

@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
-using Cads.Cds.MiBff.Core.DTOs.Amls2;
+using Cads.Cds.MiBff.Core.Domain.DTOs.Amls2;
 
 namespace Cads.Cds.MiBff.Application.Queries.Amsl2.SummaryPremiseDetails;
 
