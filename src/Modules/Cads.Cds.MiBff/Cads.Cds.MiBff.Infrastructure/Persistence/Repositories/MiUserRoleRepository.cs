@@ -9,8 +9,8 @@ namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 public class MiUserRoleRepository(MiBffReadDbContext dbContext)
     : EFReadOnlyRepository<MiUserRole, MiBffReadDbContext>(dbContext), IMiUserRoleRepository
 {
-    public async Task<IEnumerable<MiUserRole>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MiUserRole>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await DbContext.UserRoles.Where(ur => ur.UserId == userId).ToListAsync(cancellationToken);
+        return await Query().Where(ur => ur.UserId == userId).ToListAsync(cancellationToken);
     }
 }

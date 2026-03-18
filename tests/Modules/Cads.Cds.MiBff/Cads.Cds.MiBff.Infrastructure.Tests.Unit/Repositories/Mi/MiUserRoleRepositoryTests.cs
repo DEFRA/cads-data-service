@@ -28,8 +28,8 @@ public class MiUserRoleRepositoryTests : IDisposable
     {
         var result = await _repository.GetByUserIdAsync(TestDataSeeder.User1, TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.User1, result!.First().User.UserId);
-        Assert.Equal(TestDataSeeder.RoleAdmin, result!.First().Role.RoleId);
+        Assert.Equal(TestDataSeeder.User1, result![0].UserId);
+        Assert.Equal(TestDataSeeder.RoleAdmin, result![0].RoleId);
     }
 
     [Fact]
@@ -82,8 +82,8 @@ public class MiUserRoleRepositoryTests : IDisposable
     {
         var result = await _repository.FindAsync(i => i.UserId == TestDataSeeder.User1, orderBy: i => i.OrderByDescending(o => o.GrantedAt), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.User1, result!.First().UserId);
-        Assert.Equal(TestDataSeeder.RoleAdmin, result!.First().RoleId);
+        Assert.Equal(TestDataSeeder.User1, result![0].UserId);
+        Assert.Equal(TestDataSeeder.RoleAdmin, result![0].RoleId);
     }
 
     [Fact]

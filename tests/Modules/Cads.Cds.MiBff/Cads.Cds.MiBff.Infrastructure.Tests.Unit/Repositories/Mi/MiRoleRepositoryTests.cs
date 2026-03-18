@@ -43,7 +43,7 @@ public class MiRoleRepositoryTests : IDisposable
     {
         var roles = await _repository.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(roles);
-        Assert.Equal(2, roles.Count());
+        Assert.Equal(2, roles.Count);
     }
 
     [Fact]

@@ -11,6 +11,6 @@ public class MiUserRepository(MiBffReadDbContext dbContext)
 {
     public async Task<MiUser?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await DbContext.Users.SingleOrDefaultAsync(u => u.UserId == userId, cancellationToken);
+        return await Query().SingleOrDefaultAsync(u => u.UserId == userId, cancellationToken);
     }
 }

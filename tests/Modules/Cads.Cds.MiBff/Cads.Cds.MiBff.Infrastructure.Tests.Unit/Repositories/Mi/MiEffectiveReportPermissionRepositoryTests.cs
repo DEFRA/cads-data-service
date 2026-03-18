@@ -30,10 +30,10 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
         var result = await _repository.GetByUserEmailAsync(TestDataSeeder.User1Email, TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal(TestDataSeeder.User1Email, result!.First().Email);
-        Assert.Equal(TestDataSeeder.ReportAKey, result!.First().ReportKey);
-        Assert.Equal(TestDataSeeder.ReportATitle, result!.First().Title);
-        Assert.Equal(TestDataSeeder.ReportADescription, result!.First().Description);
+        Assert.Equal(TestDataSeeder.User1Email, result![0].Email);
+        Assert.Equal(TestDataSeeder.ReportAKey, result![0].ReportKey);
+        Assert.Equal(TestDataSeeder.ReportATitle, result![0].Title);
+        Assert.Equal(TestDataSeeder.ReportADescription, result![0].Description);
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
     {
         var result = await _repository.ListAsync(i => i.Where(i => i.Granted), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count());
+        Assert.Equal(2, result.Count);
     }
 
     [Fact]
@@ -85,10 +85,10 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
     {
         var result = await _repository.FindAsync(i => i.Email == TestDataSeeder.User1Email && i.ReportKey == TestDataSeeder.ReportAKey, orderBy: i => i.OrderByDescending(o => o.ReportKey), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.User1Email, result!.First().Email);
-        Assert.Equal(TestDataSeeder.ReportAKey, result!.First().ReportKey);
-        Assert.Equal(TestDataSeeder.ReportATitle, result!.First().Title);
-        Assert.Equal(TestDataSeeder.ReportADescription, result!.First().Description);
+        Assert.Equal(TestDataSeeder.User1Email, result![0].Email);
+        Assert.Equal(TestDataSeeder.ReportAKey, result![0].ReportKey);
+        Assert.Equal(TestDataSeeder.ReportATitle, result![0].Title);
+        Assert.Equal(TestDataSeeder.ReportADescription, result![0].Description);
     }
 
     [Fact]

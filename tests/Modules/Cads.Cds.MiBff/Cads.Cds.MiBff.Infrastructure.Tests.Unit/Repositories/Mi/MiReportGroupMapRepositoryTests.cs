@@ -28,8 +28,8 @@ public class MiReportGroupMapRepositoryTests : IDisposable
     {
         var result = await _repository.GetByGroupIdAsync(TestDataSeeder.GroupOps, TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.GroupOps, result.First().GroupId);
-        Assert.Equal(TestDataSeeder.ReportA, result.First().ReportId);
+        Assert.Equal(TestDataSeeder.GroupOps, result![0].GroupId);
+        Assert.Equal(TestDataSeeder.ReportA, result![0].ReportId);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class MiReportGroupMapRepositoryTests : IDisposable
     {
         var items = await _repository.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(items);
-        Assert.Equal(2, items.Count());
+        Assert.Equal(2, items.Count);
     }
 
     [Fact]
@@ -82,8 +82,8 @@ public class MiReportGroupMapRepositoryTests : IDisposable
         var result = await _repository.FindAsync(i => i.GroupId == TestDataSeeder.GroupOps && i.ReportId == TestDataSeeder.ReportA, orderBy: i => i.OrderByDescending(o => o.ReportId), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal(TestDataSeeder.GroupOps, result!.First().GroupId);
-        Assert.Equal(TestDataSeeder.ReportA, result!.First().ReportId);
+        Assert.Equal(TestDataSeeder.GroupOps, result![0].GroupId);
+        Assert.Equal(TestDataSeeder.ReportA, result![0].ReportId);
     }
 
     [Fact]

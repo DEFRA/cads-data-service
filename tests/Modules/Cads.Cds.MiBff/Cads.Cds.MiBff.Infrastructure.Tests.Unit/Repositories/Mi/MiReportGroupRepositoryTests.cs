@@ -41,9 +41,9 @@ public class MiReportGroupRepositoryTests : IDisposable
     [Fact]
     public async Task List_ReturnsItems()
     {
-        var items = await _repository.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
-        Assert.NotNull(items);
-        Assert.Single(items);
+        var result = await _repository.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(result);
+        Assert.Single(result);
     }
 
     [Fact]
