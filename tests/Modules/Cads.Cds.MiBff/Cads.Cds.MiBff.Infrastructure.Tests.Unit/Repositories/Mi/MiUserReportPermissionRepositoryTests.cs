@@ -42,7 +42,7 @@ public class MiUserReportPermissionRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task GetAll_ReturnsItems()
+    public async Task List_ReturnsItems()
     {
         var result = await _repository.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
