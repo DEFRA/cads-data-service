@@ -3,7 +3,7 @@ using Cads.Cds.MiBff.Core.Domain.Entities;
 
 namespace Cads.Cds.MiBff.Core.Domain.Repositories;
 
-public interface IMiEffectiveReportPermissionRepository : IReadOnlyRepository<MiEffectiveReportPermission>
+public interface IMiEffectiveReportPermissionRepository : IReadOnlyRepository<MiEffectiveReportPermissionView>
 {
-    Task<IEnumerable<MiEffectiveReportPermission>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MiEffectiveReportPermissionView>> GetByUserEmailAsync(string email, CancellationToken cancellationToken = default);
 }

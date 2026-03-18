@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
 using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers.Adapters;
-using Cads.Cds.MiBff.Core.Domain.DTOs.Ukv;
+using Cads.Cds.MiBff.Core.DTOs.Ukv;
 
 namespace Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers;
 

@@ -85,8 +85,8 @@ public class MiUserReportPermissionRepositoryTests : IDisposable
     {
         var result = await _repository.FindAsync(i => i.UserId == TestDataSeeder.User1, orderBy: i => i.OrderByDescending(o => o.GrantedAt), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.User1, result.First()!.User.UserId);
-        Assert.Equal(TestDataSeeder.PermissionView, result.First()!.Permission.PermissionId);
+        Assert.Equal(TestDataSeeder.User1, result.First()!.UserId);
+        Assert.Equal(TestDataSeeder.PermissionView, result.First()!.PermissionId);
     }
 
     [Fact]

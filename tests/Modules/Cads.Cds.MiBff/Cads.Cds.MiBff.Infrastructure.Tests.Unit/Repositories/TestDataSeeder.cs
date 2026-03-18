@@ -13,12 +13,29 @@ internal static class TestDataSeeder
     public static readonly Guid RoleViewer = Guid.Parse("22222222-2222-2222-2222-222222222223");
 
     public static readonly Guid ReportA = Guid.Parse("33333333-3333-3333-3333-333333333333");
+    public static readonly string ReportAKey = "report_a";
+    public static readonly string ReportATitle = "Report A";
+    public static readonly string ReportADescription = "Sample report A";
+
     public static readonly Guid ReportB = Guid.Parse("33333333-3333-3333-3333-333333333334");
+    public static readonly string ReportBKey = "report_b";
+    public static readonly string ReportBTitle = "Report B";
+    public static readonly string ReportBDescription = "Sample report B";
 
     public static readonly Guid PermissionView = Guid.Parse("44444444-4444-4444-4444-444444444444");
     public static readonly Guid PermissionEdit = Guid.Parse("44444444-4444-4444-4444-444444444445");
 
     public static readonly Guid GroupOps = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+    public static readonly Guid NonExistentUser = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    public static readonly Guid NonExistentRole = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    public static readonly Guid NonExistentReport = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+    public static readonly string User1Email = "user1@example.test";
+    public static readonly string User1Name = "Test User 1";
+
+    public static readonly string User2Email = "user2@example.test";
+    public static readonly string User2Name = "Test User 2";
 
     // Public entry: seed a live DbContext (used by unit tests with in-memory/SQLite)
     public static void Seed(DbContext context)
@@ -43,8 +60,8 @@ internal static class TestDataSeeder
         {
             UserId = User1,
             ExternalSubject = "ext-sub-1",
-            DisplayName = "Test User 1",
-            Email = "user1@example.test",
+            DisplayName = User1Name,
+            Email = User1Email,
             IsActive = true,
             CreatedAt = new DateTimeOffset(2023,1,1,0,0,0, TimeSpan.Zero)
         },
@@ -52,8 +69,8 @@ internal static class TestDataSeeder
         {
             UserId = User2,
             ExternalSubject = "ext-sub-2",
-            DisplayName = "Test User 2",
-            Email = "user2@example.test",
+            DisplayName = User2Name,
+            Email = User2Email,
             IsActive = true,
             CreatedAt = new DateTimeOffset(2023,2,1,0,0,0, TimeSpan.Zero)
         }
@@ -82,18 +99,18 @@ internal static class TestDataSeeder
         new MiReport
         {
             ReportId = ReportA,
-            ReportKey = "report_a",
-            Title = "Report A",
-            Description = "Sample report A",
+            ReportKey = ReportAKey,
+            Title = ReportATitle,
+            Description = ReportADescription,
             IsActive = true,
             CreatedAt = new DateTimeOffset(2023,3,1,0,0,0, TimeSpan.Zero)
         },
         new MiReport
         {
             ReportId = ReportB,
-            ReportKey = "report_b",
-            Title = "Report B",
-            Description = "Sample report B",
+            ReportKey = ReportBKey,
+            Title = ReportBTitle,
+            Description = ReportBDescription,
             IsActive = true,
             CreatedAt = new DateTimeOffset(2023,3,2,0,0,0, TimeSpan.Zero)
         }
@@ -202,20 +219,22 @@ internal static class TestDataSeeder
         }
     ];
 
-    private static MiEffectiveReportPermission[] GetEffectiveReportPermissions() =>
+    private static MiEffectiveReportPermissionView[] GetEffectiveReportPermissions() =>
     [
-        new MiEffectiveReportPermission
+        new MiEffectiveReportPermissionView
         {
-            UserId = User1,
-            ReportId = ReportA,
-            PermissionId = PermissionView,
+            Email = User1Email,
+            ReportKey = ReportAKey,
+            Title = ReportATitle,
+            Description = ReportADescription,
             Granted = true
         },
-        new MiEffectiveReportPermission
+        new MiEffectiveReportPermissionView
         {
-            UserId = User2,
-            ReportId = ReportB,
-            PermissionId = PermissionView,
+            Email = User2Email,
+            ReportKey = ReportBKey,
+            Title = ReportBTitle,
+            Description = ReportBDescription,
             Granted = true
         }
     ];

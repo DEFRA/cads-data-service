@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Queries;
-using Cads.Cds.MiBff.Core.Domain.DTOs.Reports;
+using Cads.Cds.MiBff.Core.DTOs.Reports;
 
 namespace Cads.Cds.MiBff.Application.Queries.Reports;
 

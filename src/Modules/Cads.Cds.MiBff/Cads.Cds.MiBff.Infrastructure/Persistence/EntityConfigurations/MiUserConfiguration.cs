@@ -47,11 +47,5 @@ public class MiUserConfiguration : IEntityTypeConfiguration<MiUser>
         builder.HasIndex(x => x.ExternalSubject)
             .IsUnique()
             .HasDatabaseName("mi_user_external_subject_key");
-
-        builder.HasMany(x => x.EffectiveReportPermissions)
-            .WithOne(x => x.User)
-            .HasForeignKey(x => x.UserId)
-            .HasPrincipalKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.NoAction);
     }
 }
