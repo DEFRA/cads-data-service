@@ -92,6 +92,32 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task ProjectAsync_WithDtoProjection_ReturnsDtoInstances()
+    {
+        // arrange
+        // simple DTO used for projection verification
+        var projected = await _repository.ProjectAsync(
+            q => q.Where(x => x.Granted)
+                  .Select(x => new ProjectionDto { Email = x.Email, ReportKey = x.ReportKey }),
+            asNoTracking: true,
+            cancellationToken: CancellationToken.None);
+
+        // assert
+        Assert.NotNull(projected);
+        Assert.Equal(2, projected.Count);
+        Assert.All(projected, p => Assert.False(string.IsNullOrWhiteSpace(p.Email)));
+        var keys = projected.Select(p => p.ReportKey).OrderBy(k => k).ToList();
+        Assert.Contains(TestDataSeeder.ReportAKey, keys);
+        Assert.Contains(TestDataSeeder.ReportBKey, keys);
+    }
+
+    private class ProjectionDto
+    {
+        public required string Email { get; set; }
+        public required string ReportKey { get; set; }
+    }
+
+    [Fact]
     public async Task Find_ForUnKnown_ReturnsEmpty()
     {
         var result = await _repository.FindAsync(i => i.Email == string.Empty, orderBy: i => i.OrderByDescending(o => o.ReportKey), cancellationToken: TestContext.Current.CancellationToken);
