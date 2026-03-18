@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Application.Attributes;
 using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Animals;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Audit;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Cohorts;
@@ -12,10 +13,12 @@ using Cads.Cds.MiBff.Application.Queries.Ukv.Movements;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Zones;
 using Cads.Cds.MiBff.Controllers.Requests.Ukv;
 using Cads.Cds.MiBff.Core.Domain.DTOs.Ukv;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Cads.Cds.MiBff.Core.Domain.DTOs.Ukv;using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
 
+[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
 [ApiController]
 [Route("api/v1/bff/mi/[controller]")]
 public class UkvController(IRequestExecutor executor) : ControllerBase
