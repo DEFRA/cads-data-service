@@ -45,7 +45,7 @@ public class MiRoleReportPermissionRepositoryTests : IDisposable
     {
         var items = await _repository.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(items);
-        Assert.Equal(3, items.Count());
+        Assert.Equal(3, items.Count);
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class MiRoleReportPermissionRepositoryTests : IDisposable
     {
         var result = await _repository.FindAsync(i => i.RoleId == TestDataSeeder.RoleAdmin && i.ReportId == TestDataSeeder.ReportA, orderBy: i => i.OrderByDescending(o => o.Granted), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(2, result!.Count());
+        Assert.Equal(2, result!.Count);
     }
 
     [Fact]

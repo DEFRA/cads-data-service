@@ -9,8 +9,8 @@ namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 public class MiReportGroupMapRepository(MiBffReadDbContext dbContext)
     : EFReadOnlyRepository<MiReportGroupMap, MiBffReadDbContext>(dbContext), IMiReportGroupMapRepository
 {
-    public async Task<IEnumerable<MiReportGroupMap>> GetByGroupIdAsync(Guid groupId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MiReportGroupMap>> GetByGroupIdAsync(Guid groupId, CancellationToken cancellationToken = default)
     {
-        return await DbContext.Set<MiReportGroupMap>().Where(m => m.GroupId == groupId).ToListAsync(cancellationToken);
+        return await Query().Where(m => m.GroupId == groupId).ToListAsync(cancellationToken);
     }
 }

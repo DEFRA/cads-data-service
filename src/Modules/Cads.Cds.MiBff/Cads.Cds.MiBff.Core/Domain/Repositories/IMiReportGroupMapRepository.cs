@@ -5,6 +5,6 @@ namespace Cads.Cds.MiBff.Core.Domain.Repositories
 {
     public interface IMiReportGroupMapRepository : IReadOnlyRepository<MiReportGroupMap>
     {
-        Task<IEnumerable<MiReportGroupMap>> GetByGroupIdAsync(Guid groupId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<MiReportGroupMap>> GetByGroupIdAsync(Guid groupId, CancellationToken cancellationToken = default);
     }
 }

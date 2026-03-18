@@ -11,6 +11,6 @@ public class MiPermissionRepository(MiBffReadDbContext dbContext)
 {
     public async Task<MiPermission?> GetByPermissionIdAsync(Guid permissionId, CancellationToken cancellationToken = default)
     {
-        return await DbContext.Permissions.SingleOrDefaultAsync(p => p.PermissionId == permissionId, cancellationToken);
+        return await Query().SingleOrDefaultAsync(p => p.PermissionId == permissionId, cancellationToken);
     }
 }

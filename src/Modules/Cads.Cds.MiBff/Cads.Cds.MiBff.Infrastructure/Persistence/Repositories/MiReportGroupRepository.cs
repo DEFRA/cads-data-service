@@ -11,6 +11,6 @@ public class MiReportGroupRepository(MiBffReadDbContext dbContext)
 {
     public async Task<MiReportGroup?> GetByGroupIdAsync(Guid groupId, CancellationToken cancellationToken = default)
     {
-        return await DbContext.ReportGroups.SingleOrDefaultAsync(g => g.GroupId == groupId, cancellationToken);
+        return await Query().SingleOrDefaultAsync(g => g.GroupId == groupId, cancellationToken);
     }
 }

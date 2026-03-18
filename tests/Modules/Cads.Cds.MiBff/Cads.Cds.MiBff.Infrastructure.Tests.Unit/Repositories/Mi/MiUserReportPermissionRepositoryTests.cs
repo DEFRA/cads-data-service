@@ -29,8 +29,8 @@ public class MiUserReportPermissionRepositoryTests : IDisposable
         var result = await _repository.GetByUserIdAsync(TestDataSeeder.User1, TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.True(result.Any());
-        Assert.Equal(TestDataSeeder.User1, result.First()!.User.UserId);
-        Assert.Equal(TestDataSeeder.PermissionView, result.First()!.Permission.PermissionId);
+        Assert.Equal(TestDataSeeder.User1, result![0].UserId);
+        Assert.Equal(TestDataSeeder.PermissionView, result![0].PermissionId);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class MiUserReportPermissionRepositoryTests : IDisposable
         var result = await _repository.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.True(result.Any());
-        Assert.Equal(2, result.Count());
+        Assert.Equal(2, result.Count);
     }
 
     [Fact]
@@ -55,8 +55,8 @@ public class MiUserReportPermissionRepositoryTests : IDisposable
     {
         var result = await _repository.GetByKeyAsync(TestDataSeeder.User1, TestDataSeeder.ReportA, TestDataSeeder.PermissionView);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.User1, result.User.UserId);
-        Assert.Equal(TestDataSeeder.PermissionView, result.Permission.PermissionId);
+        Assert.Equal(TestDataSeeder.User1, result.UserId);
+        Assert.Equal(TestDataSeeder.PermissionView, result.PermissionId);
     }
 
     [Fact]
@@ -85,8 +85,8 @@ public class MiUserReportPermissionRepositoryTests : IDisposable
     {
         var result = await _repository.FindAsync(i => i.UserId == TestDataSeeder.User1, orderBy: i => i.OrderByDescending(o => o.GrantedAt), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.User1, result.First()!.UserId);
-        Assert.Equal(TestDataSeeder.PermissionView, result.First()!.PermissionId);
+        Assert.Equal(TestDataSeeder.User1, result[0]!.UserId);
+        Assert.Equal(TestDataSeeder.PermissionView, result[0]!.PermissionId);
     }
 
     [Fact]

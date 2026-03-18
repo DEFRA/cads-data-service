@@ -80,7 +80,7 @@ public class MiUserRepositoryTests : IDisposable
     {
         var result = await _repository.FindAsync(i => i.UserId == TestDataSeeder.User1, orderBy: i => i.OrderByDescending(o => o.CreatedAt), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.User1, result.First()!.UserId);
+        Assert.Equal(TestDataSeeder.User1, result[0]!.UserId);
     }
 
     [Fact]

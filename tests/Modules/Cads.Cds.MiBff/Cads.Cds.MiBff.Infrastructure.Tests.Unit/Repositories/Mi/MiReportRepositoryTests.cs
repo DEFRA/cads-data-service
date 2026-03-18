@@ -43,7 +43,7 @@ public class MiReportRepositoryTests : IDisposable
     {
         var items = await _repository.ListAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(items);
-        Assert.Equal(2, items.Count());
+        Assert.Equal(2, items.Count);
     }
 
     [Fact]

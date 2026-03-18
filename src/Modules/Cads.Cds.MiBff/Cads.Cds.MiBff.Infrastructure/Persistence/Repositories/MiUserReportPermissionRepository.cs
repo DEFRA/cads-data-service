@@ -9,8 +9,8 @@ namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 public class MiUserReportPermissionRepository(MiBffReadDbContext dbContext)
     : EFReadOnlyRepository<MiUserReportPermission, MiBffReadDbContext>(dbContext), IMiUserReportPermissionRepository
 {
-    public async Task<IEnumerable<MiUserReportPermission>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MiUserReportPermission>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await DbContext.UserReportPermissions.Where(urp => urp.UserId == userId).ToListAsync(cancellationToken);
+        return await Query().Where(urp => urp.UserId == userId).ToListAsync(cancellationToken);
     }
 }

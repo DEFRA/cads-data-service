@@ -11,6 +11,6 @@ public class MiRoleRepository(MiBffReadDbContext dbContext)
 {
     public async Task<MiRole?> GetByRoleIdAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
-        return await DbContext.Roles.SingleOrDefaultAsync(r => r.RoleId == roleId, cancellationToken);
+        return await Query().SingleOrDefaultAsync(r => r.RoleId == roleId, cancellationToken);
     }
 }
