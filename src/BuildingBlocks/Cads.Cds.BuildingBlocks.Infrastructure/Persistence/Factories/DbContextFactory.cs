@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 
+[ExcludeFromCodeCoverage]
 public class DbContextFactory<TReadDbContext, TWriteDbContext>(IServiceProvider provider)
     : IDbContextFactory<TReadDbContext, TWriteDbContext>
     where TReadDbContext : DbContext

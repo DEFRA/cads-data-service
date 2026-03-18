@@ -1,8 +1,10 @@
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 
+[ExcludeFromCodeCoverage]
 public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) : DbContext(options)
 {
     // Tables

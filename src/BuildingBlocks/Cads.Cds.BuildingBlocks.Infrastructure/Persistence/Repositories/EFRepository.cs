@@ -1,8 +1,10 @@
 using Cads.Cds.BuildingBlocks.Core.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Repositories;
 
+[ExcludeFromCodeCoverage]
 public abstract class EFRepository<TEntity, TDbContext>(TDbContext dbContext)
     : EFReadOnlyRepository<TEntity, TDbContext>(dbContext), IRepository<TEntity>
     where TEntity : class
