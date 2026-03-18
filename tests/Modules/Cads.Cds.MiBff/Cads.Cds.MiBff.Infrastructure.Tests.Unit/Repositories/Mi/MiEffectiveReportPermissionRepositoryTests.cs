@@ -47,7 +47,7 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
     [Fact]
     public async Task List_ReturnsItems()
     {
-        var result = await _repository.ListAsync(i=> i.Where(i => i.Granted), cancellationToken: TestContext.Current.CancellationToken);
+        var result = await _repository.ListAsync(i => i.Where(i => i.Granted), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.Equal(2, result.Count());
     }
