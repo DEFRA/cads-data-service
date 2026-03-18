@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Cads.Cds.MiBff.Core.Domain.DTOs.Reports;
+namespace Cads.Cds.MiBff.Core.DTOs.Reports;
 
 public class ReportDto
 {

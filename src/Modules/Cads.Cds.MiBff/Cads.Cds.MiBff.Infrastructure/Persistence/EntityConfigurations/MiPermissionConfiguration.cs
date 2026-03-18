@@ -29,11 +29,5 @@ public class MiPermissionConfiguration : IEntityTypeConfiguration<MiPermission>
         builder.HasIndex(x => x.PermissionKey)
             .IsUnique()
             .HasDatabaseName("mi_permission_permission_key_key");
-
-        builder.HasMany(x => x.EffectiveReportPermissions)
-            .WithOne(x => x.Permission)
-            .HasForeignKey(x => x.PermissionId)
-            .HasPrincipalKey(x => x.PermissionId)
-            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -1,7 +1,7 @@
 using Cads.Cds.MiBff.Core.Domain.DTOs;
 using System.Text.Json.Serialization;
 
-namespace Cads.Cds.MiBff.Core.Domain.DTOs.Common;
+namespace Cads.Cds.MiBff.Core.DTOs.Common;
 
 public abstract class SampleDto : IDataIdentity
 {

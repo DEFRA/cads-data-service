@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Cads.Cds.MiBff.Core.Domain.DTOs.Amls2;
+namespace Cads.Cds.MiBff.Core.DTOs.Ukv;
 
-public class DepartureDetailsDto : Amsl2Dto
+public class HoldingDto : UkvDto
 {
     [JsonPropertyName("cph")]
     public required string Cph { get; set; }

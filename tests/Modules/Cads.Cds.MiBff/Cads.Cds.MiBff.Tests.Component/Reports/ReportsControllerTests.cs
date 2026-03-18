@@ -1,4 +1,4 @@
-using Cads.Cds.MiBff.Core.Domain.DTOs.Reports;
+using Cads.Cds.MiBff.Core.DTOs.Reports;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
 using System.Net.Http.Json;

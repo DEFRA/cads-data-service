@@ -46,11 +46,5 @@ public class MiReportConfiguration : IEntityTypeConfiguration<MiReport>
         builder.HasIndex(x => x.ReportKey)
             .IsUnique()
             .HasDatabaseName("mi_report_report_key_key");
-
-        builder.HasMany(x => x.EffectiveReportPermissions)
-            .WithOne(x => x.Report)
-            .HasForeignKey(x => x.ReportId)
-            .HasPrincipalKey(x => x.ReportId)
-            .OnDelete(DeleteBehavior.NoAction);
     }
 }

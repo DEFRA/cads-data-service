@@ -7,14 +7,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 
 public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
-    : EFReadOnlyRepository<MiEffectiveReportPermission, MiBffReadDbContext>(dbContext), IMiEffectiveReportPermissionRepository
+    : EFReadOnlyRepository<MiEffectiveReportPermissionView, MiBffReadDbContext>(dbContext), IMiEffectiveReportPermissionRepository
 {
-    public async Task<IEnumerable<MiEffectiveReportPermission>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<MiEffectiveReportPermissionView>> GetByUserEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await DbContext.EffectiveReportPermissions
-            .Include(x => x.Report)
-            .Include(x => x.Permission)
-            .Where(p => p.UserId == userId)
+            .Where(p => p.Email == email)
             .ToListAsync(cancellationToken);
     }
 }

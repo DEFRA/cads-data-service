@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Cads.Cds.MiBff.Core.Domain.DTOs.Amls2;
+namespace Cads.Cds.MiBff.Core.DTOs.Amls2;
 
 public class DestinationDetailsDto : Amsl2Dto
 {

@@ -1,4 +1,4 @@
-using Cads.Cds.MiBff.Core.Domain.DTOs.Ukv;
+using Cads.Cds.MiBff.Core.DTOs.Ukv;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Specimens;
 
