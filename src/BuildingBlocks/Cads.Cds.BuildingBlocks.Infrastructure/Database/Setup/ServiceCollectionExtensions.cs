@@ -6,7 +6,6 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -62,29 +61,6 @@ public static class ServiceCollectionExtensions
             services.AddScoped<PostgresHealthCheck>();
             services.AddScoped<IPostgresStatusService, PostgresStatusService>();
 
-            return services;
-        }
-
-        public IServiceCollection AddPostgresDbContext<TContext>() where TContext : DbContext
-        {
-            services.AddDbContext<TContext>((sp, options) =>
-            {
-                var dataSourceFactory = sp.GetRequiredService<IPostgresDataSourceFactory>();
-                var dataSource = dataSourceFactory.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier);
-                options.UseNpgsql(dataSource);
-            });
-            return services;
-        }
-
-        // Overload for modules that need to specify connection identifier
-        public IServiceCollection AddPostgresDbContext<TContext>(string connectionIdentifier) where TContext : DbContext
-        {
-            services.AddDbContext<TContext>((sp, options) =>
-            {
-                var dataSourceFactory = sp.GetRequiredService<IPostgresDataSourceFactory>();
-                var dataSource = dataSourceFactory.CreateDataSource(connectionIdentifier);
-                options.UseNpgsql(dataSource);
-            });
             return services;
         }
     }
