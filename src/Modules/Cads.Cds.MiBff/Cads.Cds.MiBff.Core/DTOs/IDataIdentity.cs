@@ -1,4 +1,4 @@
-namespace Cads.Cds.MiBff.Core.Domain.DTOs;
+namespace Cads.Cds.MiBff.Core.DTOs;
 
 public interface IDataIdentity
 {

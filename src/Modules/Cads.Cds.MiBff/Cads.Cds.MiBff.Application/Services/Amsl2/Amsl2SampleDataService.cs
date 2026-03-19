@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Files.Abstractions;
 using Cads.Cds.MiBff.Core.Configuration;
-using Cads.Cds.MiBff.Core.Domain.DTOs;
+using Cads.Cds.MiBff.Core.DTOs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 
