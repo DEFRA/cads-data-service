@@ -16,7 +16,6 @@ public static class ServiceCollectionExtensions
         services.AddAmazonSQSCore(config);
         services.ConfigureDatabase(config);
         services.AddFileInfrastructure();
-
         services.AddBuildBlocksApplicationLayer();
 
         return services;
