@@ -160,8 +160,8 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Enabled", "true");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Authority", TestAuthConstants.FakeCongnitoAuthority);
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Enabled", "true");
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Authority", TestAuthConstants.FakeAzureAdAuthority);
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Audience", TestAuthConstants.FakeAzureAdAudience);
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Authority", TestAuthConstants.AzureAdFakeAuthority);
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Audience", TestAuthConstants.AzureAdAudience);
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)

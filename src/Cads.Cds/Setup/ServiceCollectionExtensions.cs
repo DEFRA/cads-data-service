@@ -119,11 +119,21 @@ public static class ServiceCollectionExtensions
     {
         authenticationBuilder.AddJwtBearer(AuthenticationConstants.AzureADSchemeName, options =>
         {
-            options.Authority = authenticationProviderConfiguration.Authority;
+            if (!string.IsNullOrWhiteSpace(authenticationProviderConfiguration.MetadataAddress))
+            {
+                options.MetadataAddress = authenticationProviderConfiguration.MetadataAddress;
+            }
+            else if (!string.IsNullOrWhiteSpace(authenticationProviderConfiguration.Authority))
+            {
+                options.Authority = authenticationProviderConfiguration.Authority;
+            }
+
+            options.RequireHttpsMetadata = authenticationProviderConfiguration.RequireHttpsMetadata;
             options.Audience = authenticationProviderConfiguration.Audience;
+
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = true,
+                ValidateIssuer = authenticationProviderConfiguration.ValidateIssuer,
                 ValidIssuer = authenticationProviderConfiguration.Authority,
                 ValidateAudience = true,
                 ValidAudience = authenticationProviderConfiguration.Audience,
@@ -131,6 +141,7 @@ public static class ServiceCollectionExtensions
                 ValidateIssuerSigningKey = true,
                 ValidTypes = ["JWT", "at+jwt"]
             };
+
             options.BackchannelHttpHandler = new ProxyHttpMessageHandler();
         });
     }

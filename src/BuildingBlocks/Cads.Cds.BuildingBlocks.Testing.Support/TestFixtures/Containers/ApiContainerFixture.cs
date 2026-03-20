@@ -1,7 +1,9 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers.Configuration;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
+using System.Net.Http.Headers;
 using Xunit;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
@@ -12,15 +14,19 @@ using IContainer = DotNet.Testcontainers.Containers.IContainer;
 public class ApiContainerFixture : IAsyncLifetime
 {
     public IContainer ApiContainer { get; private set; } = null!;
-    public HttpClient HttpClient { get; private set; } = null!;
-    public HttpClient HttpsClient { get; private set; } = null!;
+    private HttpClient HttpClient { get; set; } = null!;
     public PostgresFixture PostgresFixture { get; } = new();
     public LocalStackFixture LocalStackFixture { get; } = new();
+    public OidcMockFixture OidcMockFixture { get; } = new();
+    public TestAzureAdConfiguration? AzureAdConfig { get; set; }
 
     public async ValueTask InitializeAsync()
     {
         await PostgresFixture.InitializeAsync();
         await LocalStackFixture.InitializeAsync();
+        await OidcMockFixture.InitializeAsync();
+
+        AzureAdConfig = new TestAzureAdConfiguration(OidcMockFixture);
 
         DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
@@ -38,10 +44,18 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsQueueUrl)
           .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
-          .WithEnvironment("AuthenticationConfiguration__ApiKey__Enabled", "true")
           .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ReadConnectionString)
+          .WithEnvironment("AuthenticationConfiguration__ApiKey__Enabled", "true")
+          .WithEnvironment("AuthenticationConfiguration__Cognito__Enabled", "false")
+          .WithEnvironment("AuthenticationConfiguration__Cognito__Authority", "")
+          .WithEnvironment("AuthenticationConfiguration__AzureAD__Enabled", "true")
+          .WithEnvironment("AuthenticationConfiguration__AzureAD__Authority", AzureAdConfig.ContainerAuthority)
+          .WithEnvironment("AuthenticationConfiguration__AzureAD__Audience", AzureAdConfig.Audience)
+          .WithEnvironment("AuthenticationConfiguration__AzureAD__MetadataAddress", AzureAdConfig.ContainerMetadataAddress)
+          .WithEnvironment("AuthenticationConfiguration__AzureAD__RequireHttpsMetadata", AzureAdConfig.RequireHttpsMetadata.ToString())
+          .WithEnvironment("AuthenticationConfiguration__AzureAD__ValidateIssuer", "false")
           .WithEnvironment("AWS_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_DEFAULT_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
@@ -56,14 +70,38 @@ public class ApiContainerFixture : IAsyncLifetime
         await ApiContainer.StartAsync();
 
         HttpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{ApiContainer.GetMappedPublicPort(5555)}") };
-        HttpClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
 
         var handler = new HttpClientHandler
         {
             ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true
         };
-        HttpsClient = new HttpClient(handler) { BaseAddress = new Uri($"https://localhost:{ApiContainer.GetMappedPublicPort(5556)}") };
-        HttpsClient.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
+    }
+
+    public async Task<HttpClient> CreateAzureAdClientAsync()
+    {
+        var token = await OidcMockFixture.CreateClientCredentialsTokenAsync();
+
+        var client = new HttpClient
+        {
+            BaseAddress = HttpClient.BaseAddress
+        };
+
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        return client;
+    }
+
+    public HttpClient CreateBasicClient()
+    {
+        var client = new HttpClient { BaseAddress = HttpClient.BaseAddress };
+        client.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
+        return client;
+    }
+
+    public HttpClient CreateClient()
+    {
+        return HttpClient;
     }
 
     public async ValueTask DisposeAsync()
@@ -78,6 +116,7 @@ public class ApiContainerFixture : IAsyncLifetime
 
         await Safe(() => PostgresFixture.DisposeAsync());
         await Safe(() => LocalStackFixture.DisposeAsync());
+        await Safe(() => OidcMockFixture.DisposeAsync());
 
         try { HttpClient?.Dispose(); }
         catch (Exception ex) { error ??= ex; }
