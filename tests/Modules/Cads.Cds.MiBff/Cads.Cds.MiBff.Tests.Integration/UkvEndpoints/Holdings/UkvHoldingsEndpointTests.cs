@@ -12,8 +12,9 @@ public class UkvHoldingsEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var cph = "ABC123";
         var endpoint = string.Format(TestEndpointConstants.BffUkvHoldingsByCphEndpoint, cph);
+        var client = await apiContainerFixture.CreateAzureAdClientAsync();
 
-        var response = await apiContainerFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
+        var response = await client.GetAsync(endpoint, TestContext.Current.CancellationToken);
         response.EnsureSuccessStatusCode();
 
         var responseBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
