@@ -19,8 +19,7 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
     [HttpGet]
     public async Task<IActionResult> GetUserReports()
     {
-        // TODO: Remove hardcoded email and use user context to get the email of the logged-in user
-        var query = new GetUserReportsByEmailQuery { Email = userContext.Email ?? "gary.fletcher@defra.gov.uk" };
+        var query = new GetUserReportsByEmailQuery { Email = userContext.Email! };
 
         var result = await _executor.ExecuteQuery(query);
 
