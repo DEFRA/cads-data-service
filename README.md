@@ -47,6 +47,7 @@ Objectives:
 - **.NET 10 SDK** - [Download](https://dotnet.microsoft.com/download/dotnet/10.0)
 - **Docker & Docker Compose** - [Download](https://www.docker.com/products/docker-desktop)
 - **Git** - [Download](https://git-scm.com/)
+- **CADS Tools** - [CADS Tools](https://github.com/DEFRA/cads-tools)
 
 ## Project Structure
 
@@ -228,63 +229,159 @@ Different scheme support applies for different groups of endpoints.
 
 ## Getting Started
 
-### Local Development Setup
+### Repository Layout
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/DEFRA/cads-data-service.git
-   cd cads-data-service
-   ```
+Your local workspace should contain all three repos side‑by‑side:
 
-2. **Restore NuGet packages:**
-   ```bash
-   dotnet restore
-   ```
-3. **Set up environment variables:**
-   - Create a `.env` file in the root directory and add the following variables, passwords can be any value, pgamin email must be a valid email format:
-   ```bash
-   POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=*****
-   POSTGRES_DB=cads_data_service
-   POSTGRES_REF_DB=reference_schema
-   PGADMIN_EMAIL=pgadmin@pgadmin.com
-   PGADMIN_PASSWORD=*****
-   ```
+```
+D:\git\cads-data-service      # Backend (this repo)
+D:\git\cads-mis               # UI
+D:\git\cads-tools             # Shared infra, OIDC mock, harness scripts
+```
+
+Clone them like this:
+
+```
+git clone https://github.com/DEFRA/cads-data-service.git
+git clone https://github.com/DEFRA/cads-mis.git
+git clone https://github.com/DEFRA/cads-tools.git
+```
+
+### Backend setup
+
+**Restore NuGet packages:**
+
+```bash
+dotnet restore
+```
+
+**Create a .env file in the backend root:**
+
+These values are used by the backend’s Docker Compose:
+   
+```bash
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=*****
+POSTGRES_DB=cads_data_service
+POSTGRES_REF_DB=reference_schema
+PGADMIN_EMAIL=pgadmin@pgadmin.com
+PGADMIN_PASSWORD=*****
+```
+
+Passwords can be anything for local development.
 
 ### Running the Application
 
-1. **Start the local development environment:**
-   ```bash
-   docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
-   ```
+The backend now uses a unified orchestration script:
 
-   For MacOS use
-   `docker-compose.override.mac.intel.yml` or `docker-compose.override.mac.arm.yml`
+```
+platform/platform.sh
+```
 
-   This starts:
-   - Redis
-   - LocalStack (S3, SQS)
-   - PostgreSQL
-   - pgAdmin4
-   - liquibase
-   - This service
-     - root: `http://localhost:5555`
+This script starts:
 
-2. **Verify services are running:**
-   ```bash
-   docker compose ps
-   ```
-   Or open Docker Desktop dashboard and inspect the containers tab.
-3. **Access pgAdmin4:**
-   - Open a web browser and navigate to `http://localhost:16543`.
-   - Use the default credentials: `pgadmin@pgadmin.com` and `password`.
-   - Configure a new server connection to connect to the PostgreSQL database running in the container.
-     - Host name/Address: postgres
-     - Port: 5432
-     - Username: postgres
-     - Password: password
+- Shared infra (Postgres, Redis, LocalStack, OIDC mock)
+- Backend (CADS CDS + pgAdmin + Reference postgres database)
+- UI (CADS MIS)
+- Or any combination you want
 
-A more extensive setup is available in [github.com/DEFRA/cdp-local-environment](https://github.com/DEFRA/cdp-local-environment)
+It delegates infra to `cads-tools/harness/run-harness.sh`.
+
+#### platform.sh — Commands
+
+**Start shared infra only**
+
+```
+./platform/platform.sh tools
+```
+
+Starts:
+- Postgres
+- Redis
+- LocalStack (S3, SQS)
+- OIDC mock
+
+**Start backend + shared infra**
+
+```
+./platform/platform.sh backend
+```
+
+Starts:
+- CADS CDS
+- pgAdmin
+- Liquibase migration
+- Reference postgres database
+
+**Start UI + shared infra**
+
+```
+./platform/platform.sh ui
+```
+
+**Start everything (UI + backend + infra)**
+
+```
+./platform/platform.sh all
+```
+
+**Stop everything**
+
+```
+./platform/platform.sh down
+```
+
+This stops:
+- UI
+- Backend
+- Shared infra
+
+#### Mac Users — Architecture Override
+
+Mac developers must specify their architecture when starting the backend or full platform.
+
+**Mac Intel**
+
+```
+./platform/platform.sh backend --mac-intel
+```
+
+**Mac ARM (M1/M2/M3)**
+
+```
+./platform/platform.sh backend --mac-arm
+```
+
+**Full platform (UI + backend + infra)**
+
+```
+./platform/platform.sh all --mac-arm
+```
+
+Windows/Linux users do not need an override.
+
+## Accessing Services
+
+**Backend API**
+http://localhost:5555
+
+**UI**
+http://localhost:3000
+
+**pgAdmin**
+http://localhost:16543
+
+Login for pgAdmin:
+- Email: pgadmin@pgadmin.com
+- Password: (value from .env)
+
+## Verifying Everything Is Running
+
+```
+docker compose ps
+```
+
+Or use Docker Desktop.
 
 ### Testing
 
