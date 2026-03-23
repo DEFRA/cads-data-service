@@ -16,6 +16,9 @@ public class AuthenticationProviderConfiguration : AuthenticationStateConfigurat
 {
     public string? Authority { get; set; }
     public string? Audience { get; set; }
+    public string? MetadataAddress { get; set; }
+    public bool RequireHttpsMetadata { get; set; } = true;
+    public bool ValidateIssuer { get; set; } = true;
 }
 
 public static class AuthenticationConstants
