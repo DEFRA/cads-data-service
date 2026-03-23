@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 
-public class DbContextFactory
+public static class DbContextFactory
 {
     public static T CreateInMemoryDbContext<T>(string dbName)
        where T : DbContext
