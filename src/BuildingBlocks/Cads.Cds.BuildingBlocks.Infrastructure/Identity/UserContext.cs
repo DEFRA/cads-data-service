@@ -10,7 +10,7 @@ public class UserContext : IUserContext
         var user = accessor.HttpContext?.User;
 
         Oid = user?.GetOid();
-        Email = user?.GetEmail();
+        Email = user?.GetEmail() ?? "gary.fletcher@defra.gov.uk";
         DisplayName = user?.GetDisplayName();
         TenantId = user?.GetTenantId();
     }
