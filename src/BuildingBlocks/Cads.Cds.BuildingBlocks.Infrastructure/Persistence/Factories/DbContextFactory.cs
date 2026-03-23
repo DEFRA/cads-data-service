@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 
+[ExcludeFromCodeCoverage]
 public static class DbContextFactory
 {
     public static T CreateInMemoryDbContext<T>(string dbName)
