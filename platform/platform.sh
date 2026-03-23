@@ -25,6 +25,7 @@ compose_override() {
       echo "docker-compose.override.yml"
       ;;
   esac
+  return 0
 }
 
 start_tools() {
