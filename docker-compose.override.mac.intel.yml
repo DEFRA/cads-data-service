@@ -15,9 +15,11 @@ services:
       - AuthenticationConfiguration__ApiKey__Enabled=true
       - AuthenticationConfiguration__Cognito__Enabled=false
       - AuthenticationConfiguration__Cognito__Authority=
-      - AuthenticationConfiguration__AzureAD__Enabled=false
+      - AuthenticationConfiguration__AzureAD__Enabled=true
       - AuthenticationConfiguration__AzureAD__Authority=http://cads-oidc-mock
-      - AuthenticationConfiguration__AzureAD__Audience=
+      - AuthenticationConfiguration__AzureAD__Audience=api://local-cads-mis
+      - AuthenticationConfiguration__AzureAD__RequireHttpsMetadata=false
+      - AuthenticationConfiguration__AzureAD__ValidateIssuer=false
     volumes:
       # Mac-specific paths for user secrets and HTTPS certificates
       - ~/.microsoft/usersecrets:/home/app/.microsoft/usersecrets:ro
