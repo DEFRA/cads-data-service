@@ -6,10 +6,12 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
+using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
+using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Net;
+using System.Text.Json;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
@@ -65,6 +68,7 @@ public abstract class WebAppFactoryBase<TStart>(
 
             OverrideAmazonSqs(services);
             OverrideAmazonS3(services);
+            ConfigureDatabase(services);
 
             foreach (var apply in _serviceOverrides)
                 apply(services);
@@ -246,5 +250,9 @@ public abstract class WebAppFactoryBase<TStart>(
         AmazonS3Mock
             .Setup(x => x.ListObjectsV2Async(It.IsAny<ListObjectsV2Request>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ListObjectsV2Response { HttpStatusCode = HttpStatusCode.OK });
+    }
+
+    protected virtual void ConfigureDatabase(IServiceCollection services)
+    {
     }
 }
