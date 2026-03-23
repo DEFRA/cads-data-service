@@ -14,35 +14,41 @@ COMMAND="${1:-help}"
 start_tools() {
   echo "[platform] Starting shared infra..."
   "$TOOLS_DIR/harness/run-harness.sh" up
+  return $?
 }
 
 stop_tools() {
   echo "[platform] Stopping shared infra..."
   "$TOOLS_DIR/harness/run-harness.sh" down
+  return $?
 }
 
 start_backend() {
   echo "[platform] Starting backend..."
   cd "$BACKEND_DIR"
   docker compose up -d
+  return $?
 }
 
 stop_backend() {
   echo "[platform] Stopping backend..."
   cd "$BACKEND_DIR"
   docker compose down || true
+  return $?
 }
 
 start_ui() {
   echo "[platform] Starting UI..."
   cd "$UI_DIR"
   docker compose up -d
+  return $?
 }
 
 stop_ui() {
   echo "[platform] Stopping UI..."
   cd "$UI_DIR"
   docker compose down || true
+  return $?
 }
 
 case "$COMMAND" in
