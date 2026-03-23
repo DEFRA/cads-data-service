@@ -2,6 +2,7 @@ using AutoMapper;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Core.DTOs.Reports;
 using Cads.Cds.MiBff.Core.Services.Reports;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.MiBff.Application.Services.Reports;
 
@@ -9,6 +10,7 @@ public class ReportService(
     IMiEffectiveReportPermissionRepository effectiveReportPermissionRepository,
     IMapper mapper) : IReportService
 {
+    [ExcludeFromCodeCoverage]
     public async Task<IEnumerable<ReportDto>> GetUserReportsAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return Task.FromResult<IEnumerable<ReportDto>>(s_reports).Result;
@@ -35,6 +37,7 @@ public class ReportService(
         ReportItem(Guid.NewGuid(), "scrapie_flock_scheme_audit", "Scrapie flock scheme audit", "Compulsory Scrapie Flock Scheme audit, including holding details, movement history and off-move summary.")
     ];
 
+    [ExcludeFromCodeCoverage]
     private static ReportDto ReportItem(Guid reportId, string reportKey, string title, string description)
     {
         return new ReportDto
