@@ -3,7 +3,6 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
-using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;

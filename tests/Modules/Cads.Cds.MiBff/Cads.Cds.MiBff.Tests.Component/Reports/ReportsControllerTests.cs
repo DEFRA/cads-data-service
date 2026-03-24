@@ -18,6 +18,6 @@ public class ReportsControllerTests(MiBffTestFixture testFixture) : IClassFixtur
         response.IsSuccessStatusCode.Should().BeTrue();
 
         var data = await response!.Content.ReadFromJsonAsync<List<ReportDto>>(TestContext.Current.CancellationToken);
-        data.Should().NotBeNull().And.HaveCount(10);
+        data.Should().NotBeNull().And.HaveCount(2);
     }
 }

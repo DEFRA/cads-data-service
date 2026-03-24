@@ -5,7 +5,7 @@ namespace Cads.Cds.MiBff.Core.DTOs.Reports;
 public class ReportDto
 {
     [JsonPropertyName("reportId")]
-    public required string ReportId { get; set; }
+    public required Guid ReportId { get; set; }
 
     [JsonPropertyName("reportKey")]
     public required string ReportKey { get; set; }

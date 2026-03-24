@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
@@ -12,7 +13,7 @@ public class MiRoleReportPermissionRepositoryTests : IDisposable
     public MiRoleReportPermissionRepositoryTests()
     {
         // unique in-memory database name per test instance to isolate data
-        _context = TestDbContextHelper.CreateInMemoryDbContext<MiBffReadDbContext>(Guid.NewGuid().ToString());
+        _context = DbContextFactory.CreateInMemoryDbContext<MiBffReadDbContext>(Guid.NewGuid().ToString());
         TestDataSeeder.Seed(_context);
         _repository = new MiRoleReportPermissionRepository(_context);
     }
