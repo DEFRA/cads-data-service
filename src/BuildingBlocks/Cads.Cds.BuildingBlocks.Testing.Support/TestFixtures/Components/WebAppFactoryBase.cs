@@ -6,12 +6,10 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
-using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,7 +23,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Net;
-using System.Text.Json;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
