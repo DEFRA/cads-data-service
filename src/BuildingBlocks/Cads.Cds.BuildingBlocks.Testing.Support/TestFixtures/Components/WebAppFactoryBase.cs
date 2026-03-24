@@ -65,6 +65,7 @@ public abstract class WebAppFactoryBase<TStart>(
 
             OverrideAmazonSqs(services);
             OverrideAmazonS3(services);
+            ConfigureDatabase(services);
 
             foreach (var apply in _serviceOverrides)
                 apply(services);
@@ -246,5 +247,9 @@ public abstract class WebAppFactoryBase<TStart>(
         AmazonS3Mock
             .Setup(x => x.ListObjectsV2Async(It.IsAny<ListObjectsV2Request>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ListObjectsV2Response { HttpStatusCode = HttpStatusCode.OK });
+    }
+
+    protected virtual void ConfigureDatabase(IServiceCollection services)
+    {
     }
 }
