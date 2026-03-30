@@ -1,0 +1,8 @@
+using Cads.Cds.Ingester.Core.DTOs.Common;
+
+namespace Cads.Cds.Ingester.Core.Services.AnimalMovements;
+
+public interface IIngesterStorageService
+{
+    Task<IngestionDTO> WriteAsync(string key, string payload);
+}
