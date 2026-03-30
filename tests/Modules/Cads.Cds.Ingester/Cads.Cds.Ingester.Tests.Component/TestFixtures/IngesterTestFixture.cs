@@ -6,7 +6,7 @@ namespace Cads.Cds.Ingester.Tests.Component.TestFixtures;
 public class IngesterTestFixture : TestFixtureBase<Program, IngesterWebApplicationFactory>
 {
     public IngesterTestFixture()
-        : base(new IngesterWebApplicationFactory())
+        : base(new IngesterWebApplicationFactory(useFakeAuth: true))
     {
     }
 }
