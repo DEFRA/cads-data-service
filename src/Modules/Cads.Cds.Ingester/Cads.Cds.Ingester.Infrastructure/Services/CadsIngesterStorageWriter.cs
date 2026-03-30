@@ -1,6 +1,6 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using Cads.Cds.BuildingBlocks.Core;
+using Cads.Cds.BuildingBlocks.Core.Storage;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 
