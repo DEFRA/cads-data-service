@@ -1,4 +1,4 @@
-namespace Cads.Cds.BuildingBlocks.Core;
+namespace Cads.Cds.BuildingBlocks.Core.Storage;
 
 public interface IStorageWriter<T>
 {
