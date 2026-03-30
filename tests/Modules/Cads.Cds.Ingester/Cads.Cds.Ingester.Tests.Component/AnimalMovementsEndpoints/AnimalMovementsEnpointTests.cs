@@ -16,7 +16,6 @@ public class AnimalMovementsEnpointTests(IngesterTestFixture testFixture) : ICla
     {
         // Arrange
         var region = Region.Wales;
-        var body = "{json:\"text\"}";
         var requestBody = new AnimalMovementsRequest
         {
             AnimalMovement = new AnimalMovement
