@@ -9,8 +9,9 @@ public class AnimalMovementByRegionCommandAdapter(IIngesterStorageService storag
         AnimalMovementByRegionCommand command,
         CancellationToken cancellationToken = default)
     {
+        var key = $"inbound/{command.Region.ToString().ToLower()}/incremental/animal-movement-{DateTime.UtcNow:yy-MM-dd-hh-mm-ss}";
         var result =
-            await storageService.WriteAsync($"{command.Region}-{DateTime.UtcNow:yy-MM-dd-hh-mm-ss}", command.Payload!);
+            await storageService.WriteAsync(key, command.Payload!);
         return result;
     }
 }
