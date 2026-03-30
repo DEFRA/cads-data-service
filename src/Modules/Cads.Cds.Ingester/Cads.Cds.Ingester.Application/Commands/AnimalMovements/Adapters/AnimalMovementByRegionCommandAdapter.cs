@@ -10,7 +10,7 @@ public class AnimalMovementByRegionCommandAdapter(IIngesterStorageService storag
         CancellationToken cancellationToken = default)
     {
         var result =
-            await storageService.WriteAsync($"{command.Region}-{DateTime.UtcNow:yy-MM-dd-hh-mm-ss}", command.Payload);
+            await storageService.WriteAsync($"{command.Region}-{DateTime.UtcNow:yy-MM-dd-hh-mm-ss}", command.Payload!);
         return result;
     }
 }

@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Core;
+using Cads.Cds.BuildingBlocks.Core.Storage;
 using Cads.Cds.Ingester.Core.DTOs.Common;
 using Cads.Cds.Ingester.Core.Services.AnimalMovements;
 using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
