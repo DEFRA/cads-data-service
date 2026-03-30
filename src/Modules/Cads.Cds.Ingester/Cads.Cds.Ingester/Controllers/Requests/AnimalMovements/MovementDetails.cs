@@ -5,7 +5,7 @@ namespace Cads.Cds.Ingester.Controllers.Requests.AnimalMovements;
 public class MovementDetails
 {
     [JsonPropertyName("DepartureDate")]
-    public DateTime DepartureDate { get; set; }
+    public DateTime? DepartureDate { get; set; }
 
     [JsonPropertyName("DepartureLocation")]
     public string? DepartureLocation { get; set; }
@@ -23,7 +23,7 @@ public class MovementDetails
     public string? OffExemptionCode { get; set; }
 
     [JsonPropertyName("ArrivalDate")]
-    public DateOnly ArrivalDate { get; set; }
+    public DateOnly? ArrivalDate { get; set; }
 
     [JsonPropertyName("DestinationLocation")]
     public string? DestinationLocation { get; set; }
@@ -44,13 +44,13 @@ public class MovementDetails
     public string? LotNumber { get; set; }
 
     [JsonPropertyName("NumberOfAnimals")]
-    public int NumberOfAnimals { get; set; }
+    public int? NumberOfAnimals { get; set; }
 
     [JsonPropertyName("NumberOfDOAs")]
-    public int NumberOfDOAs { get; set; }
+    public int? NumberOfDOAs { get; set; }
 
     [JsonPropertyName("NumberOfReads")]
-    public int NumberOfReads { get; set; }
+    public int? NumberOfReads { get; set; }
 
     [JsonPropertyName("LoadingTimestamp")]
     public string? LoadingTimestamp { get; set; }
