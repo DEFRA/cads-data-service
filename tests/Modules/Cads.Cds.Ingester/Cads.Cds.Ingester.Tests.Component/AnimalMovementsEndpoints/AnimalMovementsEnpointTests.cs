@@ -49,7 +49,7 @@ public class AnimalMovementsEnpointTests(IngesterTestFixture testFixture) : ICla
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var responseData = JsonConvert.DeserializeObject<IngestionDTO>(responseBody);
         responseData.Should().NotBeNull();
-        responseData.IngestionId.Should().Contain(region.ToString());
+        responseData.IngestionId.Should().Contain(region.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
     }
 }
