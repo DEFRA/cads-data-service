@@ -23,6 +23,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Net;
+using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
@@ -155,6 +156,7 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("AWS__ServiceURL", TestAwsConstants.AwsServiceUrl.TrimEnd('/'));
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
+        Environment.SetEnvironmentVariable("Modules__Ingester__Storage__CadsIngester__BucketName", TestS3Constants.TestCadsInternalBucketName);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
 
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__ApiKey__Enabled", "true");
@@ -212,6 +214,9 @@ public abstract class WebAppFactoryBase<TStart>(
             var factory = new S3ClientFactory();
 
             factory.RegisterMockClient<CadsInternalClient>(
+                TestS3Constants.TestCadsInternalBucketName,
+                AmazonS3Mock.Object);
+            factory.RegisterMockClient<CadsIngesterClient>(
                 TestS3Constants.TestCadsInternalBucketName,
                 AmazonS3Mock.Object);
 
