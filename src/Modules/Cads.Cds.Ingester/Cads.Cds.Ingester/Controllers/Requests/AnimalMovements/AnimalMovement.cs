@@ -17,7 +17,7 @@ public class AnimalMovement
     public string? MessageID { get; set; }
 
     [JsonPropertyName("MovementTime")]
-    public DateTime MovementTime { get; set; }
+    public DateTime? MovementTime { get; set; }
 
     [JsonPropertyName("MovementID")]
     public string? MovementID { get; set; }
