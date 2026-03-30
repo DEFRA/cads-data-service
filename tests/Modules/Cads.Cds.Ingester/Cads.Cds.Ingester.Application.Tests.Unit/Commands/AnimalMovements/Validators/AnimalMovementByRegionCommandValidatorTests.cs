@@ -18,7 +18,7 @@ public class AnimalMovementByRegionCommandValidatorTests
 
         result.ShouldNotHaveValidationErrorFor(x => x.Region);
     }
-    
+
     [Fact]
     public void Payload_WhenNull_ShouldHaveValidationError()
     {
