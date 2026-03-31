@@ -12,8 +12,4 @@
     <ProjectReference Include="..\Cads.Cds.Ingester.Core\Cads.Cds.Ingester.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>
