@@ -1,15 +1,13 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using Cads.Cds.BuildingBlocks.Core.Storage;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
-using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 
 namespace Cads.Cds.Ingester.Infrastructure.Services;
 
-public class IngesterStorageWriter(IS3ClientFactory s3ClientFactory) : IStorageWriter
+public class IngesterStorageWriter<T>(IS3ClientFactory s3ClientFactory) : IStorageWriter<T> where T : IStorageClient, new()
 {
-    private readonly IAmazonS3 _s3Client = s3ClientFactory.GetClient<CadsIngesterClient>();
-    private readonly string _bucketName = s3ClientFactory.GetClientBucketName<CadsIngesterClient>();
+    private readonly IAmazonS3 _s3Client = s3ClientFactory.GetClient<T>();
+    private readonly string _bucketName = s3ClientFactory.GetClientBucketName<T>();
 
     public async Task WriteAsync(string key, string payload)
     {
