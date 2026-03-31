@@ -216,7 +216,7 @@ public abstract class WebAppFactoryBase<TStart>(
             factory.RegisterMockClient<CadsInternalClient>(
                 TestS3Constants.TestCadsInternalBucketName,
                 AmazonS3Mock.Object);
-            factory.RegisterMockClient<CadsIngesterClient>(
+            factory.RegisterMockClient<IngesterClient>(
                 TestS3Constants.TestCadsInternalBucketName,
                 AmazonS3Mock.Object);
 
