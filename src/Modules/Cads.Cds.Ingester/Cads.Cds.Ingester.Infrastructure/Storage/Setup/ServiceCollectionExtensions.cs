@@ -1,4 +1,3 @@
-using Cads.Cds.BuildingBlocks.Core.Storage;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.Ingester.Core.Configuration;
 using Cads.Cds.Ingester.Core.Services.AnimalMovements;
@@ -24,7 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConfigureS3Clients, IngesterS3Configurator>();
 
         // Register module storage writers
-        services.AddSingleton<IStorageWriter, IngesterStorageWriter>();
+        services.AddSingleton<IStorageWriter<IngesterClient>, IngesterStorageWriter<IngesterClient>>();
         services.AddTransient<IIngesterStorageService, IngesterStorageService>();
 
         // Register module storage readers

@@ -13,7 +13,7 @@ public class IngesterS3Configurator(IngesterStorageConfiguration config) : IConf
         var factory = sp.GetRequiredService<IS3ClientFactory>();
         var amazonConfig = sp.GetRequiredService<AmazonS3Config>();
 
-        factory.AddClient<CadsIngesterClient>(
+        factory.AddClient<IngesterClient>(
             config.CadsIngester.BucketName,
             amazonConfig);
     }
