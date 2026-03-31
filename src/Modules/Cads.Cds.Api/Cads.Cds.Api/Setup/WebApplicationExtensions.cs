@@ -58,7 +58,7 @@ public static class WebApplicationExtensions
         builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
             _soap12BindingHttp,
             path);
-        
+
         if (includeHttps)
         {
             builder.AddServiceEndpoint<TServiceImplementation, TServiceContract>(
