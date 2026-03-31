@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConfigureS3Clients, IngesterS3Configurator>();
 
         // Register module storage writers
-        services.AddSingleton<IStorageWriter, CadsIngesterStorageWriter>();
+        services.AddSingleton<IStorageWriter, IngesterStorageWriter>();
         services.AddTransient<IIngesterStorageService, IngesterStorageService>();
 
         // Register module storage readers
