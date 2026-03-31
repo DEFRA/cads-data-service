@@ -6,7 +6,7 @@ using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 
 namespace Cads.Cds.Ingester.Infrastructure.Services;
 
-public class CadsIngesterStorageWriter(IS3ClientFactory s3ClientFactory) : IStorageWriter
+public class IngesterStorageWriter(IS3ClientFactory s3ClientFactory) : IStorageWriter
 {
     private readonly IAmazonS3 _s3Client = s3ClientFactory.GetClient<CadsIngesterClient>();
     private readonly string _bucketName = s3ClientFactory.GetClientBucketName<CadsIngesterClient>();

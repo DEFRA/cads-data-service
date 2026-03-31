@@ -1,13 +1,16 @@
 using System.Text.Json;
 using Cads.Cds.BuildingBlocks.Application;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.Ingester.Application.Commands.AnimalMovements;
 using Cads.Cds.Ingester.Controllers.Requests.AnimalMovements;
 using Cads.Cds.Ingester.Core.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.Ingester.Controllers;
 
 [ApiController]
+[Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
 [Route("api/v1/regions/{region}/animal-movements")]
 public class AnimalMovementsController(IRequestExecutor executor) : ControllerBase
 {
