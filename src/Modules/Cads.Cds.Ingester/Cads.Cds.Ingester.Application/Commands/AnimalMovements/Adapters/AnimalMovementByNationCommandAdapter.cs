@@ -12,8 +12,11 @@ public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storag
         CancellationToken cancellationToken = default)
     {
         var key = GetKey(command.Nation);
-        logger.LogInformation("Writing to storage: {key}", key);
 
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Writing to storage: {key}", key);
+        }
         var result =
             await storageService.WriteAsync(key, command.Payload!, cancellationToken);
         return result;
