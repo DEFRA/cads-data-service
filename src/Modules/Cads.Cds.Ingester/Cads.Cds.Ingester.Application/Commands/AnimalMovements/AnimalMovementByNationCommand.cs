@@ -4,6 +4,6 @@ using Cads.Cds.Ingester.Core.DTOs.Common;
 
 namespace Cads.Cds.Ingester.Application.Commands.AnimalMovements;
 
-public record AnimalMovementByRegionCommand(Region Region, string? Payload) : ICommand<IngestionDTO>
+public record AnimalMovementByNationCommand(Nation Nation, string? Payload) : ICommand<IngestionDTO>
 {
 }

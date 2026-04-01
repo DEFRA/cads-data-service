@@ -4,5 +4,5 @@ namespace Cads.Cds.Ingester.Core.Services.AnimalMovements;
 
 public interface IIngesterStorageService
 {
-    Task<IngestionDTO> WriteAsync(string key, string payload);
+    Task<IngestionDTO> WriteAsync(string key, string payload, CancellationToken cancellationToken);
 }
