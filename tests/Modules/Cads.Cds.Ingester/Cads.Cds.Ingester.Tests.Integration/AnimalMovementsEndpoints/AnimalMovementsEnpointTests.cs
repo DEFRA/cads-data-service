@@ -15,8 +15,8 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
     [Fact]
     public async Task GivenValidAnimalMovements_WhenPostingToEndpoint_ShouldSucceed()
     {
-        var region = Region.Wales;
-        var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpoint, region);
+        var nation = Nation.Wales;
+        var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpoint, nation);
         var client = apiContainerFixture.CreateBasicClient();
 
         var result = await client.PostAsync(endpoint, new StringContent(payload, Encoding.UTF8, "application/json"),
@@ -25,7 +25,7 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var responseData = JsonConvert.DeserializeObject<IngestionDTO>(responseBody);
         responseData.Should().NotBeNull();
-        responseData.IngestionId.Should().Contain(region.ToString().ToLower());
+        responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
     }
 

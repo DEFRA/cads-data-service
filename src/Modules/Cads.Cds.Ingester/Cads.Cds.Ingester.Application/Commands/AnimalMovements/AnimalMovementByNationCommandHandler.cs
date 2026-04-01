@@ -4,10 +4,10 @@ using MediatR;
 
 namespace Cads.Cds.Ingester.Application.Commands.AnimalMovements;
 
-public class AnimalMovementByRegionCommandHandler(AnimalMovementByRegionCommandAdapter adapter) : IRequestHandler<AnimalMovementByRegionCommand, IngestionDTO>
+public class AnimalMovementByNationCommandHandler(AnimalMovementByNationCommandAdapter adapter) : IRequestHandler<AnimalMovementByNationCommand, IngestionDTO>
 {
 
-    public async Task<IngestionDTO> Handle(AnimalMovementByRegionCommand request, CancellationToken cancellationToken)
+    public async Task<IngestionDTO> Handle(AnimalMovementByNationCommand request, CancellationToken cancellationToken)
     {
         var result = await adapter.WriteAsync(request, cancellationToken);
         return result;

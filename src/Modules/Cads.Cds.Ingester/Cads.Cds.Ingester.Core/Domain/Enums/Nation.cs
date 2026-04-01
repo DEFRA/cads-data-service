@@ -1,6 +1,6 @@
 namespace Cads.Cds.Ingester.Core.Domain.Enums;
 
-public enum Region
+public enum Nation
 {
     England,
     Scotland,
