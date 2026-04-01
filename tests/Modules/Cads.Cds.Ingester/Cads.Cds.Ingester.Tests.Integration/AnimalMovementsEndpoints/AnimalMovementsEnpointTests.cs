@@ -23,7 +23,7 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
             TestContext.Current.CancellationToken);
         result.IsSuccessStatusCode.Should().BeTrue();
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        var responseData = JsonConvert.DeserializeObject<IngestionDTO>(responseBody);
+        var responseData = JsonConvert.DeserializeObject<IngestionDto>(responseBody);
         responseData.Should().NotBeNull();
         responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
