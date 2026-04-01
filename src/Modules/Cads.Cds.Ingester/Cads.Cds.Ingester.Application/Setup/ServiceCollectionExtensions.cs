@@ -7,7 +7,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddIngesterApplicationLayer(this IServiceCollection services)
     {
-        services.AddScoped<AnimalMovementByRegionCommandAdapter>();
+        services.AddScoped<AnimalMovementByNationCommandAdapter>();
 
         return services;
     }

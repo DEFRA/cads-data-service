@@ -9,7 +9,7 @@ public class IngesterStorageWriter<T>(IS3ClientFactory s3ClientFactory) : IStora
     private readonly IAmazonS3 _s3Client = s3ClientFactory.GetClient<T>();
     private readonly string _bucketName = s3ClientFactory.GetClientBucketName<T>();
 
-    public async Task WriteAsync(string key, string payload)
+    public async Task WriteAsync(string key, string payload, CancellationToken cancellationToken = default)
     {
         var putObjectRequest = new PutObjectRequest
         {
@@ -18,6 +18,6 @@ public class IngesterStorageWriter<T>(IS3ClientFactory s3ClientFactory) : IStora
             ContentBody = payload
         };
 
-        await _s3Client.PutObjectAsync(putObjectRequest);
+        await _s3Client.PutObjectAsync(putObjectRequest, cancellationToken);
     }
 }

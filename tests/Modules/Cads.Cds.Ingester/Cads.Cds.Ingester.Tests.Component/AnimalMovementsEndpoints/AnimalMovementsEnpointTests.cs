@@ -15,7 +15,7 @@ public class AnimalMovementsEnpointTests(IngesterTestFixture testFixture) : ICla
     public async Task AnimalMovements_Enpoint_Passes_And_Returns_Accepted()
     {
         // Arrange
-        var region = Region.Wales;
+        var nation = Nation.Wales;
         var requestBody = new AnimalMovementsRequest
         {
             AnimalMovement = new AnimalMovement
@@ -39,7 +39,7 @@ public class AnimalMovementsEnpointTests(IngesterTestFixture testFixture) : ICla
         };
 
         var payload = JsonConvert.SerializeObject(requestBody);
-        var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpoint, region);
+        var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpoint, nation);
 
         // Act
         var result = await testFixture.HttpClient.PostAsync(endpoint, new StringContent(payload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
@@ -49,7 +49,7 @@ public class AnimalMovementsEnpointTests(IngesterTestFixture testFixture) : ICla
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var responseData = JsonConvert.DeserializeObject<IngestionDTO>(responseBody);
         responseData.Should().NotBeNull();
-        responseData.IngestionId.Should().Contain(region.ToString().ToLower());
+        responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
     }
 }
