@@ -5,24 +5,24 @@ using FluentValidation.TestHelper;
 
 namespace Cads.Cds.Ingester.Application.Tests.Unit.Commands.AnimalMovements.Validators;
 
-public class AnimalMovementByRegionCommandValidatorTests
+public class AnimalMovementByNationCommandValidatorTests
 {
-    private readonly AnimalMovementByRegionCommandValidator _sut = new();
+    private readonly AnimalMovementByNationCommandValidator _sut = new();
 
     [Fact]
     public void Region_WithValue_ShouldHaveBeValid()
     {
-        var model = new AnimalMovementByRegionCommand(Region.Wales, "json");
+        var model = new AnimalMovementByNationCommand(Nation.Wales, "json");
 
         var result = _sut.TestValidate(model);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Region);
+        result.ShouldNotHaveValidationErrorFor(x => x.Nation);
     }
 
     [Fact]
     public void Payload_WhenNull_ShouldHaveValidationError()
     {
-        var model = new AnimalMovementByRegionCommand(Region.Wales, null);
+        var model = new AnimalMovementByNationCommand(Nation.Wales, null);
 
         var result = _sut.TestValidate(model);
 
@@ -32,7 +32,7 @@ public class AnimalMovementByRegionCommandValidatorTests
     [Fact]
     public void Payload_WithValue_ShouldHaveBeValid()
     {
-        var model = new AnimalMovementByRegionCommand(Region.Wales, "json");
+        var model = new AnimalMovementByNationCommand(Nation.Wales, "json");
 
         var result = _sut.TestValidate(model);
 
