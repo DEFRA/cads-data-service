@@ -11,7 +11,7 @@ public class MovementDetails
     public string? DepartureLocation { get; set; }
 
     [JsonPropertyName("DepartureCoreID")]
-    public string? DepartureCoreID { get; set; }
+    public string? DepartureCoreId { get; set; }
 
     [JsonPropertyName("DepartureLocationType")]
     public string? DepartureLocationType { get; set; }
@@ -29,7 +29,7 @@ public class MovementDetails
     public string? DestinationLocation { get; set; }
 
     [JsonPropertyName("DestinationCoreID")]
-    public string? DestinationCoreID { get; set; }
+    public string? DestinationCoreId { get; set; }
 
     [JsonPropertyName("DestinationLocationType")]
     public string? DestinationLocationType { get; set; }

@@ -14,16 +14,16 @@ public class AnimalMovement
     public string? DestinationRegion { get; set; }
 
     [JsonPropertyName("MessageID")]
-    public string? MessageID { get; set; }
+    public string? MessageId { get; set; }
 
     [JsonPropertyName("MovementTime")]
     public DateTime? MovementTime { get; set; }
 
     [JsonPropertyName("MovementID")]
-    public string? MovementID { get; set; }
+    public string? MovementId { get; set; }
 
     [JsonPropertyName("MovementGroupID")]
-    public string? MovementGroupID { get; set; }
+    public string? MovementGroupId { get; set; }
 
     [JsonPropertyName("MovementGroup")]
     public string? MovementGroup { get; set; }
