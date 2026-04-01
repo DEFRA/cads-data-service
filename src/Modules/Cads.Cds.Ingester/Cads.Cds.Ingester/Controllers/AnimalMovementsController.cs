@@ -22,7 +22,7 @@ public class AnimalMovementsController(IRequestExecutor executor, ILogger<Animal
     {
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Received animal movements request for {nation} at {timestamp}", nation, DateTime.UtcNow);
+            logger.LogInformation("Received animal movements request for {Nation} at {Timestamp}", nation, DateTime.UtcNow);
         }
 
         var payload = JsonSerializer.Serialize<AnimalMovementsRequest>(request);
@@ -31,7 +31,7 @@ public class AnimalMovementsController(IRequestExecutor executor, ILogger<Animal
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Animal movements request in storage at {IngestionId} and completed at {timestamp}", response.IngestionId, DateTime.UtcNow);
+            logger.LogInformation("Animal movements request in storage at {IngestionId} and completed at {Timestamp}", response.IngestionId, DateTime.UtcNow);
         }
         return Accepted(response);
     }

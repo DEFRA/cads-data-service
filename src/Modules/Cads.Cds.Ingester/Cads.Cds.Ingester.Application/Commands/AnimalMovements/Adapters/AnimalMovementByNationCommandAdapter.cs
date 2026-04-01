@@ -7,7 +7,7 @@ namespace Cads.Cds.Ingester.Application.Commands.AnimalMovements.Adapters;
 
 public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storageService, ILogger<AnimalMovementByNationCommandAdapter> logger)
 {
-    public async Task<IngestionDTO> WriteAsync(
+    public async Task<IngestionDto> WriteAsync(
         AnimalMovementByNationCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -15,7 +15,7 @@ public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storag
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Writing to storage: {key}", key);
+            logger.LogInformation("Writing to storage: {Key}", key);
         }
         var result =
             await storageService.WriteAsync(key, command.Payload!, cancellationToken);
