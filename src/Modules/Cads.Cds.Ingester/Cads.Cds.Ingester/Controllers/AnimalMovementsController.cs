@@ -6,22 +6,27 @@ using Cads.Cds.Ingester.Controllers.Requests.AnimalMovements;
 using Cads.Cds.Ingester.Core.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Cads.Cds.Ingester.Controllers;
 
 [ApiController]
 [Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
-[Route("api/v1/regions/{region}/animal-movements")]
-public class AnimalMovementsController(IRequestExecutor executor) : ControllerBase
+[Route("api/v1/regions/{nation}/animal-movements")]
+public class AnimalMovementsController(IRequestExecutor executor, ILogger<AnimalMovementsController> logger) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> PostAnimalMovements(
-        Region region,
+        Nation nation,
         [FromBody] AnimalMovementsRequest request)
     {
+        logger.LogInformation("Received animal movements request for {nation} at {timestamp}", nation, DateTime.UtcNow);
+
         var payload = JsonSerializer.Serialize<AnimalMovementsRequest>(request);
-        var command = new AnimalMovementByRegionCommand(region, payload);
+        var command = new AnimalMovementByNationCommand(nation, payload);
         var response = await executor.ExecuteCommand(command);
+
+        logger.LogInformation("Animal movements request in storage at {IngestionId} and completed at {timestamp}", response.IngestionId, DateTime.UtcNow);
         return Accepted(response);
     }
 }
