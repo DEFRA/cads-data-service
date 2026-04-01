@@ -7,7 +7,7 @@ namespace Cads.Cds.Ingester.Infrastructure.Services;
 
 public class IngesterStorageService(IStorageWriter<IngesterClient> storageWriter) : IIngesterStorageService
 {
-    public async Task<IngestionDTO> WriteAsync(string key, string payload, CancellationToken cancellationToken = default)
+    public async Task<IngestionDTO> WriteAsync(string key, string payload, CancellationToken cancellationToken)
     {
         await storageWriter.WriteAsync(key, payload, cancellationToken);
 
