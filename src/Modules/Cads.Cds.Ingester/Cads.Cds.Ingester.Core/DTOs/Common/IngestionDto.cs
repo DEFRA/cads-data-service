@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Cads.Cds.Ingester.Core.DTOs.Common;
 
-public class IngestionDTO
+public class IngestionDto
 {
     [JsonPropertyName("ingestionId")]
     public string IngestionId { get; set; } = Guid.NewGuid().ToString();
