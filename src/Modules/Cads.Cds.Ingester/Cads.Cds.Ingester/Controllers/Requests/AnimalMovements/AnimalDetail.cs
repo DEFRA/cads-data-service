@@ -14,11 +14,11 @@ public class AnimalDetail
     public string? AnimalIdTransponderHex { get; set; }
 
     [JsonPropertyName("AnimalIDTransponderISO")]
-    public string? AnimalIdTransponderISO { get; set; }
+    public string? AnimalIdTransponderIso { get; set; }
 
     [JsonPropertyName("TagIssueNumber")]
     public string? TagIssueNumber { get; set; }
 
     [JsonPropertyName("DOA")]
-    public bool DOA { get; set; }
+    public bool Doa { get; set; }
 }
