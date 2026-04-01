@@ -5,16 +5,16 @@ namespace Cads.Cds.Ingester.Controllers.Requests.AnimalMovements;
 public class AnimalDetail
 {
     [JsonPropertyName("AnimalID")]
-    public string? AnimalID { get; set; }
+    public string? AnimalId { get; set; }
 
     [JsonPropertyName("AnimalIDType")]
-    public string? AnimalIDType { get; set; }
+    public string? AnimalIdType { get; set; }
 
     [JsonPropertyName("AnimalIDTransponderHex")]
-    public string? AnimalIDTransponderHex { get; set; }
+    public string? AnimalIdTransponderHex { get; set; }
 
     [JsonPropertyName("AnimalIDTransponderISO")]
-    public string? AnimalIDTransponderISO { get; set; }
+    public string? AnimalIdTransponderISO { get; set; }
 
     [JsonPropertyName("TagIssueNumber")]
     public string? TagIssueNumber { get; set; }
