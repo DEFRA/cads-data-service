@@ -1,0 +1,21 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
+using Cads.Cds.Ingester.Core.DTOs.Common;
+using Cads.Cds.Ingester.Core.Services.AnimalMovements;
+using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
+
+namespace Cads.Cds.Ingester.Infrastructure.Services;
+
+public class IngesterStorageService(IStorageWriter<IngesterClient> storageWriter) : IIngesterStorageService
+{
+    public async Task<IngestionDto> WriteAsync(string key, string payload, CancellationToken cancellationToken)
+    {
+        await storageWriter.WriteAsync(key, payload, cancellationToken);
+
+        return new IngestionDto
+        {
+            IngestionId = key,
+            ReceivedAt = DateTimeOffset.UtcNow,
+            RecordCount = 1
+        };
+    }
+}
