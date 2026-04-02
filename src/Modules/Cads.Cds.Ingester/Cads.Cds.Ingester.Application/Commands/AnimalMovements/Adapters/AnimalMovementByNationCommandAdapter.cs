@@ -25,6 +25,6 @@ public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storag
     private static string GetKey(Nation nation)
     {
         var nationalDirectory = nation.ToString().ToLower();
-        return $"inbound/{nationalDirectory}/incremental/animal-movement-{DateTime.UtcNow:yy-MM-dd-hh-mm-ss}.json";
+        return $"inbound/{nationalDirectory}/incremental/animal-movements/{DateTime.UtcNow:yy-MM-dd-HH-mm-ss-fff}.json";
     }
 }
