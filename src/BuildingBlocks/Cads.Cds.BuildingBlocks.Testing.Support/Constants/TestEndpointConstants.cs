@@ -68,5 +68,5 @@ public static class TestEndpointConstants
     public const string BffUkvZonesByZoneIdEndpoint = BffMiUkvRoot + "zones/{0}";
 
     // Ingestion endpoints
-    public const string AnimalMovementIngestionEndpoint = "/api/v1/regions/{0}/animal-movements";
+    public const string AnimalMovementIngestionEndpoint = "/api/v1/nation/{0}/animal-movements";
 }
