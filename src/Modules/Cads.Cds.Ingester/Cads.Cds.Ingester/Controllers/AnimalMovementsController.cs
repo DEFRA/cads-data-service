@@ -12,7 +12,7 @@ namespace Cads.Cds.Ingester.Controllers;
 
 [ApiController]
 [Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
-[Route("api/v1/regions/{nation}/animal-movements")]
+[Route("api/v1/nation/{nation}/animal-movements")]
 public class AnimalMovementsController(IRequestExecutor executor, ILogger<AnimalMovementsController> logger) : ControllerBase
 {
     [HttpPost]
@@ -25,7 +25,10 @@ public class AnimalMovementsController(IRequestExecutor executor, ILogger<Animal
             logger.LogInformation("Received animal movements request for {Nation} at {Timestamp}", nation, DateTime.UtcNow);
         }
 
-        var payload = JsonSerializer.Serialize<AnimalMovementsRequest>(request);
+        var payload = JsonSerializer.Serialize<AnimalMovementsRequest>(request, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
         var command = new AnimalMovementByNationCommand(nation, payload);
         var response = await executor.ExecuteCommand(command);
 
