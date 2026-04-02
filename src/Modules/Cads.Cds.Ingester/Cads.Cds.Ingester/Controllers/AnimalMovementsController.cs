@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application.Commands.AnimalMovements;
 using Cads.Cds.Ingester.Controllers.Requests.AnimalMovements;
 using Cads.Cds.Ingester.Core.Domain.Enums;
@@ -25,10 +26,7 @@ public class AnimalMovementsController(IRequestExecutor executor, ILogger<Animal
             logger.LogInformation("Received animal movements request for {Nation} at {Timestamp}", nation, DateTime.UtcNow);
         }
 
-        var payload = JsonSerializer.Serialize<AnimalMovementsRequest>(request, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var payload = JsonSerializer.Serialize<AnimalMovementsRequest>(request, JsonDefaults.DefaultOptionsWithIndented);
         var command = new AnimalMovementByNationCommand(nation, payload);
         var response = await executor.ExecuteCommand(command);
 
