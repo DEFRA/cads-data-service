@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\BuildingBlocks\Cads.Cds.BuildingBlocks.Testing.Support\Cads.Cds.BuildingBlocks.Testing.Support.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.Api\Cads.Cds.Api\Cads.Cds.Api.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Cads.Cds\Cads.Cds.csproj" />
   </ItemGroup>
 
   <ItemGroup>

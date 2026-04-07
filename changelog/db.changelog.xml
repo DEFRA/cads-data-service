@@ -22,4 +22,10 @@
   <include file="0150_mi_user_seed_initial_users.postgresql.sql"/>
   <include file="0160_mi_user_role_seed_initial_user_roles.postgresql.sql"/>
   <include file="0170_mi_effective_report_permission_update_view.postgresql.sql"/>
+  <include file="0171_mi_effective_report_permission_update_view.postgresql.sql"/>
+  <include file="0180_mi_user_seed_initial_users_local.postgresql.sql"/>
+  <include file="0181_mi_user_seed_initial_users_dev.postgresql.sql"/>
+  <include file="0182_mi_user_seed_initial_users_test.postgresql.sql"/>
+  <include file="0183_mi_user_seed_initial_users_ext-test.postgresql.sql"/>
+  <include file="0184_mi_user_seed_initial_users_perf-test.postgresql.sql"/>
 </databaseChangeLog>

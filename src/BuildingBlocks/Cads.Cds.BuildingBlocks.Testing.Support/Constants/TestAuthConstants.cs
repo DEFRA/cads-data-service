@@ -7,10 +7,10 @@ public static class TestAuthConstants
     public const string BasicSecret = "integration-test-secret";
 
     // Azure AD / OIDC mock
-    public const string AzureAdClientId = "local-cads-mis";
-    public const string AzureAdClientSecret = "local-mock-secret";
-    public const string AzureAdAudience = "api://local-cads-mis";
-    public const string AzureAdScope = "reports.read";
+    public const string AzureAdCadsMisClientId = "local-cads-mis";
+    public const string AzureAdCadsMisClientSecret = "local-mock-secret";
+    public const string AzureAdCadsCdsAudience = "api://local-cads-cds";
+    public const string AzureAdCadsCdsScope = "reports.read";
 
     // Fakes: Cognito
     public const string FakeCongnitoAuthority = "https://cognito-test";
