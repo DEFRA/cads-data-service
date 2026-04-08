@@ -15,7 +15,8 @@ services:
       - AuthenticationConfiguration__Cognito__Authority=
       - AuthenticationConfiguration__AzureAD__Enabled=true
       - AuthenticationConfiguration__AzureAD__Authority=http://cads-oidc-mock
-      - AuthenticationConfiguration__AzureAD__Audience=api://local-cads-mis
+      - AuthenticationConfiguration__AzureAD__Audience=api://local-cads-cds
+      - AuthenticationConfiguration__AzureAD__MetadataAddress=http://cads-oidc-mock/.well-known/openid-configuration
       - AuthenticationConfiguration__AzureAD__RequireHttpsMetadata=false
       - AuthenticationConfiguration__AzureAD__ValidateIssuer=false
     volumes:
