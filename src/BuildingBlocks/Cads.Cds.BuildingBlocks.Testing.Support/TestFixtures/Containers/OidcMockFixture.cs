@@ -1,6 +1,7 @@
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 using DotNet.Testcontainers.Builders;
 using System.Text.Json;
 using Xunit;
@@ -31,8 +32,31 @@ public class OidcMockFixture : IAsyncLifetime
               {
                 "ClientId": "{{TestAuthConstants.AzureAdCadsMisClientId}}",
                 "ClientSecrets": ["{{TestAuthConstants.AzureAdCadsMisClientSecret}}"],
+                "AllowedGrantTypes": ["authorization_code"],
+                "AllowedScopes": ["openid", "profile", "email", "offline_access", "{{TestAuthConstants.AzureAdCadsCdsScope}}"],
+                "RequirePkce": false,
+                "RedirectUris": ["http://localhost:3000"],
+                "AllowOfflineAccess": true,
+                "AccessTokenType": "Jwt",
+                "AlwaysSendClientClaims": true,
+                "AlwaysIncludeUserClaimsInIdToken": true
+              },
+              {
+                "ClientId": "{{TestAuthConstants.AzureAdCadsApiClientId}}",
+                "ClientSecrets": ["{{TestAuthConstants.AzureAdCadsApiClientSecret}}"],
+                "AllowedGrantTypes": ["client_credentials"],
                 "AllowedScopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}"],
-                "AllowedGrantTypes": ["client_credentials"]
+                "AccessTokenType": "Jwt",
+                "AlwaysSendClientClaims": true
+              },
+              {
+                "ClientId": "{{TestAuthConstants.AzureAdTestUserClientId}}",
+                "ClientSecrets": ["{{TestAuthConstants.AzureAdTestUserClientSecret}}"],
+                "AllowedGrantTypes": ["password"],
+                "AllowedScopes": ["openid", "profile", "email", "reports.none", "{{TestAuthConstants.AzureAdCadsCdsScope}}"],
+                "AccessTokenType": "Jwt",
+                "AlwaysSendClientClaims": true,
+                "AlwaysIncludeUserClaimsInIdToken": true
               }
             ]
             """)
@@ -41,6 +65,10 @@ public class OidcMockFixture : IAsyncLifetime
               {
                 "Name": "{{TestAuthConstants.AzureAdCadsCdsScope}}",
                 "DisplayName": "Read reports"
+              },
+              {
+                "Name": "reports.none",
+                "DisplayName": "No report access"
               }
             ]
             """)
@@ -49,6 +77,10 @@ public class OidcMockFixture : IAsyncLifetime
               {
                 "Name": "{{TestAuthConstants.AzureAdCadsCdsScope}}",
                 "DisplayName": "Read reports"
+              },
+              {
+                "Name": "reports.none",
+                "DisplayName": "No report access"
               }
             ]
             """)
@@ -56,8 +88,40 @@ public class OidcMockFixture : IAsyncLifetime
             [
               {
                 "Name": "{{TestAuthConstants.AzureAdCadsCdsAudience}}",
-                "Scopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}"]
+                "Scopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}", "reports.none"],
+                "UserClaims": [
+                  "email",
+                  "preferred_username",
+                  "name",
+                  "role"
+                ]
               }
+            ]
+            """)
+            .WithEnvironment("USERS_CONFIGURATION_INLINE", $$"""
+            [
+                {
+                "SubjectId": "787553ae-4c55-4b42-aafc-633274691cc1",
+                "Username": "{{TestAuthConstants.AzureAdUsername}}",
+                "Password": "{{TestAuthConstants.AzureAdPassword}}",
+                "Claims": [
+                    { "Type": "name", "Value": "Test MIP Viewer" },
+                    { "Type": "email", "Value": "mip-viewer-user@internal.test" },
+                    { "Type": "preferred_username", "Value": "mip-viewer-user" },
+                    { "Type": "role", "Value": "mip-viewer" }
+                ]
+                },
+                {
+                "SubjectId": "c6c53dda-b6d9-4599-a90d-dbb3121cf737",
+                "Username": "unknown-user",
+                "Password": "{{TestAuthConstants.AzureAdPassword}}",
+                "Claims": [
+                    { "Type": "name", "Value": "Unknown User" },
+                    { "Type": "email", "Value": "unknown-user@internal.test" },
+                    { "Type": "preferred_username", "Value": "unknown-user" },
+                    { "Type": "role", "Value": "mip-viewer" }
+                ]
+                }
             ]
             """)
             .WithEnvironment("ISSUER", "http://cads-oidc-mock")
@@ -71,38 +135,31 @@ public class OidcMockFixture : IAsyncLifetime
         await OidcContainer.StartAsync();
     }
 
-    public async Task<string> CreateClientCredentialsTokenAsync()
+    public async Task<string> CreateTokenAsync(TestTokenRequest request)
     {
         using var http = new HttpClient();
 
-        var response = await http.PostAsync(TokenEndpoint,
-            new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                ["grant_type"] = "client_credentials",
-                ["client_id"] = TestAuthConstants.AzureAdCadsMisClientId,
-                ["client_secret"] = TestAuthConstants.AzureAdCadsMisClientSecret,
-                ["scope"] = TestAuthConstants.AzureAdCadsCdsScope
-            }));
+        var form = new Dictionary<string, string>
+        {
+            ["client_id"] = request.ClientId,
+            ["client_secret"] = request.ClientSecret,
+            ["scope"] = string.Join(" ", request.Scopes)
+        };
 
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonDocument.Parse(json).RootElement.GetProperty("access_token").GetString()!;
-    }
+        if (request.Username is null)
+        {
+            // client_credentials
+            form["grant_type"] = "client_credentials";
+        }
+        else
+        {
+            // password (user token)
+            form["grant_type"] = "password";
+            form["username"] = request.Username;
+            form["password"] = request.Password!;
+        }
 
-    public async Task<string> CreateUserTokenAsync()
-    {
-        using var http = new HttpClient();
-
-        var response = await http.PostAsync(TokenEndpoint,
-            new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                ["grant_type"] = "password",
-                ["client_id"] = TestAuthConstants.AzureAdCadsMisClientId,
-                ["client_secret"] = TestAuthConstants.AzureAdCadsMisClientSecret,
-                ["username"] = TestAuthConstants.AzureAdCadsMisUsername,
-                ["password"] = TestAuthConstants.AzureAdCadsMisPassword,
-                ["scope"] = $"openid profile email {TestAuthConstants.AzureAdCadsCdsScope}"
-            }));
-
+        var response = await http.PostAsync(TokenEndpoint, new FormUrlEncodedContent(form));
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync();
