@@ -88,6 +88,27 @@ public class OidcMockFixture : IAsyncLifetime
         return JsonDocument.Parse(json).RootElement.GetProperty("access_token").GetString()!;
     }
 
+    public async Task<string> CreateUserTokenAsync()
+    {
+        using var http = new HttpClient();
+
+        var response = await http.PostAsync(TokenEndpoint,
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "password",
+                ["client_id"] = TestAuthConstants.AzureAdCadsMisClientId,
+                ["client_secret"] = TestAuthConstants.AzureAdCadsMisClientSecret,
+                ["username"] = TestAuthConstants.AzureAdCadsMisUsername,
+                ["password"] = TestAuthConstants.AzureAdCadsMisPassword,
+                ["scope"] = $"openid profile email {TestAuthConstants.AzureAdCadsCdsScope}"
+            }));
+
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonDocument.Parse(json).RootElement.GetProperty("access_token").GetString()!;
+    }
+
     public async ValueTask DisposeAsync()
     {
         Exception? error = null;

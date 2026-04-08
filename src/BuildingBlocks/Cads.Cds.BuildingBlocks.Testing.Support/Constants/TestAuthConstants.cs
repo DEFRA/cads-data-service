@@ -11,6 +11,8 @@ public static class TestAuthConstants
     public const string AzureAdCadsMisClientSecret = "local-mock-secret";
     public const string AzureAdCadsCdsAudience = "api://local-cads-cds";
     public const string AzureAdCadsCdsScope = "reports.read";
+    public const string AzureAdCadsMisUsername = "mip-viewer-user";
+    public const string AzureAdCadsMisPassword = "password";
 
     // Fakes: Cognito
     public const string FakeCongnitoAuthority = "https://cognito-test";
