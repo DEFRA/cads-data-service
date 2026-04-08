@@ -19,6 +19,7 @@ public class AuthenticationProviderConfiguration : AuthenticationStateConfigurat
     public string? MetadataAddress { get; set; }
     public bool RequireHttpsMetadata { get; set; } = true;
     public bool ValidateIssuer { get; set; } = true;
+    public string RoleClaimType { get; set; } = "http://schemas.microsoft.com/identity/claims/scope";
 }
 
 public static class AuthenticationConstants

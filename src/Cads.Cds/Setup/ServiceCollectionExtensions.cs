@@ -139,6 +139,7 @@ public static class ServiceCollectionExtensions
                 ValidAudience = authenticationProviderConfiguration.Audience,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+                RoleClaimType = authenticationProviderConfiguration.RoleClaimType,
                 ValidTypes = ["JWT", "at+jwt"]
             };
 
@@ -172,7 +173,7 @@ public static class ServiceCollectionExtensions
                     policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
                 }
                 policy.RequireAuthenticatedUser();
-                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, ScopeNames.ReportsRead);
+                policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, ScopeNames.ReportsRead);
             });
     }
 }
