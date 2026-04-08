@@ -29,9 +29,9 @@ public class OidcMockFixture : IAsyncLifetime
             .WithEnvironment("CLIENTS_CONFIGURATION_INLINE", $$"""
             [
               {
-                "ClientId": "{{TestAuthConstants.AzureAdClientId}}",
-                "ClientSecrets": ["{{TestAuthConstants.AzureAdClientSecret}}"],
-                "AllowedScopes": ["{{TestAuthConstants.AzureAdScope}}"],
+                "ClientId": "{{TestAuthConstants.AzureAdCadsMisClientId}}",
+                "ClientSecrets": ["{{TestAuthConstants.AzureAdCadsMisClientSecret}}"],
+                "AllowedScopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}"],
                 "AllowedGrantTypes": ["client_credentials"]
               }
             ]
@@ -39,7 +39,7 @@ public class OidcMockFixture : IAsyncLifetime
             .WithEnvironment("SCOPES_CONFIGURATION_INLINE", $$"""
             [
               {
-                "Name": "{{TestAuthConstants.AzureAdScope}}",
+                "Name": "{{TestAuthConstants.AzureAdCadsCdsScope}}",
                 "DisplayName": "Read reports"
               }
             ]
@@ -47,7 +47,7 @@ public class OidcMockFixture : IAsyncLifetime
             .WithEnvironment("API_SCOPES_INLINE", $$"""
             [
               {
-                "Name": "{{TestAuthConstants.AzureAdScope}}",
+                "Name": "{{TestAuthConstants.AzureAdCadsCdsScope}}",
                 "DisplayName": "Read reports"
               }
             ]
@@ -55,8 +55,8 @@ public class OidcMockFixture : IAsyncLifetime
             .WithEnvironment("API_RESOURCES_INLINE", $$"""
             [
               {
-                "Name": "{{TestAuthConstants.AzureAdAudience}}",
-                "Scopes": ["{{TestAuthConstants.AzureAdScope}}"]
+                "Name": "{{TestAuthConstants.AzureAdCadsCdsAudience}}",
+                "Scopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}"]
               }
             ]
             """)
@@ -79,9 +79,9 @@ public class OidcMockFixture : IAsyncLifetime
             new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["grant_type"] = "client_credentials",
-                ["client_id"] = TestAuthConstants.AzureAdClientId,
-                ["client_secret"] = TestAuthConstants.AzureAdClientSecret,
-                ["scope"] = TestAuthConstants.AzureAdScope
+                ["client_id"] = TestAuthConstants.AzureAdCadsMisClientId,
+                ["client_secret"] = TestAuthConstants.AzureAdCadsMisClientSecret,
+                ["scope"] = TestAuthConstants.AzureAdCadsCdsScope
             }));
 
         var json = await response.Content.ReadAsStringAsync();
