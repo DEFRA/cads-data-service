@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers.Configuration;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using DotNet.Testcontainers.Builders;
@@ -79,9 +80,11 @@ public class ApiContainerFixture : IAsyncLifetime
         };
     }
 
-    public async Task<HttpClient> CreateAzureAdClientAsync()
+    public async Task<HttpClient> CreateAzureAdClientAsync(TestTokenRequest? request = null)
     {
-        var token = await OidcMockFixture.CreateClientCredentialsTokenAsync();
+        request ??= new TestTokenRequest(); // default = client_credentials
+
+        var token = await OidcMockFixture.CreateTokenAsync(request);
 
         var client = new HttpClient
         {
