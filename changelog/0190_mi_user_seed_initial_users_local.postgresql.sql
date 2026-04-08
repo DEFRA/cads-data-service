@@ -1,10 +1,10 @@
 -- liquibase formatted sql
 
---changeset mark:seed-mark-gent context:local
+--changeset mark:seed-mip-viewer-user context:local
 INSERT INTO mi_user (user_id, external_subject, display_name, email, is_active)
 VALUES (gen_random_uuid(), 'mip-viewer-user@internal.test', 'Test MIP Viewer', 'mip-viewer-user@internal.test', true);
 
---changeset mark:seed-mark-gent-role context:local
+--changeset mark:seed-mip-viewer-role context:local
 INSERT INTO mi_user_role (user_id, role_id)
 SELECT u.user_id, r.role_id
 FROM mi_user u

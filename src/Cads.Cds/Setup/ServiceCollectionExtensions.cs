@@ -134,11 +134,11 @@ public static class ServiceCollectionExtensions
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = authenticationProviderConfiguration.ValidateIssuer,
-                ValidIssuer = authenticationProviderConfiguration.Authority,
                 ValidateAudience = true,
                 ValidAudience = authenticationProviderConfiguration.Audience,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+                NameClaimType = "name",
                 RoleClaimType = authenticationProviderConfiguration.RoleClaimType,
                 ValidTypes = ["JWT", "at+jwt"]
             };

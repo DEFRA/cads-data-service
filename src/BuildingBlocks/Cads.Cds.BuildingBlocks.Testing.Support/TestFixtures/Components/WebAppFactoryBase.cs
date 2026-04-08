@@ -168,6 +168,7 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__MetadataAddress", "");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__RequireHttpsMetadata", "false");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__ValidateIssuer", "false");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__RoleClaimType", "scope");
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)
