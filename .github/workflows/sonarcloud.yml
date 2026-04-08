@@ -77,7 +77,7 @@ jobs:
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.projectBaseDir="${{ github.workspace }}" \
             /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
-            /d:sonar.cpd.exclusions=**/*seed*.sql \
+            /d:sonar.cpd.exclusions=**/changelog/**/*seed*.sql,**/changelog/**/*view*.sql \
             /d:sonar.issue.ignore.multicriteria=e1 \
             /d:sonar.issue.ignore.multicriteria.e1.ruleKey=plsql:S1192 \
             /d:sonar.issue.ignore.multicriteria.e1.resourceKey=**/*.sql
