@@ -260,6 +260,7 @@ dotnet restore
 These values are used by the backend’s Docker Compose:
    
 ```bash
+ENV=local
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=*****
 POSTGRES_DB=cads_data_service
