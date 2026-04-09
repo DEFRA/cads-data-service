@@ -30,10 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\certs\https-dev-cert.pfx"
-          Link="certs\https-dev-cert.pfx"
-          Condition="Exists('..\..\..\..\certs\https-dev-cert.pfx')"
-          CopyToOutputDirectory="Always" />
+    <None Include="..\..\..\..\certs\https-dev-cert.pfx" Link="certs\https-dev-cert.pfx" Condition="Exists('..\..\..\..\certs\https-dev-cert.pfx')" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 </Project>
