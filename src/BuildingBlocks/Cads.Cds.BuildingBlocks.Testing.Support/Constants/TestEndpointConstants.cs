@@ -69,4 +69,7 @@ public static class TestEndpointConstants
 
     // Ingestion endpoints
     public const string AnimalMovementIngestionEndpoint = "/api/v1/nation/{0}/animal-movements";
+
+    // Reports route paths
+    public const string BffMiReportsRoot = BffMiRoot + "reports/";
 }
