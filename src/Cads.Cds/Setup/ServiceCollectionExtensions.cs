@@ -134,11 +134,12 @@ public static class ServiceCollectionExtensions
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = authenticationProviderConfiguration.ValidateIssuer,
-                ValidIssuer = authenticationProviderConfiguration.Authority,
                 ValidateAudience = true,
                 ValidAudience = authenticationProviderConfiguration.Audience,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+                NameClaimType = "name",
+                RoleClaimType = authenticationProviderConfiguration.RoleClaimType,
                 ValidTypes = ["JWT", "at+jwt"]
             };
 
@@ -172,7 +173,7 @@ public static class ServiceCollectionExtensions
                     policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
                 }
                 policy.RequireAuthenticatedUser();
-                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, ScopeNames.ReportsRead);
+                policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, ScopeNames.ReportsRead);
             });
     }
 }

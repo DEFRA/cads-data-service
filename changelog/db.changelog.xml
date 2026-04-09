@@ -4,6 +4,20 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+  <!-- Define constants here -->
+  <property name="gfName" value="Gary Fletcher" context="dev,test,ext-test,perf-test"/>
+  <property name="gfEmail" value="gary.fletcher@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="mgName" value="Mark Gent" context="dev,test,ext-test,perf-test"/>
+  <property name="mgEmail" value="mark.gent@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="cjName" value="Craig John" context="dev,test,ext-test,perf-test"/>
+  <property name="cjEmail" value="craig.john@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="dbName" value="David Baillie" context="dev,test,ext-test,perf-test"/>
+  <property name="dbEmail" value="david.baillie@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="arName" value="Andy Rose" context="dev,test,ext-test,perf-test"/>
+  <property name="arEmail" value="andy.rose@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="thName" value="Tom Harrison" context="dev,test,ext-test,perf-test"/>
+  <property name="thEmail" value="tom.harrison@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <!-- Your existing includes -->
   <include file="db.changelog-1.0.sql"/>
   <include file="0010_mi_user_create_table.postgresql.sql"/>
   <include file="0020_mi_role_create_table.postgresql.sql"/>
@@ -22,7 +36,7 @@
   <include file="0150_mi_user_seed_initial_users.postgresql.sql"/>
   <include file="0160_mi_user_role_seed_initial_user_roles.postgresql.sql"/>
   <include file="0170_mi_effective_report_permission_update_view.postgresql.sql"/>
-
+  <include file="0171_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0180_001_party_location_create_table.postgresql.sql"/>
   <include file="0180_002_party_type_create_table.postgresql.sql"/>
   <include file="0180_003_party_state_create_table.postgresql.sql"/>
@@ -198,4 +212,9 @@
   <include file="0180_173__ct_registered_animals_alter_table.postgresql.sql"/>
   <include file="0180_174__ct_registered_movements_alter_table.postgresql.sql"/>
   <include file="0180_175__ct_movt_corr_summ_errors_alter_table.postgresql.sql"/>
+  <include file="0190_mi_user_seed_initial_users_local.postgresql.sql"/>
+  <include file="0191_mi_user_seed_initial_users_dev.postgresql.sql"/>
+  <include file="0192_mi_user_seed_initial_users_test.postgresql.sql"/>
+  <include file="0193_mi_user_seed_initial_users_ext-test.postgresql.sql"/>
+  <include file="0194_mi_user_seed_initial_users_perf-test.postgresql.sql"/>
 </databaseChangeLog>

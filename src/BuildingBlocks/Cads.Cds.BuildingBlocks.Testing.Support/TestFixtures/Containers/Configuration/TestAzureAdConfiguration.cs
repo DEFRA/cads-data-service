@@ -11,7 +11,7 @@ public class TestAzureAdConfiguration : AuthenticationProviderConfiguration
     public TestAzureAdConfiguration(OidcMockFixture oidc)
     {
         Authority = oidc.Issuer;
-        Audience = TestAuthConstants.AzureAdAudience;
+        Audience = TestAuthConstants.AzureAdCadsCdsAudience;
         MetadataAddress = oidc.WellKnown;
         RequireHttpsMetadata = false;
 
