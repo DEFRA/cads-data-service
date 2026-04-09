@@ -10,8 +10,6 @@ public class ReportsMappingProfile : Profile
     {
         CreateMap<MiEffectiveReportPermissionView, ReportDto>()
             .ForMember(dest => dest.IsActive,
-                opt => opt.MapFrom(src => src.Granted))
-            .ForMember(dest => dest.ReportId,
-                opt => opt.MapFrom(src => Guid.Empty));
+                opt => opt.MapFrom(src => src.Granted));
     }
 }

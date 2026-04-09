@@ -136,11 +136,11 @@ Liquibase then generates migration scripts to bring CADS in line with the refere
 ### Step 1 — Bring the Reference DB up to the current schema
 
 ```
-liquibase --url=jdbc:postgresql://localhost:55432/reference_schema --username=postgres --password=postgres update
+liquibase --url=jdbc:postgresql://localhost:55432/reference_schema --username=postgres --password=postgres --contexts=local update
 ```
 If the changelog file can't be found you can use:
 ```
-liquibase --url=jdbc:postgresql://localhost:55432/reference_schema --username=postgres --password=postgres --changeLogFile=changelog/db.changelog.xml update
+liquibase --url=jdbc:postgresql://localhost:55432/reference_schema --username=postgres --password=postgres -contexts=local --changeLogFile=changelog/db.changelog.xml update
 ```
 
 ### Step 2 — Make schema changes in the Reference DB
@@ -256,7 +256,7 @@ Update the master changelog file, `changelog/db.changelog.xml`, with the new cha
 ### Step 6 — Apply the migration to the CADS database
 
 ```
-liquibase update --changelog-file=<migration-name>.postgresql.sql
+liquibase -contexts=local update --changelog-file=<migration-name>.postgresql.sql
 ```
 
 This updates the CADS database to match the reference schema.
@@ -264,7 +264,7 @@ This updates the CADS database to match the reference schema.
 You can also update the CADS database using the below:
 
 ```
-liquibase --url=jdbc:postgresql://localhost:5432/cads_data_service --username=postgres --password=postgres update
+liquibase --url=jdbc:postgresql://localhost:5432/cads_data_service --username=postgres --password=postgres -contexts=local update
 ```
 
 ## 7. Reference vs CADS Responsibilities
