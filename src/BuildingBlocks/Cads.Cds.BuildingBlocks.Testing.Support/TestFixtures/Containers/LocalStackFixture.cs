@@ -27,6 +27,7 @@ public class LocalStackFixture : IAsyncLifetime
     public const string AwsSecretAccessKey = "test";
     public const string AuthenticationRegion = TestAwsConstants.AwsRegion;
     public const string CadsInternalBucketName = TestS3Constants.TestCadsInternalBucketName;
+    public const string CadsExternalBucketName = TestS3Constants.TestCadsExternalBucketName;
 
     private static Amazon.Runtime.BasicAWSCredentials GetBasicAWSCredentials => new(AwsAccessKeyId, AwsSecretAccessKey);
 
@@ -100,6 +101,7 @@ public class LocalStackFixture : IAsyncLifetime
     private async Task InitialiseResourcesAsync()
     {
         await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsInternalBucketName });
+        await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsExternalBucketName });
 
         var intakeDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = TestSqsConstants.CadsDeadLetterQueueName });
         var intakeDlqAttr = await SqsClient.GetQueueAttributesAsync(new GetQueueAttributesRequest
