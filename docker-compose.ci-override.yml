@@ -3,6 +3,10 @@ services:
     labels:
       com.microsoft.visual-studio.project-name: "Cads.Cds"
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://0.0.0.0:5555"
+      Kestrel__Certificates__Default__Path: ""
+      Kestrel__Certificates__Default__Password: ""
       AWS__ServiceURL: http://cads-localstack:4566
       Postgres__DefaultConnection: Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
       Postgres__ReadOnlyConnection: Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
@@ -19,11 +23,6 @@ services:
       AuthenticationConfiguration__AzureAD__MetadataAddress: http://cads-oidc-mock/.well-known/openid-configuration
       AuthenticationConfiguration__AzureAD__RequireHttpsMetadata: "false"
       AuthenticationConfiguration__AzureAD__ValidateIssuer: "false"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
     depends_on: []
     env_file:
       - ./compose/postgres.env
