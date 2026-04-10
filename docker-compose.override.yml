@@ -19,11 +19,11 @@ services:
       AuthenticationConfiguration__AzureAD__MetadataAddress: http://cads-oidc-mock/.well-known/openid-configuration
       AuthenticationConfiguration__AzureAD__RequireHttpsMetadata: "false"
       AuthenticationConfiguration__AzureAD__ValidateIssuer: "false"
-    # volumes:
-    #   - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-    #   - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-    #   - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    #   - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
     depends_on: []
     env_file:
       - ./compose/postgres.env
