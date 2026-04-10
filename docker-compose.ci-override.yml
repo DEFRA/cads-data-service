@@ -1,0 +1,74 @@
+services:
+  cads_cds:
+    labels:
+      com.microsoft.visual-studio.project-name: "Cads.Cds"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://0.0.0.0:5555"
+      Kestrel__Certificates__Default__Path: ""
+      Kestrel__Certificates__Default__Password: ""
+      AWS__ServiceURL: http://cads-localstack:4566
+      Postgres__DefaultConnection: Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+      Postgres__ReadOnlyConnection: Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+      Modules__Ingester__Queues__CadsCds__QueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue
+      Modules__Ingester__Storage__CadsIngester__BucketName: cads-internal-bucket
+      Modules__Ingester__Queues__CadsCds__DlqQueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue-deadletter
+      Modules__StorageBridge__Storage__CadsInternal__BucketName: cads-internal-bucket
+      AuthenticationConfiguration__ApiKey__Enabled: "true"
+      AuthenticationConfiguration__Cognito__Enabled: "false"
+      AuthenticationConfiguration__Cognito__Authority: ""
+      AuthenticationConfiguration__AzureAD__Enabled: "true"
+      AuthenticationConfiguration__AzureAD__Authority: http://cads-oidc-mock
+      AuthenticationConfiguration__AzureAD__Audience: api://local-cads-cds
+      AuthenticationConfiguration__AzureAD__MetadataAddress: http://cads-oidc-mock/.well-known/openid-configuration
+      AuthenticationConfiguration__AzureAD__RequireHttpsMetadata: "false"
+      AuthenticationConfiguration__AzureAD__ValidateIssuer: "false"
+    depends_on: []
+    env_file:
+      - ./compose/postgres.env
+      - ./compose/aws.env
+    networks:
+      - cads-tools
+
+  reference-postgres:
+    image: postgres:16.6
+    container_name: reference-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_REF_DB:-reference_schema}
+    ports:
+      - "55432:5432"
+    volumes:
+      - reference-postgres-data:/var/lib/postgresql/data
+      - "./compose/postgres/config:/etc/postgres-config"
+    command: >
+      postgres
+        -c config_file=/etc/postgres-config/postgresql.conf
+        -c hba_file=/etc/postgres-config/pg_hba.conf
+        -c listen_addresses='*'
+    networks:
+      - cads-tools
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-pgadmin@pgadmin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-pgadmin}
+    ports:
+      - 16543:80
+    volumes:
+      - "./compose/postgres/servers/servers.json:/pgadmin4/servers.json"
+      - "./compose/postgres/servers/pgpass:/pgpass"
+      - pgadmin-data:/var/lib/pgadmin
+    command: sh -c "chmod 600 /pgpass && /entrypoint.sh"
+    networks:
+      - cads-tools
+
+networks:
+  cads-tools:
+    external: true
+  
+volumes:
+  reference-postgres-data:
+  pgadmin-data:
