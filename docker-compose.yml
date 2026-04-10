@@ -13,6 +13,7 @@ services:
       - ./certs:/https:ro
     depends_on: []
     env_file:
+      - 'compose/postgres.env'
       - 'compose/aws.env'
     environment:
       ASPNETCORE_ENVIRONMENT: Development
