@@ -12,6 +12,13 @@ UI_DIR="$BACKEND_DIR/../cads-mis"
 COMMAND="${1:-help}"
 MAC_OVERRIDE="${2:-}"
 
+ensure_network() {
+  if ! docker network inspect cads-tools >/dev/null 2>&1; then
+    echo "[platform] Creating cads-tools network..."
+    docker network create cads-tools
+  fi
+}
+
 # Determine which override file to use
 compose_override() {
   case "$MAC_OVERRIDE" in
@@ -30,6 +37,7 @@ compose_override() {
 
 start_tools() {
   echo "[platform] Starting shared infra..."
+  ensure_network
   "$TOOLS_DIR/harness/run-harness.sh" up
   return $?
 }
