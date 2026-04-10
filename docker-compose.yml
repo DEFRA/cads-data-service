@@ -37,7 +37,7 @@ services:
     depends_on: []
     volumes:
       - ./changelog:/liquibase/changelog
-    command: sh -c "liquibase --url=jdbc:postgresql://cads-postgres:5432/${POSTGRES_DB} --username=${POSTGRES_USER} --password=${POSTGRES_PASSWORD} --searchPath=/liquibase/changelog --changelog-file=db.changelog.xml --liquibaseSchemaName=public --contexts=${ENV:-none} update && tail -f /dev/null"
+    command: sh -c "liquibase --url=jdbc:postgresql://cads-postgres:5432/${POSTGRES_DB:-cads_data_service} --username=${POSTGRES_USER:-postgres} --password=${POSTGRES_PASSWORD:-postgres} --searchPath=/liquibase/changelog --changelog-file=db.changelog.xml --liquibaseSchemaName=public --contexts=${ENV:-none} update && tail -f /dev/null"
     networks:
       - cads-tools
 
