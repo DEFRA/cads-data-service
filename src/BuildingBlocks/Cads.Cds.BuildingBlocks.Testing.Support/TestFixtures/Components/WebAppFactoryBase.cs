@@ -158,6 +158,11 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__Ingester__Storage__CadsIngester__BucketName", TestS3Constants.TestCadsInternalBucketName);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__BucketName", TestS3Constants.TestCadsExternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__AccessKeySecretName", "IMB_S3_ACCESS_KEY");
+        Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__SecretKeySecretName", "IMB_S3_SECRET_KEY");
+        Environment.SetEnvironmentVariable("IMB_S3_ACCESS_KEY", "test");
+        Environment.SetEnvironmentVariable("IMB_S3_SECRET_KEY", "test");
 
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__ApiKey__Enabled", "true");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Enabled", "true");
@@ -222,6 +227,9 @@ public abstract class WebAppFactoryBase<TStart>(
                 AmazonS3Mock.Object);
             factory.RegisterMockClient<IngesterClient>(
                 TestS3Constants.TestCadsInternalBucketName,
+                AmazonS3Mock.Object);
+            factory.RegisterMockClient<CadsExternalClient>(
+                TestS3Constants.TestCadsExternalBucketName,
                 AmazonS3Mock.Object);
 
             return factory;
