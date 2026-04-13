@@ -62,7 +62,7 @@ start_backend() {
   cd "$BACKEND_DIR"
 
   OVERRIDE_FILE=$(compose_override)
-  echo "[platform] Using override: $OVERRIDE_FILE"
+  echo "[platform] Using backend override: $OVERRIDE_FILE"
 
   docker compose -p cads-tools \
     -f docker-compose.yml \
@@ -82,14 +82,14 @@ stop_backend() {
 start_ui() {
   echo "[platform] Starting UI..."
   cd "$UI_DIR"
-  docker compose -p cads-tools up -d
+  docker compose -p cads-tools -f docker-compose.yml up -d
   return $?
 }
 
 stop_ui() {
   echo "[platform] Stopping UI..."
   cd "$UI_DIR"
-  docker compose -p cads-tools down || true
+  docker compose -p cads-tools -f docker-compose.yml down || true
   return $?
 }
 
