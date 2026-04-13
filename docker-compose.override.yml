@@ -3,22 +3,27 @@ services:
     labels:
       com.microsoft.visual-studio.project-name: "Cads.Cds"
     environment:
-      AWS__ServiceURL: http://cads-localstack:4566
-      Postgres__DefaultConnection: Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
-      Postgres__ReadOnlyConnection: Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
-      Modules__Ingester__Queues__CadsCds__QueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue
-      Modules__Ingester__Storage__CadsIngester__BucketName: cads-internal-bucket
-      Modules__Ingester__Queues__CadsCds__DlqQueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue-deadletter
-      Modules__StorageBridge__Storage__CadsInternal__BucketName: cads-internal-bucket
-      AuthenticationConfiguration__ApiKey__Enabled: "true"
-      AuthenticationConfiguration__Cognito__Enabled: "false"
-      AuthenticationConfiguration__Cognito__Authority: ""
-      AuthenticationConfiguration__AzureAD__Enabled: "true"
-      AuthenticationConfiguration__AzureAD__Authority: http://cads-oidc-mock
-      AuthenticationConfiguration__AzureAD__Audience: api://local-cads-cds
-      AuthenticationConfiguration__AzureAD__MetadataAddress: http://cads-oidc-mock/.well-known/openid-configuration
-      AuthenticationConfiguration__AzureAD__RequireHttpsMetadata: "false"
-      AuthenticationConfiguration__AzureAD__ValidateIssuer: "false"
+      - AWS__ServiceURL=http://cads-localstack:4566
+      - Postgres__DefaultConnection=Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+      - Postgres__ReadOnlyConnection=Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+      - Modules__Ingester__Queues__CadsCds__QueueUrl=http://cads-localstack:4566/000000000000/cads-cds-queue
+      - Modules__Ingester__Storage__CadsIngester__BucketName=cads-internal-bucket
+      - Modules__Ingester__Queues__CadsCds__DlqQueueUrl=http://cads-localstack:4566/000000000000/cads-cds-queue-deadletter
+      - Modules__StorageBridge__Storage__CadsInternal__BucketName=cads-internal-bucket
+      - Modules__StorageBridge__Storage__CadsInternal__HealthcheckEnabled=true
+      - Modules__StorageBridge__Storage__CadsExternal__BucketName=cads-external-bucket
+      - Modules__StorageBridge__Storage__CadsExternal__HealthcheckEnabled=true
+      - IMB_S3_ACCESS_KEY=test
+      - IMB_S3_ACCESS_SECRET=test
+      - AuthenticationConfiguration__ApiKey__Enabled=true
+      - AuthenticationConfiguration__Cognito__Enabled=false
+      - AuthenticationConfiguration__Cognito__Authority=
+      - AuthenticationConfiguration__AzureAD__Enabled=true
+      - AuthenticationConfiguration__AzureAD__Authority=http://cads-oidc-mock
+      - AuthenticationConfiguration__AzureAD__Audience=api://local-cads-cds
+      - AuthenticationConfiguration__AzureAD__MetadataAddress=http://cads-oidc-mock/.well-known/openid-configuration
+      - AuthenticationConfiguration__AzureAD__RequireHttpsMetadata=false
+      - AuthenticationConfiguration__AzureAD__ValidateIssuer=false
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro

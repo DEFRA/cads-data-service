@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
         // Register module storage readers
         // Register module storage writers
 
-        if (moduleConfig.CadsInternal.HealthcheckEnabled)
+        if (moduleConfig.CadsInternal.HealthcheckEnabled || moduleConfig.CadsExternal.HealthcheckEnabled)
         {
             services.AddSingleton<IEnableS3HealthCheck, CadsInternalHealthCheckMarker>();
         }
