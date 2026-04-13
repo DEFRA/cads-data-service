@@ -122,7 +122,7 @@ psql -h localhost -p 5432 -U postgres -d cads_data_service
 ### Reference Database
 
 ```
-psql -h localhost -p 55432 -U postgres -d reference_schema
+psql -h localhost -p 54432 -U postgres -d reference_schema
 ```
 
 ## 6. Liquibase Dual‑Database Workflow
@@ -136,11 +136,11 @@ Liquibase then generates migration scripts to bring CADS in line with the refere
 ### Step 1 — Bring the Reference DB up to the current schema
 
 ```
-liquibase --url=jdbc:postgresql://localhost:55432/reference_schema --username=postgres --password=postgres --contexts=local update
+liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=postgres --password=postgres --contexts=local update
 ```
 If the changelog file can't be found you can use:
 ```
-liquibase --url=jdbc:postgresql://localhost:55432/reference_schema --username=postgres --password=postgres -contexts=local --changeLogFile=changelog/db.changelog.xml update
+liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=postgres --password=postgres -contexts=local --changeLogFile=changelog/db.changelog.xml update
 ```
 
 ### Step 2 — Make schema changes in the Reference DB
@@ -161,7 +161,7 @@ iquibase diff
 	--url=jdbc:postgresql://localhost:5432/<POSTGRES_DB> 
 	--username=<POSTGRES_USER> 
 	--password=<POSTGRES_PASSWORD> 
-	--reference-url=jdbc:postgresql://localhost:55432/<POSTGRES_REF_DB> 
+	--reference-url=jdbc:postgresql://localhost:54432/<POSTGRES_REF_DB> 
 	--reference-username=<POSTGRES_USER> 
 ```
 
@@ -177,7 +177,7 @@ liquibase diff-changelog
 	--url=jdbc:postgresql://localhost:5432/<POSTGRES_DB> 
 	--username=<POSTGRES_USER> 
 	--password=<POSTGRES_PASSWORD> 
-	--reference-url=jdbc:postgresql://localhost:55432/<POSTGRES_REF_DB> 
+	--reference-url=jdbc:postgresql://localhost:54432/<POSTGRES_REF_DB> 
 	--reference-username=<POSTGRES_USER> 
 	--reference-password=<POSTGRES_PASSWORD>
 ```

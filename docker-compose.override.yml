@@ -39,7 +39,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_REF_DB:-reference_schema}
     ports:
-      - "55432:5432"
+      - "54432:5432"
     volumes:
       - reference-postgres-data:/var/lib/postgresql/data
       - "./compose/postgres/config:/etc/postgres-config"
