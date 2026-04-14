@@ -3,12 +3,12 @@
     "1": {
       "Name": "CDS Postgres",
       "Group": "Servers",
-      "Host": "postgres",
+      "Host": "cads-postgres",
       "Port": 5432,
       "MaintenanceDB": "postgres",
       "Username": "postgres",
       "SSLMode": "prefer",
-      "PassFile": "/pgpass",
+      "PassFile": "/pgadmin4-config/pgpass",
       "Comment": "CDS Postgres instance",
       "DBRestriction": ""
     },
@@ -20,7 +20,7 @@
       "MaintenanceDB": "postgres",
       "Username": "postgres",
       "SSLMode": "prefer",
-      "PassFile": "/pgpass",
+      "PassFile": "/pgadmin4-config/pgpass",
       "Comment": "Reference schema for Liquibase diff",
       "DBRestriction": ""
     }
