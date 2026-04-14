@@ -57,17 +57,17 @@ services:
       - cads-tools
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:7.8
+    user: "root"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-pgadmin@pgadmin.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-pgadmin}
     ports:
       - 16543:80
     volumes:
-      - "./compose/postgres/servers/servers.json:/pgadmin4/servers.json"
-      - "./compose/postgres/servers/pgpass:/pgpass"
+      - ./compose/postgres/servers:/host:ro
       - pgadmin-data:/var/lib/pgadmin
-    command: sh -c "chmod 600 /pgpass && /entrypoint.sh"
+    entrypoint: ["/host/init.sh"]
     networks:
       - cads-tools
 
@@ -78,3 +78,4 @@ networks:
 volumes:
   reference-postgres-data:
   pgadmin-data:
+  pgadmin-config:
