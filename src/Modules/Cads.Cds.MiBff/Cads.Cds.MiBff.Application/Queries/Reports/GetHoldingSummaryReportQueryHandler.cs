@@ -7,6 +7,9 @@ public class GetHoldingSummaryReportQueryHandler : IQueryHandler<GetHoldingSumma
 {
     public async Task<HoldingSummaryReportDto> Handle(GetHoldingSummaryReportQuery request, CancellationToken cancellationToken)
     {
-        return new HoldingSummaryReportDto { ReportId = Guid.NewGuid() };
+        return new HoldingSummaryReportDto { 
+            ReportId = Guid.NewGuid(),
+            ReportKey = request.ReportKey
+        };
     }
 }

@@ -38,7 +38,6 @@
   <include file="0170_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0171_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0172_mi_effective_report_permission_update_view.postgresql.sql"/>
-  <include file="0173_mi_effective_report_user_access_create_view.postgresql.sql"/>
   <include file="0180_001_party_location_create_table.postgresql.sql"/>
   <include file="0180_002_party_type_create_table.postgresql.sql"/>
   <include file="0180_003_party_state_create_table.postgresql.sql"/>

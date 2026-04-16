@@ -2,6 +2,9 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 
 public static class TestEndpointConstants
 {
+    // Ingestion endpoints
+    public const string AnimalMovementIngestionEndpoint = "/api/v1/nation/{0}/animal-movements";
+
     // BFF root url
     public const string BffMiRoot = "/api/v1/bff/mi/";
 
@@ -69,9 +72,6 @@ public static class TestEndpointConstants
     // UKV - Zones
     public const string BffUkvZonesEndpoint = BffMiUkvRoot + "zones";
     public const string BffUkvZonesByZoneIdEndpoint = BffMiUkvRoot + "zones/{0}";
-
-    // Ingestion endpoints
-    public const string AnimalMovementIngestionEndpoint = "/api/v1/nation/{0}/animal-movements";
 
     // Reports
 
