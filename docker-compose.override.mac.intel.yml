@@ -33,6 +33,12 @@ services:
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
       - ~/.aspnet/https:/home/app/.aspnet/https:ro
       - ~/.aspnet/https:/root/.aspnet/https:ro
+    depends_on: []
+    env_file:
+      - ./compose/postgres.env
+      - ./compose/aws.env
+    networks:
+      - cads-tools
 
   reference-postgres:
     image: postgres:16.6
