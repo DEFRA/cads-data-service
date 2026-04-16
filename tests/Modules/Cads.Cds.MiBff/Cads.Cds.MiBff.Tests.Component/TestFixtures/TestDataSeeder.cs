@@ -59,7 +59,7 @@ internal static class TestDataSeeder
         new MiUser
         {
             UserId = User1,
-            ExternalSubject = "ext-sub-1",
+            ExternalSubject = User1Email,
             DisplayName = User1Name,
             Email = User1Email,
             IsActive = true,
@@ -68,7 +68,7 @@ internal static class TestDataSeeder
         new MiUser
         {
             UserId = User2,
-            ExternalSubject = "ext-sub-2",
+            ExternalSubject = User2Email,
             DisplayName = User2Name,
             Email = User2Email,
             IsActive = true,
@@ -241,34 +241,46 @@ internal static class TestDataSeeder
     [
         new MiEffectiveReportPermissionView
         {
-            Email = User1Email,
+            ReportId = Guid.NewGuid(),
             ReportKey = ReportAKey,
             Title = ReportATitle,
             Description = ReportADescription,
+            IsActive = true,
+            DisplayName = User1Name,
+            ExternalSubject = User1Email,
             Granted = true
         },
         new MiEffectiveReportPermissionView
         {
-            Email = User1Email,
+            ReportId = Guid.NewGuid(),
             ReportKey = ReportBKey,
             Title = ReportBTitle,
             Description = ReportBDescription,
+            IsActive = true,
+            DisplayName = User1Name,
+            ExternalSubject = User1Email,
             Granted = true
         },
         new MiEffectiveReportPermissionView
         {
-            Email = User2Email,
+            ReportId = Guid.NewGuid(),
             ReportKey = ReportAKey,
             Title = ReportATitle,
             Description = ReportADescription,
+            IsActive = true,
+            DisplayName = User2Name,
+            ExternalSubject = User2Email,
             Granted = true
         },
         new MiEffectiveReportPermissionView
         {
-            Email = User2Email,
+            ReportId = Guid.NewGuid(),
             ReportKey = ReportBKey,
             Title = ReportBTitle,
             Description = ReportBDescription,
+            IsActive = true,
+            DisplayName = User2Name,
+            ExternalSubject = User2Email,
             Granted = true
         }
     ];

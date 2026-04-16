@@ -5,5 +5,5 @@ namespace Cads.Cds.MiBff.Core.Domain.Repositories;
 
 public interface IMiEffectiveReportPermissionRepository : IReadOnlyRepository<MiEffectiveReportPermissionView>
 {
-    Task<IReadOnlyList<MiEffectiveReportPermissionView>> GetByUserEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<MiEffectiveReportPermissionView>> GetActiveByExternalSubjectAsync(string externalSubject, CancellationToken cancellationToken = default);
 }
