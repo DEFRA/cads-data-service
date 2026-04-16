@@ -4,9 +4,6 @@
 --changeset andy:update-and-seed-gb-user-reports-and-permissions
 DO $$
     BEGIN
-    -- Update existing reports to be inactive
-    UPDATE mi_report SET is_active = false;
-
     -- Insert new reports for GB cattle registrations and deaths
     INSERT INTO mi_report (report_id, report_key, title, description)
     VALUES
