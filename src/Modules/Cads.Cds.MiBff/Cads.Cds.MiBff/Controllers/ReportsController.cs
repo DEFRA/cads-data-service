@@ -2,9 +2,9 @@ using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.MiBff.Application.Queries.Reports;
+using Cads.Cds.MiBff.Controllers.Requests.Reports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.MiBff.Controllers;
 
@@ -15,14 +15,23 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
 {
     private readonly IRequestExecutor _executor = executor;
 
-    [ExcludeFromCodeCoverage]
     [HttpGet]
     public async Task<IActionResult> GetUserReports()
     {
-        var query = new GetUserReportsByEmailQuery { Email = userContext.Email! };
+        var query = new GetUserReportsQuery { Identifier = userContext.Email ?? Guid.NewGuid().ToString() };
 
         var result = await _executor.ExecuteQuery(query);
 
-        return Ok(await Task.FromResult(result));
+        return Ok(result);
+    }
+
+    [HttpPost("holding_summary")]
+    public async Task<IActionResult> GetHoldingSummaryReport(GetHoldingSummaryReportRequest request)
+    {
+        var query = new GetHoldingSummaryReportQuery();
+
+        var result = await _executor.ExecuteQuery(query);
+
+        return Ok(result);
     }
 }

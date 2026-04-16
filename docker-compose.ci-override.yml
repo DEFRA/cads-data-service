@@ -77,3 +77,4 @@ networks:
 volumes:
   reference-postgres-data:
   pgadmin-data:
+  pgadmin-config:
