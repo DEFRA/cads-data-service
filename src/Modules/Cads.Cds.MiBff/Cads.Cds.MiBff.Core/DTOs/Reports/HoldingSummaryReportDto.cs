@@ -1,9 +1,5 @@
-using System.Text.Json.Serialization;
-
 namespace Cads.Cds.MiBff.Core.DTOs.Reports;
 
-public class HoldingSummaryReportDto
+public class HoldingSummaryReportDto : ReportDto
 {
-    [JsonPropertyName("reportId")]
-    public Guid ReportId { get; set; }
 }

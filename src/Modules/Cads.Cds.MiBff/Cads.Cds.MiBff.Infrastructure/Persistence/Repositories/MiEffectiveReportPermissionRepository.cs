@@ -9,10 +9,25 @@ namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
     : EFReadOnlyRepository<MiEffectiveReportPermissionView, MiBffReadDbContext>(dbContext), IMiEffectiveReportPermissionRepository
 {
-    public async Task<IReadOnlyList<MiEffectiveReportPermissionView>> GetActiveByExternalSubjectAsync(string externalSubject, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MiEffectiveReportPermissionView>> GetActiveByExternalSubjectAsync(
+        string externalSubject,
+        CancellationToken cancellationToken = default)
     {
         return await Query()
-            .Where(p => p.ExternalSubject == externalSubject && p.IsActive == true)
+            .Where(p => p.ExternalSubject == externalSubject && 
+                        p.IsActive == true)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> HasReportAccessAsync(
+        string externalSubject,
+        string reportKey,
+        CancellationToken cancellationToken = default)
+    {
+        return await Query()
+            .Where(p => p.ExternalSubject == externalSubject &&
+                        p.ReportKey == reportKey &&
+                        p.IsActive == true)
+            .AnyAsync(cancellationToken);
     }
 }

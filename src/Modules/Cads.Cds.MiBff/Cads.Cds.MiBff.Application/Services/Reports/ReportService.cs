@@ -9,10 +9,20 @@ public class ReportService(
     IMiEffectiveReportPermissionRepository effectiveReportPermissionRepository,
     IMapper mapper) : IReportService
 {
-    public async Task<IEnumerable<ReportDto>> GetUserReportsAsync(string identifier, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ReportDto>> GetUserReportsAsync(
+        string identifier,
+        CancellationToken cancellationToken = default)
     {
         var permissions = await effectiveReportPermissionRepository.GetActiveByExternalSubjectAsync(identifier, cancellationToken);
 
         return mapper.Map<IEnumerable<ReportDto>>(permissions);
+    }
+
+    public async Task<bool> HasReportAccessAsync(
+        string externalSubject,
+        string reportKey,
+        CancellationToken cancellationToken = default)
+    {
+        return await effectiveReportPermissionRepository.HasReportAccessAsync(externalSubject, reportKey, cancellationToken);
     }
 }
