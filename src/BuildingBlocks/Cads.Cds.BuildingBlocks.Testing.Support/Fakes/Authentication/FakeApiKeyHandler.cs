@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,9 +19,9 @@ public class FakeApiKeyHandler(
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, "test-apikey-user"),
-            new(ClaimTypes.Email, "test-apikey-user@example.com"),
-            new("name", "Test API Key User"),
+            new(ClaimTypes.Name, TestAuthConstants.AzureAdUsername),
+            new(ClaimTypes.Email, TestAuthConstants.AzureAdEmail),
+            new("name", TestAuthConstants.AzureAdUsername),
             new(CustomClaimTypes.Oid, Guid.NewGuid().ToString()),
             new(CustomClaimTypes.TenantId, "test-internal-tenant")
         };

@@ -1,5 +1,4 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
-using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 
@@ -8,7 +7,7 @@ namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Repositories.Mi;
 public class MiEffectiveReportPermissionRepositoryTests : IDisposable
 {
     private readonly MiBffReadDbContext _context;
-    private readonly IMiEffectiveReportPermissionRepository _repository;
+    private readonly MiEffectiveReportPermissionRepository _repository;
 
     public MiEffectiveReportPermissionRepositoryTests()
     {

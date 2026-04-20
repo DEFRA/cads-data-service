@@ -6,7 +6,7 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 
 public static class HttpContentUtility
 {
-    public static StringContent CreateResponseContent<T>(T data)
+    public static StringContent CreateApplicationJsonAsStringContent<T>(T data)
     {
         var stringContent = new StringContent(
             content: JsonSerializer.Serialize(data, JsonDefaults.DefaultOptionsWithStringEnumConversion),
@@ -16,7 +16,7 @@ public static class HttpContentUtility
         return stringContent;
     }
 
-    public static StringContent CreateResponseContent(string data)
+    public static StringContent CreateApplicationJsonAsStringContent(string data)
     {
         var stringContent = new StringContent(
             content: data,

@@ -184,12 +184,10 @@ public abstract class WebAppFactoryBase<TStart>(
 
     private static void ConfigureDefaultAuthorization(IServiceCollection services)
     {
-        services.AddAuthorization(options =>
-        {
-            options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        services.AddAuthorizationBuilder()
+            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
                 .RequireAssertion(_ => true)
-                .Build();
-        });
+                .Build());
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)

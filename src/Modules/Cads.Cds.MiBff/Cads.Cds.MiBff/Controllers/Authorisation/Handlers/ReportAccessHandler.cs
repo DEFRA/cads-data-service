@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Application.Identity;
+using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.MiBff.Controllers.Authorisation.Requirements;
 using Cads.Cds.MiBff.Core.Services.Reports;
 using Microsoft.AspNetCore.Authorization;
@@ -7,18 +7,19 @@ using Microsoft.AspNetCore.Http;
 namespace Cads.Cds.MiBff.Controllers.Authorisation.Handlers;
 
 public class ReportAccessHandler(IReportService reportService,
-    IUserContext userContext,
     IHttpContextAccessor httpContextAccessor)
     : AuthorizationHandler<ReportAccessRequirement>
 {
     private readonly IReportService _reportService = reportService;
-    private readonly IUserContext _userContext = userContext;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         ReportAccessRequirement requirement)
     {
-        var email = _userContext.Email;
+        var httpContext = _httpContextAccessor.HttpContext;
+        var user = httpContext?.User;
+        var email = user?.GetEmail();
 
         if (email is null)
             return;

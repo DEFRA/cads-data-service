@@ -14,7 +14,7 @@ public class GetHoldingSummaryReportTests(ApiContainerFixture apiContainerFixtur
         var endpoint = TestEndpointConstants.BffMiReportsHoldingSummaryRoot;
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.ValidUserToken());
 
-        var payload = HttpContentUtility.CreateResponseContent("{}");
+        var payload = HttpContentUtility.CreateApplicationJsonAsStringContent("{\"reportKey\":\"holding_summary\"}");
 
         var response = await client.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);
         response.EnsureSuccessStatusCode();
