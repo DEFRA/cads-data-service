@@ -26,6 +26,7 @@ public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) 
 
     // Views
     public DbSet<MiEffectiveReportPermissionView> EffectiveReportPermissions => Set<MiEffectiveReportPermissionView>();
+    public DbSet<MiEffectiveReportAllPermissionView> EffectiveReportAllPermissions => Set<MiEffectiveReportAllPermissionView>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

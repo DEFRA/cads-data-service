@@ -140,7 +140,7 @@ liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=po
 ```
 If the changelog file can't be found you can use:
 ```
-liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=postgres --password=postgres -contexts=local --changeLogFile=changelog/db.changelog.xml update
+liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=postgres --password=postgres --contexts=local --changeLogFile=changelog/db.changelog.xml update
 ```
 
 ### Step 2 — Make schema changes in the Reference DB
@@ -268,7 +268,7 @@ This updates the CADS database to match the reference schema.
 You can also update the CADS database using the below:
 
 ```
-liquibase --url=jdbc:postgresql://localhost:5432/cads_data_service --username=postgres --password=postgres -contexts=local update
+liquibase --url=jdbc:postgresql://localhost:5432/cads_data_service --username=postgres --password=postgres --contexts=local update
 ```
 
 Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase --contexts=local update`

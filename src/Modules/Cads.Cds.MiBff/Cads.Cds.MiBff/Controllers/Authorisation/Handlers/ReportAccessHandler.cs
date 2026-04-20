@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Http;
 
 namespace Cads.Cds.MiBff.Controllers.Authorisation.Handlers;
 
-public class ReportAccessHandler(IReportService reportService,
+public class ReportAccessHandler(IReportAccessService reportService,
     IHttpContextAccessor httpContextAccessor)
     : AuthorizationHandler<ReportAccessRequirement>
 {
-    private readonly IReportService _reportService = reportService;
+    private readonly IReportAccessService _reportService = reportService;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     protected override async Task HandleRequirementAsync(

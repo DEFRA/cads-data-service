@@ -21,6 +21,7 @@ public static class TestMiBffDataSeeder
         context.AddRange(reportPermissionsData.MiUserRoles);
         context.AddRange(reportPermissionsData.MiRoleReportPermissions);
         context.AddRange(reportPermissionsData.MiEffectiveReportPermissions);
+        context.AddRange(reportPermissionsData.MiEffectiveReportAllPermissions);
         context.SaveChanges();
     }
 }

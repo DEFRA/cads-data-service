@@ -78,6 +78,9 @@ public static class TestEndpointConstants
     // Reports route paths
     public const string BffMiReportsRoot = BffMiRoot + "reports/";
 
+    // Reports - User report permissions
+    public const string BffMiUserReportPermissionsEndpoint = BffMiReportsRoot + "{0}/permissions/";
+
     // Reports - holding_summary
     public const string BffMiReportsHoldingSummaryRoot = BffMiReportsRoot + "holding_summary/";
 }

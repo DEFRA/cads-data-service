@@ -7,7 +7,8 @@ public class GetPlaceholderReportQueryHandler : IQueryHandler<GetPlaceholderRepo
 {
     public async Task<PlaceholderReportDto> Handle(GetPlaceholderReportQuery request, CancellationToken cancellationToken)
     {
-        return new PlaceholderReportDto {
+        return new PlaceholderReportDto
+        {
             ReportKey = request.ReportKey
         };
     }

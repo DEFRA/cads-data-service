@@ -31,7 +31,7 @@ public class ReportPermissionsDataFactory
 
     private readonly List<string> _roles = [TestReportPermissionConstants.RoleMiAdmin];
     private readonly List<string> _permissions = [TestReportPermissionConstants.PermissionReportView];
-    
+
     public ReportPermissionsDataFactory()
     {
         _fixture = new Fixture();
@@ -43,7 +43,7 @@ public class ReportPermissionsDataFactory
         var reportKeysQueue = new Queue<string>(_reportKeys);
         var externalSubjectsQueue = new Queue<string>(_userIdentifiers);
         var emailsQueue = new Queue<string>(_userIdentifiers);
-        
+
         var miUsers = _fixture.Build<MiUser>()
             .With(x => x.ExternalSubject, externalSubjectsQueue.Dequeue)
             .With(x => x.Email, emailsQueue.Dequeue)
@@ -83,12 +83,20 @@ public class ReportPermissionsDataFactory
 
         var miEffectiveReportPermissions = _fixture.CreateMany<MiEffectiveReportPermissionView>(_reportKeys.Count * _userIdentifiers.Count).ToList();
 
+        var miEffectiveReportAllPermissions = miEffectiveReportPermissions.Select(x => new MiEffectiveReportAllPermissionView
+        {
+            ReportKey = x.ReportKey,
+            ExternalSubject = x.ExternalSubject,
+            PermissionKey = miPermission.PermissionKey
+        }).ToList();
+
         return new ReportPermissionsData(miUsers,
             [miRole],
             [miPermission],
             miReports,
             miUserRoles,
             miRoleReportPermissions,
-            miEffectiveReportPermissions);
+            miEffectiveReportPermissions,
+            miEffectiveReportAllPermissions);
     }
 }

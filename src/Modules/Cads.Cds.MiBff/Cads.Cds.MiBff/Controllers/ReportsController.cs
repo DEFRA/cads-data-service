@@ -26,6 +26,16 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
         return Ok(result);
     }
 
+    [HttpGet("{reportKey}/permissions")]
+    public async Task<IActionResult> GetUserReportPermissions([FromRoute] string reportKey)
+    {
+        var query = new GetUserReportPermissionsQuery { ExternalSubject = _userContext.Email ?? Guid.NewGuid().ToString(), ReportKey = reportKey };
+
+        var result = await _executor.ExecuteQuery(query);
+
+        return Ok(result);
+    }
+
     [Authorize(Policy = "ReportAccess:animal_summary")]
     [HttpPost("animal_summary")]
     public async Task<IActionResult> GetAnimalSummaryReport(GetPlaceholderReportRequest request)
