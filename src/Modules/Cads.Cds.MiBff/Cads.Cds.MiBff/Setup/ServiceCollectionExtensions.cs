@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddReportAuthorizationProviders();
 
-        services.AddMiBffInfrastructureLayer(config);
+        services.AddMiBffInfrastructureLayer();
 
         services.AddMiBffApplicationLayer(config);
 

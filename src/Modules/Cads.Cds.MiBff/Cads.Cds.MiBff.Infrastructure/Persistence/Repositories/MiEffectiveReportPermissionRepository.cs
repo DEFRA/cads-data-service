@@ -14,7 +14,7 @@ public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
         CancellationToken cancellationToken = default)
     {
         return await Query()
-            .Where(p => p.ExternalSubject == externalSubject && 
+            .Where(p => p.ExternalSubject == externalSubject &&
                         p.IsActive == true)
             .ToListAsync(cancellationToken);
     }
