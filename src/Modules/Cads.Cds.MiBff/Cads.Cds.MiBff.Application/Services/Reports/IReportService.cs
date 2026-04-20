@@ -1,6 +1,6 @@
 using Cads.Cds.MiBff.Core.DTOs.Reports;
 
-namespace Cads.Cds.MiBff.Core.Services.Reports;
+namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
 public interface IReportService
 {

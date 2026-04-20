@@ -1,8 +1,4 @@
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-
-namespace Cads.Cds.MiBff.Infrastructure.Reports;
+namespace Cads.Cds.MiBff.Core.DTOs.Reports;
 
 public class XlsxReport<T>
 {
@@ -10,9 +6,24 @@ public class XlsxReport<T>
     public List<T> Data { get; set; }
     public List<Func<T, string>> Selectors { get; set; }
 
-    public void GenerateWithOpenXml(string filePath)
-    {using var spreadsheet = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook);
+    public void Generate(string filePath)
+    {
+        using var spreadsheet = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook);
 
+        var workbookPart = BuildWorkbook(spreadsheet);
+        workbookPart.Workbook!.Save();
+    }
+    
+    public void Generate(MemoryStream stream)
+    {
+        using var spreadsheet = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
+
+        var workbookPart = BuildWorkbook(spreadsheet);
+        workbookPart.Workbook!.Save();
+    }
+
+    private WorkbookPart BuildWorkbook(SpreadsheetDocument spreadsheet)
+    {
         var workbookPart = spreadsheet.AddWorkbookPart();
         workbookPart.Workbook = new Workbook();
 
@@ -25,8 +36,7 @@ public class XlsxReport<T>
 
         ApplyHeaderRow(sheetData, Headers); 
         AddTableData(sheetData);
-
-        workbookPart.Workbook.Save();
+        return workbookPart;
     }
 
     private static void ApplyHeaderRow(SheetData sheetData, List<string> headers)
