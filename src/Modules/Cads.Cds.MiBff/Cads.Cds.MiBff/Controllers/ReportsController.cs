@@ -5,13 +5,15 @@ using Cads.Cds.MiBff.Application.Queries.Reports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using Cads.Cds.MiBff.Application.Services.Reports;
 
 namespace Cads.Cds.MiBff.Controllers;
 
-[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
+//[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
 [ApiController]
 [Route("api/v1/bff/mi/[controller]")]
-public class ReportsController(IRequestExecutor executor, IUserContext userContext) : ControllerBase
+public class ReportsController(IRequestExecutor executor, IUserContext userContext, IReportGenerationService irs) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
 
@@ -24,5 +26,28 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
         var result = await _executor.ExecuteQuery(query);
 
         return Ok(await Task.FromResult(result));
+    }
+    
+    [ExcludeFromCodeCoverage]
+    [HttpPost("cattle_registrations")]
+    public async Task<IActionResult> GetCattleRegistrations()
+    {
+        var query = new GetUserReportsByEmailQuery { Email = userContext.Email! };
+
+        var result = await _executor.ExecuteQuery(query);
+
+        return Ok(await Task.FromResult(result));
+    }
+    
+    [ExcludeFromCodeCoverage]
+    [HttpGet("cattle_movements")]
+    public async Task<IActionResult> GetCattleMovements()
+    {
+        var result = await irs.GetCattleMovements();
+        result.Position = 0;
+
+        return File(fileContents: result.ToArray(),
+            contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            fileDownloadName: "cattle_movements.xlsx");
     }
 }

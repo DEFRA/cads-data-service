@@ -1,9 +1,13 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
+using Cads.Cds.MiBff.Application.Services.Reports;
+using Cads.Cds.MiBff.Application.Setup;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
+using Cads.Cds.MiBff.Core.Services.Reports;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
+using Cads.Cds.MiBff.Infrastructure.Reports;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,6 +35,11 @@ public static class ServiceCollectionExtensions
             IDbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>,
             DbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>>();
 
+        // Report and permission services
+        services.AddTransient<IReportRepository, FakeReportRepository>();
+        services.AddTransient<IReportService, ReportService>();
+        services.AddTransient<IReportGenerationService, ReportGenerationService>();
+        services.AddTransient<IXlsxReportGenerator, XlsxReportGenerator>();
         return services;
     }
 }

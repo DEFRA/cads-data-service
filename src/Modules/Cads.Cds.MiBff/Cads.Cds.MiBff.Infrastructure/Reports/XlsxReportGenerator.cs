@@ -1,17 +1,15 @@
 using Cads.Cds.MiBff.Core.DTOs.Reports;
-using Cads.Cds.MiBff.Infrastructure.Reports;
+using Cads.Cds.MiBff.Core.Services.Reports;
 
-namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Reports;
+namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
-public class XlsxExporterTests
+public class XlsxReportGenerator : IXlsxReportGenerator
 {
-    
-    [Fact]
-    public void CreateDocument()
+    public MemoryStream Generate(List<CattleMovement> data)
     {
-        var sut = new XlsxReport<CattleMovement>();
-        sut.Data = CattleMovement.GetFakeData(25);
-        sut.Headers = new List<string>()
+        var report = new XlsxReport<CattleMovement>();
+        report.Data = data;
+        report.Headers = new List<string>()
         {
             "Birth Year",
             "Birth Month",
@@ -24,7 +22,7 @@ public class XlsxExporterTests
             "Application Type",
             "Number Of Births",
         };
-        sut.Selectors = new List<Func<CattleMovement, string>>()
+        report.Selectors = new List<Func<CattleMovement, string>>()
         {
             (x) => x.BirthYear,
             (x) => x.BirthMonth,
@@ -37,6 +35,9 @@ public class XlsxExporterTests
             (x) => x.ApplicationType,
             (x) => x.NumberOfBirths,
         };
-        sut.Generate("./file.xlsx");
+        
+        var output = new  MemoryStream();
+        report.Generate(output);
+        return output;
     }
 }
