@@ -1,4 +1,8 @@
-namespace Cads.Cds.MiBff.Core.DTOs.Reports;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+
+namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
 public class XlsxReport<T>
 {
