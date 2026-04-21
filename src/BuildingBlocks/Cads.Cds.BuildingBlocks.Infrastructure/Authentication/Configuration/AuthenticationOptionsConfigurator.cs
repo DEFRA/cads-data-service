@@ -3,10 +3,8 @@ using Microsoft.Extensions.Options;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 
-public class AuthenticationOptionsConfigurator(IOptions<AuthenticationConfiguration> authConfig) : IConfigureOptions<AuthenticationOptions>
+public class AuthenticationOptionsConfigurator() : IConfigureOptions<AuthenticationOptions>
 {
-    private readonly AuthenticationConfiguration _authConfig = authConfig.Value;
-
     public void Configure(AuthenticationOptions options)
     {
         // Neutral fallback; policies decide the real scheme
