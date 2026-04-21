@@ -7,7 +7,7 @@
     <Dockerfile>..\Dockerfile</Dockerfile>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
-    <Platforms>AnyCPU</Platforms>
+    <UserSecretsId>d409fd75-5c2c-4057-9af6-e9cb7ba6cd82</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +28,5 @@
     <ProjectReference Include="..\Modules\Cads.Cds.MiBff\Cads.Cds.MiBff\Cads.Cds.MiBff.csproj" />
     <ProjectReference Include="..\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.csproj" />
   </ItemGroup>
-
 
 </Project>

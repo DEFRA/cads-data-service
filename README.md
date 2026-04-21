@@ -9,7 +9,8 @@
   - [Local Development Setup](#local-development-setup)
   - [Running the Application](#running-the-application)
 - [Testing](#testing)
-- [Development](#development)
+- [Development](#development) 
+  - [Database](#database)
   - [Building](#building)
   - [Code Quality](#code-quality)
   - [Contributing](#contributing)
@@ -46,6 +47,7 @@ Objectives:
 - **.NET 10 SDK** - [Download](https://dotnet.microsoft.com/download/dotnet/10.0)
 - **Docker & Docker Compose** - [Download](https://www.docker.com/products/docker-desktop)
 - **Git** - [Download](https://git-scm.com/)
+- **CADS Tools** - [CADS Tools](https://github.com/DEFRA/cads-tools)
 
 ## Project Structure
 
@@ -211,53 +213,182 @@ Tests are structured to mirror the production code:
 
 This structure ensures clarity, isolation, and high coverage.
 
+## Authentication
+
+### API Key
+Used for internal service‑to‑service calls.
+
+### Cognito
+Used for external user authentication (e.g., mobile/web).
+
+### Azure AD
+Used for internal staff / enterprise users.
+
+### Policies
+Different scheme support applies for different groups of endpoints.
+
 ## Getting Started
 
-### Local Development Setup
+### Repository Layout
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/DEFRA/cads-data-service.git
-   cd cads-data-service
-   ```
+Your local workspace should contain all three repos side‑by‑side:
 
-2. **Restore NuGet packages:**
-   ```bash
-   dotnet restore
-   ```
+```
+D:\git\cads-data-service      # Backend (this repo)
+D:\git\cads-mis               # UI
+D:\git\cads-tools             # Shared infra, OIDC mock, harness scripts
+```
+
+Clone them like this:
+
+```
+git clone https://github.com/DEFRA/cads-data-service.git
+git clone https://github.com/DEFRA/cads-mis.git
+git clone https://github.com/DEFRA/cads-tools.git
+```
+
+### Backend setup
+
+**Restore NuGet packages:**
+
+```bash
+dotnet restore
+```
+
+**Create a .env file in the backend root:**
+
+These values are used by the backend’s Docker Compose:
+   
+```bash
+ENV=local
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=*****
+POSTGRES_DB=cads_data_service
+POSTGRES_REF_DB=reference_schema
+PGADMIN_EMAIL=pgadmin@pgadmin.com
+PGADMIN_PASSWORD=*****
+```
+
+Passwords can be anything for local development.
+
 ### Running the Application
 
-1. **Start the local development environment:**
-   ```bash
-   docker-compose -f docker-compose.yml -f docker-compose.override.yml up --build
-   ```
+The backend now uses a unified orchestration script:
 
-   For MacOS use
-   `docker-compose.override.mac.intel.yml` or `docker-compose.override.mac.arm.yml`
+```
+platform/platform.sh
+```
 
-   This starts:
-   - Redis
-   - LocalStack (S3, SQS)
-   - This service
-     - root: `http://localhost:5555`
+This script starts:
 
-2. **Verify services are running:**
-   ```bash
-   docker compose ps
-   ```
-   Or open Docker Desktop dashboard and inspect the containers tab.
+- Shared infra (Postgres, Redis, LocalStack, OIDC mock)
+- Backend (CADS CDS + pgAdmin + Reference postgres database)
+- UI (CADS MIS)
+- Or any combination you want
 
-A more extensive setup is available in [github.com/DEFRA/cdp-local-environment](https://github.com/DEFRA/cdp-local-environment)
+It delegates infra to `cads-tools/harness/run-harness.sh`.
+
+#### platform.sh — Commands
+
+**Start shared infra only**
+
+```
+./platform/platform.sh tools
+```
+
+Starts:
+- Postgres
+- Redis
+- LocalStack (S3, SQS)
+- OIDC mock
+
+**Start backend + shared infra**
+
+```
+./platform/platform.sh backend
+```
+
+Starts:
+- CADS CDS
+- pgAdmin
+- Liquibase migration
+- Reference postgres database
+
+**Start UI + shared infra**
+
+```
+./platform/platform.sh ui
+```
+
+**Start everything (UI + backend + infra)**
+
+```
+./platform/platform.sh all
+```
+
+**Stop everything**
+
+```
+./platform/platform.sh down
+```
+
+This stops:
+- UI
+- Backend
+- Shared infra
+
+#### Mac Users — Architecture Override
+
+Mac developers must specify their architecture when starting the backend or full platform.
+
+**Mac Intel**
+
+```
+./platform/platform.sh backend --mac-intel
+```
+
+**Mac ARM (M1/M2/M3)**
+
+```
+./platform/platform.sh backend --mac-arm
+```
+
+**Full platform (UI + backend + infra)**
+
+```
+./platform/platform.sh all --mac-arm
+```
+
+Windows/Linux users do not need an override.
+
+## Accessing Services
+
+**Backend API**
+http://localhost:5555
+
+**UI**
+http://localhost:3000
+
+**pgAdmin**
+http://localhost:16543
+
+Login for pgAdmin:
+- Email: pgadmin@pgadmin.com
+- Password: (value from .env)
+
+## Verifying Everything Is Running
+
+```
+docker compose ps
+```
+
+Or use Docker Desktop.
 
 ### Testing
 
 A guide for the testing standards can be [found here](https://eaflood.atlassian.net/wiki/spaces/LDD/pages/6435308220/Backend+development+testing+baseline).
 
-To execute all tests you can use the following command:
-
-```
-dotnet test Cads.Cds.sln
-```
+Because the integration tests projects must be run in sequence they must be run using a special command - an unfiltere `dotnet test` of the whole solution will fail the integration tests. 
 
 To execute all tests except integration tests:
 
@@ -268,8 +399,10 @@ dotnet test Cads.Cds.sln --filter Dependence!=testcontainers
 To execute all integration tests:
 
 ```
-dotnet test Cads.Cds.sln --filter Dependence=testcontainers
+dotnet test cads.integrationtests.proj --filter Dependence=testcontainers -p:BuildInParallel=false
 ```
+
+Note: All test classes in *Tests.Integration.csproj projects must be decorated with Dependence=testcontainers, or this readme and check-pull-request.yml workflow must be updated
 
 #### Test Code Coverage Reports
 
@@ -299,6 +432,30 @@ Before running steps 2 & 3, it is a good idea to delete any existing coverage re
 Get-ChildItem -Directory -Recurse -Filter "TestResults" | Remove-Item -Recurse -Force
 Get-ChildItem -Directory -Recurse -Filter "coverage-report" | Remove-Item -Recurse -Force
 ```
+
+## Development
+
+### Database
+The database schema is managed using [Liquibase](https://www.liquibase.org/).
+The database schema is defined in the `changelog` directory with the various migrations defined in the `db.changelog.xml` file.
+When docker-compose is run, any outstanding migrations will be applied to the database automatically and the liquibase container will continue to run.
+A migration can be automatically generated using the following command:
+
+```
+docker exec -it cads_cds-liquibase-1 liquibase \
+  --url=jdbc:postgresql://postgres:5432/<POSTGRES_DB> \
+  --username=<POSTGRES_USER> \
+  --password=<POSTGRES_PASSWORD> \
+  --changelog-file=changelog/<new-migration-name>.sql \
+  generate-changelog
+```
+
+Ensure to replace the postgres username, password and database name with the values from the `.env` file and specify the new migration name.
+The newly generated migration will be placed in the `changelog` directory. Ensure that this is reviewd before adding an entry for this in the `db.changelog.xml` file and committing the change.
+
+### Liquibase Workflow Guide
+
+See detailed `Liquibase Workflow Guide` [here](./changelog/ReadMe.md)
 
 ### About the licence
 

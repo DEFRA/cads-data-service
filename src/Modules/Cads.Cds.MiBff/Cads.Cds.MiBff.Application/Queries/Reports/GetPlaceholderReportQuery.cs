@@ -1,0 +1,9 @@
+using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.MiBff.Core.DTOs.Reports;
+
+namespace Cads.Cds.MiBff.Application.Queries.Reports;
+
+public class GetPlaceholderReportQuery : IQuery<PlaceholderReportDto>
+{
+    public required string ReportKey { get; set; }
+}

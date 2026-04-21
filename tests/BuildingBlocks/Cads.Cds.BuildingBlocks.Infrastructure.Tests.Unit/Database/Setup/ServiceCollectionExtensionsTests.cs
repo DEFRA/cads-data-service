@@ -1,0 +1,215 @@
+using Amazon.Runtime;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Health;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Database.Setup;
+
+public class ServiceCollectionExtensionsTests
+{
+    private static ServiceProvider BuildProvider(IDictionary<string, string> config)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                (config ?? new Dictionary<string, string>())
+                    .ToDictionary(kvp => kvp.Key, kvp => (string?)kvp.Value)
+            )
+            .Build();
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.ConfigureDatabase(configuration);
+
+        return services.BuildServiceProvider();
+    }
+
+    [Fact]
+    public void Throws_When_Invalid_Connection_Identifier_Is_Used()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                (new Dictionary<string, string>
+                {
+                    ["Postgres:DefaultConnection"] = "Host=localhost;Database=test",
+                    ["Postgres:ReadOnlyConnection"] = "Host=localhost;Database=test",
+                    ["Postgres:UseIamAuthentication"] = "false"
+                })
+                .ToDictionary(kvp => kvp.Key, kvp => (string?)kvp.Value)
+            )
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.ConfigureDatabase(configuration);
+        services.AddPostgresDbContext<TestDbContext>("invalidConnectionIdentifier");
+
+        var provider = services.BuildServiceProvider();
+
+        var act = () => provider.GetRequiredService<TestDbContext>();
+        act.Should().Throw<ArgumentException>().WithMessage("Unknown connection identifier: invalidConnectionIdentifier");
+    }
+
+    private class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
+    {
+    }
+
+    [Fact]
+    public void Throws_When_Configuration_Section_Is_Missing()
+    {
+        var config = new Dictionary<string, string>();
+        var services = new ServiceCollection();
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                (config ?? new Dictionary<string, string>())
+                    .ToDictionary(kvp => kvp.Key, kvp => (string?)kvp.Value)
+            )
+            .Build();
+
+        Action act = () => services.ConfigureDatabase(configuration);
+
+        act.Should()
+            .Throw<InvalidOperationException>()
+            .WithMessage("Configuration section 'Postgres' is missing");
+    }
+
+    [Fact]
+    public void Throws_When_DefaultConnection_Is_Missing()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "",
+            ["Postgres:ReadOnlyConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:UseIamAuthentication"] = "false"
+        };
+
+        Action act = () => BuildProvider(config);
+
+        act.Should()
+            .Throw<InvalidOperationException>()
+            .WithMessage("Connection string 'DefaultConnection' not found or empty");
+    }
+
+    [Fact]
+    public void Throws_When_ReadOnlyConnection_Is_Missing()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "",
+            ["Postgres:UseIamAuthentication"] = "false"
+        };
+
+        Action act = () => BuildProvider(config);
+
+        act.Should()
+            .Throw<InvalidOperationException>()
+            .WithMessage("Connection string 'ReadOnlyConnection' not found or empty");
+    }
+
+    [Fact]
+    public void Throws_When_IAM_Connection_Details_Are_Missing()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:UseIamAuthentication"] = "true"
+        };
+
+        Action act = () => BuildProvider(config);
+
+        act.Should()
+            .Throw<InvalidOperationException>()
+            .WithMessage("IAM authentication requires DefaultHost, ReadOnlyHost, Name, and User to be configured");
+    }
+
+    [Fact]
+    public void Registers_PostgresConfiguration_And_Services_When_Using_Connection_String()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "Host=localhost-ro;Database=test;",
+            ["Postgres:UseIamAuthentication"] = "false"
+        };
+
+        var provider = BuildProvider(config);
+
+        var pgConfig = provider.GetRequiredService<PostgresConfiguration>();
+        pgConfig.DefaultConnection.Should().Be("Host=localhost;Database=test;");
+        pgConfig.ReadOnlyConnection.Should().Be("Host=localhost-ro;Database=test;");
+
+        provider.GetRequiredService<PostgresHealthCheck>()
+            .Should().BeOfType<PostgresHealthCheck>();
+
+        provider.GetRequiredService<IPostgresStatusService>()
+            .Should().BeOfType<PostgresStatusService>();
+    }
+
+    [Fact]
+    public void Registers_PostgresConfiguration_And_Services_When_Using_IAM()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:UseIamAuthentication"] = "true",
+            ["Postgres:DefaultHost"] = "localhost",
+            ["Postgres:ReadOnlyHost"] = "localhost",
+            ["Postgres:Name"] = "test",
+            ["Postgres:User"] = "test"
+        };
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                config.ToDictionary(kvp => kvp.Key, kvp => (string?)kvp.Value)
+            )
+            .Build();
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        // Add mock AWS credentials to prevent authentication errors in tests
+        services.AddSingleton<AWSCredentials>(new BasicAWSCredentials("test", "test"));
+
+        services.ConfigureDatabase(configuration);
+        var provider = services.BuildServiceProvider();
+
+        var pgConfig = provider.GetRequiredService<PostgresConfiguration>();
+        pgConfig.Should().BeOfType<PostgresConfiguration>();
+
+        provider.GetRequiredService<IPostgresIamTokenGeneratorService>()
+            .Should().BeOfType<PostgresIamTokenGeneratorService>();
+
+        provider.GetRequiredService<IPostgresDataSourceFactory>()
+            .Should().BeOfType<PostgresDataSourceFactory>();
+
+        provider.GetRequiredService<PostgresHealthCheck>()
+            .Should().BeOfType<PostgresHealthCheck>();
+
+        provider.GetRequiredService<IPostgresStatusService>()
+            .Should().BeOfType<PostgresStatusService>();
+    }
+
+
+    [Fact]
+    public void Registers_DbContext_With_Npgsql()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "Host=localhost;Database=test;"
+        };
+
+        var provider = BuildProvider(config);
+        var context = provider.GetRequiredService<HealthCheckDbContext>();
+
+        context.Should().NotBeNull();
+
+        var connection = context.Database.GetDbConnection();
+        connection.ConnectionString.Should().Be("Host=localhost;Database=test");
+    }
+}

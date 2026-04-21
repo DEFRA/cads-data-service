@@ -4,13 +4,20 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UseAspNetCore>true</UseAspNetCore>
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="4.0.3.13" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.18.6" />
     <PackageReference Include="AWSSDK.SQS" Version="4.0.2.14" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.5.9" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="4.0.2.16" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
   </ItemGroup>
 
 </Project>

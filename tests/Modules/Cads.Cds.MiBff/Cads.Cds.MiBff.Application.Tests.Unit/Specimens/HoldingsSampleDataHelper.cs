@@ -1,0 +1,15 @@
+using Cads.Cds.MiBff.Core.DTOs.Ukv;
+
+namespace Cads.Cds.MiBff.Application.Tests.Unit.Specimens;
+
+internal class HoldingsSampleDataHelper
+{
+    public static List<HoldingDto> GetSampleHoldings() =>
+    [
+        new() { Id = Guid.NewGuid(), Name = "Holding 1", Cph = "ABC123", Code = "ABC123" },
+        new() { Id = Guid.NewGuid(), Name = "Holding 2", Cph = "DEF123", Code = "DEF123" },
+        new() { Id = Guid.NewGuid(), Name = "Holding 3", Cph = "GHI123", Code = "GHI123" },
+        new() { Id = Guid.NewGuid(), Name = "Holding 4", Cph = "JKL123", Code = "JKL123" },
+        new() { Id = Guid.NewGuid(), Name = "Holding 5", Cph = "MNO123", Code = "MNO123" },
+    ];
+}

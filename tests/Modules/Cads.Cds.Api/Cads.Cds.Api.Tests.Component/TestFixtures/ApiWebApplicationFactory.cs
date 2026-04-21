@@ -1,5 +1,4 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
 namespace Cads.Cds.Api.Tests.Component.TestFixtures;
 

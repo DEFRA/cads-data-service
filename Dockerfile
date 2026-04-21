@@ -1,4 +1,4 @@
-﻿# This stage is used when running from VS in fast mode (Default for Debug configuration)
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 80
@@ -27,7 +27,7 @@ COPY src/ ./src/
 
 # Remove unwanted projects from the solution before restore
 RUN dotnet sln Cads.Cds.sln remove docker-compose.dcproj || true
-RUN dotnet sln Cads.Cds.sln list | grep "Tests" | xargs -I {} dotnet sln Cads.Cds.sln remove "{}" || true
+RUN dotnet sln Cads.Cds.sln list | grep "test" | xargs -I {} dotnet sln Cads.Cds.sln remove "{}" || true
 
 # Restore solution
 RUN dotnet restore -r "linux-${TARGETARCH}" -v n
@@ -54,5 +54,6 @@ ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY static_data ./StaticData
 EXPOSE 8085
 ENTRYPOINT ["dotnet", "Cads.Cds.dll"]

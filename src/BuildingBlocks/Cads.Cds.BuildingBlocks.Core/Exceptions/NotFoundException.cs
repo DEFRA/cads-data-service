@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Cads.Cds.BuildingBlocks.Core.Exceptions;
 
 public sealed class NotFoundException : DomainException

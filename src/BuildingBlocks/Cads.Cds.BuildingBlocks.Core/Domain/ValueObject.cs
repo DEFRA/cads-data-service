@@ -1,0 +1,18 @@
+using System.Diagnostics.CodeAnalysis;
+
+namespace Cads.Cds.BuildingBlocks.Core.Domain;
+
+[ExcludeFromCodeCoverage]
+public abstract class ValueObject
+{
+    public abstract IEnumerable<object> GetEqualityComponents();
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not ValueObject other) return false;
+        return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
+    }
+
+    public override int GetHashCode() =>
+        GetEqualityComponents().Aggregate(1, (current, obj) => current * 23 + (obj?.GetHashCode() ?? 0));
+}

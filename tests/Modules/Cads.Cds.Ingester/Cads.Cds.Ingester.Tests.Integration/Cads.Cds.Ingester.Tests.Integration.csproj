@@ -23,10 +23,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\BuildingBlocks\Cads.Cds.BuildingBlocks.Testing.Support\Cads.Cds.BuildingBlocks.Testing.Support.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.Ingester\Cads.Cds.Ingester.Core\Cads.Cds.Ingester.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\certs\https-dev-cert.pfx"
+          Link="certs\https-dev-cert.pfx"
+          Condition="Exists('..\..\..\..\certs\https-dev-cert.pfx')"
+          CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 </Project>

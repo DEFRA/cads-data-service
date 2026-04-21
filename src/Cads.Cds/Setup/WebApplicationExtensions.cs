@@ -1,3 +1,5 @@
+using Cads.Cds.Api.Setup;
+using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -26,17 +28,21 @@ public static class WebApplicationExtensions
                 logger.LogInformation("{ApplicationName} stopped", env.ApplicationName));
         }
 
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
-
         app.UseHeaderPropagation();
         app.UseRouting();
+
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseCorrelationId();
+        app.UseMiddleware<ApiResponseMiddleware>();
 
         app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();
 
-        app.MapGet("/", () => "Alive!");
+        app.UseApiSoapEndpoints();
+
+        app.MapGet("/", () => "Alive!").AllowAnonymous();
 
         app.MapHealthChecks("/health", new HealthCheckOptions()
         {
@@ -44,7 +50,11 @@ public static class WebApplicationExtensions
             ResponseWriter = (context, healthReport) =>
             {
                 context.Response.ContentType = "application/json; charset=utf-8";
-                return context.Response.WriteAsync(HealthCheckWriter.WriteHealthStatusAsJson(healthReport, healthcheckMaskingEnabled: healthcheckMaskingEnabled, excludeHealthy: false, indented: true));
+                return context.Response.WriteAsync(HealthCheckWriter.WriteHealthStatusAsJson(
+                    healthReport,
+                    healthcheckMaskingEnabled: healthcheckMaskingEnabled,
+                    excludeHealthy: false,
+                    indented: true));
             },
             ResultStatusCodes =
             {
@@ -52,6 +62,6 @@ public static class WebApplicationExtensions
                 [HealthStatus.Degraded] = StatusCodes.Status200OK,
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
-        });
+        }).AllowAnonymous();
     }
 }

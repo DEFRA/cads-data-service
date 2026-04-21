@@ -75,6 +75,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: working-dir
+      - name: Create certs folder
+        run: mkdir -p ./working-dir/certs
+      - name: Generate HTTPS dev cert
+        run: dotnet dev-certs https -ep ./working-dir/certs/https-dev-cert.pfx -p testpassword
       - name: Build cads_cds image
         run: docker build -t cads_cds:latest -f ./working-dir/Dockerfile ./working-dir
       - name: Pull localstack and mongo images
@@ -82,7 +86,7 @@ jobs:
           docker pull localstack/localstack:3.0.2
           docker pull mongo:6.0.13
       - name: Run integration tests
-        run: dotnet test ./working-dir/Cads.Cds.sln --filter Dependence=testcontainers
+        run: dotnet test ./working-dir/cads.integrationtests.proj --filter Dependence=testcontainers -p:BuildInParallel=false
 
   sonarcloud-scan:
     name: CDP SonarCloud Scan
