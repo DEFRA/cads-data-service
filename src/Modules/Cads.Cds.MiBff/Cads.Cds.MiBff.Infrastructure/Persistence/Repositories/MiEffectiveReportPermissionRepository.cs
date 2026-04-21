@@ -15,7 +15,7 @@ public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
     {
         return await Query()
             .Where(p => p.ExternalSubject == externalSubject &&
-                        p.IsActive == true)
+                        p.IsActive)
             .ToListAsync(cancellationToken);
     }
 
@@ -27,7 +27,7 @@ public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
         return await Query()
             .Where(p => p.ExternalSubject == externalSubject &&
                         p.ReportKey == reportKey &&
-                        p.IsActive == true)
+                        p.IsActive)
             .AnyAsync(cancellationToken);
     }
 }

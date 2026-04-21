@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
+using FluentAssertions;
 
 namespace Cads.Cds.MiBff.Tests.Integration.Reports;
 
@@ -14,6 +15,6 @@ public class GetUserReportPermissionsTests(ApiContainerFixture apiContainerFixtu
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.ValidUserToken());
 
         var response = await client.GetAsync(endpoint, TestContext.Current.CancellationToken);
-        response.EnsureSuccessStatusCode();
+        response.IsSuccessStatusCode.Should().BeTrue();
     }
 }
