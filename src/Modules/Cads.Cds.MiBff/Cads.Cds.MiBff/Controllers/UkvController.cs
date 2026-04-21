@@ -113,9 +113,9 @@ public class UkvController(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetHoldingsByCph)} endpoint", $"Description text from {nameof(GetHoldingsByCph)} endpoint")]
     [ResponseWithMetaData]
     [HttpGet("holdings/{cph}")]
-    public async Task<IActionResult> GetHoldingsByCph([FromQuery] GetHoldingsRequest request)
+    public async Task<IActionResult> GetHoldingsByCph([FromRoute] string cph)
     {
-        var query = new GetHoldingsByCphQuery(request.Cph);
+        var query = new GetHoldingsByCphQuery(cph);
 
         var result = await _executor.ExecuteQuery(query);
 
