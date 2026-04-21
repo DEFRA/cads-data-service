@@ -1,5 +1,4 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
-using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 
@@ -8,7 +7,7 @@ namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Repositories.Mi;
 public class MiEffectiveReportPermissionRepositoryTests : IDisposable
 {
     private readonly MiBffReadDbContext _context;
-    private readonly IMiEffectiveReportPermissionRepository _repository;
+    private readonly MiEffectiveReportPermissionRepository _repository;
 
     public MiEffectiveReportPermissionRepositoryTests()
     {
@@ -28,19 +27,19 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
     [Fact]
     public async Task GetByUserEmail_Found_ReturnsItems()
     {
-        var result = await _repository.GetByUserEmailAsync(TestDataSeeder.User1Email, TestContext.Current.CancellationToken);
+        var result = await _repository.GetActiveByExternalSubjectAsync(TestDataSeeder.User1Email, TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal(TestDataSeeder.User1Email, result![0].Email);
-        Assert.Equal(TestDataSeeder.ReportAKey, result![0].ReportKey);
-        Assert.Equal(TestDataSeeder.ReportATitle, result![0].Title);
-        Assert.Equal(TestDataSeeder.ReportADescription, result![0].Description);
+        Assert.Equal(TestDataSeeder.User1Email, result[0].ExternalSubject);
+        Assert.Equal(TestDataSeeder.ReportAKey, result[0].ReportKey);
+        Assert.Equal(TestDataSeeder.ReportATitle, result[0].Title);
+        Assert.Equal(TestDataSeeder.ReportADescription, result[0].Description);
     }
 
     [Fact]
     public async Task GetByUserEmail_NotFound_ReturnsEmpty()
     {
-        var result = await _repository.GetByUserEmailAsync(string.Empty, TestContext.Current.CancellationToken);
+        var result = await _repository.GetActiveByExternalSubjectAsync(string.Empty, TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -70,26 +69,26 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
     [Fact]
     public async Task CheckExists_ForKnown_ReturnsTrue()
     {
-        var result = await _repository.ExistsAsync(i => i.Email == TestDataSeeder.User1Email, TestContext.Current.CancellationToken);
+        var result = await _repository.ExistsAsync(i => i.ExternalSubject == TestDataSeeder.User1Email, TestContext.Current.CancellationToken);
         Assert.True(result);
     }
 
     [Fact]
     public async Task CheckExists_ForUnknown_ReturnsFalse()
     {
-        var result = await _repository.ExistsAsync(i => i.Email == string.Empty, TestContext.Current.CancellationToken);
+        var result = await _repository.ExistsAsync(i => i.ExternalSubject == string.Empty, TestContext.Current.CancellationToken);
         Assert.False(result);
     }
 
     [Fact]
     public async Task Find_ForKnown_ReturnsItem()
     {
-        var result = await _repository.FindAsync(i => i.Email == TestDataSeeder.User1Email && i.ReportKey == TestDataSeeder.ReportAKey, orderBy: i => i.OrderByDescending(o => o.ReportKey), cancellationToken: TestContext.Current.CancellationToken);
+        var result = await _repository.FindAsync(i => i.ExternalSubject == TestDataSeeder.User1Email && i.ReportKey == TestDataSeeder.ReportAKey, orderBy: i => i.OrderByDescending(o => o.ReportKey), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
-        Assert.Equal(TestDataSeeder.User1Email, result![0].Email);
-        Assert.Equal(TestDataSeeder.ReportAKey, result![0].ReportKey);
-        Assert.Equal(TestDataSeeder.ReportATitle, result![0].Title);
-        Assert.Equal(TestDataSeeder.ReportADescription, result![0].Description);
+        Assert.Equal(TestDataSeeder.User1Email, result[0].ExternalSubject);
+        Assert.Equal(TestDataSeeder.ReportAKey, result[0].ReportKey);
+        Assert.Equal(TestDataSeeder.ReportATitle, result[0].Title);
+        Assert.Equal(TestDataSeeder.ReportADescription, result[0].Description);
     }
 
     [Fact]
@@ -99,14 +98,14 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
         // simple DTO used for projection verification
         var projected = await _repository.ProjectAsync(
             q => q.Where(x => x.Granted)
-                  .Select(x => new ProjectionDto { Email = x.Email, ReportKey = x.ReportKey }),
+                  .Select(x => new ProjectionDto { ExternalSubject = x.ExternalSubject, ReportKey = x.ReportKey }),
             asNoTracking: true,
             cancellationToken: CancellationToken.None);
 
         // assert
         Assert.NotNull(projected);
         Assert.Equal(2, projected.Count);
-        Assert.All(projected, p => Assert.False(string.IsNullOrWhiteSpace(p.Email)));
+        Assert.All(projected, p => Assert.False(string.IsNullOrWhiteSpace(p.ExternalSubject)));
         var keys = projected.Select(p => p.ReportKey).OrderBy(k => k).ToList();
         Assert.Contains(TestDataSeeder.ReportAKey, keys);
         Assert.Contains(TestDataSeeder.ReportBKey, keys);
@@ -114,14 +113,14 @@ public class MiEffectiveReportPermissionRepositoryTests : IDisposable
 
     private class ProjectionDto
     {
-        public required string Email { get; set; }
+        public required string ExternalSubject { get; set; }
         public required string ReportKey { get; set; }
     }
 
     [Fact]
     public async Task Find_ForUnKnown_ReturnsEmpty()
     {
-        var result = await _repository.FindAsync(i => i.Email == string.Empty, orderBy: i => i.OrderByDescending(o => o.ReportKey), cancellationToken: TestContext.Current.CancellationToken);
+        var result = await _repository.FindAsync(i => i.ExternalSubject == string.Empty, orderBy: i => i.OrderByDescending(o => o.ReportKey), cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result);
         Assert.Empty(result);
     }

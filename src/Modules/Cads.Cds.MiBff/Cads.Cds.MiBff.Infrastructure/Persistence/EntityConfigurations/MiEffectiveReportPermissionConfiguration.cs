@@ -9,14 +9,15 @@ public class MiEffectiveReportPermissionConfiguration : IEntityTypeConfiguration
     public void Configure(EntityTypeBuilder<MiEffectiveReportPermissionView> builder)
     {
         builder.ToView("mi_effective_report_permission");
-        builder.HasKey(x => new { x.Email, x.ReportKey });
+        builder.HasKey(x => new { x.ExternalSubject, x.ReportKey });
 
         builder.Property(x => x.ReportId).HasColumnName("report_id");
         builder.Property(x => x.ReportKey).HasColumnName("report_key");
         builder.Property(x => x.Title).HasColumnName("title");
         builder.Property(x => x.Description).HasColumnName("description");
+        builder.Property(x => x.IsActive).HasColumnName("is_active");
         builder.Property(x => x.DisplayName).HasColumnName("display_name");
-        builder.Property(x => x.Email).HasColumnName("email");
+        builder.Property(x => x.ExternalSubject).HasColumnName("external_subject");
         builder.Property(x => x.Granted).HasColumnName("granted");
     }
 }
