@@ -23,11 +23,19 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\BuildingBlocks\Cads.Cds.BuildingBlocks.Testing.Support\Cads.Cds.BuildingBlocks.Testing.Support.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.MiBff\Cads.Cds.MiBff\Cads.Cds.MiBff.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Cads.Cds\Cads.Cds.csproj" />
+    <ProjectReference Include="..\Cads.Cds.MiBff.Testing.Support\Cads.Cds.MiBff.Testing.Support.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\..\..\static_data\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>StaticData\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
   </ItemGroup>
 
 </Project>
