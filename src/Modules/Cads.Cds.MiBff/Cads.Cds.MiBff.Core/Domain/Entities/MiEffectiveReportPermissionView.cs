@@ -10,9 +10,11 @@ public class MiEffectiveReportPermissionView
 
     public string? Description { get; set; }
 
+    public bool IsActive { get; set; }
+
     public string? DisplayName { get; set; }
 
-    public required string Email { get; set; }
+    public required string ExternalSubject { get; set; }
 
     public bool Granted { get; set; }
 }
