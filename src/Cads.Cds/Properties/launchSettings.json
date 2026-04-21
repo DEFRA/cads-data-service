@@ -3,10 +3,14 @@
     "CadsDataService": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AWS_ACCESS_KEY_ID": "test",
+        "AWS_SECRET_ACCESS_KEY": "test",
+        "IMB_S3_ACCESS_KEY": "test",
+        "IMB_S3_ACCESS_SECRET": "test"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5000"
+      "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",

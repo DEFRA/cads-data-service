@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Cads.Cds.BuildingBlocks.Core.Exceptions;
 
 public class DomainException : Exception
