@@ -218,5 +218,6 @@
   <include file="0192_mi_user_seed_initial_users_test.postgresql.sql"/>
   <include file="0193_mi_user_seed_initial_users_ext-test.postgresql.sql"/>
   <include file="0194_mi_user_seed_initial_users_perf-test.postgresql.sql"/>
+  <include file="0200_mi_report_update_and_seed_reports.postgresql.sql"/>
   <include file="0210_mi_effective_report_all_permission_create_view.postgresql.sql"/>
 </databaseChangeLog>
