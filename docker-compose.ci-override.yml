@@ -64,9 +64,7 @@ services:
     ports:
       - 16543:80
     volumes:
-      - ./compose/postgres/servers:/host:ro
       - pgadmin-data:/var/lib/pgadmin
-    entrypoint: ["/host/init.sh"]
     networks:
       - cads-tools
 
