@@ -2,6 +2,7 @@ using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
+using FluentAssertions;
 
 namespace Cads.Cds.MiBff.Tests.Integration.Reports;
 
@@ -17,6 +18,6 @@ public class GetHoldingSummaryReportTests(ApiContainerFixture apiContainerFixtur
         var payload = HttpContentUtility.CreateApplicationJsonAsStringContent("{\"reportKey\":\"holding_summary\"}");
 
         var response = await client.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);
-        response.EnsureSuccessStatusCode();
+        response.IsSuccessStatusCode.Should().BeTrue();
     }
 }
