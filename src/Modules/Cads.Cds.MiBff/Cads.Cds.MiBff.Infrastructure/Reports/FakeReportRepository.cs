@@ -4,8 +4,8 @@ namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
 public class FakeReportRepository : IReportRepository
 {
-    public Task<List<CattleMovement>> GetCattleMovementReport()
+    public Task<List<CattleRegistration>> GetCattleRegistrationReport()
     {
-        return Task.FromResult(CattleMovement.GetFakeData(25));
+        return Task.FromResult(CattleRegistration.GetFakeData(25));
     }
 }
