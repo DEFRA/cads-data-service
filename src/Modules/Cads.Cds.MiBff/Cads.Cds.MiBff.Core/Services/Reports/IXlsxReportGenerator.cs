@@ -4,5 +4,5 @@ namespace Cads.Cds.MiBff.Core.Services.Reports;
 
 public interface IXlsxReportGenerator
 {
-    MemoryStream Generate(List<CattleMovement> data);
+    MemoryStream Generate(List<CattleRegistration> data);
 }

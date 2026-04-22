@@ -9,8 +9,8 @@ public class XlsxExporterTests
     [Fact]
     public void CreateDocument()
     {
-        var sut = new XlsxReport<CattleMovement>();
-        sut.Data = CattleMovement.GetFakeData(25);
+        var sut = new XlsxReport<CattleRegistration>();
+        sut.Data = CattleRegistration.GetFakeData(25);
         sut.Headers = new List<string>()
         {
             "Birth Year",
@@ -24,7 +24,7 @@ public class XlsxExporterTests
             "Application Type",
             "Number Of Births",
         };
-        sut.Selectors = new List<Func<CattleMovement, string>>()
+        sut.Selectors = new List<Func<CattleRegistration, string>>()
         {
             (x) => x.BirthYear,
             (x) => x.BirthMonth,
