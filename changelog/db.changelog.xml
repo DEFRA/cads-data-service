@@ -183,6 +183,7 @@
   <include file="0180_143__ct_valid_applications_create_table.postgresql.sql"/>
   <include file="0180_144__ct_applic_statuses_create_table.postgresql.sql"/>
   <include file="0180_145__ct_registered_animals_create_table.postgresql.sql"/>
+  <include file="0181_145__ct_registered_animals_create_indexes.postgresql.sql"/>
   <include file="0180_146__ct_animal_claims_create_table.postgresql.sql"/>
   <include file="0180_147__ct_animal_identifiers_create_table.postgresql.sql"/>
   <include file="0180_148__ct_animal_relationships_create_table.postgresql.sql"/>
@@ -220,4 +221,5 @@
   <include file="0194_mi_user_seed_initial_users_perf-test.postgresql.sql"/>
   <include file="0200_mi_report_update_and_seed_reports.postgresql.sql"/>
   <include file="0210_mi_effective_report_all_permission_create_view.postgresql.sql"/>
+  <include file="0220_mi_get_births_summary_create_function.postgresql.sql"/>
 </databaseChangeLog>
