@@ -4,5 +4,5 @@ namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
 public interface IReportRepository
 {
-    Task<List<CattleMovement>> GetCattleMovementReport();
+    Task<List<CattleRegistration>> GetCattleRegistrationReport();
 }

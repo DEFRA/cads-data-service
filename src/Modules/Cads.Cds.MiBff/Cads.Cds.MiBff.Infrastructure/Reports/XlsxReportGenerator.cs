@@ -5,9 +5,9 @@ namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
 public class XlsxReportGenerator : IXlsxReportGenerator
 {
-    public MemoryStream Generate(List<CattleMovement> data)
+    public MemoryStream Generate(List<CattleRegistration> data)
     {
-        var report = new XlsxReport<CattleMovement>();
+        var report = new XlsxReport<CattleRegistration>();
         report.Data = data;
         report.Headers = new List<string>()
         {
@@ -22,7 +22,7 @@ public class XlsxReportGenerator : IXlsxReportGenerator
             "Application Type",
             "Number Of Births",
         };
-        report.Selectors = new List<Func<CattleMovement, string>>()
+        report.Selectors = new List<Func<CattleRegistration, string>>()
         {
             (x) => x.BirthYear,
             (x) => x.BirthMonth,
