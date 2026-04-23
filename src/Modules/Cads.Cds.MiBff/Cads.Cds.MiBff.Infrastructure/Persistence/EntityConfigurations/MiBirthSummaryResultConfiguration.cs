@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.EntityConfigurations;
 
-public class MiBirthSummaryResultConfiguration: IEntityTypeConfiguration<MiBirthSummaryResult>
+public class MiBirthSummaryResultConfiguration : IEntityTypeConfiguration<MiBirthSummaryResult>
 {
     public void Configure(EntityTypeBuilder<MiBirthSummaryResult> builder)
     {
