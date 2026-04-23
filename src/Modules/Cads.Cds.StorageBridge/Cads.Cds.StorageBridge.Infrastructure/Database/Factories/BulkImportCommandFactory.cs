@@ -72,6 +72,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         var tableName = bulkImportType.GetTableName();
         var query = $"SELECT column_name FROM information_schema.columns " +
             $"WHERE table_name = '{tableName}' " +
+            $"AND column_name <> 'row_number' " +
             $"ORDER BY ordinal_position";
 
         using var command = new NpgsqlCommand(query, connection);
