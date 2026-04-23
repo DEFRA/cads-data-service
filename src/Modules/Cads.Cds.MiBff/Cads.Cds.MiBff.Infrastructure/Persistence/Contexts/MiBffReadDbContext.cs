@@ -24,6 +24,7 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
 
     // Views
     public DbSet<MiEffectiveReportPermissionView> EffectiveReportPermissions => Set<MiEffectiveReportPermissionView>();
+    public DbSet<MiEffectiveReportAllPermissionView> EffectiveReportAllPermissions => Set<MiEffectiveReportAllPermissionView>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -4,19 +4,18 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.MiBff.Infrastructure.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddMiBffInfrastructureLayer(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddMiBffInfrastructureLayer(this IServiceCollection services)
     {
         services.AddPostgresDbContext<MiBffWriteDbContext>();
         services.AddPostgresDbContext<MiBffReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
 
-        services.AddScoped<IMiEffectiveReportPermissionRepository, MiEffectiveReportPermissionRepository>();
+        // Tables
         services.AddScoped<IMiPermissionRepository, MiPermissionRepository>();
         services.AddScoped<IMiReportGroupMapRepository, MiReportGroupMapRepository>();
         services.AddScoped<IMiReportGroupRepository, MiReportGroupRepository>();
@@ -26,6 +25,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMiUserReportPermissionRepository, MiUserReportPermissionRepository>();
         services.AddScoped<IMiUserRepository, MiUserRepository>();
         services.AddScoped<IMiUserRoleRepository, MiUserRoleRepository>();
+
+        // Views
+        services.AddScoped<IMiEffectiveReportPermissionRepository, MiEffectiveReportPermissionRepository>();
+        services.AddScoped<IMiEffectiveReportAllPermissionRepository, MiEffectiveReportAllPermissionRepository>();
 
         services.AddScoped<
             IDbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>,
