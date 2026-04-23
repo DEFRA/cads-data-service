@@ -140,7 +140,7 @@ liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=po
 ```
 If the changelog file can't be found you can use:
 ```
-liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=postgres --password=postgres --contexts=local --changeLogFile=changelog/db.changelog.xml update
+liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=postgres --password=postgres --contexts=local --changeLogFile=db.changelog.xml --search-path=changelog  update
 ```
 
 ### Step 2 — Make schema changes in the Reference DB
