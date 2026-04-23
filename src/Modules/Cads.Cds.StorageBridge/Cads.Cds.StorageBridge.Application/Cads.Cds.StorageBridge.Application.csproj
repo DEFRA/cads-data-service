@@ -9,6 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\ApiSurface\Cads.Cds.ApiSurface\Cads.Cds.ApiSurface.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Cads.Cds.BuildingBlocks.Application\Cads.Cds.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Cads.Cds.BuildingBlocks.Infrastructure\Cads.Cds.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Cads.Cds.MiBff\Cads.Cds.MiBff.Infrastructure\Cads.Cds.MiBff.Infrastructure.csproj" />
     <ProjectReference Include="..\Cads.Cds.StorageBridge.Core\Cads.Cds.StorageBridge.Core.csproj" />
   </ItemGroup>
 

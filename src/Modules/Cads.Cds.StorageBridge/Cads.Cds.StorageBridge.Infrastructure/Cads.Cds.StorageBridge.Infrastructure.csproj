@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Storage\Readers\BulkImportStorageReader.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Cads.Cds.BuildingBlocks.Infrastructure\Cads.Cds.BuildingBlocks.Infrastructure.csproj" />
     <ProjectReference Include="..\Cads.Cds.StorageBridge.Application\Cads.Cds.StorageBridge.Application.csproj" />
   </ItemGroup>
