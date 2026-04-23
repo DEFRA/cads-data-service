@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +27,6 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
     public DbSet<MiEffectiveReportAllPermissionView> EffectiveReportAllPermissions => Set<MiEffectiveReportAllPermissionView>();
 
     // Functions
-    [ExcludeFromCodeCoverage]
     public IQueryable<MiBirthSummaryResult> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
         => FromExpression(() => GetBirthsSummary(birthDateFrom, birthDateTo));
 
