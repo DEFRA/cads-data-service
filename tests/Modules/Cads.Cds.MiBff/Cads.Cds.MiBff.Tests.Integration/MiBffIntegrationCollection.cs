@@ -6,8 +6,3 @@ namespace Cads.Cds.MiBff.Tests.Integration;
 public class MiBffIntegrationCollection :
     ICollectionFixture<ApiContainerFixture>
 { }
-
-[CollectionDefinition("MiBffRepositoryIntegration")]
-public class MiBffRepositoryIntegrationCollection :
-    ICollectionFixture<PostgresFixture>
-{ }
