@@ -2,8 +2,13 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 
 public static class TestEndpointConstants
 {
+    // Ingestion endpoints
+    public const string AnimalMovementIngestionEndpoint = "/api/v1/nation/{0}/animal-movements";
+
     // BFF root url
     public const string BffMiRoot = "/api/v1/bff/mi/";
+
+    // Amsl2
 
     // Amsl2 route paths
     public const string BffMiAmsl2Root = BffMiRoot + "amsl2/";
@@ -32,6 +37,7 @@ public static class TestEndpointConstants
     // Amsl2 - AnimalSummary
     public const string BffAmsl2AnnimalSummaryEndpoint = BffMiAmsl2Root + "animal-summary/{0}";
 
+    // UKV
 
     // UKV route paths
     public const string BffMiUkvRoot = BffMiRoot + "ukv/";
@@ -67,9 +73,14 @@ public static class TestEndpointConstants
     public const string BffUkvZonesEndpoint = BffMiUkvRoot + "zones";
     public const string BffUkvZonesByZoneIdEndpoint = BffMiUkvRoot + "zones/{0}";
 
-    // Ingestion endpoints
-    public const string AnimalMovementIngestionEndpoint = "/api/v1/nation/{0}/animal-movements";
+    // Reports
 
     // Reports route paths
     public const string BffMiReportsRoot = BffMiRoot + "reports/";
+
+    // Reports - User report permissions
+    public const string BffMiUserReportPermissionsEndpoint = BffMiReportsRoot + "{0}/permissions/";
+
+    // Reports - holding_summary
+    public const string BffMiReportsHoldingSummaryRoot = BffMiReportsRoot + "holding_summary/";
 }

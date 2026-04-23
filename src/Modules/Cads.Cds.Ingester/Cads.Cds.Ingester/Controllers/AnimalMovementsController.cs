@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
@@ -8,6 +7,7 @@ using Cads.Cds.Ingester.Core.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Cads.Cds.Ingester.Controllers;
 

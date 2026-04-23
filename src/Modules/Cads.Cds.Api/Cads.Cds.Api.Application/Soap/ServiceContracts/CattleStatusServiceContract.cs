@@ -23,6 +23,7 @@ public class CattleStatusServiceContract : ICattleStatusServiceContract
         {
             throw new FaultException($"Holding id cannot be null or whitespace");
         }
+
         var holdingId = request.HoldingId;
         var response = GetCattleStatusResponseMessage(holdingId);
 

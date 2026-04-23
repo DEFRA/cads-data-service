@@ -37,6 +37,7 @@
   <include file="0160_mi_user_role_seed_initial_user_roles.postgresql.sql"/>
   <include file="0170_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0171_mi_effective_report_permission_update_view.postgresql.sql"/>
+  <include file="0172_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0180_001_party_location_create_table.postgresql.sql"/>
   <include file="0180_002_party_type_create_table.postgresql.sql"/>
   <include file="0180_003_party_state_create_table.postgresql.sql"/>
@@ -217,4 +218,6 @@
   <include file="0192_mi_user_seed_initial_users_test.postgresql.sql"/>
   <include file="0193_mi_user_seed_initial_users_ext-test.postgresql.sql"/>
   <include file="0194_mi_user_seed_initial_users_perf-test.postgresql.sql"/>
+  <include file="0200_mi_report_update_and_seed_reports.postgresql.sql"/>
+  <include file="0210_mi_effective_report_all_permission_create_view.postgresql.sql"/>
 </databaseChangeLog>

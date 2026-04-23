@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,9 +18,9 @@ public class FakeJwtHandler(
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, "test-jwt-user"),
-            new(ClaimTypes.Email, "test-jwt-user@example.com"),
-            new("name", "Test JWT User")
+            new(ClaimTypes.Name, TestAuthConstants.AzureAdUsername),
+            new(ClaimTypes.Email, TestAuthConstants.AzureAdEmail),
+            new("name", TestAuthConstants.AzureAdUsername)
         };
 
         if (Scheme.Name == AuthenticationConstants.AzureADSchemeName)
