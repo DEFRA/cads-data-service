@@ -5,7 +5,8 @@ namespace Cads.Cds.StorageBridge.Core.Extensions;
 
 public static class EnumExtensions
 {
-    public static string? GetTableName(this Enum value)
+    public static T? GetAttribute<T>(this Enum value) 
+        where T : Attribute
     {
         ArgumentNullException.ThrowIfNull(value);
 
@@ -18,7 +19,11 @@ public static class EnumExtensions
         if (field == null) return null;
 
         // Retrieve the TableNameAttribute if it exists
-        var attribute = field.GetCustomAttribute<TableNameAttribute>();
-        return attribute?.Name;
+        return field.GetCustomAttribute<T>();
+    }
+
+    public static string? GetTableName(this Enum value)
+    {
+        return value.GetAttribute<TableNameAttribute>()?.Name;
     }
 }

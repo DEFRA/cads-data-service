@@ -1,6 +1,6 @@
 using Cads.Cds.StorageBridge.Core.Attributes;
 
-namespace Cads.Cds.StorageBridge.Core.Domain;
+namespace Cads.Cds.StorageBridge.Core.Domain.Enums;
 
 public enum BulkImportType
 {
