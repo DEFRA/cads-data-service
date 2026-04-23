@@ -1,4 +1,4 @@
-using Cads.Cds.StorageBridge.Core.Domain;
+using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using System.Data.Common;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Database.Factories;

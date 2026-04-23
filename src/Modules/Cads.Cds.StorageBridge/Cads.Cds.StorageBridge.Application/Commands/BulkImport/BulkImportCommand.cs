@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.StorageBridge.Core.Domain;
+using Cads.Cds.StorageBridge.Core.Domain.Enums;
 
 namespace Cads.Cds.StorageBridge.Application.Commands.BulkImport;
 
