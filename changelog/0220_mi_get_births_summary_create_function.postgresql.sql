@@ -1,7 +1,5 @@
 -- liquibase formatted sql
-
--- changeset codex:0220
-
+-- changeset andy:0220 endDelimiter://
 DROP FUNCTION IF EXISTS public.get_births_summary(
     p_birth_date_from DATE,
     p_birth_date_to   DATE
