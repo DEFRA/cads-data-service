@@ -35,7 +35,7 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MiBffReadDbContext).Assembly);
 
         modelBuilder.HasDbFunction(
-                typeof(MiBffWriteDbContext).GetMethod(nameof(GetBirthsSummary))!)
+                typeof(MiBffReadDbContext).GetMethod(nameof(GetBirthsSummary))!)
             .HasName("get_births_summary")
             .HasSchema("public");
 
