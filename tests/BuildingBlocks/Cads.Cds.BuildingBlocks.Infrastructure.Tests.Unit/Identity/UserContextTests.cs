@@ -115,7 +115,7 @@ public class UserContextTests
     }
 
     [Fact]
-    public void UserContext_UserIdentifierFallsBackToOid_WhenOthersMissing()
+    public void UserContext_UserIdentifierFallsBackToOid_WhenEmail_And_UniqueName_And_Upn_Missing()
     {
         var ctx = UserContextUtilities.CreateUserContext(new Claim(CustomClaimTypes.Oid, "aad-oid"));
 
