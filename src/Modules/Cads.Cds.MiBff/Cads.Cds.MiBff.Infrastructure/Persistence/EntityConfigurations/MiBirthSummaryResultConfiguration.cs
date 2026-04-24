@@ -10,15 +10,15 @@ public class MiBirthSummaryResultConfiguration : IEntityTypeConfiguration<MiBirt
     {
         builder.HasNoKey();
 
-        builder.Property(x => x.BirthYear).HasColumnName("Birth Year");
-        builder.Property(x => x.BirthMonth).HasColumnName("Birth Month");
-        builder.Property(x => x.Country).HasColumnName("Country");
-        builder.Property(x => x.GovRegion).HasColumnName("Gov Region");
-        builder.Property(x => x.County).HasColumnName("County");
-        builder.Property(x => x.BreedType).HasColumnName("Breed Type");
-        builder.Property(x => x.Breed).HasColumnName("Breed");
-        builder.Property(x => x.Sex).HasColumnName("Sex");
-        builder.Property(x => x.ApplicationType).HasColumnName("Application Type");
-        builder.Property(x => x.NumberOfBirths).HasColumnName("Number Of Births");
+        builder.Property(x => x.BirthYear).HasColumnName("birth_year");
+        builder.Property(x => x.BirthMonth).HasColumnName("birth_month");
+        builder.Property(x => x.Country).HasColumnName("country");
+        builder.Property(x => x.GovRegion).HasColumnName("gov_region");
+        builder.Property(x => x.County).HasColumnName("county");
+        builder.Property(x => x.BreedType).HasColumnName("breed_type");
+        builder.Property(x => x.Breed).HasColumnName("breed");
+        builder.Property(x => x.Sex).HasColumnName("sex");
+        builder.Property(x => x.ApplicationType).HasColumnName("application_type");
+        builder.Property(x => x.NumberOfBirths).HasColumnName("number_of_births");
     }
 }
