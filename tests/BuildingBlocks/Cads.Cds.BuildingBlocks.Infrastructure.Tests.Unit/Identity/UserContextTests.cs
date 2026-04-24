@@ -91,6 +91,38 @@ public class UserContextTests
     }
 
     [Fact]
+    public void UserContext_UserIdentifierUsesEmailClaim_WhenPresent()
+    {
+        var ctx = UserContextUtilities.CreateUserContext(new Claim(ClaimTypes.Email, "user.email@example.com"));
+
+        ctx.UserIdentifier.Should().Be("user.email@example.com");
+    }
+
+    [Fact]
+    public void UserContext_UserIdentifierUsesUniqueNameClaim_WhenEmail_Missing()
+    {
+        var ctx = UserContextUtilities.CreateUserContext(new Claim("unique_name", "user.unique_name@example.com"));
+
+        ctx.UserIdentifier.Should().Be("user.unique_name@example.com");
+    }
+
+    [Fact]
+    public void UserContext_UserIdentifierUsesUpnClaim_WhenEmail_And_UniqueName_Missing()
+    {
+        var ctx = UserContextUtilities.CreateUserContext(new Claim("upn", "user.upn@example.com"));
+
+        ctx.UserIdentifier.Should().Be("user.upn@example.com");
+    }
+
+    [Fact]
+    public void UserContext_UserIdentifierFallsBackToOid_WhenOthersMissing()
+    {
+        var ctx = UserContextUtilities.CreateUserContext(new Claim(CustomClaimTypes.Oid, "aad-oid"));
+
+        ctx.UserIdentifier.Should().Be("aad-oid");
+    }
+
+    [Fact]
     public void UserContext_HandlesNullHttpContext()
     {
         var accessor = Substitute.For<IHttpContextAccessor>();
@@ -102,6 +134,7 @@ public class UserContextTests
         ctx.Email.Should().BeNull();
         ctx.DisplayName.Should().BeNull();
         ctx.TenantId.Should().BeNull();
+        ctx.UserIdentifier.Should().BeNull();
     }
 
     [Fact]
@@ -113,5 +146,6 @@ public class UserContextTests
         ctx.Email.Should().BeNull();
         ctx.DisplayName.Should().BeNull();
         ctx.TenantId.Should().BeNull();
+        ctx.UserIdentifier.Should().BeNull();
     }
 }
