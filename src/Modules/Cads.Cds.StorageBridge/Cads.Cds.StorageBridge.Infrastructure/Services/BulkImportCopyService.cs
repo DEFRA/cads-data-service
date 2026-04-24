@@ -75,12 +75,14 @@ public class BulkImportCopyService(
                     var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
                     await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
-                    await setContraintStateOffCommand.ExecuteNonQueryAsync(cancellationToken);
-
+                    
                     await CopyFileToStagingAsync(bulkImportCommandFactory, dto.BulkImportType, dto.Delimiter, key, cancellationToken);
+
+                    await setContraintStateOffCommand.ExecuteNonQueryAsync(cancellationToken);
 
                     await upsertCommand.ExecuteNonQueryAsync(cancellationToken);
                     await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
+
                     await setContraintStateOnCommand.ExecuteNonQueryAsync(cancellationToken);
 
                     await transaction.CommitAsync(cancellationToken);
