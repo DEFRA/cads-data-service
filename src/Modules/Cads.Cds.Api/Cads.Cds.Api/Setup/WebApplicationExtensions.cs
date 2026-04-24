@@ -19,6 +19,7 @@ public static class WebApplicationExtensions
     public static IApplicationBuilder UseApiSoapEndpoints(this IApplicationBuilder app)
     {
         var hasHttps = HasHttpsAddress(app);
+
         app.UseServiceModel(builder =>
         {
             builder.AddServiceEndpoints<IAnimalCohortServiceContract, AnimalCohortServiceContract>(
