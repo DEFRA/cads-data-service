@@ -1,5 +1,7 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Core.Configuration;
+using Cads.Cds.StorageBridge.Core.Services;
+using Cads.Cds.StorageBridge.Infrastructure.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Health;
@@ -17,15 +19,14 @@ public static class ServiceCollectionExtensions
             .Get<StorageBridgeStorageConfiguration>()
             ?? throw new InvalidOperationException("Missing 'StorageBridge' storage config");
 
-        //services.Configure<StorageBridgeStorageConfiguration>(configuration.GetSection(ModuleConfigurationSection.ModuleSectionName));
-
         services.AddSingleton(moduleConfig);
 
         services.AddSingleton<IConfigureS3Clients, StorageBridgeS3Configurator>();
 
         // Register module storage readers
         services.AddSingleton<IStorageReader<CadsInternalClient>, BulkImportStorageReader<CadsInternalClient>>();
-        
+        services.AddSingleton<IBulkImportCopyService, BulkImportCopyService>();
+
         // Register module storage writers
 
         if (moduleConfig.CadsInternal.HealthcheckEnabled)
