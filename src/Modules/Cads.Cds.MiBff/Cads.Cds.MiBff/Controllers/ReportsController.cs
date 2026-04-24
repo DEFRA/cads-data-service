@@ -19,7 +19,7 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
     [HttpGet]
     public async Task<IActionResult> GetUserReports()
     {
-        var query = new GetUserReportsQuery { Identifier = _userContext.Email ?? Guid.NewGuid().ToString() };
+        var query = new GetUserReportsQuery { Identifier = _userContext.UserIdentifier ?? Guid.NewGuid().ToString() };
 
         var result = await _executor.ExecuteQuery(query);
 
@@ -29,7 +29,7 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
     [HttpGet("{reportKey}/permissions")]
     public async Task<IActionResult> GetUserReportPermissions([FromRoute] string reportKey)
     {
-        var query = new GetUserReportPermissionsQuery { ExternalSubject = _userContext.Email ?? Guid.NewGuid().ToString(), ReportKey = reportKey };
+        var query = new GetUserReportPermissionsQuery { ExternalSubject = _userContext.UserIdentifier ?? Guid.NewGuid().ToString(), ReportKey = reportKey };
 
         var result = await _executor.ExecuteQuery(query);
 
