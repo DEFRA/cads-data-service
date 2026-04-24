@@ -11,4 +11,6 @@ public interface IBulkImportCommandFactory
     StreamWriter CreateTextImport(BulkImportType bulkImportType, char delimiter);
     DbCommand CreateUpsertCommand(BulkImportType bulkImportType);
     DbCommand CreateSetDeferredAllContraintCommand();
+
+    DbCommand CreateTempTableQueryCommand(BulkImportType bulkImportType);
 }

@@ -63,6 +63,7 @@ public class BulkImportCopyService(
                 var setContraintStateOnCommand = bulkImportCommandFactory.CreateSetContraintStateCommand(dto.BulkImportType, true);
                 var upsertCommand = bulkImportCommandFactory.CreateUpsertCommand(dto.BulkImportType);
                 var deleteCommand = bulkImportCommandFactory.CreateDeleteCommand(dto.BulkImportType);
+                var queryCommand = (NpgsqlCommand)bulkImportCommandFactory.CreateTempTableQueryCommand(dto.BulkImportType);
 
                 // Process each file found under the specified bucket and prefix
                 foreach (var key in keys)
@@ -77,6 +78,16 @@ public class BulkImportCopyService(
                     await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
                     
                     await CopyFileToStagingAsync(bulkImportCommandFactory, dto.BulkImportType, dto.Delimiter, key, cancellationToken);
+
+                    // Temporarily execute the query command to load the data into a DataSet.
+                    // This is necessary to ensure that the data is loaded into memory before we turn off constraints and perform upsert/delete operations.
+                    var data = ExecuteQueryToDataSet(queryCommand);
+
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.LogInformation("Temporary table populated with {recordCount} records for job {jobId} with key prefix {prefix}",
+                            dto.JobId, dto.SourceKey, data.Tables[0].Rows.Count);
+                    }
 
                     await setContraintStateOffCommand.ExecuteNonQueryAsync(cancellationToken);
 
@@ -129,5 +140,17 @@ public class BulkImportCopyService(
         {
             await writer.WriteLineAsync(line);
         }
+    }
+
+    static DataSet ExecuteQueryToDataSet(NpgsqlCommand command)
+    {
+        var dataSet = new DataSet();
+
+        using (var adapter = new NpgsqlDataAdapter(command))
+        {
+            adapter.Fill(dataSet);
+        }
+
+        return dataSet;
     }
 }
