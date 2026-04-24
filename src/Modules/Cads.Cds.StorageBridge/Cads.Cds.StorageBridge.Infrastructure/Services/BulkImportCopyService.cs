@@ -92,7 +92,9 @@ public class BulkImportCopyService(
                     await setContraintStateOffCommand.ExecuteNonQueryAsync(cancellationToken);
 
                     await upsertCommand.ExecuteNonQueryAsync(cancellationToken);
-                    await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
+
+                    // Removed for now, unsure how we will handle deletes
+                    //await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
 
                     await setContraintStateOnCommand.ExecuteNonQueryAsync(cancellationToken);
 
