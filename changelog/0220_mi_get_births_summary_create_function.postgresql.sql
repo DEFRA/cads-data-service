@@ -10,42 +10,47 @@ CREATE OR REPLACE FUNCTION public.get_births_summary(
     p_birth_date_to date
 )
     RETURNS TABLE (
-                      "Birth Year" int,
-                      "Birth Month" text,
-                      "Country" text,
-                      "Gov Region" text,
-                      "County" text,
-                      "Breed Type" text,
-                      "Breed" text,
-                      "Sex" text,
-                      "Application Type" text,
-                      "Number Of Births" bigint
+                      "birth_year" int,
+                      "birth_month" text,
+                      "country" text,
+                      "gov_region" text,
+                      "county" text,
+                      "breed_type" text,
+                      "breed" text,
+                      "sex" text,
+                      "application_type" text,
+                      "number_of_births" bigint
                   )
     LANGUAGE sql
 AS $$
 select
-    extract(year from _ct_registered_animals.ran_birth_date)::int as "Birth Year",
-    trim(to_char(_ct_registered_animals.ran_birth_date, 'Month')) as "Birth Month",
-    coalesce(_ct_countries.cry_name, 'Unknown') as "Country",
-    null::text as "Gov Region",
-    _ct_counties.cty_name as "County",
+    extract(year from _ct_registered_animals.ran_birth_date)::int as "birth_year",
+    trim(to_char(_ct_registered_animals.ran_birth_date, 'Month')) as "birth_month",
+    case
+        when _ct_counties.cty_uk_area = 'S' then 'Scotland'
+        when _ct_counties.cty_uk_area = 'W' then 'Wales'
+        when _ct_counties.cty_name is not null then 'England'
+        else 'Unknown'
+        end as "country",
+    null::text as "gov_region",
+    _ct_counties.cty_name as "county",
     case
         when _ct_breeds.brd_type = 'D' then 'Dairy'
         else 'Non Dairy'
-        end as "Breed Type",
+        end as "breed_type",
     upper(
         coalesce(
             _ct_breeds.brd_long_description,
             _ct_breeds.brd_short_description,
             _ct_breeds.brd_code
         )
-    ) as "Breed",
-    _ct_registered_animals.ran_sex as "Sex",
+    ) as "breed",
+    _ct_registered_animals.ran_sex as "sex",
     case
         when _ct_valid_applications.vap_application_type = 'B' then 'Birth Application'
         else _ct_valid_applications.vap_application_type
-        end as "Application Type",
-    count(*) as "Number Of Births"
+        end as "application_type",
+    count(*) as "number_of_births"
 from _ct_registered_animals
          left join _ct_breeds
                    on _ct_breeds.brd_id = _ct_registered_animals.ran_brd_id
@@ -55,15 +60,18 @@ from _ct_registered_animals
                    on _ct_locations.loc_id = _ct_registered_animals.ran_loc_id_passport
          left join _ct_counties
                    on _ct_counties.cty_id = _ct_locations.loc_cty_id
-         left join _ct_countries
-                   on _ct_countries.cry_id = _ct_registered_animals.ran_cry_id_chr_origin
 where _ct_registered_animals.ran_birth_date is not null
   and _ct_registered_animals.ran_birth_date >= p_birth_date_from
   and _ct_registered_animals.ran_birth_date < p_birth_date_to
 group by
     extract(year from _ct_registered_animals.ran_birth_date),
     trim(to_char(_ct_registered_animals.ran_birth_date, 'Month')),
-    coalesce(_ct_countries.cry_name, 'Unknown'),
+    case
+        when _ct_counties.cty_uk_area = 'S' then 'Scotland'
+        when _ct_counties.cty_uk_area = 'W' then 'Wales'
+        when _ct_counties.cty_name is not null then 'England'
+        else 'Unknown'
+        end,
     _ct_counties.cty_name,
     case
         when _ct_breeds.brd_type = 'D' then 'Dairy'
@@ -82,12 +90,12 @@ group by
         else _ct_valid_applications.vap_application_type
         end
 order by
-    "Birth Year",
-    "Birth Month",
-    "Country",
-    "County",
-    "Breed Type",
-    "Breed",
-    "Sex",
-    "Application Type";
+    "birth_year",
+    "birth_month",
+    "country",
+    "county",
+    "breed_type",
+    "breed",
+    "sex",
+    "application_type";
 $$;
