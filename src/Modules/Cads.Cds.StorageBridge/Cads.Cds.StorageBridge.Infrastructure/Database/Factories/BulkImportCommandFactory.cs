@@ -53,6 +53,12 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         Connection = connection
     };
 
+    public DbCommand CreateTempTableQueryCommand(BulkImportType bulkImportType) => new NpgsqlCommand
+    {
+        CommandText = $"SELECT * FROM {GetTempTableName(bulkImportType)}",
+        Connection = connection
+    };
+
     private static string GetTempTableName(BulkImportType bulkImportType) => $"temp_{bulkImportType.GetTableName()}";
 
     private string CreateUpsertSetClause(BulkImportType bulkImportType)
