@@ -34,7 +34,7 @@ public static class WebApplicationExtensions
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
-
+       
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -63,5 +63,7 @@ public static class WebApplicationExtensions
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
         }).AllowAnonymous();
+
+        app.UseMiddleware<RouteLoggerMiddleware>();
     }
 }

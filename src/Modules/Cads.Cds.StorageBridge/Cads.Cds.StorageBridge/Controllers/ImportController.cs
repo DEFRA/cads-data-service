@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.StorageBridge.Application.Commands.BulkImport;
 using Cads.Cds.StorageBridge.Controllers.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
 
@@ -11,6 +12,12 @@ namespace Cads.Cds.StorageBridge.Controllers;
 public class ImportController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
+
+    [HttpGet("test")]
+    public async Task<IActionResult> Test()
+    {
+        return Ok("hello");
+    }
 
     [ExcludeFromCodeCoverage]
     [HttpPost("import")]

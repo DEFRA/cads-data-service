@@ -19,6 +19,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<Channel<CreateBulkImportJobDto>>(Channel.CreateUnbounded<CreateBulkImportJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
 
+        services.AddHostedService<BulkImportBackgroundService>();
+
         services.AddTransient<IBulkImportEnqueueService, BulkImportEnqueueService>();
     }
 }

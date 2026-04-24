@@ -11,16 +11,14 @@ public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
     private readonly IAmazonS3 _s3Client = s3ClientFactory.GetClient<T>();
     private readonly string _bucketName = s3ClientFactory.GetClientBucketName<T>();
 
-    public async Task<StreamReader> GetStreamReader(string key, CancellationToken cancellationToken = default)
+    public async Task<GetObjectResponse> GetObjectResponseAsync(string key, CancellationToken cancellationToken = default)
     {
         // Get the object from S3
-        using var response = await _s3Client.GetObjectAsync(new GetObjectRequest
+        return await _s3Client.GetObjectAsync(new GetObjectRequest
         {
             BucketName = _bucketName,
             Key = key
         }, cancellationToken);
-
-        return new StreamReader(response.ResponseStream, Encoding.UTF8);
     }
 
     public Task<string> ReadAsync(string key, CancellationToken cancellationToken)

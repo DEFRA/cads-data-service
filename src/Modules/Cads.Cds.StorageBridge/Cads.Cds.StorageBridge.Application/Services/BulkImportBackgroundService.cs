@@ -1,5 +1,6 @@
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -9,23 +10,26 @@ namespace Cads.Cds.StorageBridge.Application.Services;
 
 public class BulkImportBackgroundService(
     Channel<CreateBulkImportJobDto> channel,
-    ILogger<BulkImportBackgroundService> logger,
-    IBulkImportCopyService bulkImportCopyService) : BackgroundService
+    IServiceScopeFactory scopeFactory,
+    ILogger<BulkImportBackgroundService> logger) : BackgroundService
 {
-    private readonly Channel<CreateBulkImportJobDto> _channel = channel;
-    private readonly ILogger<BulkImportBackgroundService> _logger = logger;
     private readonly int _maxParallelImports = 5;
- 
+
     protected override async Task ExecuteAsync(CancellationToken cancellationToken = default)
     {
         var semaphore = new SemaphoreSlim(_maxParallelImports);
         var runningTasks = new ConcurrentBag<Task>();
+        IBulkImportCopyService? service = null;
 
-        await foreach (var request in _channel.Reader.ReadAllAsync(cancellationToken))
+        using var scope = scopeFactory.CreateScope();
+
+        await foreach (var request in channel.Reader.ReadAllAsync(cancellationToken))
         {
+            service = service ?? scope.ServiceProvider.GetRequiredService<IBulkImportCopyService>();
+
             if (cancellationToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Cancellation requested, aborting split");
+                logger.LogInformation("Cancellation requested, aborting import");
                 return;
             }
 
@@ -35,7 +39,7 @@ public class BulkImportBackgroundService(
             {
                 try
                 {
-                   var result = await bulkImportCopyService.ExecuteAsync(request, cancellationToken);
+                    var result = await service.ExecuteAsync(request, cancellationToken);
 
                     if (result)
                     {
@@ -48,7 +52,7 @@ public class BulkImportBackgroundService(
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to copy file {Key}", request.SourceKey);
+                    logger.LogError(ex, "Failed to copy file {Key}", request.SourceKey);
                 }
                 finally
                 {

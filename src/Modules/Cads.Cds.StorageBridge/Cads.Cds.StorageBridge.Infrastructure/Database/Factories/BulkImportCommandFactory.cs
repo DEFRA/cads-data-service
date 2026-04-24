@@ -10,11 +10,12 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
 {
     public DbCommand CreateTempTableCommand(BulkImportType bulkImportType) => new NpgsqlCommand
     {
-        CommandText = $"CREATE TEMP TABLE {GetTempTableName(bulkImportType)} " +
+        CommandText = $"CREATE TEMP TABLE {GetTempTableName(bulkImportType)} (" +
             $"record_type TEXT, " +
             $"record_count BIGINT, " +
-            $"LIKE {bulkImportType.GetTableName()} INCLUDING ALL " +
-            $"ON COMMIT DROP",
+            $"LIKE {bulkImportType.GetTableName()} INCLUDING ALL ) " +
+            $"ON COMMIT DROP; " +
+            $"ALTER TABLE {GetTempTableName(bulkImportType)} DROP COLUMN row_number;",
         Connection = connection
     };
 
