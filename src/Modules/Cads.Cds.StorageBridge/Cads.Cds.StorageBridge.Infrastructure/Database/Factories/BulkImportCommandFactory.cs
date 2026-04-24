@@ -13,7 +13,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         CommandText = $"CREATE TEMP TABLE {GetTempTableName(bulkImportType)} (" +
             $"record_type TEXT, " +
             $"record_count BIGINT, " +
-            $"LIKE {bulkImportType.GetTableName()} INCLUDING ALL ) " +
+            $"LIKE {bulkImportType.GetTableName()} INCLUDING ALL) " +
             $"ON COMMIT DROP; " +
             $"ALTER TABLE {GetTempTableName(bulkImportType)} DROP COLUMN row_number;",
         Connection = connection
@@ -24,21 +24,37 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
             $"COPY {GetTempTableName(bulkImportType)} " +
             $"FROM STDIN WITH (FORMAT csv, DELIMITER '{delimiter}', HEADER true)");
 
-    public DbCommand CreateUpsertCommand(BulkImportType bulkImportType) => new NpgsqlCommand
+    public DbCommand CreateUpsertCommand(BulkImportType bulkImportType)
     {
-        CommandText = $"INSERT INTO {bulkImportType.GetTableName()} " +
-            $"SELECT * FROM {GetTempTableName(bulkImportType)} WHERE [record_type]='I' OR [record_type]='U' " +
-            $"ON CONFLICT (id) DO UPDATE " +
-            $"SET {CreateUpsertSetClause(bulkImportType)}",
-        Connection = connection
-    };
+        var columnNames = GetColumnNamesAsync(bulkImportType).GetAwaiter().GetResult();
 
-    public DbCommand CreateDeleteCommand(BulkImportType bulkImportType) => new NpgsqlCommand
+        var command = new NpgsqlCommand
+        {
+            CommandText = $"INSERT INTO {bulkImportType.GetTableName()} " +
+                $"SELECT {string.Join(",", columnNames)} FROM {GetTempTableName(bulkImportType)} " +
+                // Exclude record type check from the upsert operation
+                //$"WHERE [record_type]='I' OR [record_type]='U' " +
+                $"ON CONFLICT ({columnNames[0]}) DO UPDATE " +
+                $"SET {CreateUpsertSetClause(columnNames)}",
+            Connection = connection
+        };
+
+        return command;
+    }
+
+    public DbCommand CreateDeleteCommand(BulkImportType bulkImportType)
     {
-        CommandText = $"DELETE FROM {bulkImportType.GetTableName()} " + 
-            $"WHERE id IN (SELECT id FROM {GetTempTableName(bulkImportType)} WHERE [record_type]='D')",
-        Connection = connection
-    };
+        var columnNames = GetColumnNamesAsync(bulkImportType).GetAwaiter().GetResult();
+
+        var command = new NpgsqlCommand
+        {
+            CommandText = $"DELETE FROM {bulkImportType.GetTableName()} " +
+                   $"WHERE {columnNames[0]} IN (SELECT {columnNames[0]} FROM {GetTempTableName(bulkImportType)} WHERE [record_type]='D')",
+            Connection = connection
+        };
+       
+         return command;
+    }
 
     public DbCommand CreateSetContraintStateCommand(BulkImportType bulkImportType, bool state) => new NpgsqlCommand
     {
