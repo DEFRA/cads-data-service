@@ -9,21 +9,48 @@ public class XlsxReport<T>
     public List<string> Headers { get; set; }
     public List<T> Data { get; set; }
     public List<Func<T, string>> Selectors { get; set; }
+    public string TemplateFileName { get; set; }
 
     public void Generate(string filePath)
     {
-        using var spreadsheet = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook);
-
-        var workbookPart = BuildWorkbook(spreadsheet);
-        workbookPart.Workbook!.Save();
+        if (!String.IsNullOrEmpty(TemplateFileName))
+        {
+            using var spreadsheet = SpreadsheetDocument.Open(TemplateFileName, true);
+            
+            var workbookPart = spreadsheet.WorkbookPart!;
+            var worksheet = workbookPart.WorksheetParts!.FirstOrDefault()!.Worksheet!;
+            var sheetData = worksheet.GetFirstChild<SheetData>();
+            AddTableData(sheetData!);
+            worksheet.Save();
+            spreadsheet.Clone(filePath);
+        }
+        else
+        {
+            using var spreadsheet = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook);
+            var workbookPart = BuildWorkbook(spreadsheet);
+            workbookPart.Workbook!.Save();
+        }
     }
     
     public void Generate(MemoryStream stream)
     {
-        using var spreadsheet = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
-
-        var workbookPart = BuildWorkbook(spreadsheet);
-        workbookPart.Workbook!.Save();
+        if (!String.IsNullOrEmpty(TemplateFileName))
+        {
+            using var spreadsheet = SpreadsheetDocument.Open(TemplateFileName, true);
+            
+            var workbookPart = spreadsheet.WorkbookPart!;
+            var worksheet = workbookPart.WorksheetParts!.FirstOrDefault()!.Worksheet!;
+            var sheetData = worksheet.GetFirstChild<SheetData>();
+            AddTableData(sheetData!);
+            worksheet.Save();
+            spreadsheet.Clone(stream);
+        }
+        else
+        {
+            using var spreadsheet = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
+            var workbookPart = BuildWorkbook(spreadsheet);
+            workbookPart.Workbook!.Save();
+        }
     }
 
     private WorkbookPart BuildWorkbook(SpreadsheetDocument spreadsheet)
@@ -52,16 +79,50 @@ public class XlsxReport<T>
         sheetData.Append(headerRow);
     }
 
+    private int GetColumnIndexFromCellReference(string reference)
+    {
+        int offset = 0;
+        int index = 0;
+        while (reference[offset] >= 'A' && reference[offset] <= 'Z')
+        {
+            index *= 26;
+            index += reference[offset] - 'A' + 1;
+            offset++;
+        }
+
+        return index;
+    }
+
     private void AddTableData(SheetData sheetData)
     {
+        var templateRow = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == 20);
+        var header = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == 19);
+        sheetData.RemoveChild(templateRow);
+        
+        foreach(var row in sheetData.ChildElements.OfType<Row>().Where(x => x.RowIndex?.Value > 20))
+        {
+            row.RowIndex = null;
+        }
+        
+        var previousRow = header;
         foreach (var rowData in Data)
         {
-            var row = new Row();
-            foreach (var columnMapper in Selectors)
+            var nextRow = (Row)templateRow.CloneNode(true);
+            nextRow.RowIndex = null;
+            var cells = nextRow.ChildElements.OfType<Cell>();
+            foreach (var cell in cells)
             {
-                row.Append(new Cell { CellValue = new CellValue(columnMapper(rowData)), DataType = CellValues.String });
+                var columnIndex = GetColumnIndexFromCellReference(cell!.CellReference);
+                if (columnIndex <= 1 || columnIndex > Selectors.Count)
+                    continue;
+                cell.CellReference = null;
+                
+                cell.CellValue = new CellValue(Selectors[columnIndex-1](rowData));
+                cell.DataType = new EnumValue<CellValues>(CellValues.String);
             }
-            sheetData.Append(row);
+
+            previousRow.InsertAfterSelf(nextRow);
+            previousRow = nextRow;
         }
     }
 }
