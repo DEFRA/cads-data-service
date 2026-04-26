@@ -1,3 +1,4 @@
+using System.Globalization;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -8,7 +9,7 @@ public class XlsxReport<T>
 {
     public List<string> Headers { get; set; }
     public List<T> Data { get; set; }
-    public List<Func<T, string>> Selectors { get; set; }
+    public List<Func<T, IConvertible>> Selectors { get; set; }
     public string TemplateFileName { get; set; }
     
     ///<Summary>
@@ -106,14 +107,14 @@ public class XlsxReport<T>
     private void AddTableData(SheetData sheetData)
     {
         var templateRow = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow);
-        var header = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow-1);
+        var header = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow - 1);
         sheetData.RemoveChild(templateRow);
-        
-        foreach(var row in sheetData.ChildElements.OfType<Row>().Where(x => x.RowIndex?.Value > TableTemplateRow))
+
+        foreach (var row in sheetData.ChildElements.OfType<Row>().Where(x => x.RowIndex?.Value > TableTemplateRow))
         {
             row.RowIndex = null;
         }
-        
+
         var previousRow = header;
         foreach (var rowData in Data)
         {
@@ -123,16 +124,24 @@ public class XlsxReport<T>
             foreach (var cell in cells)
             {
                 var columnIndex = GetColumnIndexFromCellReference(cell!.CellReference!);
-                if (columnIndex < TemplateRowFirstColumn || columnIndex > TemplateRowFirstColumn + Selectors.Count - 2)
+                if (columnIndex < TemplateRowFirstColumn || columnIndex > TemplateRowFirstColumn + Selectors.Count - 1)
                     continue;
                 cell.CellReference = null;
-                
-                cell.CellValue = new CellValue(Selectors[columnIndex- TemplateRowFirstColumn + 1](rowData));
-                cell.DataType = new EnumValue<CellValues>(CellValues.String);
+
+                var value = Selectors[columnIndex - TemplateRowFirstColumn](rowData);
+                cell.CellValue = new CellValue(value.ToString(CultureInfo.InvariantCulture));
+                cell.DataType = MapValueToExcelType(value);
             }
 
             previousRow.InsertAfterSelf(nextRow);
             previousRow = nextRow;
         }
+    }
+
+    private static EnumValue<CellValues> MapValueToExcelType(IConvertible value)
+    {
+        return value is int
+            ? new EnumValue<CellValues>(CellValues.Number)
+            : new EnumValue<CellValues>(CellValues.String);
     }
 }
