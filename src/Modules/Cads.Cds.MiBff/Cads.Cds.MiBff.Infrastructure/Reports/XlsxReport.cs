@@ -10,6 +10,16 @@ public class XlsxReport<T>
     public List<T> Data { get; set; }
     public List<Func<T, string>> Selectors { get; set; }
     public string TemplateFileName { get; set; }
+    
+    ///<Summary>
+    /// row number where table data starts, starting from 1
+    /// </Summary>
+    public int TableTemplateRow { get; set; }
+    
+    ///<Summary>
+    /// column number where table data starts, starting from 1
+    /// </Summary>
+    public int TemplateRowFirstColumn { get; set; }
 
     public void Generate(string filePath)
     {
@@ -95,11 +105,11 @@ public class XlsxReport<T>
 
     private void AddTableData(SheetData sheetData)
     {
-        var templateRow = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == 20);
-        var header = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == 19);
+        var templateRow = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow);
+        var header = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow-1);
         sheetData.RemoveChild(templateRow);
         
-        foreach(var row in sheetData.ChildElements.OfType<Row>().Where(x => x.RowIndex?.Value > 20))
+        foreach(var row in sheetData.ChildElements.OfType<Row>().Where(x => x.RowIndex?.Value > TableTemplateRow))
         {
             row.RowIndex = null;
         }
@@ -112,12 +122,12 @@ public class XlsxReport<T>
             var cells = nextRow.ChildElements.OfType<Cell>();
             foreach (var cell in cells)
             {
-                var columnIndex = GetColumnIndexFromCellReference(cell!.CellReference);
-                if (columnIndex <= 1 || columnIndex > Selectors.Count)
+                var columnIndex = GetColumnIndexFromCellReference(cell!.CellReference!);
+                if (columnIndex < TemplateRowFirstColumn || columnIndex > TemplateRowFirstColumn + Selectors.Count - 2)
                     continue;
                 cell.CellReference = null;
                 
-                cell.CellValue = new CellValue(Selectors[columnIndex-1](rowData));
+                cell.CellValue = new CellValue(Selectors[columnIndex- TemplateRowFirstColumn + 1](rowData));
                 cell.DataType = new EnumValue<CellValues>(CellValues.String);
             }
 
