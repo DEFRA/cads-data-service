@@ -29,9 +29,8 @@ public class XlsxReportGenerator : IXlsxReportGenerator
             "Application Type",
             "Number Of Births"
         };
-        report.Selectors = new List<Func<CattleRegistration, string>>()
+        report.Selectors = new List<Func<CattleRegistration, IConvertible>>()
         {
-            (x) => "",
             (x) => x.BirthYear,
             (x) => x.BirthMonth,
             (x) => x.Country,
