@@ -8,9 +8,9 @@ public class ReportGenerationService(
     IReportRepository reportRepository) : IReportGenerationService
 {
 
-    public async Task<MemoryStream> GetCattleRegistrations()
+    public async Task<MemoryStream> GetCattleRegistrations(DateTime dateTimeFrom, DateTime dateTimeTo)
     {
-        var data = await reportRepository.GetCattleRegistrationReport();
+        var data = await reportRepository.GetCattleRegistrationReport(dateTimeFrom, dateTimeTo);
         return reportGenerator.Generate(data);
     }
 }
