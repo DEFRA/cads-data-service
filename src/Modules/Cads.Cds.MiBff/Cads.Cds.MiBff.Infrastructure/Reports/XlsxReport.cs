@@ -97,9 +97,12 @@ public class XlsxReport<T>
 
     private static EnumValue<CellValues> MapValueToExcelType(IConvertible value)
     {
-        return value is int
-            ? new EnumValue<CellValues>(CellValues.Number)
-            : value is string ? new EnumValue<CellValues>(CellValues.String)
-                : throw new ApplicationException($"Unsupported value type for excel report builder - {value.GetType()}");
+        if (value is int)
+            return new EnumValue<CellValues>(CellValues.Number);
+        
+        if (value is string)
+            return new EnumValue<CellValues>(CellValues.String); 
+        
+        throw new Exception($"Unsupported value type for excel report builder - {value.GetType()}");
     }
 }
