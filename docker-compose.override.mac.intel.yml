@@ -44,9 +44,9 @@ services:
     image: postgres:16.6
     container_name: reference-postgres
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_REF_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_REF_DB:-reference_schema}
     ports:
       - "54432:5432"
     volumes:
@@ -69,9 +69,7 @@ services:
     ports:
       - 16543:80
     volumes:
-      - ./compose/postgres/servers:/host:ro
       - pgadmin-data:/var/lib/pgadmin
-    entrypoint: ["/host/init.sh"]
     networks:
       - cads-tools
 
@@ -82,3 +80,4 @@ networks:
 volumes:
   reference-postgres-data:
   pgadmin-data:
+  pgadmin-config:

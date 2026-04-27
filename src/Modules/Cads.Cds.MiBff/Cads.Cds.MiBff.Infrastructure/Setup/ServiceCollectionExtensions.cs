@@ -15,12 +15,12 @@ namespace Cads.Cds.MiBff.Infrastructure.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddMiBffInfrastructureLayer(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddMiBffInfrastructureLayer(this IServiceCollection services)
     {
         services.AddPostgresDbContext<MiBffWriteDbContext>();
         services.AddPostgresDbContext<MiBffReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
 
-        services.AddScoped<IMiEffectiveReportPermissionRepository, MiEffectiveReportPermissionRepository>();
+        // Tables
         services.AddScoped<IMiPermissionRepository, MiPermissionRepository>();
         services.AddScoped<IMiReportGroupMapRepository, MiReportGroupMapRepository>();
         services.AddScoped<IMiReportGroupRepository, MiReportGroupRepository>();
@@ -31,13 +31,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMiUserRepository, MiUserRepository>();
         services.AddScoped<IMiUserRoleRepository, MiUserRoleRepository>();
 
+        // Views
+        services.AddScoped<IMiEffectiveReportPermissionRepository, MiEffectiveReportPermissionRepository>();
+        services.AddScoped<IMiEffectiveReportAllPermissionRepository, MiEffectiveReportAllPermissionRepository>();
+
         services.AddScoped<
             IDbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>,
             DbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>>();
 
         // Report and permission services
         services.AddTransient<IReportRepository, FakeReportRepository>();
-        services.AddTransient<IReportService, ReportService>();
         services.AddTransient<IReportGenerationService, ReportGenerationService>();
         services.AddTransient<IXlsxReportGenerator, XlsxReportGenerator>();
         return services;
