@@ -27,7 +27,7 @@ public class XlsxReportGenerator : IXlsxReportGenerator
             TableTemplateRow = 20,
             TemplateRowFirstColumn = 2
         };
-        
+
         var output = new MemoryStream();
         report.Generate(output);
         return output;

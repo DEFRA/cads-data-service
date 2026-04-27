@@ -88,7 +88,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IJourneyHaulierService, JourneyHaulierService>();
         services.AddTransient<IMovementService, MovementService>();
         services.AddTransient<IZoneService, ZoneService>();
-        
+
         // Report and permission services
         services.AddTransient<IReportAccessService, ReportAccessService>();
     }

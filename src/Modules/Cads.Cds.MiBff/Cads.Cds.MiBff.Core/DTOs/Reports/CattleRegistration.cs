@@ -16,6 +16,6 @@ public class CattleRegistration
     public static List<CattleRegistration> GetFakeData(int rows)
     {
         Random rnd = new Random();
-        return Enumerable.Range(1, 20).Select(x => new CattleRegistration() { NumberOfBirths = rnd.Next(1, 25)}).ToList();
+        return Enumerable.Range(1, 20).Select(x => new CattleRegistration() { NumberOfBirths = rnd.Next(1, 25) }).ToList();
     }
 }

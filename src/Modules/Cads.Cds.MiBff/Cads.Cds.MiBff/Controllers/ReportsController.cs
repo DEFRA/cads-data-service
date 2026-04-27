@@ -28,7 +28,7 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
 
         return Ok(result);
     }
-    
+
     [ExcludeFromCodeCoverage]
     [HttpPost("cattle_registrations")]
     public async Task<IActionResult> GetCattleRegistrations()
