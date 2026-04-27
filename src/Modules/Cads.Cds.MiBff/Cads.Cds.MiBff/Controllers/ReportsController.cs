@@ -33,7 +33,7 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
     [HttpPost("cattle_registrations")]
     public async Task<IActionResult> GetCattleRegistrations()
     {
-        var result = await irs.GetCattleRegistrations(new DateTime(), new DateTime());
+        var result = await irs.GetCattleRegistrations(DateTime.MinValue, DateTime.MaxValue);
         result.Position = 0;
 
         return File(fileContents: result.ToArray(),
