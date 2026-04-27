@@ -27,7 +27,7 @@ COPY src/ ./src/
 
 # Remove unwanted projects from the solution before restore
 RUN dotnet sln Cads.Cds.sln remove docker-compose.dcproj || true
-RUN dotnet sln Cads.Cds.sln list | grep "Tests" | xargs -I {} dotnet sln Cads.Cds.sln remove "{}" || true
+RUN dotnet sln Cads.Cds.sln list | grep "test" | xargs -I {} dotnet sln Cads.Cds.sln remove "{}" || true
 
 # Restore solution
 RUN dotnet restore -r "linux-${TARGETARCH}" -v n

@@ -7,7 +7,7 @@ set -euo pipefail
 # Resolve ROOT_DIR to the real cads-tools folder
 # Works locally AND in GitHub Actions
 # ------------------------------------------------------------
-if [ -z "${ROOT_DIR:-}" ]; then
+if [[ -z "${ROOT_DIR:-}" ]]; then
   export ROOT_DIR="$(cd "$(dirname "$0")/../../cads-tools" && pwd)"
 fi
 
@@ -26,6 +26,7 @@ ensure_network() {
     echo "[platform] Creating cads-tools network..."
     docker network create cads-tools
   fi
+  return $?
 }
 
 # Determine which override file to use
@@ -34,7 +35,7 @@ compose_override() {
     --mac-intel) echo "docker-compose.override.mac.intel.yml" ;;
     --mac-arm)  echo "docker-compose.override.mac.arm.yml" ;;
     *)
-      if [ "${CI:-}" = "true" ]; then
+      if [[ "${CI:-}" = "true" ]]; then
         echo "docker-compose.ci-override.yml"
       else
         echo "docker-compose.override.yml"
@@ -67,7 +68,7 @@ start_backend() {
   docker compose -p cads-tools \
     -f docker-compose.yml \
     -f "$OVERRIDE_FILE" \
-    up -d
+    up --build -d
 
   return $?
 }
@@ -82,7 +83,7 @@ stop_backend() {
 start_ui() {
   echo "[platform] Starting UI..."
   cd "$UI_DIR"
-  docker compose -p cads-tools -f docker-compose.yml up -d
+  docker compose -p cads-tools -f docker-compose.yml up --build -d
   return $?
 }
 
