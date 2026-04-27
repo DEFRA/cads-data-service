@@ -7,11 +7,9 @@ namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
 public class XlsxReport<T>
 {
-    //TODO revisit nullability
-    public List<string>? Headers { get; set; }
-    public List<T>? Data { get; set; }
-    public List<Func<T, IConvertible>>? Selectors { get; set; }
-    public string? TemplateFileName { get; set; }
+    public required List<T> Data { get; set; }
+    public required List<Func<T, IConvertible>> Selectors { get; set; }
+    public required string TemplateFileName { get; set; }
     
     ///<Summary>
     /// row number where table data starts, starting from 1
@@ -23,32 +21,10 @@ public class XlsxReport<T>
     /// </Summary>
     public int TemplateRowFirstColumn { get; set; }
 
-    public void Generate(string filePath)
-    {
-        if (!String.IsNullOrEmpty(TemplateFileName))
-        {
-            using var spreadsheet = BuildFromTemplate();
-            spreadsheet.Clone(filePath);
-        }
-        else
-        {
-            using var spreadsheet = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook);
-            BuildWorkbook(spreadsheet);
-        }
-    }
-
     public void Generate(MemoryStream stream)
     {
-        if (!String.IsNullOrEmpty(TemplateFileName))
-        {
-            using var spreadsheet = BuildFromTemplate();
-            spreadsheet.Clone(stream);
-        }
-        else
-        {
-            using var spreadsheet = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
-            BuildWorkbook(spreadsheet);
-        }
+        using var spreadsheet = BuildFromTemplate();
+        spreadsheet.Clone(stream);
     }
 
     private SpreadsheetDocument BuildFromTemplate()
@@ -71,35 +47,6 @@ public class XlsxReport<T>
         }
     }
 
-    private void BuildWorkbook(SpreadsheetDocument spreadsheet)
-    {
-        var workbookPart = spreadsheet.AddWorkbookPart();
-        workbookPart.Workbook = new Workbook();
-
-        var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
-        var sheetData = new SheetData();
-        worksheetPart.Worksheet = new Worksheet(sheetData);
-
-        var sheets = spreadsheet.WorkbookPart!.Workbook!.AppendChild(new Sheets());
-        sheets.Append(new Sheet { Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Report" });
-    
-        if (Headers != null)
-            ApplyHeaderRow(sheetData, Headers); 
-        
-        AddTableData(sheetData);
-        
-        workbookPart.Workbook!.Save();
-    }
-
-    private static void ApplyHeaderRow(SheetData sheetData, List<string> headers)
-    {
-        var headerRow = new Row();
-        headerRow.Append(
-            headers.Select(x => (OpenXmlElement)new Cell { CellValue = new CellValue(x), DataType = CellValues.String }).ToArray()
-        );
-        sheetData.Append(headerRow);
-    }
-
     private int GetColumnIndexFromCellReference(string reference)
     {
         int offset = 0;
@@ -116,9 +63,6 @@ public class XlsxReport<T>
 
     private void AddTableData(SheetData sheetData)
     {
-        if (Data == null || Selectors == null || Selectors.Count == 0 || Data.Count == 0)
-            return;
-        
         var templateRow = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow);
         var header = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow - 1);
         sheetData.RemoveChild(templateRow);
