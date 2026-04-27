@@ -140,7 +140,7 @@ liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=po
 ```
 If the changelog file can't be found you can use:
 ```
-liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=postgres --password=postgres -contexts=local --changeLogFile=changelog/db.changelog.xml update
+liquibase --url=jdbc:postgresql://localhost:54432/reference_schema --username=postgres --password=postgres --contexts=local --changeLogFile=db.changelog.xml --search-path=changelog  update
 ```
 
 ### Step 2 — Make schema changes in the Reference DB
@@ -157,13 +157,15 @@ Never manually modify the CADS database.
 ### Step 3 — Detect differences
 
 ```
-iquibase diff 
+liquibase diff 
 	--url=jdbc:postgresql://localhost:5432/<POSTGRES_DB> 
 	--username=<POSTGRES_USER> 
 	--password=<POSTGRES_PASSWORD> 
 	--reference-url=jdbc:postgresql://localhost:54432/<POSTGRES_REF_DB> 
 	--reference-username=<POSTGRES_USER> 
 ```
+
+Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff`
 
 This shows what changed between:
 - reference_schema
@@ -181,6 +183,8 @@ liquibase diff-changelog
 	--reference-username=<POSTGRES_USER> 
 	--reference-password=<POSTGRES_PASSWORD>
 ```
+
+Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff-changelog --changelog-file=<XXXX_NEW_CHANGESET_NAME>.postgresql.sql`
 
 Liquibase outputs a migration script containing:
 - addColumn
@@ -256,7 +260,7 @@ Update the master changelog file, `changelog/db.changelog.xml`, with the new cha
 ### Step 6 — Apply the migration to the CADS database
 
 ```
-liquibase -contexts=local update --changelog-file=<migration-name>.postgresql.sql
+liquibase --contexts=local update --changelog-file=<migration-name>.postgresql.sql
 ```
 
 This updates the CADS database to match the reference schema.
@@ -264,8 +268,10 @@ This updates the CADS database to match the reference schema.
 You can also update the CADS database using the below:
 
 ```
-liquibase --url=jdbc:postgresql://localhost:5432/cads_data_service --username=postgres --password=postgres -contexts=local update
+liquibase --url=jdbc:postgresql://localhost:5432/cads_data_service --username=postgres --password=postgres --contexts=local update
 ```
+
+Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase --contexts=local update`
 
 ## 7. Reference vs CADS Responsibilities
 

@@ -17,6 +17,14 @@
   <property name="arEmail" value="andy.rose@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="thName" value="Tom Harrison" context="dev,test,ext-test,perf-test"/>
   <property name="thEmail" value="tom.harrison@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="jtDevName" value="SA-O365-CADS-MIP-DEV" context="dev"/>
+  <property name="jtDevEmail" value="SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com" context="dev"/>
+  <property name="jtTestName" value="SA-O365-CADS-MIP-TEST" context="test"/>
+  <property name="jtTestEmail" value="SA-O365-CADS-MIP-TEST-tst@defradev.onmicrosoft.com" context="test"/>
+  <property name="jtExtTestNam" value="SA-O365-CADS-MIP-EXT-TEST" context="ext-test"/>
+  <property name="jtExtTestEmail" value="SA-O365-CADS-MIP-EXT-TEST-tst@defradev.onmicrosoft.com" context="ext-test"/>
+  <property name="jtPerfTestNam" value="SA-O365-CADS-MIP-PERF-TEST" context="perf-test"/>
+  <property name="jtPerfTestEmail" value="SA-O365-CADS-MIP-PERF-TEST-tst@defradev.onmicrosoft.com" context="perf-test"/>
   <!-- Your existing includes -->
   <include file="db.changelog-1.0.sql"/>
   <include file="0010_mi_user_create_table.postgresql.sql"/>
@@ -37,6 +45,7 @@
   <include file="0160_mi_user_role_seed_initial_user_roles.postgresql.sql"/>
   <include file="0170_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0171_mi_effective_report_permission_update_view.postgresql.sql"/>
+  <include file="0172_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0180_001_party_location_create_table.postgresql.sql"/>
   <include file="0180_002_party_type_create_table.postgresql.sql"/>
   <include file="0180_003_party_state_create_table.postgresql.sql"/>
@@ -182,6 +191,7 @@
   <include file="0180_143__ct_valid_applications_create_table.postgresql.sql"/>
   <include file="0180_144__ct_applic_statuses_create_table.postgresql.sql"/>
   <include file="0180_145__ct_registered_animals_create_table.postgresql.sql"/>
+  <include file="0181_145__ct_registered_animals_create_indexes.postgresql.sql"/>
   <include file="0180_146__ct_animal_claims_create_table.postgresql.sql"/>
   <include file="0180_147__ct_animal_identifiers_create_table.postgresql.sql"/>
   <include file="0180_148__ct_animal_relationships_create_table.postgresql.sql"/>
@@ -217,5 +227,11 @@
   <include file="0192_mi_user_seed_initial_users_test.postgresql.sql"/>
   <include file="0193_mi_user_seed_initial_users_ext-test.postgresql.sql"/>
   <include file="0194_mi_user_seed_initial_users_perf-test.postgresql.sql"/>
+  <include file="0195_mi_user_seed_journey_test_users_dev.postgresql.sql"/>
+  <include file="0196_mi_user_seed_journey_test_users_test.postgresql.sql"/>
+  <include file="0197_mi_user_seed_journey_test_users_ext-test.postgresql.sql"/>
+  <include file="0198_mi_user_seed_journey_test_users_perf-test.postgresql.sql"/>
   <include file="0200_mi_report_update_and_seed_reports.postgresql.sql"/>
+  <include file="0210_mi_effective_report_all_permission_create_view.postgresql.sql"/>
+  <include file="0220_mi_get_births_summary_create_function.postgresql.sql"/>
 </databaseChangeLog>

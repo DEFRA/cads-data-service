@@ -90,6 +90,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IZoneService, ZoneService>();
         
         // Report and permission services
-        services.AddTransient<IReportService, ReportService>();
+        services.AddTransient<IReportAccessService, ReportAccessService>();
     }
 }

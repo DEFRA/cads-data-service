@@ -3,7 +3,7 @@ using Cads.Cds.MiBff.Core.DTOs.Reports;
 
 namespace Cads.Cds.MiBff.Application.Queries.Reports;
 
-public class GetUserReportsByEmailQuery : IQuery<IEnumerable<ReportDto>>
+public class GetPlaceholderReportQuery : IQuery<PlaceholderReportDto>
 {
-    public required string Email { get; set; }
+    public required string ReportKey { get; set; }
 }

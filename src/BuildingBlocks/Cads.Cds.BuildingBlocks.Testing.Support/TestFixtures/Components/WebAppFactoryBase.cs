@@ -10,9 +10,11 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
+using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -23,7 +25,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Net;
-using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
@@ -59,6 +60,7 @@ public abstract class WebAppFactoryBase<TStart>(
 
         builder.ConfigureTestServices(services =>
         {
+            ConfigureDefaultAuthorization(services);
             if (_useFakeAuth)
             {
                 ConfigureFakeAuthorization(services);
@@ -154,6 +156,10 @@ public abstract class WebAppFactoryBase<TStart>(
     private static void SetTestEnvironmentVariables()
     {
         Environment.SetEnvironmentVariable("AWS__ServiceURL", TestAwsConstants.AwsServiceUrl.TrimEnd('/'));
+
+        Environment.SetEnvironmentVariable("Postgres__DefaultConnection", "Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres;");
+        Environment.SetEnvironmentVariable("Postgres__ReadOnlyConnection", "Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres;");
+
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
         Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__Ingester__Storage__CadsIngester__BucketName", TestS3Constants.TestCadsInternalBucketName);
@@ -174,6 +180,14 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__RequireHttpsMetadata", "false");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__ValidateIssuer", "false");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__RoleClaimType", "scope");
+    }
+
+    private static void ConfigureDefaultAuthorization(IServiceCollection services)
+    {
+        services.AddAuthorizationBuilder()
+            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                .RequireAssertion(_ => true)
+                .Build());
     }
 
     private static void ConfigureFakeAuthorization(IServiceCollection services)

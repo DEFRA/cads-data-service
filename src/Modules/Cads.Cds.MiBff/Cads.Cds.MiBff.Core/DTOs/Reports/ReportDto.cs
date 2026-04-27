@@ -11,10 +11,10 @@ public class ReportDto
     public required string ReportKey { get; set; }
 
     [JsonPropertyName("title")]
-    public required string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     [JsonPropertyName("description")]
-    public required string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("isActive")]
     public bool IsActive { get; set; }
