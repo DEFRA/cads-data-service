@@ -15,7 +15,8 @@ public class UsersController(IUserContext userContext) : ControllerBase
     [HttpGet]
     public IActionResult GetCurrentUser()
     {
-        var currentUser = new {
+        var currentUser = new
+        {
             _userContext.Oid,
             _userContext.Email,
             _userContext.DisplayName,
