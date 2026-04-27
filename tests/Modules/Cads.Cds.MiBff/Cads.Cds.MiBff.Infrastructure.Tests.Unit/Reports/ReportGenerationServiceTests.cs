@@ -16,12 +16,12 @@ public class ReportGenerationServiceTests
         var mockDataSource = new Mock<IReportRepository>();
         var mockXlsxGenerator = new Mock<IXlsxReportGenerator>();
         var stubData = new List<CattleRegistration>();
-        mockDataSource.Setup( x=> x.GetCattleRegistrationReport(from, to)).ReturnsAsync(stubData);
+        mockDataSource.Setup(x => x.GetCattleRegistrationReport(from, to)).ReturnsAsync(stubData);
         using var resultStream = new MemoryStream();
         mockXlsxGenerator.Setup(x => x.Generate(stubData)).Returns(resultStream);
-        
+
         var sut = new ReportGenerationService(mockXlsxGenerator.Object, mockDataSource.Object);
-        
+
         var result = await sut.GetCattleRegistrations(from, to);
         result.Should().BeSameAs(resultStream); // assert result is exact same object as mock is set up to return - only possible if the mocks are called in sequence with correct params
     }
