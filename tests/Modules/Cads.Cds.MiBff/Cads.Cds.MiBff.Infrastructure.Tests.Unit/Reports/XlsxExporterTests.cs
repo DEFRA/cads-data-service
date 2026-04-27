@@ -7,11 +7,15 @@ public class XlsxExporterTests
 {
     
     [Fact]
-    public void CreateDocument()
+    public async Task CreateDocument()
     {
         var sut = new XlsxReportGenerator();
-        var data = CattleRegistration.GetFakeData(25);
+        var data = await new FakeReportRepository().GetCattleRegistrationReport(DateTime.MinValue, DateTime.MaxValue);
         
-        sut.Save(data, "./file.xlsx");
+        using var stream = sut.Generate(data);
+        
+        stream.Position = 0;
+        using (FileStream file = new FileStream("file.xlsx", FileMode.Create, System.IO.FileAccess.Write))
+            await stream.CopyToAsync(file, TestContext.Current.CancellationToken);
     }
 }
