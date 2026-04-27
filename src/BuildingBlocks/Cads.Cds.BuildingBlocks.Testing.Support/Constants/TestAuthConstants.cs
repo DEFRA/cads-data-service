@@ -21,6 +21,7 @@ public static class TestAuthConstants
     public const string AzureAdTestUserClientSecret = "local-mock-secret";
 
     // Test user
+    public const string AzureAdEmail = "mip-viewer-user@internal.test";
     public const string AzureAdUsername = "mip-viewer-user";
     public const string AzureAdPassword = "password";
 

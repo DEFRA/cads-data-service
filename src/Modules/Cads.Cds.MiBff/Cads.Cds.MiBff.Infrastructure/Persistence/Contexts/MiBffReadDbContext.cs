@@ -24,10 +24,20 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
 
     // Views
     public DbSet<MiEffectiveReportPermissionView> EffectiveReportPermissions => Set<MiEffectiveReportPermissionView>();
+    public DbSet<MiEffectiveReportAllPermissionView> EffectiveReportAllPermissions => Set<MiEffectiveReportAllPermissionView>();
+
+    // Functions
+    public IQueryable<MiBirthSummaryResult> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
+        => FromExpression(() => GetBirthsSummary(birthDateFrom, birthDateTo));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MiBffReadDbContext).Assembly);
+
+        modelBuilder.HasDbFunction(
+                typeof(MiBffReadDbContext).GetMethod(nameof(GetBirthsSummary))!)
+            .HasName("get_births_summary")
+            .HasSchema("public");
 
         base.OnModelCreating(modelBuilder);
     }

@@ -7,10 +7,11 @@ namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
 public class XlsxReport<T>
 {
-    public List<string> Headers { get; set; }
-    public List<T> Data { get; set; }
-    public List<Func<T, IConvertible>> Selectors { get; set; }
-    public string TemplateFileName { get; set; }
+    //TODO revisit nullability
+    public List<string>? Headers { get; set; }
+    public List<T>? Data { get; set; }
+    public List<Func<T, IConvertible>>? Selectors { get; set; }
+    public string? TemplateFileName { get; set; }
     
     ///<Summary>
     /// row number where table data starts, starting from 1
@@ -26,45 +27,51 @@ public class XlsxReport<T>
     {
         if (!String.IsNullOrEmpty(TemplateFileName))
         {
-            using var spreadsheet = SpreadsheetDocument.Open(TemplateFileName, true);
-            
-            var workbookPart = spreadsheet.WorkbookPart!;
-            var worksheet = workbookPart.WorksheetParts!.FirstOrDefault()!.Worksheet!;
-            var sheetData = worksheet.GetFirstChild<SheetData>();
-            AddTableData(sheetData!);
-            worksheet.Save();
+            using var spreadsheet = BuildFromTemplate();
             spreadsheet.Clone(filePath);
         }
         else
         {
             using var spreadsheet = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook);
-            var workbookPart = BuildWorkbook(spreadsheet);
-            workbookPart.Workbook!.Save();
+            BuildWorkbook(spreadsheet);
         }
     }
-    
+
     public void Generate(MemoryStream stream)
     {
         if (!String.IsNullOrEmpty(TemplateFileName))
         {
-            using var spreadsheet = SpreadsheetDocument.Open(TemplateFileName, true);
-            
-            var workbookPart = spreadsheet.WorkbookPart!;
-            var worksheet = workbookPart.WorksheetParts!.FirstOrDefault()!.Worksheet!;
-            var sheetData = worksheet.GetFirstChild<SheetData>();
-            AddTableData(sheetData!);
-            worksheet.Save();
+            using var spreadsheet = BuildFromTemplate();
             spreadsheet.Clone(stream);
         }
         else
         {
             using var spreadsheet = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
-            var workbookPart = BuildWorkbook(spreadsheet);
-            workbookPart.Workbook!.Save();
+            BuildWorkbook(spreadsheet);
         }
     }
 
-    private WorkbookPart BuildWorkbook(SpreadsheetDocument spreadsheet)
+    private SpreadsheetDocument BuildFromTemplate()
+    {
+        SpreadsheetDocument? spreadsheet = null;
+        try
+        {
+            spreadsheet = SpreadsheetDocument.Open(TemplateFileName!, true);
+            var workbookPart = spreadsheet.WorkbookPart!;
+            var worksheet = workbookPart.WorksheetParts!.FirstOrDefault()!.Worksheet!;
+            var sheetData = worksheet.GetFirstChild<SheetData>();
+            AddTableData(sheetData!);
+            worksheet.Save();
+            return spreadsheet;
+        }
+        catch
+        {
+            spreadsheet?.Dispose();
+            throw;
+        }
+    }
+
+    private void BuildWorkbook(SpreadsheetDocument spreadsheet)
     {
         var workbookPart = spreadsheet.AddWorkbookPart();
         workbookPart.Workbook = new Workbook();
@@ -75,10 +82,13 @@ public class XlsxReport<T>
 
         var sheets = spreadsheet.WorkbookPart!.Workbook!.AppendChild(new Sheets());
         sheets.Append(new Sheet { Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Report" });
-
-        ApplyHeaderRow(sheetData, Headers); 
+    
+        if (Headers != null)
+            ApplyHeaderRow(sheetData, Headers); 
+        
         AddTableData(sheetData);
-        return workbookPart;
+        
+        workbookPart.Workbook!.Save();
     }
 
     private static void ApplyHeaderRow(SheetData sheetData, List<string> headers)
@@ -106,6 +116,9 @@ public class XlsxReport<T>
 
     private void AddTableData(SheetData sheetData)
     {
+        if (Data == null || Selectors == null || Selectors.Count == 0 || Data.Count == 0)
+            return;
+        
         var templateRow = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow);
         var header = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow - 1);
         sheetData.RemoveChild(templateRow);
@@ -142,6 +155,7 @@ public class XlsxReport<T>
     {
         return value is int
             ? new EnumValue<CellValues>(CellValues.Number)
-            : new EnumValue<CellValues>(CellValues.String);
+            : value is string ? new EnumValue<CellValues>(CellValues.String) 
+                : throw new ApplicationException($"Unsupported value type for excel report builder - {value.GetType()}");
     }
 }

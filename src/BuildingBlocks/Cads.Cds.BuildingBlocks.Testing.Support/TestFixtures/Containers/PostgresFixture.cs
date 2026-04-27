@@ -33,7 +33,7 @@ public class PostgresFixture : IAsyncLifetime
         await Container.StartAsync();
         Container.GetConnectionString();
 
-        InitialiseDatabaseSchema();
+        await InitialiseDatabaseSchema();
     }
 
     public async ValueTask DisposeAsync()
@@ -54,7 +54,7 @@ public class PostgresFixture : IAsyncLifetime
             throw error;
     }
 
-    private void InitialiseDatabaseSchema()
+    private async Task InitialiseDatabaseSchema()
     {
         // 1. Connect to the postgres database to create the test DB + user
         using (var connection = new NpgsqlConnection(InitialisationConnectionString))
@@ -78,7 +78,7 @@ public class PostgresFixture : IAsyncLifetime
         }
 
         // 3. Run Liquibase migrations (creates tables + views)
-        ApplyDatabaseMigrations();
+        await ApplyDatabaseMigrations();
     }
 
     private static void CreateDatabase(NpgsqlConnection connection)
@@ -137,7 +137,7 @@ public class PostgresFixture : IAsyncLifetime
         cmd.ExecuteNonQuery();
     }
 
-    private static void ApplyDatabaseMigrations()
+    private static async Task ApplyDatabaseMigrations()
     {
         // Path to your Liquibase changelog folder
         var changelogPath = FindChangelogFolder();
@@ -162,7 +162,11 @@ public class PostgresFixture : IAsyncLifetime
             .WithNetwork(TestContainerConstants.NetworkName)
             .Build();
 
-        liquibaseContainer.StartAsync().GetAwaiter().GetResult();
+        await liquibaseContainer.StartAsync();
+
+        var exitCode = await liquibaseContainer.GetExitCodeAsync();
+        if (exitCode != 0)
+            throw new InvalidOperationException($"Liquibase migrations failed with exit code {exitCode}");
     }
 
     private static string FindChangelogFolder()
