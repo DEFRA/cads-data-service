@@ -99,10 +99,10 @@ public class XlsxReport<T>
     {
         if (value is int)
             return new EnumValue<CellValues>(CellValues.Number);
-        
+
         if (value is string)
-            return new EnumValue<CellValues>(CellValues.String); 
-        
+            return new EnumValue<CellValues>(CellValues.String);
+
         throw new Exception($"Unsupported value type for excel report builder - {value.GetType()}");
     }
 }
