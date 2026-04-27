@@ -25,4 +25,10 @@ public class UsersController(IUserContext userContext) : ControllerBase
 
         return Ok(currentUser);
     }
+
+    [HttpGet("claims")]
+    public IActionResult GetClaims()
+    {
+        return Ok(User.Claims.Select(c => new { c.Type, c.Value }));
+    }
 }
