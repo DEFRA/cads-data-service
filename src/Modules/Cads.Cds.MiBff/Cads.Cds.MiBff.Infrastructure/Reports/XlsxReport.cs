@@ -47,7 +47,7 @@ public class XlsxReport<T>
         }
     }
 
-    private int GetColumnIndexFromCellReference(string reference)
+    private static int GetColumnIndexFromCellReference(string reference)
     {
         int offset = 0;
         int index = 0;
@@ -103,6 +103,6 @@ public class XlsxReport<T>
         if (value is string)
             return new EnumValue<CellValues>(CellValues.String);
 
-        throw new Exception($"Unsupported value type for excel report builder - {value.GetType()}");
+        throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}");
     }
 }
