@@ -10,12 +10,12 @@ public class XlsxReport<T>
     public required List<T> Data { get; set; }
     public required List<Func<T, IConvertible>> Selectors { get; set; }
     public required string TemplateFileName { get; set; }
-    
+
     ///<Summary>
     /// row number where table data starts, starting from 1
     /// </Summary>
     public int TableTemplateRow { get; set; }
-    
+
     ///<Summary>
     /// column number where table data starts, starting from 1
     /// </Summary>
@@ -99,7 +99,7 @@ public class XlsxReport<T>
     {
         return value is int
             ? new EnumValue<CellValues>(CellValues.Number)
-            : value is string ? new EnumValue<CellValues>(CellValues.String) 
+            : value is string ? new EnumValue<CellValues>(CellValues.String)
                 : throw new ApplicationException($"Unsupported value type for excel report builder - {value.GetType()}");
     }
 }
