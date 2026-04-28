@@ -77,6 +77,8 @@ public static class TestEndpointConstants
 
     // Reports route paths
     public const string BffMiReportsRoot = BffMiRoot + "reports/";
+    // Reports route paths
+    public const string BffMiCattleRegistrationReportRoot = BffMiReportsRoot + "cattle_registrations/";
 
     // Reports - User report permissions
     public const string BffMiUserReportPermissionsEndpoint = BffMiReportsRoot + "{0}/permissions/";
