@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using FluentAssertions;
 using System.Net;
+using System.Net.Http.Json;
 
 namespace Cads.Cds.MiBff.Tests.Integration.Reports;
 
@@ -21,6 +22,8 @@ public class GetUserReportsTests(ApiContainerFixture apiContainerFixture)
         var responseBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         responseBody.Should().NotBeNull().And.Contain("reportId");
     }
+
+
 
     [Fact]
     public async Task GivenScopeMissing_WhenGetUserReportsRequested_ShouldFailWithUnauthorized()
