@@ -11,7 +11,7 @@ public class XlsxExporterTests
     public async Task CreateDocument()
     {
         var sut = new XlsxReportGenerator();
-        var data = await new FakeReportRepository().GetCattleRegistrationReport(DateTime.MinValue, DateTime.MaxValue);
+        var data = await new FakeReportRepository().GetCattleRegistrationReport(DateTime.MinValue, DateTime.MaxValue, TestContext.Current.CancellationToken);
 
         using var stream = sut.Generate(data);
 
