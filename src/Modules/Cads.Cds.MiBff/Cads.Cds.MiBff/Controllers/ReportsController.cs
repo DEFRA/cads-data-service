@@ -4,9 +4,7 @@ using Cads.Cds.MiBff.Application.Queries.Reports;
 using Cads.Cds.MiBff.Controllers.Requests.Reports;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
-using Cads.Cds.MiBff.Application.Services.Reports;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Cads.Cds.MiBff.Controllers;
@@ -14,7 +12,7 @@ namespace Cads.Cds.MiBff.Controllers;
 [Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
 [ApiController]
 [Route("api/v1/bff/mi/[controller]")]
-public class ReportsController(IRequestExecutor executor, IUserContext userContext, IReportGenerationService irs) : ControllerBase
+public class ReportsController(IRequestExecutor executor, IUserContext userContext) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
     private readonly IUserContext _userContext = userContext;
@@ -29,16 +27,26 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
         return Ok(result);
     }
 
-    [ExcludeFromCodeCoverage]
+    // todo auth gate
     [HttpPost("cattle_registrations")]
-    public async Task<IActionResult> GetCattleRegistrations()
+    public async Task<IActionResult> DownloadReport(GetMonthlyReportRequest request)
     {
-        var result = await irs.GetCattleRegistrations(DateTime.MinValue, DateTime.MaxValue);
-        result.Position = 0;
+        request.ReportKey = "cattle_registrations"; // TODO can make generic routes?
 
+        var query = new DownloadReportCommand
+        {
+            Identifier = _userContext.UserIdentifier ?? Guid.NewGuid().ToString(),
+            ReportKey = request.ReportKey,
+            StartDate = new DateTime(request.Year, request.Month, 1),
+            EndDate = new DateTime(request.Year, request.Month, 1).AddMonths(1),
+        };
+
+        var result = await _executor.ExecuteCommand(query);
+
+        result.Position = 0;
         return File(fileContents: result.ToArray(),
             contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            fileDownloadName: "cattle_registrations.xlsx");
+            fileDownloadName: $"{request.ReportKey}.xlsx");
     }
 
     [HttpGet("{reportKey}/permissions")]
