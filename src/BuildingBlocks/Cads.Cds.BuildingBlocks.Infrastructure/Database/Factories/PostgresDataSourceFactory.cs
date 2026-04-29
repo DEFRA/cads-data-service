@@ -72,7 +72,8 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         {
             DefaultConnectionIdentifier => config.DefaultHost,
             ReadOnlyConnectionIdentifier => config.ReadOnlyHost,
-            _ => throw new ArgumentException($"Unknown connection identifier: {connectionIdentifier}")
+            DdlConnectionIdentifier => config.DefaultHost,
+            _ => throw new ArgumentException($"Unknown connection identifier (host): {connectionIdentifier}")
         };
 
         var user = connectionIdentifier switch
@@ -80,7 +81,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
             DefaultConnectionIdentifier => config.User,
             ReadOnlyConnectionIdentifier => config.User,
             DdlConnectionIdentifier => config.DdlUser,
-            _ => throw new ArgumentException($"Unknown connection identifier: {connectionIdentifier}")
+            _ => throw new ArgumentException($"Unknown connection identifier (user): {connectionIdentifier}")
         };
 
         var builder = new NpgsqlDataSourceBuilder
