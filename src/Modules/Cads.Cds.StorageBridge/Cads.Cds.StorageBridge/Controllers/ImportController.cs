@@ -1,7 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.StorageBridge.Application.Commands.BulkImport;
 using Cads.Cds.StorageBridge.Controllers.Requests;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
 
@@ -13,15 +12,9 @@ public class ImportController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
 
-    [HttpGet("test")]
-    public async Task<IActionResult> Test()
-    {
-        return Ok("hello");
-    }
-
     [ExcludeFromCodeCoverage]
-    [HttpPost("import")]
-    public async Task<IActionResult> Import([FromBody] ImportRequest request)
+    [HttpPost]
+    public async Task<IActionResult> Execute([FromBody] ImportRequest request)
     {
         var command = new BulkImportCommand
         {

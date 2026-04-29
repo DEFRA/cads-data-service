@@ -10,4 +10,6 @@ public class BulkImportCommand : ICommand<Guid>
     public BulkImportType BulkImportType { get; set; }
 
     public char Delimiter { get; set; } = '|';
+
+    public ImportActionType ImportActionType { get; set; } = ImportActionType.Insert | ImportActionType.Update;
 }

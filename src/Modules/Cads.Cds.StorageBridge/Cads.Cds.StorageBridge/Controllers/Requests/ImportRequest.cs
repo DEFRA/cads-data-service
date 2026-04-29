@@ -8,5 +8,7 @@ public class ImportRequest
 
     public required BulkImportType BulkImportType { get; set; }
 
+    public ImportActionType ActionType { get; set; } = ImportActionType.Insert | ImportActionType.Update;
+
     public char Delimiter { get; set; } = '|';
 }

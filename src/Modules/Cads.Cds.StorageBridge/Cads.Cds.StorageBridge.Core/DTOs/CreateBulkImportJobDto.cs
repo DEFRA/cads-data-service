@@ -9,6 +9,8 @@ public class CreateBulkImportJobDto
     public string SourceKey { get; set; } = string.Empty;
 
     public BulkImportType BulkImportType { get; set; }
-    
+
     public char Delimiter { get; set; } = '|';
+
+    public ImportActionType ImportActionType { get; set; }
 }

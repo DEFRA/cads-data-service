@@ -6,11 +6,16 @@ namespace Cads.Cds.StorageBridge.Infrastructure.Database.Factories;
 public interface IBulkImportCommandFactory
 {
     DbCommand CreateSetContraintStateCommand(BulkImportType bulkImportType, bool state);
-    DbCommand CreateDeleteCommand(BulkImportType bulkImportType);
+    Task<DbCommand> CreateDeleteCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default);
     DbCommand CreateTempTableCommand(BulkImportType bulkImportType);
     StreamWriter CreateTextImport(BulkImportType bulkImportType, char delimiter);
-    DbCommand CreateUpsertCommand(BulkImportType bulkImportType);
+    Task<DbCommand> CreateUpsertCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default);
     DbCommand CreateSetDeferredAllContraintCommand();
+    Task<DbCommand> CreateTempTableQueryCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default);
+    Task<DbCommand> CreateInsertCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default);
 
-    DbCommand CreateTempTableQueryCommand(BulkImportType bulkImportType);
+    Task<DbCommand> CreateUpdateCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default);
+
+    DbCommand CreateReindexCommand(BulkImportType bulkImportType);
+
 }
