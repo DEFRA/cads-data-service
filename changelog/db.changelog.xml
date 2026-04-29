@@ -28,6 +28,7 @@
   <!-- Your existing includes -->
   <include file="db.changelog-1.0.sql"/>
   <include file="0010_mi_user_create_table.postgresql.sql"/>
+  <include file="0011_mi_user_alter_table.postgresql.sql"/>
   <include file="0020_mi_role_create_table.postgresql.sql"/>
   <include file="0030_mi_user_role_create_table.postgresql.sql"/>
   <include file="0040_mi_report_create_table.postgresql.sql"/>
@@ -46,6 +47,7 @@
   <include file="0170_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0171_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0172_mi_effective_report_permission_update_view.postgresql.sql"/>
+  <include file="0173_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0180_001_party_location_create_table.postgresql.sql"/>
   <include file="0180_002_party_type_create_table.postgresql.sql"/>
   <include file="0180_003_party_state_create_table.postgresql.sql"/>
@@ -258,6 +260,7 @@
   <include file="0200_026__ct_susp_condition_markers_seed_data.postgresql.sql"/>
   <include file="0200_027__ct_received_applications_seed_data.postgresql.sql"/>
   <include file="0210_mi_effective_report_all_permission_create_view.postgresql.sql"/>
+  <include file="0211_mi_effective_report_all_permission_update_view.postgresql.sql"/>
   <include file="0220_mi_get_births_summary_create_function.postgresql.sql"/>
   <include file="0230_mi_get_births_summary_seed_function_local.postgresql.sql"/>
 </databaseChangeLog>
