@@ -174,6 +174,9 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
 
     private async Task<List<string>> GetColumnNamesAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default)
     {
+        var tableName = bulkImportType.GetTableName()
+            ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
+
         var columnNames = new List<string>();
 
         const string query = @"
@@ -184,7 +187,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
             ORDER BY ordinal_position";
 
         await using var command = new NpgsqlCommand(query, connection);
-        command.Parameters.AddWithValue("tableName", bulkImportType.GetTableName());
+        command.Parameters.AddWithValue("tableName", tableName);
         command.Parameters.AddWithValue("excludeColumnName", RowNumberColumnName);
 
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
