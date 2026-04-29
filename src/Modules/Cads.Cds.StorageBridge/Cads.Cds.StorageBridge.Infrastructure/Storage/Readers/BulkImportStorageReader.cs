@@ -29,7 +29,7 @@ public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
     {
         var keys = new List<string>();
 
-        if(CheckS3KeyTypeAsync(prefix).Result == "File")
+        if (CheckS3KeyTypeAsync(prefix).Result == "File")
         {
             keys.Add(prefix);
             return keys;
