@@ -28,6 +28,8 @@ public static class WebApplicationExtensions
                 logger.LogInformation("{ApplicationName} stopped", env.ApplicationName));
         }
 
+        app.MapPrometheusScrapingEndpoint("/metrics");
+
         app.UseHeaderPropagation();
         app.UseRouting();
 
@@ -63,7 +65,5 @@ public static class WebApplicationExtensions
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
         }).AllowAnonymous();
-
-        app.UseMiddleware<RouteLoggerMiddleware>();
     }
 }

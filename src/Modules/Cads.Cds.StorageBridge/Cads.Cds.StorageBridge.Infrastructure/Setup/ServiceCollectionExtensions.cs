@@ -4,6 +4,10 @@ using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Setup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Setup;
 
@@ -11,6 +15,23 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddStorageBridgeInfrastructureLayer(this IServiceCollection services, IConfiguration config)
     {
+        services.AddOpenTelemetry()
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("CadsTelemetryApi"))
+                    .AddMeter("Cads.Postgres.Metrics", "1.0") // Capture Npgsql metrics
+                    .AddNpgsqlInstrumentation()
+                    .AddConsoleExporter()
+                    .AddPrometheusExporter(); // Expose metrics at /metrics
+            }).WithTracing(tracing =>
+            {
+                tracing
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("CadsTelemetryApi"))
+                    .AddNpgsql()
+                    .AddConsoleExporter();
+            });
+
         services.AddPostgresDbContext<StorageBridgeWriteDbContext>();
         services.AddPostgresDbContext<StorageBridgeReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
 

@@ -12,7 +12,8 @@ public class BulkImportCommandHandler(IBulkImportEnqueueService bulkImportEnqueu
         {
             SourceKey = command.SourceKey,
             BulkImportType = command.BulkImportType,
-            Delimiter = command.Delimiter
+            Delimiter = command.Delimiter,
+            ImportActionType = command.ImportActionType
         };
 
         return await bulkImportEnqueueService.EnqueueAsync(dto, cancellationToken);

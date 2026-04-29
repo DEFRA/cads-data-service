@@ -26,4 +26,9 @@ public static class EnumExtensions
     {
         return value.GetAttribute<TableNameAttribute>()?.Name;
     }
+
+    public static string? GetTableKey(this Enum value)
+    {
+        return value.GetAttribute<TableNameAttribute>()?.Key;
+    }
 }

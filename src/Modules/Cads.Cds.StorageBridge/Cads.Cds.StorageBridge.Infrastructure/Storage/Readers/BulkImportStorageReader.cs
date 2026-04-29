@@ -1,7 +1,6 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
-using System.Text;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Storage.Readers;
 
@@ -81,7 +80,7 @@ public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
 
         var response = await _s3Client.ListObjectsV2Async(request);
 
-        if (response.S3Objects.Count > 0)
+        if (response?.S3Objects?.Count > 0)
         {
             return "Folder";
         }
