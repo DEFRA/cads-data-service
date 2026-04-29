@@ -8,13 +8,21 @@ namespace Cads.Cds.StorageBridge.Infrastructure.Storage.Setup;
 
 public class StorageBridgeS3Configurator(StorageBridgeStorageConfiguration config) : IConfigureS3Clients
 {
+    private readonly StorageBridgeStorageConfiguration _config = config;
+
     public void Configure(IServiceProvider sp)
     {
         var factory = sp.GetRequiredService<IS3ClientFactory>();
         var amazonConfig = sp.GetRequiredService<AmazonS3Config>();
 
         factory.AddClient<CadsInternalClient>(
-            config.CadsInternal.BucketName,
+            _config.CadsInternal.BucketName,
+            amazonConfig);
+
+        factory.AddClientWithCredentials<CadsExternalClient>(
+            _config.CadsExternal.BucketName,
+            _config.CadsExternal.AccessKeySecretName,
+            _config.CadsExternal.SecretKeySecretName,
             amazonConfig);
     }
 }
