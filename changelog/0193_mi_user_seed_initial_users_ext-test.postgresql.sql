@@ -1,5 +1,16 @@
 -- liquibase formatted sql
 
+--changeset mark:cleanup-gary-fletcher-roles context:ext-test
+DELETE FROM mi_user_role
+WHERE user_id IN (
+    SELECT user_id FROM mi_user WHERE email = '${gfEmail}'
+);
+
+--changeset mark:cleanup-gary-fletcher-user context:ext-test
+DELETE FROM mi_user
+WHERE email = '${gfEmail}';
+
+
 --changeset mark:seed-mark-gent context:ext-test
 INSERT INTO mi_user (user_id, external_subject, display_name, email, is_active)
 VALUES (gen_random_uuid(), '${mgEmail}', '${mgName}', '${mgEmail}', true);
