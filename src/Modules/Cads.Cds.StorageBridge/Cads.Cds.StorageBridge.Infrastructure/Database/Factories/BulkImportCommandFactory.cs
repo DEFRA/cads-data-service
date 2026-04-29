@@ -53,7 +53,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
     public DbCommand CreateReindexCommand(BulkImportType bulkImportType)
     {
         var tableName = GetTableName(bulkImportType);
-        
+
         return new NpgsqlCommand
         {
             CommandText = $"REINDEX TABLE {tableName}",
@@ -91,8 +91,8 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         {
             CommandText = $"INSERT INTO {tableName} " +
                 $"SELECT {string.Join(",", columnNames)} FROM {tempTableName} ",
-                // Exclude record type check from the upsert operation
-                //$"WHERE {RecordTypeColumnName} IN ('{RecordType.Insert}')" +
+            // Exclude record type check from the upsert operation
+            //$"WHERE {RecordTypeColumnName} IN ('{RecordType.Insert}')" +
             Connection = connection
         };
     }
@@ -159,7 +159,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
 
     private static string GetTableName(BulkImportType bulkImportType, bool isTemp = false)
     {
-        var tableName = bulkImportType.GetTableName() 
+        var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
 
         return s_commandBuilder.QuoteIdentifier(isTemp ? $"temp_{tableName}" : tableName);
@@ -186,7 +186,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         await using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("tableName", bulkImportType.GetTableName());
         command.Parameters.AddWithValue("excludeColumnName", RowNumberColumnName);
-        
+
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
         while (await reader.ReadAsync(cancellationToken))

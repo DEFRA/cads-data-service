@@ -36,7 +36,7 @@ public static class WebApplicationExtensions
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
-       
+
         app.UseAuthentication();
         app.UseAuthorization();
 

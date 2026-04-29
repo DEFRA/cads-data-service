@@ -69,7 +69,7 @@ public class BulkImportCopyService(
             if (connection.State != ConnectionState.Open)
             {
                 await connection.OpenAsync(cancellationToken);
-            }  
+            }
 
             // Create a bulk import command factory to generate commands for the specified bulk import type
             _commandFactory = new BulkImportCommandFactory((NpgsqlConnection)connection);
@@ -81,7 +81,7 @@ public class BulkImportCopyService(
 
             // Create a temporary table for the bulk import type
             var createTempTableCommand = _commandFactory.CreateTempTableCommand(dto.BulkImportType);
-            
+
             if (createTempTableCommand == null)
             {
                 throw new InvalidOperationException("One or more required database commands could not be created.");
@@ -155,7 +155,7 @@ public class BulkImportCopyService(
 
                 totalRowsAffected += rowsAffected;
 
-                
+
                 await transaction.CommitAsync(cancellationToken);
 
                 fsw.Stop();
@@ -306,7 +306,7 @@ public class BulkImportCopyService(
         string? line;
         while ((line = await streamReader.ReadLineAsync(cancellationToken)) != null)
         {
-            if(line.StartsWith("T|")) // Skip the separator definition line if it exists
+            if (line.StartsWith("T|")) // Skip the separator definition line if it exists
             {
                 break;
             }
