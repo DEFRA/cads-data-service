@@ -1,6 +1,7 @@
 -- liquibase formatted sql
 
 -- changeset ref_table_seed:0200-001 splitStatements:false
+ALTER TABLE public._ct_param_value_group DISABLE TRIGGER ALL;
 INSERT INTO public._ct_param_value_group VALUES (896, 56, 355, '1', 'CP.ERR_STATUS', 'A034', 'x902791', '1', '1998-04-15', NULL, 1, 1);
 INSERT INTO public._ct_param_value_group VALUES (897, 56, 415, '1', 'CP.ERR_STATUS', 'A263', 'x903124', '1', '1998-09-25', NULL, 1, 2);
 INSERT INTO public._ct_param_value_group VALUES (898, 56, 425, '1', 'CP.ERR_STATUS', 'A302', 'x903124', '1', '1998-09-25', NULL, 1, 3);
@@ -1727,3 +1728,4 @@ INSERT INTO public._ct_param_value_group VALUES (20500, 49, 20731, '2', 'CP.ET_A
 INSERT INTO public._ct_param_value_group VALUES (20485, 48, 20696, '1', 'CP.ET_AUTH', 'HU', 'x905756', '1', '2008-03-31', NULL, 1, 1724);
 INSERT INTO public._ct_param_value_group VALUES (20486, 49, 20696, '2', 'CP.ET_AUTH', 'HU', 'x905756', '1', '2008-03-31', NULL, 1, 1725);
 INSERT INTO public._ct_param_value_group VALUES (20504, 237, 20741, 'I', 'CP.LO_SRCE', 'TSE', 'x912716', '1', '2014-08-18', NULL, 1, 1726);
+ALTER TABLE public._ct_param_value_group ENABLE TRIGGER ALL;
