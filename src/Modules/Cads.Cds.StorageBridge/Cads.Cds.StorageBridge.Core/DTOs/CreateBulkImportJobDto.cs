@@ -4,7 +4,7 @@ namespace Cads.Cds.StorageBridge.Core.DTOs;
 
 public class CreateBulkImportJobDto
 {
-    public Guid? JobId { get; set; } 
+    public Guid? JobId { get; set; }
 
     public string SourceKey { get; set; } = string.Empty;
 

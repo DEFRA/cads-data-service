@@ -8,7 +8,7 @@ public class BulkImportCommandHandler(IBulkImportEnqueueService bulkImportEnqueu
 {
     public async Task<Guid> Handle(BulkImportCommand command, CancellationToken cancellationToken = default)
     {
-        var dto = new CreateBulkImportJobDto 
+        var dto = new CreateBulkImportJobDto
         {
             SourceKey = command.SourceKey,
             BulkImportType = command.BulkImportType,
