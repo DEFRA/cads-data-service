@@ -1,0 +1,34 @@
+flowchart TB
+
+    %% Public users
+    A[External Users<br/>Internet] -->|HTTPS| B[Azure Front Door<br/>WAF and DDoS and TLS]
+
+    %% Private link entry
+    B -->|Private Link| C[Private Link Service]
+
+    %% Internal ingress
+    C --> D[Internal Load Balancer<br/>AKS Ingress Controller]
+
+    %% AKS cluster
+    D --> E[AKS Cluster<br/>Private API Server<br/>Node Pools]
+
+    %% Private endpoints for data and secrets
+    E --> F[Azure Key Vault<br/>Private Endpoint]
+    E --> G[PostgreSQL Flexible Server<br/>Private Access]
+    E --> H[Storage Account<br/>Private Endpoint]
+
+    %% Outbound to AWS
+    E --> I[Azure Firewall or NAT Gateway<br/>Controlled Egress]
+    I --> J[AWS S3<br/>Outbound Only]
+    I --> K[AWS API Gateway<br/>Authenticated using Cognito]
+
+    %% Grouping
+    subgraph VNET[Azure Virtual Network]
+        C
+        D
+        E
+        F
+        G
+        H
+        I
+    end

@@ -1,0 +1,35 @@
+flowchart TB
+
+    subgraph VNET[Azure Virtual Network]
+
+        subgraph Ingress[Ingress Layer]
+            AFD_PL[Azure Front Door<br/>Private Link Endpoint]
+            ILB[Internal Load Balancer<br/>AKS Ingress Controller]
+        end
+
+        subgraph AKSCluster[AKS Cluster<br/>Private API Server]
+            AppPods[Application Pods<br/>API and UI]
+        end
+
+        subgraph DataLayer[Data Layer]
+            PG[PostgreSQL Flexible Server<br/>Private Access]
+            Storage[Storage Account<br/>Private Endpoint]
+        end
+
+        subgraph SecurityLayer[Security and Secrets]
+            KV[Azure Key Vault<br/>Private Endpoint]
+            FW[Azure Firewall or NAT Gateway<br/>Controlled Outbound]
+        end
+
+        AFD_PL --> ILB
+        ILB --> AppPods
+
+        AppPods --> PG
+        AppPods --> Storage
+        AppPods --> KV
+
+        AppPods --> FW
+        FW --> S3[AWS S3<br/>Outbound Only]
+        FW --> APIGW[AWS API Gateway<br/>Authenticated using Cognito]
+
+    end

@@ -1,0 +1,14 @@
+flowchart LR
+
+    User[External User or Service] -->|HTTPS| AFD[Azure Front Door]
+
+    AFD -->|Private Link| VNet[Azure Virtual Network]
+
+    VNet --> AKS[AKS Hosted Application]
+
+    AKS --> Data[Azure Data Services<br/>PostgreSQL and Storage Account]
+    AKS --> Secrets[Azure Key Vault]
+
+    AKS --> S3[AWS S3 Outbound Only via Firewall]
+
+    AKS --> APIGW[AWS API Gateway via Firewall<br/>Authenticated using Cognito]
