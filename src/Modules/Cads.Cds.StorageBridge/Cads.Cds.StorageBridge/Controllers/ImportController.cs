@@ -20,7 +20,8 @@ public class ImportController(IRequestExecutor executor) : ControllerBase
         {
             SourceKey = request.SourceKey,
             BulkImportType = request.BulkImportType,
-            Delimiter = request.Delimiter
+            Delimiter = request.Delimiter,
+            ImportActionType = request.ActionType
         };
 
         var result = await _executor.ExecuteCommand(command);
