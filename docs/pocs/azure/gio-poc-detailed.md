@@ -2,7 +2,7 @@
 
 ## Current infrastructure and deployments
 
-The CADS application is currently hosted within the Core Delivery Platform (CDP).
+The CADS application is currently hosted within the **Core Delivery Platform (CDP)**.
 
 ### High-level Architecture
 
@@ -67,8 +67,8 @@ A deployment Lambda processes each instruction, builds a new ECS task definition
 
 - No performance isolation  
 - No independent scaling  
-- No control over ACUs or instance classes  
-- Restricted PostgreSQL privileges  
+- No control over ACUs or instance classes
+- Restricted PostgreSQL privileges & configurability
 - No AWS extensions (e.g. S3 import, advanced ETL tooling)  
 
 **Limited Role Based Access Control (RBAC)**
