@@ -5,7 +5,7 @@ namespace Cads.Cds.StorageBridge.Core.Extensions;
 
 public static class EnumExtensions
 {
-    public static T? GetAttribute<T>(this Enum value) 
+    public static T? GetAttribute<T>(this Enum value)
         where T : Attribute
     {
         ArgumentNullException.ThrowIfNull(value);
