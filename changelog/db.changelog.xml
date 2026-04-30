@@ -260,7 +260,4 @@
   <include file="0211_mi_effective_report_all_permission_update_view.postgresql.sql"/>
   <include file="0220_mi_get_births_summary_create_function.postgresql.sql"/>
   <include file="0230_mi_get_births_summary_seed_function_local.postgresql.sql"/>
-  <include file="0400_001__ct_received_movements_seed_data.postgresql.sql"/>
-  <include file="0400_002__ct_received_applications_seed_data.postgresql.sql"/>
-  <include file="0400_003__ct_susp_condition_markers_seed_data.postgresql.sql"/>
 </databaseChangeLog>
