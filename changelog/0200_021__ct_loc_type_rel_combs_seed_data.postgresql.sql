@@ -1,0 +1,41 @@
+-- liquibase formatted sql
+
+-- changeset ref_table_seed:0200-015 splitStatements:false
+INSERT INTO public._ct_loc_type_rel_combs VALUES (749, 13, 2, 47, 'x905756', '2005-10-19', '1', 36, 1, 1);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (750, 13, 1, 47, 'x905756', '2005-10-19', '1', 36, 1, 2);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (751, 13, 4, 47, 'x905756', '2005-10-19', '1', 36, 1, 3);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (341, 2, 1, 6, 'f800701', '1998-01-07', '1', 36, 1, 4);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (342, 2, 2, 7, 'f800701', '1998-01-07', '1', 36, 1, 5);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (343, 1, 1, 7, 'f800701', '1998-01-07', '1', 36, 1, 6);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (344, 1, 1, 6, 'f800701', '1998-01-07', '1', 36, 1, 7);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (345, 1, 2, 6, 'f800701', '1998-01-07', '1', 36, 1, 8);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (346, 3, 2, 6, 'f800701', '1998-01-07', '1', 36, 1, 9);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (347, 2, 2, 6, 'f800701', '1998-01-07', '1', 36, 1, 10);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (348, 3, 1, 6, 'f800701', '1998-01-07', '1', 36, 1, 11);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (349, 3, 2, 7, 'f800701', '1998-01-07', '1', 36, 1, 12);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (350, 2, 3, 7, 'f800701', '1998-01-07', '1', 36, 1, 13);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (351, 3, 3, 7, 'f800701', '1998-01-07', '1', 36, 1, 14);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (352, 1, 1, 10, 'f800701', '1998-01-07', '1', 36, 1, 15);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (353, 2, 2, 9, 'f800701', '1998-01-07', '1', 36, 1, 16);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (354, 2, 2, 10, 'f800701', '1998-01-07', '1', 36, 1, 17);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (355, 1, 2, 9, 'f800701', '1998-01-07', '1', 36, 1, 18);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (356, 3, 2, 10, 'f800701', '1998-01-07', '1', 36, 1, 19);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (357, 2, 3, 9, 'f800701', '1998-01-07', '1', 36, 1, 20);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (358, 3, 3, 10, 'f800701', '1998-01-07', '1', 36, 1, 21);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (359, 1, 3, 9, 'f800701', '1998-01-07', '1', 36, 1, 22);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (360, 1, 1, 9, 'f800701', '1998-01-07', '1', 36, 1, 23);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (361, 2, 1, 9, 'f800701', '1998-01-07', '1', 36, 1, 24);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (362, 2, 3, 10, 'f800701', '1998-01-07', '1', 36, 1, 25);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (363, 2, 3, 2, 'f800701', '1998-01-07', '1', 36, 1, 26);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (364, 1, 2, 3, 'x901190', '1998-07-24', '1', 36, 1, 27);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (365, 1, 2, 2, 'f800701', '1998-01-07', '1', 36, 1, 28);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (366, 1, 3, 3, 'x901190', '1998-07-24', '1', 36, 1, 29);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (367, 2, 2, 3, 'x901190', '1998-07-24', '1', 36, 1, 30);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (368, 2, 1, 2, 'f800701', '1998-01-07', '1', 36, 1, 31);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (369, 1, 3, 2, 'f800701', '1998-01-07', '1', 36, 1, 32);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (370, 1, 1, 2, 'f800701', '1998-01-07', '1', 36, 1, 33);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (371, 2, 3, 3, 'x901190', '1998-07-24', '1', 36, 1, 34);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (372, 2, 2, 2, 'f800701', '1998-01-07', '1', 36, 1, 35);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (373, 2, 1, 3, 'x901190', '1998-07-24', '1', 36, 1, 36);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (374, 1, 1, 3, 'x901190', '1998-07-24', '1', 36, 1, 37);
+INSERT INTO public._ct_loc_type_rel_combs VALUES (752, 2, 2, 48, 'x912716', '2015-12-03', '1', 36, 1, 38);
