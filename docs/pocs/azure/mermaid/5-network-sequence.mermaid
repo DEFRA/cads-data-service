@@ -1,0 +1,38 @@
+sequenceDiagram 
+    participant User as External User or Service
+    participant AFD as Azure Front Door
+    participant PLE as Private Link Service
+    participant ILB as Internal Load Balancer and AKS Ingress
+    participant AKS as AKS Application Pod
+    participant KV as Azure Key Vault Private Endpoint
+    participant PG as PostgreSQL Flexible Server Private Access
+    participant SA as Storage Account Private Endpoint
+    participant FW as Azure Firewall or NAT Controlled Egress
+    participant S3 as AWS S3
+    participant APIGW as AWS API Gateway Cognito Authenticated
+
+    User->>AFD: HTTPS request to application
+    AFD->>PLE: Forward request via Private Link
+    PLE->>ILB: Route inside VNet to Ingress
+    ILB->>AKS: Deliver request to AKS application pod
+
+    AKS->>KV: Retrieve secrets or configuration
+    KV-->>AKS: Secrets returned
+
+    AKS->>PG: Query or update database
+    PG-->>AKS: Database response
+
+    AKS->>SA: Read or write files
+    SA-->>AKS: File content or metadata
+
+    AKS->>FW: Outbound request to AWS S3
+    FW->>S3: Allowed egress only
+    S3-->>FW: S3 response
+    FW-->>AKS: Return S3 data
+
+    AKS->>FW: Outbound request to AWS API Gateway
+    FW->>APIGW: Forward request authenticated using Cognito
+    APIGW-->>FW: API response
+    FW-->>AKS: Return API data
+
+    AKS-->>User: Final HTTP response via ILB then PLE then AFD

@@ -1,0 +1,54 @@
+flowchart TB
+
+    subgraph HUB[Azure Subscription and Landing Zone]
+        
+        subgraph VNET[Azure Virtual Network]
+
+            subgraph SubnetAKSSystem[Subnet AKS System Nodes]
+                SysNodes[AKS System Node Pool]
+            end
+
+            subgraph SubnetAKSUser[Subnet AKS User Nodes]
+                UserNodes[AKS User Node Pool]
+            end
+
+            subgraph SubnetData[Subnet Data Delegated]
+                PG[PostgreSQL Flexible Server]
+            end
+
+            subgraph SubnetPE[Subnet Private Endpoints]
+                KV_EP[Key Vault Private Endpoint]
+                Storage_EP[Storage Account Private Endpoint]
+                ACR_EP[ACR Private Endpoint optional]
+            end
+
+            subgraph SubnetEgress[Subnet Firewall or NAT]
+                FW[Azure Firewall or NAT Gateway]
+            end
+
+            ILB[Internal Load Balancer<br/>Ingress Controller] --> UserNodes
+
+            UserNodes --> PG
+            UserNodes --> KV_EP
+            UserNodes --> Storage_EP
+
+            UserNodes --> FW
+
+        end
+
+        subgraph DNS[Private DNS Zones]
+            DNS_PG[privatelink.postgres.database.azure.com]
+            DNS_Storage[privatelink.blob.core.windows.net]
+            DNS_KV[privatelink.vaultcore.azure.net]
+        end
+
+        DNS_PG --- PG
+        DNS_Storage --- Storage_EP
+        DNS_KV --- KV_EP
+
+    end
+
+    AFD[Azure Front Door] -->|Private Link| ILB
+
+    FW --> S3[AWS S3<br/>Outbound Only]
+    FW --> APIGW[AWS API Gateway<br/>Authenticated using Cognito]
