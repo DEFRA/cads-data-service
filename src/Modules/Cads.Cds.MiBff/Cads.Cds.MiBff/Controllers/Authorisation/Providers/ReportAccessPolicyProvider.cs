@@ -33,6 +33,16 @@ public class ReportAccessPolicyProvider(IOptions<AuthorizationOptions> options) 
             return Task.FromResult<AuthorizationPolicy?>(policy);
         }
 
+        if (policyName == "ReportAccess")
+        {
+            var policy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .AddRequirements(new DynamicReportAccessRequirement())
+                .Build();
+
+            return Task.FromResult<AuthorizationPolicy?>(policy);
+        }
+
         return _fallback.GetPolicyAsync(policyName);
     }
 }
