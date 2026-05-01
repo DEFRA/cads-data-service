@@ -29,7 +29,7 @@ public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) 
     public DbSet<MiEffectiveReportAllPermissionView> EffectiveReportAllPermissions => Set<MiEffectiveReportAllPermissionView>();
 
     // Functions
-    public IQueryable<MiBirthSummaryResult> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
+    public IQueryable<MiBirthSummary> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
         => FromExpression(() => GetBirthsSummary(birthDateFrom, birthDateTo));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
