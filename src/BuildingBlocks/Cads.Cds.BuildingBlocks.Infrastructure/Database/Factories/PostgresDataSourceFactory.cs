@@ -13,7 +13,6 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
 
     public const string DefaultConnectionIdentifier = "Default";
     public const string ReadOnlyConnectionIdentifier = "ReadOnly";
-    public const string DdlConnectionIdentifier = "Ddl";
 
     public NpgsqlDataSource CreateDataSource(string connectionIdentifier)
     {
@@ -72,16 +71,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         {
             DefaultConnectionIdentifier => config.DefaultHost,
             ReadOnlyConnectionIdentifier => config.ReadOnlyHost,
-            DdlConnectionIdentifier => config.DefaultHost,
             _ => throw new ArgumentException($"Unknown connection identifier (host): {connectionIdentifier}")
-        };
-
-        var user = connectionIdentifier switch
-        {
-            DefaultConnectionIdentifier => config.User,
-            ReadOnlyConnectionIdentifier => config.User,
-            DdlConnectionIdentifier => config.DdlUser,
-            _ => throw new ArgumentException($"Unknown connection identifier (user): {connectionIdentifier}")
         };
 
         var builder = new NpgsqlDataSourceBuilder
@@ -91,7 +81,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
                 Host = host,
                 Port = config.Port,
                 Database = config.Name,
-                Username = user,
+                Username = config.User,
                 SslMode = SslMode.Require // AWS RDS requires SSL
              }
         };
@@ -103,7 +93,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
                 var token = await iamTokenGenerator!.GenerateAuthTokenAsync(
                     config.DefaultHost!,
                     config.Port,
-                    user!);
+                    config.User!);
                 return token;
             },
             successRefreshInterval: TimeSpan.FromMinutes(10), // Refresh every 10 minutes
