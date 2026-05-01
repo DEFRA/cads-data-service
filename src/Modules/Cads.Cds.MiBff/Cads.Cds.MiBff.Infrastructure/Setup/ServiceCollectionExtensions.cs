@@ -2,13 +2,11 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.MiBff.Application.Services.Reports;
-using Cads.Cds.MiBff.Application.Setup;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Core.Services.Reports;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 using Cads.Cds.MiBff.Infrastructure.Reports;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.MiBff.Infrastructure.Setup;
@@ -34,6 +32,9 @@ public static class ServiceCollectionExtensions
         // Views
         services.AddScoped<IMiEffectiveReportPermissionRepository, MiEffectiveReportPermissionRepository>();
         services.AddScoped<IMiEffectiveReportAllPermissionRepository, MiEffectiveReportAllPermissionRepository>();
+
+        // Functions
+        services.AddScoped<IMiBirthSummaryRepository, MiBirthSummaryRepository>();
 
         services.AddScoped<
             IDbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>,

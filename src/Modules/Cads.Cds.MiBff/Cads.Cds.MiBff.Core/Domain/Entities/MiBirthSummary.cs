@@ -1,6 +1,6 @@
 namespace Cads.Cds.MiBff.Core.Domain.Entities;
 
-public class MiBirthSummaryResult
+public class MiBirthSummary
 {
     public int BirthYear { get; set; }
 

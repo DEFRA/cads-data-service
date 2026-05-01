@@ -1,4 +1,3 @@
-using Cads.Cds.MiBff.Core.DTOs.Reports;
 using Cads.Cds.MiBff.Infrastructure.Reports;
 using FluentAssertions;
 

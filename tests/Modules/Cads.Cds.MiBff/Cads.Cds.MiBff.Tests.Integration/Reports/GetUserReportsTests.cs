@@ -3,7 +3,6 @@ using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using FluentAssertions;
 using System.Net;
-using System.Net.Http.Json;
 
 namespace Cads.Cds.MiBff.Tests.Integration.Reports;
 
