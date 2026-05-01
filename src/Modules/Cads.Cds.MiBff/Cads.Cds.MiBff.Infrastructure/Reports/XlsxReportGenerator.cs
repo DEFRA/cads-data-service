@@ -5,6 +5,12 @@ namespace Cads.Cds.MiBff.Infrastructure.Reports;
 
 public class XlsxReportGenerator : IXlsxReportGenerator
 {
+    public MemoryStream Generate()
+    {
+        var output = new MemoryStream();
+        return output;
+    }
+
     public MemoryStream Generate(List<CattleRegistration> data)
     {
         var report = new XlsxReport<CattleRegistration>()
