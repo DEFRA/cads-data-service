@@ -1,9 +1,9 @@
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers.Requests.Reports;
 
 public class GetReportRequest
 {
-    [JsonPropertyName("reportKey")]
+    [FromRoute(Name = "reportKey")]
     public string ReportKey { get; set; } = string.Empty;
 }
