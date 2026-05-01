@@ -37,6 +37,20 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
         return Ok(result);
     }
 
+    [Authorize(Policy = "ReportAccess")]
+    [HttpPost("{reportKey}")]
+    public async Task<IActionResult> GetReport(
+        [FromRoute] string reportKey,
+        [FromBody] GetReportRequest request,
+        CancellationToken cancellationToken)
+    {
+        request.ReportKey = reportKey;
+
+        var result = await _executor.ExecuteQuery(new GetGbCattleRegistrationsQuery(request.ReportKey, 2000, 1), cancellationToken);
+
+        return this.XlsxFile(result);
+    }
+
     [Authorize(Policy = "ReportAccess:gb_cattle_registrations")]
     [HttpPost("gb_cattle_registrations")]
     public async Task<IActionResult> GetGbCattleRegistrationsReport(GetGbCattleRegistrationsReportRequest request, CancellationToken cancellationToken)
