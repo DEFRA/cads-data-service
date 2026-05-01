@@ -3,7 +3,6 @@ using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.MiBff.Application.Queries.Reports;
 using Cads.Cds.MiBff.Controllers.Requests.Reports;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Microsoft.AspNetCore.Authorization;
 
@@ -27,11 +26,11 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
         return Ok(result);
     }
 
-    // todo auth gate
-    [HttpPost("cattle_registrations")]
-    public async Task<IActionResult> DownloadReport(GetMonthlyReportRequest request)
+    [Authorize(Policy = "ReportAccess:gb_cattle_registrations")]
+    [HttpPost("gb_cattle_registrations")]
+    public async Task<IActionResult> DownloadReport(GetMonthlyCattleRegistrationReportRequest request)
     {
-        request.ReportKey = "cattle_registrations"; // TODO can make generic routes?
+        request.ReportKey = "gb_cattle_registrations";
 
         var query = new DownloadReportCommand
         {
@@ -42,11 +41,14 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
         };
 
         var result = await _executor.ExecuteCommand(query);
+        return FileContentResult(result, $"{request.ReportKey}.xlsx");
+    }
 
-        result.Position = 0;
+    private FileContentResult FileContentResult(MemoryStream result, string? fileDownloadName)
+    {
         return File(fileContents: result.ToArray(),
             contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            fileDownloadName: $"{request.ReportKey}.xlsx");
+            fileDownloadName: fileDownloadName);
     }
 
     [HttpGet("{reportKey}/permissions")]

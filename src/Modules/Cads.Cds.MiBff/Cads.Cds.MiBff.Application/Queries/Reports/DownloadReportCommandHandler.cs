@@ -11,7 +11,7 @@ public class DownloadReportCommandHandler(IReportGenerationService service)
         //todo generic lookup
         switch (request.ReportKey)
         {
-            case "cattle_registrations":
+            case "gb_cattle_registrations":
                 return service.GetCattleRegistrations(request.StartDate, request.EndDate, cancellationToken);
 
             default:

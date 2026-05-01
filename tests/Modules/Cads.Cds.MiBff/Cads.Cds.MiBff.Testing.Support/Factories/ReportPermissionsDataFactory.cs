@@ -14,6 +14,7 @@ public class ReportPermissionsDataFactory
     private readonly List<string> _reportKeys = [
         "animal_summary",
         "cohort_tracing",
+        "gb_cattle_registrations",
         "holding_summary",
         "journey_by_haulier",
         "movements_all_holdings",
