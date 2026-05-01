@@ -25,6 +25,7 @@ public class XlsxReport<T>
     {
         using var spreadsheet = BuildFromTemplate();
         spreadsheet.Clone(stream);
+        stream.Position = 0;
     }
 
     private SpreadsheetDocument BuildFromTemplate()
