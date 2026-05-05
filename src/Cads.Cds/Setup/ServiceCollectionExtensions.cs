@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Cads.Cds.Setup;
 
@@ -73,6 +74,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IConfigureOptions<AuthenticationOptions>, AuthenticationOptionsConfigurator>();
 
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
         var authBuilder = services.AddAuthentication();
 
         if (authConfig.ApiKey.Enabled)
@@ -119,6 +122,8 @@ public static class ServiceCollectionExtensions
     {
         authenticationBuilder.AddJwtBearer(AuthenticationConstants.AzureADSchemeName, options =>
         {
+            options.MapInboundClaims = false;
+
             if (!string.IsNullOrWhiteSpace(authenticationProviderConfiguration.MetadataAddress))
             {
                 options.MetadataAddress = authenticationProviderConfiguration.MetadataAddress;
