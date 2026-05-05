@@ -2,5 +2,5 @@ namespace Cads.Cds.MiBff.Application.Services.Reports;
 
 public interface IReportGenerationService
 {
-    Task<MemoryStream> GetCattleRegistrations(DateTime dateTimeFrom, DateTime dateTimeTo, CancellationToken cancellationToken);
+    Task<MemoryStream> GetCattleRegistrations(DateOnly dateTimeFrom, DateOnly dateTimeTo, CancellationToken cancellationToken);
 }
