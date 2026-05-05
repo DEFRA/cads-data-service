@@ -28,6 +28,7 @@
   <!-- Your existing includes -->
   <include file="db.changelog-1.0.sql"/>
   <include file="0010_mi_user_create_table.postgresql.sql"/>
+  <include file="0011_mi_user_alter_table.postgresql.sql"/>
   <include file="0020_mi_role_create_table.postgresql.sql"/>
   <include file="0030_mi_user_role_create_table.postgresql.sql"/>
   <include file="0040_mi_report_create_table.postgresql.sql"/>
@@ -46,6 +47,7 @@
   <include file="0170_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0171_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0172_mi_effective_report_permission_update_view.postgresql.sql"/>
+  <include file="0173_mi_effective_report_permission_update_view.postgresql.sql"/>
   <include file="0180_001_party_location_create_table.postgresql.sql"/>
   <include file="0180_002_party_type_create_table.postgresql.sql"/>
   <include file="0180_003_party_state_create_table.postgresql.sql"/>
@@ -232,6 +234,30 @@
   <include file="0197_mi_user_seed_journey_test_users_ext-test.postgresql.sql"/>
   <include file="0198_mi_user_seed_journey_test_users_perf-test.postgresql.sql"/>
   <include file="0200_mi_report_update_and_seed_reports.postgresql.sql"/>
+  <include file="0200_001__ct_condition_types_seed_data.postgresql.sql"/>
+  <include file="0200_002__ct_probity_checks_seed_data.postgresql.sql"/>
+  <include file="0200_003__ct_conditions_seed_data.postgresql.sql"/>
+  <include file="0200_004__ct_condition_variants_seed_data.postgresql.sql"/>
+  <include file="0200_005__ct_condition_activities_seed_data.postgresql.sql"/>
+  <include file="0200_006__ct_breeds_seed_data.postgresql.sql"/>
+  <include file="0200_007__ct_counties_seed_data.postgresql.sql"/>
+  <include file="0200_008__ct_cond_variant_groupings_seed_data.postgresql.sql"/>
+  <include file="0200_009__ct_schemes_seed_data.postgresql.sql"/>
+  <include file="0200_010__ct_location_party_rel_types_seed_data.postgresql.sql"/>
+  <include file="0200_011__ct_eartag_formats_seed_data.postgresql.sql"/>
+  <include file="0200_012__ct_eartag_types_seed_data.postgresql.sql"/>
+  <include file="0200_013__ct_eartag_reasons_seed_data.postgresql.sql"/>
+  <include file="0200_014__ct_cm_authorities_seed_data.postgresql.sql"/>
+  <include file="0200_015__ct_param_header_seed_data.postgresql.sql"/>
+  <include file="0200_016__ct_param_group_seed_data.postgresql.sql"/>
+  <include file="0200_017__ct_param_value_group_seed_data.postgresql.sql"/>
+  <include file="0200_018__ct_location_id_formats_seed_data.postgresql.sql"/>
+  <include file="0200_019__ct_location_types_seed_data.postgresql.sql"/>
+  <include file="0200_020__ct_location_rel_types_seed_data.postgresql.sql"/>
+  <include file="0200_021__ct_loc_type_rel_combs_seed_data.postgresql.sql"/>
+  <include file="0200_022__ct_countries_seed_data.postgresql.sql"/>
   <include file="0210_mi_effective_report_all_permission_create_view.postgresql.sql"/>
+  <include file="0211_mi_effective_report_all_permission_update_view.postgresql.sql"/>
   <include file="0220_mi_get_births_summary_create_function.postgresql.sql"/>
+  <include file="0230_mi_get_births_summary_seed_function_local.postgresql.sql"/>
 </databaseChangeLog>
