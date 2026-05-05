@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
                     .AddConsoleExporter();
             });
 
-        services.AddPostgresDbContext<StorageBridgeWriteDbContext>(PostgresDataSourceFactory.DdlConnectionIdentifier);
+        services.AddPostgresDbContext<StorageBridgeWriteDbContext>();
         services.AddPostgresDbContext<StorageBridgeReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
 
         services.AddStorageBridgeStorage(config);

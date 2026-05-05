@@ -30,8 +30,7 @@ public static class ServiceCollectionExtensions
                 if (string.IsNullOrWhiteSpace(postgresConfig.DefaultHost) ||
                     string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyHost) ||
                     string.IsNullOrWhiteSpace(postgresConfig.Name) ||
-                    string.IsNullOrWhiteSpace(postgresConfig.User) ||
-                    string.IsNullOrWhiteSpace(postgresConfig.DdlUser))
+                    string.IsNullOrWhiteSpace(postgresConfig.User))
                 {
                     throw new InvalidOperationException(
                         "IAM authentication requires DefaultHost, ReadOnlyHost, Name, and User to be configured");
