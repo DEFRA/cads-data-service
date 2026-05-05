@@ -13,4 +13,6 @@ public class CreateBulkImportJobDto
     public char Delimiter { get; set; } = '|';
 
     public ImportActionType ImportActionType { get; set; }
+
+    public bool UpdateConstraints { get; set; } = false;
 }
