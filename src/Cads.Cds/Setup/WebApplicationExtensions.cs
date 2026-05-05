@@ -63,5 +63,11 @@ public static class WebApplicationExtensions
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
         }).AllowAnonymous();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
     }
 }

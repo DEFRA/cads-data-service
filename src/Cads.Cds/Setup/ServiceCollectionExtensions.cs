@@ -9,11 +9,14 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
+using Cads.Cds.Middleware;
 using Cads.Cds.StorageBridge.Application;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Cads.Cds.Setup;
@@ -49,6 +52,63 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddModules(configuration);
+
+        // Make endpoints available for discovery by tools like Swagger
+        services.AddEndpointsApiExplorer();
+
+        // Configure Swagger/OpenAPI
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "CADS API", Version = "v1" });
+
+            // Define the API Key security scheme
+            options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+            {
+                Description = "API Key needed to access the endpoints. Example: \"12345abcdef\"",
+                Name = "X-API-KEY", // Header name
+                In = ParameterLocation.Header, // Can also be Query or Cookie
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "ApiKeyScheme"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "ApiKey"
+                        },
+                        In = ParameterLocation.Header
+                    },
+                    new List<string>()
+                }
+            });
+
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("bearer", document)] = []
+            });
+
+            options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+            {
+                Name = "JWT Authentication",
+                Description = "JWT Authorization header using the Bearer scheme.",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = JwtBearerDefaults.AuthenticationScheme,
+                BearerFormat = "JWT",
+            });
+
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("bearer", document)] = []
+            });
+
+            //c.OperationFilter<ProducesResponseTypeOperationFilter>();
+        });
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)
