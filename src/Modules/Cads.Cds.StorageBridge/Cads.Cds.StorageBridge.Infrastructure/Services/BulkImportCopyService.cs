@@ -109,7 +109,10 @@ public class BulkImportCopyService(
             var sw = Stopwatch.StartNew();
             var totalRowsAffected = 0;
 
-            await _commandFactory.CreateSetContraintStateCommand(dto.BulkImportType, false).ExecuteNonQueryAsync(cancellationToken);
+            if (dto.UpdateConstraints)
+            {
+                await _commandFactory.CreateSetContraintStateCommand(dto.BulkImportType, false).ExecuteNonQueryAsync(cancellationToken);
+            }
 
             // Process each file found under the specified bucket and prefix
             foreach (var key in keys)
@@ -172,8 +175,11 @@ public class BulkImportCopyService(
                 }
             }
 
-            await _commandFactory.CreateSetContraintStateCommand(dto.BulkImportType, true).ExecuteNonQueryAsync(cancellationToken);
-            await _commandFactory.CreateReindexCommand(dto.BulkImportType).ExecuteNonQueryAsync(cancellationToken);
+            if (dto.UpdateConstraints)
+            {
+                await _commandFactory.CreateSetContraintStateCommand(dto.BulkImportType, true).ExecuteNonQueryAsync(cancellationToken);
+                await _commandFactory.CreateReindexCommand(dto.BulkImportType).ExecuteNonQueryAsync(cancellationToken);
+            }
 
             sw.Stop();
             var batchImportElapsed = sw.Elapsed.TotalMilliseconds;
