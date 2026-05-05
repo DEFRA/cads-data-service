@@ -36,17 +36,18 @@ public class ReportsController(IRequestExecutor executor, IUserContext userConte
         {
             Identifier = _userContext.UserIdentifier ?? Guid.NewGuid().ToString(),
             ReportKey = request.ReportKey,
-            StartDate = new DateTime(request.Year, request.Month, 1),
-            EndDate = new DateTime(request.Year, request.Month, 1).AddMonths(1),
+            StartDate = new DateOnly(request.Year, request.Month, 1),
+            EndDate = new DateOnly(request.Year, request.Month, 1).AddMonths(1),
         };
 
         var result = await _executor.ExecuteCommand(query);
         return FileContentResult(result, $"{request.ReportKey}.xlsx");
     }
 
-    private FileContentResult FileContentResult(MemoryStream result, string? fileDownloadName)
+    private FileContentResult FileContentResult(MemoryStream stream, string? fileDownloadName)
     {
-        return File(fileContents: result.ToArray(),
+        stream.Position = 0;
+        return File(fileContents: stream.ToArray(),
             contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             fileDownloadName: fileDownloadName);
     }

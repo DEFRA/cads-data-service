@@ -8,7 +8,7 @@ public class DownloadReportCommandHandler(IReportGenerationService service)
 {
     public Task<MemoryStream> Handle(DownloadReportCommand request, CancellationToken cancellationToken)
     {
-        //todo generic lookup
+        //todo NOT generic lookup
         switch (request.ReportKey)
         {
             case "gb_cattle_registrations":

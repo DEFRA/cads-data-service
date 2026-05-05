@@ -3,9 +3,9 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-namespace Cads.Cds.MiBff.Infrastructure.Reports;
+namespace Cads.Cds.MiBff.Application.Services.Reports;
 
-public class XlsxReport<T>
+public class OpenXmlReport<T>
 {
     public required List<T> Data { get; set; }
     public required List<Func<T, IConvertible>> Selectors { get; set; }
@@ -25,7 +25,6 @@ public class XlsxReport<T>
     {
         using var spreadsheet = BuildFromTemplate();
         spreadsheet.Clone(stream);
-        stream.Position = 0;
     }
 
     private SpreadsheetDocument BuildFromTemplate()
@@ -98,7 +97,7 @@ public class XlsxReport<T>
 
     private static EnumValue<CellValues> MapValueToExcelType(IConvertible value)
     {
-        if (value is int)
+        if (value is int || value is long)
             return new EnumValue<CellValues>(CellValues.Number);
 
         if (value is string)
