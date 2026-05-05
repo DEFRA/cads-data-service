@@ -20,4 +20,8 @@
     <Folder Include="Queries\Ukv\Cohorts\Validators\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
+  </ItemGroup>
+
 </Project>

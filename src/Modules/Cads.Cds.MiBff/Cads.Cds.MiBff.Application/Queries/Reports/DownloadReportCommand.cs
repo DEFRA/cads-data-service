@@ -10,9 +10,9 @@ public class DownloadReportCommand
     /// <summary>
     /// The inclusive start date.
     /// </summary>
-    public required DateTime StartDate { get; set; }
+    public required DateOnly StartDate { get; set; }
     /// <summary>
     /// The exclusive end date.
     /// </summary>
-    public required DateTime EndDate { get; set; }
+    public required DateOnly EndDate { get; set; }
 }
