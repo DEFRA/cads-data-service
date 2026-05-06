@@ -19,7 +19,7 @@ public class DownloadCattleRegistrationsReportTest
         var mockRepo = new Mock<IMiReportRepository>();
         var resultRows = new List<MiBirthSummaryResult>();
 
-        var factory = 
+        var factory =
             new MiBffWebApplicationFactory(
                 useFakeAuth: true,
                 serviceOverrides: new List<Action<IServiceCollection>>
@@ -31,7 +31,7 @@ public class DownloadCattleRegistrationsReportTest
 
         var client = factory.CreateClient();
         client.AddJwt();
-        
+
         mockRepo.Setup(x => x.GetBirthSummaryAsync(
                 It.IsAny<DateOnly>(),
                 It.IsAny<DateOnly>(),
