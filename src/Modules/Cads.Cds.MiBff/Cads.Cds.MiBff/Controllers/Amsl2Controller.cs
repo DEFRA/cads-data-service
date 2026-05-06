@@ -56,7 +56,7 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetDepartureDetailsByCph)} endpoint", $"Description text from {nameof(GetDepartureDetailsByCph)} endpoint")]
     [ResponseWithMetaData]
     [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]   
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("departure-details/{cph}")]
     public async Task<IActionResult> GetDepartureDetailsByCph([FromRoute] string cph)
     {
@@ -84,7 +84,7 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetDetailedMovementsById)} endpoint", $"Description text from {nameof(GetDetailedMovementsById)} endpoint")]
     [ResponseWithMetaData]
     [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]   
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("detailed-movement/{movementId}")]
     public async Task<IActionResult> GetDetailedMovementsById([FromRoute] Guid movementId)
     {
@@ -98,7 +98,7 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
     [ApiMessage($"Message text from {nameof(GetMovementsInSuspense)} endpoint", $"Description text from {nameof(GetMovementsInSuspense)} endpoint")]
     [ResponseWithMetaData]
     [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]   
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("movements-in-suspense")]
     public async Task<IActionResult> GetMovementsInSuspense([FromQuery] GetMovementsInSuspensePagedRequest request)
     {
