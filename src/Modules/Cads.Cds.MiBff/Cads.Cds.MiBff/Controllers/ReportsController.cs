@@ -8,6 +8,7 @@ using Cads.Cds.MiBff.Controllers.Extensions;
 using Cads.Cds.MiBff.Core.DTOs.Reports;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -23,6 +24,8 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
     private readonly IUserContext _userContext = userContext;
 
     [HttpGet]
+    [ProducesResponseType(typeof(ReportDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUserReports(CancellationToken cancellationToken)
     {
         var query = new GetUserReportsQuery { Identifier = _userContext.UserIdentifier ?? Guid.NewGuid().ToString() };
@@ -33,8 +36,14 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
     }
 
     [HttpGet("{reportKey}/permissions")]
+    [ProducesResponseType(typeof(UserReportPermissionsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUserReportPermissions([FromRoute] string reportKey, CancellationToken cancellationToken)
     {
+        if (reportKey is null)
+            return BadRequest("Invalid reportKey");
+
         var query = new GetUserReportPermissionsQuery { ExternalSubject = _userContext.UserIdentifier ?? Guid.NewGuid().ToString(), ReportKey = reportKey };
 
         var result = await _mediator.Send(query, cancellationToken);
@@ -44,6 +53,10 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
 
     [Authorize(Policy = "ReportAccess")]
     [HttpPost("{reportKey}")]
+    [ProducesResponseType(typeof(OkObjectResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetReport([FromRoute] string reportKey, CancellationToken cancellationToken)
     {
         var (Handler, RequestType) = _reportRegistry.Resolve(reportKey, HttpContext.RequestServices);
