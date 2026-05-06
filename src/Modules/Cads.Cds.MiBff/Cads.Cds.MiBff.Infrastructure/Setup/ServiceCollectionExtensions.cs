@@ -1,11 +1,7 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.MiBff.Application.Services.Reports;
-using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Core.Services.Reports;
-using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
-using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
+using Cads.Cds.MiBff.Infrastructure.Authorisation.Setup;
+using Cads.Cds.MiBff.Infrastructure.Persistence.Setup;
 using Cads.Cds.MiBff.Infrastructure.Reports;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,35 +11,14 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddMiBffInfrastructureLayer(this IServiceCollection services)
     {
-        services.AddPostgresDbContext<MiBffWriteDbContext>();
-        services.AddPostgresDbContext<MiBffReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.ConfigureMiBffPersistence();
+        services.ConfigureMiAuthorisation();
 
-        // Tables
-        services.AddScoped<IMiPermissionRepository, MiPermissionRepository>();
-        services.AddScoped<IMiReportGroupMapRepository, MiReportGroupMapRepository>();
-        services.AddScoped<IMiReportGroupRepository, MiReportGroupRepository>();
-        services.AddScoped<IMiReportRepository, MiReportRepository>();
-        services.AddScoped<IMiUserReportPermissionRepository, MiUserReportPermissionRepository>();
-        services.AddScoped<IMiRoleRepository, MiRoleRepository>();
-        services.AddScoped<IMiUserReportPermissionRepository, MiUserReportPermissionRepository>();
-        services.AddScoped<IMiUserRepository, MiUserRepository>();
-        services.AddScoped<IMiUserRoleRepository, MiUserRoleRepository>();
-
-        // Views
-        services.AddScoped<IMiEffectiveReportPermissionRepository, MiEffectiveReportPermissionRepository>();
-        services.AddScoped<IMiEffectiveReportAllPermissionRepository, MiEffectiveReportAllPermissionRepository>();
-
-        // Functions
-        services.AddScoped<IMiBirthSummaryRepository, MiBirthSummaryRepository>();
-
-        services.AddScoped<
-            IDbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>,
-            DbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>>();
-
-        // Report and permission services
+        // TODO: This all needs to move
         services.AddTransient<IReportRepository, FakeReportRepository>();
         services.AddTransient<IReportGenerationService, ReportGenerationService>();
         services.AddTransient<IXlsxReportGenerator, XlsxReportGenerator>();
+
         return services;
     }
 }

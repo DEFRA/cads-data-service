@@ -1,16 +1,14 @@
-using Cads.Cds.MiBff.Application.Routing.Reports;
-using Cads.Cds.MiBff.Application.Routing.Reports.Abstractions;
+using Cads.Cds.BuildingBlocks.Application.Queries;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Core.DTOs.Reports;
 using Cads.Cds.MiBff.Core.Services.Reports;
 
 namespace Cads.Cds.MiBff.Application.Queries.Reports;
 
-[ReportHandler("gb_cattle_registrations")]
 public class GetGbCattleRegistrationsQueryHandler(
     IMiBirthSummaryRepository birthSummaryRepository,
     IXlsxReportGenerator reportGenerator)
-    : IReportHandler<GetGbCattleRegistrationsQuery, FileReportResult>
+    : IQueryHandler<GetGbCattleRegistrationsQuery, FileReportResult>
 {
     public async Task<FileReportResult> Handle(GetGbCattleRegistrationsQuery query, CancellationToken cancellationToken)
     {
@@ -18,6 +16,9 @@ public class GetGbCattleRegistrationsQueryHandler(
         var toDate = fromDate.AddMonths(1);
 
         var data = await birthSummaryRepository.GetBirthSummaryAsync(fromDate, toDate, cancellationToken);
+
+        // TODO: Use data here
+
         var dataStream = reportGenerator.Generate();
 
         return new FileReportResult(
