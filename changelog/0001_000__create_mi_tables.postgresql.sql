@@ -109,7 +109,7 @@ GROUP BY
     rep.report_id,
     p.permission_id,
     upr.granted
-HAVING COALESCE(upr.granted, bool_or(rpr.granted), false) = true;
+HAVING COALESCE(upr.granted, bool_or(rpr.granted), false);
 
 DROP VIEW IF EXISTS mi_effective_report_all_permission;
 
@@ -124,5 +124,5 @@ FROM (((((mi_user u
    LEFT JOIN mi_user_role ur ON ((ur.user_id = u.user_id)))
    LEFT JOIN mi_role_report_permission rpr ON (((rpr.role_id = ur.role_id) AND (rpr.report_id = rep.report_id) AND (rpr.permission_id = p.permission_id))))
 GROUP BY u.display_name, u.external_subject, u.external_subject_normalized, rep.report_key, rep.report_id, p.permission_id, upr.granted
-HAVING ((COALESCE(upr.granted, bool_or(rpr.granted), false) = true) AND (COALESCE(rep.is_active, false) = true));
+HAVING ((COALESCE(upr.granted, bool_or(rpr.granted), false)) AND (COALESCE(rep.is_active, false)));
 
