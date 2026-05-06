@@ -1,34 +1,37 @@
-using Cads.Cds.MiBff.Core.Domain.Entities;
-
 namespace Cads.Cds.MiBff.Application.Services.Reports;
 
 public class OpenXmlReportGenerator : IOpenXmlReportGenerator
 {
-    public MemoryStream Generate(List<MiBirthSummaryResult> data)
+    public MemoryStream Generate<T>(List<T> data)
     {
-        var report = new OpenXmlReport<MiBirthSummaryResult>()
-        {
-            TemplateFileName = "./Reports/Templates/Cattle-Registrations-Template.xlsx",
-            Data = data.ToList(),
-            Selectors = new List<Func<MiBirthSummaryResult, IConvertible>>()
-            {
-                (x) => x.BirthYear,
-                (x) => x.BirthMonth,
-                (x) => x.Country,
-                (x) => x.GovRegion ?? "",
-                (x) => x.County ?? "",
-                (x) => x.BreedType,
-                (x) => x.Breed,
-                (x) => x.Sex ?? "",
-                (x) => x.ApplicationType ?? "",
-                (x) => x.NumberOfBirths
-            },
-            TableTemplateRow = 20,
-            TemplateRowFirstColumn = 2
-        };
+        var report = new OpenXmlReport<T>(GetReportDefinition<T>(), data);
+        return report.Generate();
+    }
 
-        var output = new MemoryStream();
-        report.Generate(output);
-        return output;
+    private IReportDefinition<T> GetReportDefinition<T>()
+    {
+        var reportType = typeof(IReportDefinition<T>);
+        var assembly = reportType.Assembly;
+        var candidateDefinitionTypes = assembly!
+            .GetTypes()
+            .Where(type =>
+                type is { IsClass: true, IsAbstract: false } &&
+                reportType.IsAssignableFrom(type) &&
+                type.GetConstructor(Type.EmptyTypes) is not null)
+            .ToList();
+
+        if (!candidateDefinitionTypes.Any())
+        {
+            throw new InvalidOperationException($"No report definition found for type {typeof(T)}");
+        }
+
+        if (candidateDefinitionTypes.Count > 1)
+        {
+            throw new InvalidOperationException($"Multiple report definitions found for type {typeof(T)}");
+        }
+
+        var instance = Activator.CreateInstance(candidateDefinitionTypes.Single());
+
+        return (IReportDefinition<T>)instance!;
     }
 }
