@@ -35,6 +35,14 @@ public static class WebApplicationExtensions
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
 
+        app.UseSwagger();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseSwaggerUI();
+        }
+
         app.UseAuthentication();
         app.UseAuthorization();
 
