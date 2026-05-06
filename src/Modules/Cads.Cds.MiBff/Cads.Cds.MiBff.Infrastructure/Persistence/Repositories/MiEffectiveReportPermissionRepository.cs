@@ -13,6 +13,8 @@ public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
         string externalSubject,
         CancellationToken cancellationToken = default)
     {
+        externalSubject = externalSubject.ToLower();
+
         return await Query()
             .Where(p => p.ExternalSubject == externalSubject &&
                         p.IsActive)
@@ -24,6 +26,8 @@ public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
         string reportKey,
         CancellationToken cancellationToken = default)
     {
+        externalSubject = externalSubject.ToLower();
+
         return await Query()
             .Where(p => p.ExternalSubject == externalSubject &&
                         p.ReportKey == reportKey &&

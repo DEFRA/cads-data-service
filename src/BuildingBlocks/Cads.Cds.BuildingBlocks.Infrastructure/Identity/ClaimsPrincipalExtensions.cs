@@ -12,6 +12,7 @@ public static class ClaimsPrincipalExtensions
 
     public static string? GetEmail(this ClaimsPrincipal user) =>
         user.FindFirst(ClaimTypes.Email)?.Value
+        ?? user.FindFirst("email")?.Value
         ?? user.FindFirst("preferred_username")?.Value;
 
     public static string? GetDisplayName(this ClaimsPrincipal user) =>
@@ -26,7 +27,8 @@ public static class ClaimsPrincipalExtensions
     public static string? GetUserIdentifier(this ClaimsPrincipal user)
     {
         // 1. Email (standard users)
-        var email = user.FindFirst(ClaimTypes.Email)?.Value;
+        var email = user.FindFirst(ClaimTypes.Email)?.Value
+            ?? user.FindFirst("email")?.Value;
         if (!string.IsNullOrWhiteSpace(email))
             return email;
 
