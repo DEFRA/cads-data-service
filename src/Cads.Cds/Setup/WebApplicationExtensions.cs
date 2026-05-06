@@ -35,6 +35,14 @@ public static class WebApplicationExtensions
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
 
+        app.UseSwagger();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseSwaggerUI();
+        }
+
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -63,11 +71,5 @@ public static class WebApplicationExtensions
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
         }).AllowAnonymous();
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
     }
 }
