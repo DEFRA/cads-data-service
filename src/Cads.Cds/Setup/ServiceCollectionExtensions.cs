@@ -1,3 +1,5 @@
+using Amazon.RDS.Model;
+using Amazon.Runtime.Internal.Transform;
 using Cads.Cds.Api.Application;
 using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
@@ -59,10 +61,10 @@ public static class ServiceCollectionExtensions
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "CADS API", Version = "v1" });
 
-            // Bearer Token
+            // Bearer Authentication
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                Description = "JWT Authorization header using the Bearer scheme.",
+                Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
@@ -70,14 +72,20 @@ public static class ServiceCollectionExtensions
                 BearerFormat = "JWT"
             });
 
-            // Define the API Key security scheme
-            options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+            // Basic Authentication
+            options.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
             {
-                Description = "API Key needed to access the endpoints. Example: \"12345abcdef\"",
-                Name = "X-API-KEY", // Header name
-                In = ParameterLocation.Header, // Can also be Query or Cookie
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "ApiKeyScheme"
+                Description = "Basic Authentication header. Example: \"Basic {base64(username:password)}\"",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "basic"
+            });
+
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("bearer", document)] = [],
+                [new OpenApiSecuritySchemeReference("basic", document)] = []
             });
         });
     }
