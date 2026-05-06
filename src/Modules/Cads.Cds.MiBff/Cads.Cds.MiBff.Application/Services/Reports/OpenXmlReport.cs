@@ -1,5 +1,4 @@
 using System.Globalization;
-using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
@@ -43,20 +42,6 @@ public class OpenXmlReport<T>(IReportDefinition<T> definition, List<T> data)
         }
     }
 
-    private static int GetColumnIndexFromCellReference(string reference)
-    {
-        int offset = 0;
-        int index = 0;
-        while (reference[offset] >= 'A' && reference[offset] <= 'Z')
-        {
-            index *= 26;
-            index += reference[offset] - 'A' + 1;
-            offset++;
-        }
-
-        return index;
-    }
-
     private void AddTableData(SheetData sheetData)
     {
         var templateRow = sheetData.ChildElements.OfType<Row>().Single(x => x.RowIndex?.Value == TableTemplateRow);
@@ -71,34 +56,29 @@ public class OpenXmlReport<T>(IReportDefinition<T> definition, List<T> data)
         var previousRow = header;
         foreach (var rowData in Data)
         {
-            var nextRow = (Row)templateRow.CloneNode(true);
-            nextRow.RowIndex = null;
-            var cells = nextRow.ChildElements.OfType<Cell>();
-            foreach (var cell in cells)
-            {
-                var columnIndex = GetColumnIndexFromCellReference(cell!.CellReference!);
-                if (columnIndex < TemplateRowFirstColumn || columnIndex > TemplateRowFirstColumn + Selectors.Count - 1)
-                    continue;
-                cell.CellReference = null;
-
-                var value = Selectors[columnIndex - TemplateRowFirstColumn](rowData);
-                cell.CellValue = new CellValue(value.ToString(CultureInfo.InvariantCulture));
-                cell.DataType = MapValueToExcelType(value);
-            }
-
+            var nextRow = FillCopyOfTemplateRowWithData(templateRow, rowData);
             previousRow.InsertAfterSelf(nextRow);
             previousRow = nextRow;
         }
     }
 
-    private static EnumValue<CellValues> MapValueToExcelType(IConvertible value)
+    private Row FillCopyOfTemplateRowWithData(Row templateRow, T rowData)
     {
-        if (value is int || value is long)
-            return new EnumValue<CellValues>(CellValues.Number);
+        var nextRow = (Row)templateRow.CloneNode(true);
+        nextRow.RowIndex = null;
+        var cells = nextRow.ChildElements.OfType<Cell>();
+        foreach (var cell in cells)
+        {
+            var columnIndex = cell!.CellReference!.GetColumnIndex();
+            if (columnIndex < TemplateRowFirstColumn || columnIndex > TemplateRowFirstColumn + Selectors.Count - 1)
+                continue;
+            cell.CellReference = null;
 
-        if (value is string)
-            return new EnumValue<CellValues>(CellValues.String);
+            var value = Selectors[columnIndex - TemplateRowFirstColumn](rowData);
+            cell.CellValue = new CellValue(value.ToString(CultureInfo.InvariantCulture));
+            cell.DataType = value.MapValueToExcelType();
+        }
 
-        throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}");
+        return nextRow;
     }
 }
