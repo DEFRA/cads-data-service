@@ -44,7 +44,7 @@
   <include file="0003_000__ct_sublocation_types_seed_data.postgresql.sql"/>
   <include file="0003_001__ct_param_header_seed_data.postgresql.sql"/>
   <include file="0003_002__ct_param_group_seed_data.postgresql.sql"/>
-  <include file="0004_001__ct_param_value_seed_data.postgresql.sql"/>
+  <include file="0003_002__ct_param_value_seed_data.postgresql.sql"/>
   <include file="0003_003__ct_param_value_group_seed_data.postgresql.sql"/>
   <include file="0003_004__ct_probity_checks_seed_data.postgresql.sql"/>
   <include file="0003_005__ct_condition_types_seed_data.postgresql.sql"/>
