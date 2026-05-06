@@ -5,26 +5,22 @@ using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Cads.Cds.MiBff.Application.Services.Reports;
 
-public class OpenXmlReport<T>
+public class OpenXmlReport<T>(IReportDefinition<T> definition, List<T> data)
 {
-    public required List<T> Data { get; set; }
-    public required List<Func<T, IConvertible>> Selectors { get; set; }
-    public required string TemplateFileName { get; set; }
+    private List<T> Data = data;
+    private List<Func<T, IConvertible>> Selectors => definition.Selectors;
+    private string TemplateFileName => definition.TemplateFileName;
 
-    ///<Summary>
-    /// row number where table data starts, starting from 1
-    /// </Summary>
-    public int TableTemplateRow { get; set; }
+    private int TableTemplateRow => definition.TableTemplateRow;
 
-    ///<Summary>
-    /// column number where table data starts, starting from 1
-    /// </Summary>
-    public int TemplateRowFirstColumn { get; set; }
+    private int TemplateRowFirstColumn => definition.TemplateRowFirstColumn;
 
-    public void Generate(MemoryStream stream)
+    public MemoryStream Generate()
     {
+        var stream = new MemoryStream();
         using var spreadsheet = BuildFromTemplate();
         spreadsheet.Clone(stream);
+        return stream;
     }
 
     private SpreadsheetDocument BuildFromTemplate()

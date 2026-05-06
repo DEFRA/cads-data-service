@@ -4,5 +4,5 @@ namespace Cads.Cds.MiBff.Application.Services.Reports;
 
 public interface IOpenXmlReportGenerator
 {
-    MemoryStream Generate(List<MiBirthSummaryResult> data);
+    MemoryStream Generate<T>(List<T> data);
 }

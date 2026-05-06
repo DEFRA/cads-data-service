@@ -30,6 +30,7 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 
 public abstract class WebAppFactoryBase<TStart>(
     IDictionary<string, string?>? configOverrides = null,
+    List<Action<IServiceCollection>>? serviceOverrides = null,
     bool useFakeAuth = false) : WebApplicationFactory<TStart>
     where TStart : class
 
@@ -37,7 +38,7 @@ public abstract class WebAppFactoryBase<TStart>(
     public Mock<IAmazonSQS> AmazonSQSMock { get; private set; } = new();
     public Mock<IAmazonS3> AmazonS3Mock { get; private set; } = new();
 
-    private readonly List<Action<IServiceCollection>> _serviceOverrides = [];
+    private readonly List<Action<IServiceCollection>> _serviceOverrides = serviceOverrides ?? [];
     private readonly IDictionary<string, string?> _configOverrides = configOverrides ?? new Dictionary<string, string?>();
     private readonly bool _useFakeAuth = useFakeAuth;
 

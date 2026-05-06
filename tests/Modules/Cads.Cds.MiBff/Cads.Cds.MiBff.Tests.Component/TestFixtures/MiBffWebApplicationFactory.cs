@@ -10,8 +10,10 @@ namespace Cads.Cds.MiBff.Tests.Component.TestFixtures;
 
 public class MiBffWebApplicationFactory(
     IDictionary<string, string?>? configOverrides = null,
+    List<Action<IServiceCollection>>? serviceOverrides = null,
     bool useFakeAuth = false) : WebAppFactoryBase<Program>(
         configOverrides: configOverrides,
+        serviceOverrides: serviceOverrides,
         useFakeAuth: useFakeAuth)
 {
     protected override void ConfigureDatabase(IServiceCollection services)

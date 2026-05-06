@@ -55,5 +55,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY static_data ./StaticData
+COPY report_templates ./ReportTemplates
 EXPOSE 8085
 ENTRYPOINT ["dotnet", "Cads.Cds.dll"]
