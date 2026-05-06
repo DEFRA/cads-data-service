@@ -30,4 +30,12 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Content Include="..\..\..\..\report_templates\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Link>ReportTemplates\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+
 </Project>
