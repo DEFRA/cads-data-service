@@ -16,7 +16,6 @@ public class MiReportRepository(MiBffReadDbContext dbContext)
 
     public async Task<IEnumerable<MiBirthSummaryResult>> GetBirthSummaryAsync(DateOnly fromDate, DateOnly toDate, CancellationToken cancellationToken = default)
     {
-        
         //throw new NotImplementedException();
         return await DbContext.GetBirthsSummary(fromDate, toDate)
             .AsNoTracking()
