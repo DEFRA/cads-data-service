@@ -28,7 +28,7 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
 
     // Functions
     public IQueryable<MiBirthSummaryResult> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
-        => FromExpression(() => GetBirthsSummary(birthDateFrom, birthDateTo));
+        => throw new NotImplementedException();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
