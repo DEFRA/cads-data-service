@@ -10,12 +10,12 @@ namespace Cads.Cds.MiBff.Tests.Integration.Reports;
 public class GetGbCattleRegistrationsTests(ApiContainerFixture apiContainerFixture)
 {
     [Fact]
-    public async Task GivenValidUser_WhenGetHoldingSummaryReportRequested_ShouldSucceed()
+    public async Task GivenValidUser_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
     {
         var endpoint = TestEndpointConstants.BffMiReportsGetGbCattleRegistrationsEndpoint;
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.ValidUserToken());
 
-        var payload = HttpContentUtility.CreateApplicationJsonAsStringContent("{\"year\":\"2026\",\"month\":\"4\"}");
+        var payload = HttpContentUtility.CreateApplicationJsonAsStringContent("{\"year\":2026,\"month\":4}");
 
         var response = await client.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);
         response.IsSuccessStatusCode.Should().BeTrue();
