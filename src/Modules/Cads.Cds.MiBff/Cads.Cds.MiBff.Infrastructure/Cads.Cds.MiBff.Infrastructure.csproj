@@ -19,12 +19,4 @@
   <ItemGroup>
     <Folder Include="Reports\Templates\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Reports\Templates\Cattle-Registrations-Template.xlsx" />
-    <Content Include="Reports\Templates\Cattle-Registrations-Template.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
 </Project>
