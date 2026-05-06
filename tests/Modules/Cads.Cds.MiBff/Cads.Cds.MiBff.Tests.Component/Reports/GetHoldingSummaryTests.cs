@@ -11,7 +11,7 @@ public class GetHoldingSummaryTests(MiBffTestFixture testFixture) : IClassFixtur
     private readonly MiBffTestFixture _testFixture = testFixture;
 
     [Fact]
-    public async Task GivenValidUser_WhenDownloadCattleRegistrationsReportRequested_ShouldReturnReport()
+    public async Task GivenValidUser_WhenGetHoldingSummaryRequested_ShouldReturnReport()
     {
         var endpoint = $"/api/v1/bff/mi/reports/{TestReportKeyConstants.HoldingSummaryReportKey}";
         var request = new GetHoldingSummaryRequest();
