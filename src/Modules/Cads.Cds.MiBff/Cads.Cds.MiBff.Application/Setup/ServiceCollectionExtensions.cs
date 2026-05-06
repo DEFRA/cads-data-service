@@ -14,12 +14,11 @@ using Cads.Cds.MiBff.Application.Queries.Ukv.Inspections.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Movements.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Zones.Adapters;
+using Cads.Cds.MiBff.Application.Reports.Routing.Setup;
 using Cads.Cds.MiBff.Application.Services.Amsl2;
-using Cads.Cds.MiBff.Application.Services.Reports;
 using Cads.Cds.MiBff.Application.Services.Ukv;
 using Cads.Cds.MiBff.Core.Configuration;
 using Cads.Cds.MiBff.Core.Services.Amsl2;
-using Cads.Cds.MiBff.Core.Services.Reports;
 using Cads.Cds.MiBff.Core.Services.Ukv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +39,8 @@ public static class ServiceCollectionExtensions
         {
             cfg.AddMaps(typeof(IMiBffApplicationMarker).Assembly);
         });
+
+        services.ConfigureMiBffReportsRouting();
 
         return services;
     }
@@ -88,8 +89,5 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IJourneyHaulierService, JourneyHaulierService>();
         services.AddTransient<IMovementService, MovementService>();
         services.AddTransient<IZoneService, ZoneService>();
-
-        // Report and permission services
-        services.AddTransient<IReportAccessService, ReportAccessService>();
     }
 }

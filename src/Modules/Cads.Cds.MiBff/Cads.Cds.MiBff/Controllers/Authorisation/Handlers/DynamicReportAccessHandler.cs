@@ -2,12 +2,13 @@ using Cads.Cds.MiBff.Controllers.Authorisation.Requirements;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.MiBff.Controllers.Authorisation.Handlers;
 
-public class DynamicReportAccessHandler(IAuthorizationService authorizationService) : AuthorizationHandler<DynamicReportAccessRequirement>
+public class DynamicReportAccessHandler(IServiceProvider serviceProvider) : AuthorizationHandler<DynamicReportAccessRequirement>
 {
-    private readonly IAuthorizationService _authorizationService = authorizationService;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
@@ -31,7 +32,8 @@ public class DynamicReportAccessHandler(IAuthorizationService authorizationServi
             return;
 
         // Re-run authorization using the static policy
-        var result = await _authorizationService.AuthorizeAsync(
+        var authorizationService = _serviceProvider.GetRequiredService<IAuthorizationService>();
+        var result = await authorizationService.AuthorizeAsync(
             context.User,
             resource: null,
             policyName: $"ReportAccess:{reportKey}");
