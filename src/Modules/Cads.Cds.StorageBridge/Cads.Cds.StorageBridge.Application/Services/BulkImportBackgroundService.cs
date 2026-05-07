@@ -15,7 +15,7 @@ public class BulkImportBackgroundService(
 {
     private readonly int _maxParallelImports = 5;
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken = default)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         var semaphore = new SemaphoreSlim(_maxParallelImports);
         var runningTasks = new ConcurrentBag<Task>();

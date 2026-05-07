@@ -20,7 +20,7 @@ public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
         }, cancellationToken);
     }
 
-    public Task<string> ReadAsync(string key, CancellationToken cancellationToken)
+    public Task<string> ReadAsync(string key, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

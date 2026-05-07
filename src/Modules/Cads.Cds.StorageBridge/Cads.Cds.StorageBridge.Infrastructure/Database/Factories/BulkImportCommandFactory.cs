@@ -12,7 +12,6 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
     private static readonly NpgsqlCommandBuilder s_commandBuilder = new();
 
     private const string RecordTypeColumnName = "record_type";
-    private const string RecordCountColumnName = "record_count";
     private const string RowNumberColumnName = "row_number";
 
     private static class RecordType
@@ -29,22 +28,26 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         var tempTableName = GetTableName(bulkImportType, true);
 
         // Quote column names to ensure identifiers are safe for SQL generation
-        //var quotedRecordCountColumnName = s_commandBuilder.QuoteIdentifier(RecordCountColumnName);
-        //var quotedRowNumberColumnName = s_commandBuilder.QuoteIdentifier(RowNumberColumnName);
-        //var quotedRecordTypeColumnName = s_commandBuilder.QuoteIdentifier(RecordTypeColumnName);
+        var quotedRowNumberColumnName = s_commandBuilder.QuoteIdentifier(RowNumberColumnName);
 
         return new NpgsqlCommand
         {
             CommandText = $"CREATE TEMP TABLE {tempTableName} (" +
                 $"LIKE {tableName} INCLUDING ALL) " +
-                $"ON COMMIT DROP ",
+                $"ON COMMIT DROP " +
+                $"ALTER TABLE {tempTableName} DROP COLUMN {quotedRowNumberColumnName};",
             Connection = connection
         };
     }
 
     public StreamWriter CreateTextImport(BulkImportType bulkImportType, char delimiter) =>
+      connection.BeginTextImport(
+          $"COPY {GetTableName(bulkImportType, true)} " +
+          $"FROM STDIN WITH (FORMAT csv, DELIMITER '{delimiter}', HEADER true)");
+
+    public StreamWriter CreateTextImport(BulkImportType bulkImportType, char delimiter, IEnumerable<string> columns) =>
         connection.BeginTextImport(
-            $"COPY {GetTableName(bulkImportType, true)} " +
+            $"COPY {GetTableName(bulkImportType, true)} ({string.Join(",", columns)}) " +
             $"FROM STDIN WITH (FORMAT csv, DELIMITER '{delimiter}', HEADER true)");
 
     public DbCommand CreateReindexCommand(BulkImportType bulkImportType)
@@ -82,7 +85,8 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, true);
         var columnNames = await GetColumnNamesAsync(bulkImportType, cancellationToken);
-        
+        var key = bulkImportType.GetTableKey() ?? columnNames[0];
+
         return new NpgsqlCommand
         {
             CommandText = $"INSERT INTO {tableName} " +
