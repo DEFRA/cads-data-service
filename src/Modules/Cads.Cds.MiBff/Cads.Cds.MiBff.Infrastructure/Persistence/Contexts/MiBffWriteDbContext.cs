@@ -30,7 +30,7 @@ public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) 
 
     public virtual IQueryable<MiEffectiveReportAllPermissionView> GetMiEffectiveReportAllPermission(string externalSubject, string reportKey)
         => FromExpression(() => GetMiEffectiveReportAllPermission(externalSubject, reportKey));
-    
+
     public virtual IQueryable<MiBirthSummaryResult> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
         => FromExpression(() => GetBirthsSummary(birthDateFrom, birthDateTo));
 
@@ -47,7 +47,7 @@ public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) 
                 typeof(MiBffWriteDbContext).GetMethod(nameof(GetMiEffectiveReportAllPermission))!)
             .HasName("get_mi_effective_report_all_permission")
             .HasSchema("public");
-        
+
         modelBuilder.HasDbFunction(
                 typeof(MiBffWriteDbContext).GetMethod(nameof(GetBirthsSummary))!)
             .HasName("get_births_summary")
