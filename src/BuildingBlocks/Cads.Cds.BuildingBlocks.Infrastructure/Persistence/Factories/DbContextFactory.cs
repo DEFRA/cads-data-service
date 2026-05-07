@@ -25,6 +25,25 @@ public static class DbContextFactory
             "Ensure the type has a constructor accepting DbContextOptions or DbContextOptions<T>."
         );
     }
+    
+    public static U CreateInMemoryTestDbContextFromDbContext<T, U>(string dbName)
+        where T : DbContext
+        where U : T
+    {
+        var options = new DbContextOptionsBuilder<T>()
+            .UseInMemoryDatabase(databaseName: dbName) // Unique name per test to isolate data
+            .Options;
+        var instance = Activator.CreateInstance(typeof(U), options);
+        if (instance is U ctx)
+        {
+            return ctx;
+        }
+
+        throw new InvalidOperationException(
+            $"Could not create an instance of {typeof(U)}. " +
+            "Ensure the type has a constructor accepting DbContextOptions or DbContextOptions<T>."
+        );
+    }
 }
 
 [ExcludeFromCodeCoverage]
