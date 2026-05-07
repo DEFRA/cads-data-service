@@ -1,8 +1,6 @@
-using Cads.Cds.MiBff.Application.Queries.Reports;
 using Cads.Cds.MiBff.Application.Services.Reports;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
-using Cads.Cds.MiBff.Core.Services.Reports;
 using FluentAssertions;
 using Moq;
 
@@ -15,9 +13,9 @@ public class ReportGenerationServiceTests
     {
         var from = new DateOnly(2023, 1, 1);
         var to = new DateOnly(2024, 1, 1);
-        var mockDataSource = new Mock<IMiReportRepository>();
+        var mockDataSource = new Mock<IMiBirthSummaryRepository>();
         var mockXlsxGenerator = new Mock<IOpenXmlReportGenerator>();
-        var stubData = new List<MiBirthSummaryResult>();
+        var stubData = new List<MiBirthSummary>();
         mockDataSource.Setup(x => x.GetBirthSummaryAsync(from, to, It.IsAny<CancellationToken>())).ReturnsAsync(stubData);
         using var resultStream = new MemoryStream();
         mockXlsxGenerator.Setup(x => x.Generate(stubData)).Returns(resultStream);
