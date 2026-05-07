@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Testing.Support.Factories;
 using Cads.Cds.MiBff.Testing.Support.Seeding;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -17,8 +18,12 @@ public class MiBffWebApplicationFactory(
     protected override void ConfigureDatabase(IServiceCollection services)
     {
         var reportPermissionsData = new ReportPermissionsDataFactory().CreateMockData();
+        
+        var options = new DbContextOptionsBuilder<MiBffReadDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
-        var miBffReadDbContext = DbContextFactory.CreateInMemoryDbContext<MiBffReadDbContext>(Guid.NewGuid().ToString());
+        var miBffReadDbContext = new TestMiBffReadDbContext(options);
         TestMiBffDataSeeder.Seed(miBffReadDbContext, reportPermissionsData);
 
         var miBffWriteDbContext = DbContextFactory.CreateInMemoryDbContext<MiBffWriteDbContext>(Guid.NewGuid().ToString());
