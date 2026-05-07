@@ -2,7 +2,10 @@ using Cads.Cds.BuildingBlocks.Application.Queries;
 
 namespace Cads.Cds.MiBff.Application.Queries.Reports;
 
-public class GetReportQuery<T>(string reportKey) : IQuery<T>
+public class GetReportQuery<T> : GetReportQueryBase, IQuery<T>
 {
-    public string ReportKey { get; init; } = reportKey;
+    public GetReportQuery(string reportKey)
+    {
+        ReportKey = reportKey;
+    }
 }
