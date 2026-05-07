@@ -1,5 +1,4 @@
 using Cads.Cds.MiBff.Core.DTOs.Reports;
-using FluentValidation;
 
 namespace Cads.Cds.MiBff.Application.Queries.Reports;
 
