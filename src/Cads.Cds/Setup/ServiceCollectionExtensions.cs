@@ -1,3 +1,5 @@
+using Amazon.RDS.Model;
+using Amazon.Runtime.Internal.Transform;
 using Cads.Cds.Api.Application;
 using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
@@ -14,6 +16,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Cads.Cds.Setup;
@@ -49,6 +52,42 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddModules(configuration);
+
+        // Make endpoints available for discovery by tools like Swagger
+        services.AddEndpointsApiExplorer();
+
+        // Configure Swagger/OpenAPI
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "CADS API", Version = "v1" });
+
+            // Bearer Authentication
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT"
+            });
+
+            // Basic Authentication
+            options.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
+            {
+                Description = "Basic Authentication header. Example: \"Basic {base64(username:password)}\"",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "basic"
+            });
+
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("bearer", document)] = [],
+                [new OpenApiSecuritySchemeReference("basic", document)] = []
+            });
+        });
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)
