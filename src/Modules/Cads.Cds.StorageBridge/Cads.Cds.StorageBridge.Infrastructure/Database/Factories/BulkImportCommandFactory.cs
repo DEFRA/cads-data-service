@@ -29,18 +29,15 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         var tempTableName = GetTableName(bulkImportType, true);
 
         // Quote column names to ensure identifiers are safe for SQL generation
-        var quotedRecordCountColumnName = s_commandBuilder.QuoteIdentifier(RecordCountColumnName);
-        var quotedRowNumberColumnName = s_commandBuilder.QuoteIdentifier(RowNumberColumnName);
-        var quotedRecordTypeColumnName = s_commandBuilder.QuoteIdentifier(RecordTypeColumnName);
+        //var quotedRecordCountColumnName = s_commandBuilder.QuoteIdentifier(RecordCountColumnName);
+        //var quotedRowNumberColumnName = s_commandBuilder.QuoteIdentifier(RowNumberColumnName);
+        //var quotedRecordTypeColumnName = s_commandBuilder.QuoteIdentifier(RecordTypeColumnName);
 
         return new NpgsqlCommand
         {
             CommandText = $"CREATE TEMP TABLE {tempTableName} (" +
-                $"{quotedRecordTypeColumnName} TEXT, " +
-                $"{quotedRecordCountColumnName} BIGINT, " +
                 $"LIKE {tableName} INCLUDING ALL) " +
-                $"ON COMMIT DROP; " +
-                $"ALTER TABLE {tempTableName} DROP COLUMN {quotedRowNumberColumnName};",
+                $"ON COMMIT DROP ",
             Connection = connection
         };
     }
@@ -85,8 +82,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, true);
         var columnNames = await GetColumnNamesAsync(bulkImportType, cancellationToken);
-        var key = bulkImportType.GetTableKey() ?? columnNames[0];
-
+        
         return new NpgsqlCommand
         {
             CommandText = $"INSERT INTO {tableName} " +
