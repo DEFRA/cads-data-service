@@ -12,17 +12,18 @@ public class ReportPermissionsDataFactory
     private readonly Fixture _fixture;
 
     private readonly List<string> _reportKeys = [
-        "animal_summary",
-        "cohort_tracing",
-        "gb_cattle_registrations",
-        "holding_summary",
-        "journey_by_haulier",
-        "movements_all_holdings",
-        "movement_summary_holding",
-        "scrapie_flock_scheme_audit",
-        "sheep_goat_inspections",
-        "unregistered_herds_flocks",
-        "zonal_movements_summary"
+        TestReportKeyConstants.AnimalSummaryReportKey,
+        TestReportKeyConstants.CohortTracingReportKey,
+        TestReportKeyConstants.GbCattleDeathsReportKey,
+        TestReportKeyConstants.GbCattleRegistrationsReportKey,
+        TestReportKeyConstants.HoldingSummaryReportKey,
+        TestReportKeyConstants.JourneyByHaulierReportKey,
+        TestReportKeyConstants.MovementsAllHoldingsReportKey,
+        TestReportKeyConstants.MovementSummaryHoldingReportKey,
+        TestReportKeyConstants.ScrapieFlockSchemeAuditReportKey,
+        TestReportKeyConstants.SheepGoatInspectionsReportKey,
+        TestReportKeyConstants.UnregisteredHerdsFlocksReportKey,
+        TestReportKeyConstants.ZonalMovementsSummaryReportKey
     ];
 
     private readonly List<string> _userIdentifiers = [

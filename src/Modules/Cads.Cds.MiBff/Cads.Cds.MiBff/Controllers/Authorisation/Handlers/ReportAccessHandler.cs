@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
+using Cads.Cds.MiBff.Application.Reports.Authorisation;
 using Cads.Cds.MiBff.Controllers.Authorisation.Requirements;
-using Cads.Cds.MiBff.Core.Services.Reports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 

@@ -2,13 +2,13 @@ using Cads.Cds.MiBff.Core.Domain.Entities;
 
 namespace Cads.Cds.MiBff.Application.Services.Reports;
 
-public class CattleRegistrationReportDefinition : IReportDefinition<MiBirthSummaryResult>
+public class CattleRegistrationReportDefinition : IReportDefinition<MiBirthSummary>
 {
     public string TemplateFileName => "./ReportTemplates/Cattle-Registrations-Template.xlsx";
     public int TableTemplateRow => 20;
     public int TemplateRowFirstColumn => 2;
 
-    public List<Func<MiBirthSummaryResult, IConvertible>> Selectors =>
+    public List<Func<MiBirthSummary, IConvertible>> Selectors =>
     [
         x => x.BirthYear,
         x => x.BirthMonth,

@@ -6,10 +6,10 @@ namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Reports;
 
 public class OpenXmlExporterTests
 {
-    public static List<MiBirthSummaryResult> GetFakeData(int rows)
+    public static List<MiBirthSummary> GetFakeData(int rows)
     {
         Random rnd = new Random();
-        return Enumerable.Range(1, rows).Select(x => new MiBirthSummaryResult()
+        return Enumerable.Range(1, rows).Select(x => new MiBirthSummary()
         {
             BirthYear = 2024,
             BirthMonth = "January",
@@ -31,10 +31,6 @@ public class OpenXmlExporterTests
         var data = GetFakeData(25);
 
         using var stream = sut.Generate(data);
-
-        stream.Position = 0;
-        await using (FileStream file = new FileStream("file.xlsx", FileMode.Create, System.IO.FileAccess.Write))
-            await stream.CopyToAsync(file, TestContext.Current.CancellationToken);
 
         stream.Should().NotBeNull();
     }

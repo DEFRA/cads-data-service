@@ -1,7 +1,7 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.Ingester.Controllers.Requests.AnimalMovements;
 using Cads.Cds.Ingester.Core.Domain.Enums;
 using Cads.Cds.Ingester.Core.DTOs.Common;
+using Cads.Cds.Ingester.Testing.Support.Constants;
 using Cads.Cds.Ingester.Tests.Component.TestFixtures;
 using FluentAssertions;
 using Newtonsoft.Json;

@@ -1,7 +1,7 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.Ingester.Core.Domain.Enums;
 using Cads.Cds.Ingester.Core.DTOs.Common;
+using Cads.Cds.Ingester.Testing.Support.Constants;
 using FluentAssertions;
 using Newtonsoft.Json;
 using System.Text;
@@ -18,7 +18,7 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpoint, nation);
         var client = apiContainerFixture.CreateBasicClient();
 
-        var result = await client.PostAsync(endpoint, new StringContent(payload, Encoding.UTF8, "application/json"),
+        var result = await client.PostAsync(endpoint, new StringContent(_payload, Encoding.UTF8, "application/json"),
             TestContext.Current.CancellationToken);
         result.IsSuccessStatusCode.Should().BeTrue();
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -28,7 +28,7 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         responseData.RecordCount.Should().Be(1);
     }
 
-    private readonly string payload = @"{
+    private readonly string _payload = @"{
  ""AnimalMovement"": {
    ""CreatedBy"": ""SC"",
    ""DepartureRegion"": ""SC"",
