@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.MiBff.Application.Reports.Requests;
 using Cads.Cds.MiBff.Testing.Support.Constants;
@@ -6,18 +7,34 @@ using FluentAssertions;
 
 namespace Cads.Cds.MiBff.Tests.Component.Reports;
 
-public class GetHoldingSummaryTests(MiBffTestFixture testFixture) : IClassFixture<MiBffTestFixture>
+public class GetHoldingSummaryTests
 {
-    private readonly MiBffTestFixture _testFixture = testFixture;
-
     [Fact]
-    public async Task GivenValidUser_WhenGetHoldingSummaryRequested_ShouldReturnReport()
+    public async Task GivenValidRequest_WhenGetHoldingSummaryRequested_ShouldSucceed()
+    {
+        var response = await ExecuteTest();
+
+        response.Should().NotBeNull();
+        response.IsSuccessStatusCode.Should().BeTrue();
+    }
+
+    private static MiBffWebApplicationFactory GetFactory(bool useFakeAuth = true)
+    {
+        var factory = new MiBffWebApplicationFactory(useFakeAuth: useFakeAuth);
+
+        return factory;
+    }
+
+    private async Task<HttpResponseMessage?> ExecuteTest()
     {
         var endpoint = $"/api/v1/bff/mi/reports/{TestReportKeyConstants.HoldingSummaryReportKey}";
         var request = new GetHoldingSummaryRequest();
         var payload = HttpContentUtility.CreateApplicationJsonAsStringContent(request);
 
-        var response = await _testFixture.HttpClient.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);
-        response.IsSuccessStatusCode.Should().BeTrue();
+        var factory = GetFactory();
+        var client = factory.CreateClient();
+        client.AddJwt();
+
+        return await client.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);
     }
 }
