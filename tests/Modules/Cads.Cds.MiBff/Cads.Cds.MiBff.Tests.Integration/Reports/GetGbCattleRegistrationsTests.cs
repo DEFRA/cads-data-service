@@ -32,10 +32,12 @@ public class GetGbCattleRegistrationsTests(ApiContainerFixture apiContainerFixtu
     public async Task GivenValidRequest_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
     {
         var response = await ExecuteTest("{\"year\":2026,\"month\":4}");
+
+        response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
-    private async Task<HttpResponseMessage?> ExecuteTest(string request)
+    private async Task<HttpResponseMessage> ExecuteTest(string request)
     {
         var endpoint = TestEndpointConstants.BffMiReportsGetGbCattleRegistrationsEndpoint;
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.ValidUserToken());
