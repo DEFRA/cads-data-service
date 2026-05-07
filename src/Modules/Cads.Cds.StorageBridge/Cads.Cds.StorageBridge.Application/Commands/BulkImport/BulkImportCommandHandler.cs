@@ -6,7 +6,7 @@ namespace Cads.Cds.StorageBridge.Application.Commands.BulkImport;
 
 public class BulkImportCommandHandler(IBulkImportEnqueueService bulkImportEnqueueService) : ICommandHandler<BulkImportCommand, Guid>
 {
-    public async Task<Guid> Handle(BulkImportCommand command, CancellationToken cancellationToken = default)
+    public async Task<Guid> Handle(BulkImportCommand command, CancellationToken cancellationToken)
     {
         var dto = new CreateBulkImportJobDto
         {

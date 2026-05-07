@@ -21,7 +21,7 @@ public class BulkImportCopyService(
     IStorageReader<CadsInternalClient> storageReader,
     ILogger<BulkImportCopyService> logger) : IBulkImportCopyService
 {
-    private IBulkImportCommandFactory? _commandFactory;
+    private BulkImportCommandFactory? _commandFactory;
 
     private bool QueryTestData => false; // Set to true to enable temporary table data logging for debugging purposes, should be false for production use to avoid unnecessary overhead
 
@@ -157,7 +157,6 @@ public class BulkImportCopyService(
                 counter.Add(rowsAffected);
 
                 totalRowsAffected += rowsAffected;
-
 
                 await transaction.CommitAsync(cancellationToken);
 
@@ -305,18 +304,34 @@ public class BulkImportCopyService(
 
         using var streamReader = new StreamReader(response.ResponseStream);
 
-        // Create a text import writer for the bulk import type and delimiter
-        using var writer = _commandFactory.CreateTextImport(bulkImportType, delimiter);
-
         // Read each line from the input stream and write it to the text import writer
-        string? line;
-        while ((line = await streamReader.ReadLineAsync(cancellationToken)) != null)
+        var line = await streamReader.ReadLineAsync(cancellationToken);
+
+        // First line is expected to contain column headers,
+        // split it by the delimiter to get the column names for the text import writer
+        var columns = line?.Split(delimiter);
+
+        // Validate that we have column headers to work with, 
+        // if not, we cannot proceed with the bulk import as
+        // the text import writer requires column names to map the data correctly
+        if (columns == null || columns.Length == 0)
         {
-            if (line.StartsWith("T|")) // Skip the separator definition line if it exists
+            throw new InvalidOperationException($"Failed to read column headers from the input file for key {key}. The first line must contain column names separated by the specified delimiter.");
+        }
+
+        // Create a text import writer for the bulk import type and delimiter
+        using var writer = _commandFactory.CreateTextImport(bulkImportType, delimiter, columns);
+
+        while (line != null)
+        {
+            if (line?.StartsWith("T|") == true) // Skip the termination definition line if it exists
             {
                 break;
             }
+
             await writer.WriteLineAsync(line);
+
+            line = await streamReader.ReadLineAsync(cancellationToken);
         }
     }
 

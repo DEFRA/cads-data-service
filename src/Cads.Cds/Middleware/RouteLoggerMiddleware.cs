@@ -12,7 +12,12 @@ public class RouteLoggerMiddleware
                 .OfType<HttpMethodMetadata>()
                 .FirstOrDefault()?.HttpMethods ?? ["ANY"];
 
-            logger.LogInformation($"{string.Join(",", methods)} => {endpoint.RoutePattern.RawText}");
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                var methodsText = string.Join(",", methods);
+                var routePattern = endpoint.RoutePattern?.RawText ?? string.Empty;
+                logger.LogInformation("{Methods} => {RoutePattern}", methodsText, routePattern);
+            }
         }
 
         _next = next;
