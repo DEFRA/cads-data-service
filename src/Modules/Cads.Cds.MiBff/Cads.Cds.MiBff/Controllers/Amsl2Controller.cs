@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Application.Attributes;
 using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Application.Queries.JsonResponses;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.AnimalSummary;
 using Cads.Cds.MiBff.Application.Queries.Amsl2.AnnualInventory;
@@ -12,7 +13,7 @@ using Cads.Cds.MiBff.Application.Queries.Amsl2.SummaryPremiseDetails;
 using Cads.Cds.MiBff.Controllers.Requests.Amsl2;
 using Cads.Cds.MiBff.Core.DTOs.Amls2;
 using Microsoft.AspNetCore.Authorization;
-
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
@@ -26,6 +27,8 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
 
     [ApiMessage($"Message text from {nameof(GetAnimalSummaryById)} endpoint", $"Description text from {nameof(GetAnimalSummaryById)} endpoint")]
     [ResponseWithMetaData]
+    [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("animal-summary/{animalId}")]
     public async Task<IActionResult> GetAnimalSummaryById([FromRoute] Guid animalId)
     {
@@ -38,6 +41,8 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
 
     [ApiMessage($"Message text from {nameof(GetAnnualInventory)} endpoint", $"Description text from {nameof(GetAnnualInventory)} endpoint")]
     [ResponseWithMetaData]
+    [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("annual-inventory")]
     public async Task<IActionResult> GetAnnualInventory([FromQuery] GetAnnualInventoryPagedRequest request)
     {
@@ -50,6 +55,8 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
 
     [ApiMessage($"Message text from {nameof(GetDepartureDetailsByCph)} endpoint", $"Description text from {nameof(GetDepartureDetailsByCph)} endpoint")]
     [ResponseWithMetaData]
+    [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("departure-details/{cph}")]
     public async Task<IActionResult> GetDepartureDetailsByCph([FromRoute] string cph)
     {
@@ -62,6 +69,8 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
 
     [ApiMessage($"Message text from {nameof(GetDestinationDetails)} endpoint", $"Description text from {nameof(GetDestinationDetails)} endpoint")]
     [ResponseWithMetaData]
+    [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("destination-details/{destinationType}/{destinationId}")]
     public async Task<IActionResult> GetDestinationDetails([FromRoute] string destinationType, [FromRoute] Guid destinationId)
     {
@@ -74,6 +83,8 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
 
     [ApiMessage($"Message text from {nameof(GetDetailedMovementsById)} endpoint", $"Description text from {nameof(GetDetailedMovementsById)} endpoint")]
     [ResponseWithMetaData]
+    [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("detailed-movement/{movementId}")]
     public async Task<IActionResult> GetDetailedMovementsById([FromRoute] Guid movementId)
     {
@@ -86,6 +97,8 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
 
     [ApiMessage($"Message text from {nameof(GetMovementsInSuspense)} endpoint", $"Description text from {nameof(GetMovementsInSuspense)} endpoint")]
     [ResponseWithMetaData]
+    [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("movements-in-suspense")]
     public async Task<IActionResult> GetMovementsInSuspense([FromQuery] GetMovementsInSuspensePagedRequest request)
     {
@@ -98,6 +111,8 @@ public class Amsl2Controller(IRequestExecutor executor) : ControllerBase
 
     [ApiMessage($"Message text from {nameof(GetSummaryPremiseDetails)} endpoint", $"Description text from {nameof(GetSummaryPremiseDetails)} endpoint")]
     [ResponseWithMetaData]
+    [ProducesResponseType(typeof(JsonResponseDataResult<Amsl2Dto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [HttpGet("summary-premise-details")]
     public async Task<IActionResult> GetSummaryPremiseDetails([FromQuery] GetSummaryPremiseDetailsPagedRequest request)
     {
