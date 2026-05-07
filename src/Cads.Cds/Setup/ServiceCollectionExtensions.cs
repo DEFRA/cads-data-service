@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
 
         services.ConfigureHealthChecks();
 
-        services.ConfigureMediatr();
+        services.ConfigureMediatR();
 
         services.AddModules(configuration);
 
@@ -85,7 +85,7 @@ public static class ServiceCollectionExtensions
         });
     }
 
-    private static void ConfigureMediatr(this IServiceCollection services)
+    private static void ConfigureMediatR(this IServiceCollection services)
     {
         services.AddMediatR(cfg =>
         {
