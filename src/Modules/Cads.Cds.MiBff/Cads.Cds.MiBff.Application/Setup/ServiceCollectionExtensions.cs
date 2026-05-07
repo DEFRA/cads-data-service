@@ -14,6 +14,7 @@ using Cads.Cds.MiBff.Application.Queries.Ukv.Inspections.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.JourneyHauliers.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Movements.Adapters;
 using Cads.Cds.MiBff.Application.Queries.Ukv.Zones.Adapters;
+using Cads.Cds.MiBff.Application.Reports.Definitions.Setup;
 using Cads.Cds.MiBff.Application.Reports.Routing.Setup;
 using Cads.Cds.MiBff.Application.Services.Amsl2;
 using Cads.Cds.MiBff.Application.Services.Ukv;
@@ -41,6 +42,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.ConfigureMiBffReportsRouting();
+        services.ConfigureMiBffReportsDefinitions();
 
         return services;
     }

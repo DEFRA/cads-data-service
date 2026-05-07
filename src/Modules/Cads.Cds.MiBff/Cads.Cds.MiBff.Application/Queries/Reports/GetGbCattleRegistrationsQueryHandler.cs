@@ -1,13 +1,13 @@
 using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Core.OpenXml;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Core.DTOs.Reports;
-using Cads.Cds.MiBff.Core.Services.Reports;
 
 namespace Cads.Cds.MiBff.Application.Queries.Reports;
 
 public class GetGbCattleRegistrationsQueryHandler(
     IMiBirthSummaryRepository birthSummaryRepository,
-    IXlsxReportGenerator reportGenerator)
+    IOpenXmlReportGenerator reportGenerator)
     : IQueryHandler<GetGbCattleRegistrationsQuery, FileReportResult>
 {
     public async Task<FileReportResult> Handle(GetGbCattleRegistrationsQuery query, CancellationToken cancellationToken)
@@ -17,9 +17,7 @@ public class GetGbCattleRegistrationsQueryHandler(
 
         var data = await birthSummaryRepository.GetBirthSummaryAsync(fromDate, toDate, cancellationToken);
 
-        // TODO: Use data here
-
-        var dataStream = reportGenerator.Generate();
+        var dataStream = reportGenerator.Generate(data.ToList());
 
         return new FileReportResult(
             dataStream,
