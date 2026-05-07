@@ -13,10 +13,12 @@ public class UserContext : IUserContext
         Email = user?.GetEmail();
         DisplayName = user?.GetDisplayName();
         TenantId = user?.GetTenantId();
+        UserIdentifier = user?.GetUserIdentifier();
     }
 
     public string? Oid { get; }
     public string? Email { get; }
     public string? DisplayName { get; }
     public string? TenantId { get; }
+    public string? UserIdentifier { get; }
 }
