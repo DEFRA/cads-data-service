@@ -15,10 +15,8 @@ namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories
             CancellationToken cancellationToken = default)
         {
             externalSubject = externalSubject.ToLower();
-
-            return await Query()
-                .Where(p => p.ExternalSubject == externalSubject &&
-                            p.ReportKey == reportKey)
+            return await DbContext.GetMiEffectiveReportAllPermission(externalSubject, reportKey)
+                .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
     }
