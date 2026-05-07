@@ -18,7 +18,7 @@ public class MiBffWebApplicationFactory(
     protected override void ConfigureDatabase(IServiceCollection services)
     {
         var reportPermissionsData = new ReportPermissionsDataFactory().CreateMockData();
-        
+
         var options = new DbContextOptionsBuilder<MiBffReadDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
