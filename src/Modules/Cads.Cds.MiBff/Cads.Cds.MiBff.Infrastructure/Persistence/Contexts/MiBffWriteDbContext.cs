@@ -24,18 +24,30 @@ public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) 
 
     public DbSet<MiUserReportPermission> UserReportPermissions => Set<MiUserReportPermission>();
 
-    // Views
-    public DbSet<MiEffectiveReportPermissionView> EffectiveReportPermissions => Set<MiEffectiveReportPermissionView>();
-    public DbSet<MiEffectiveReportAllPermissionView> EffectiveReportAllPermissions => Set<MiEffectiveReportAllPermissionView>();
-
     // Functions
-    public IQueryable<MiBirthSummaryResult> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
+    public virtual IQueryable<MiEffectiveReportPermissionView> GetMiEffectiveReportPermission(string externalSubject, string? reportKey)
+        => FromExpression(() => GetMiEffectiveReportPermission(externalSubject, reportKey));
+
+    public virtual IQueryable<MiEffectiveReportAllPermissionView> GetMiEffectiveReportAllPermission(string externalSubject, string reportKey)
+        => FromExpression(() => GetMiEffectiveReportAllPermission(externalSubject, reportKey));
+    
+    public virtual IQueryable<MiBirthSummaryResult> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
         => FromExpression(() => GetBirthsSummary(birthDateFrom, birthDateTo));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MiBffWriteDbContext).Assembly);
 
+        modelBuilder.HasDbFunction(
+                typeof(MiBffWriteDbContext).GetMethod(nameof(GetBirthsSummary))!)
+            .HasName("get_births_summary")
+            .HasSchema("public");
+
+        modelBuilder.HasDbFunction(
+                typeof(MiBffWriteDbContext).GetMethod(nameof(GetMiEffectiveReportAllPermission))!)
+            .HasName("get_mi_effective_report_all_permission")
+            .HasSchema("public");
+        
         modelBuilder.HasDbFunction(
                 typeof(MiBffWriteDbContext).GetMethod(nameof(GetBirthsSummary))!)
             .HasName("get_births_summary")
