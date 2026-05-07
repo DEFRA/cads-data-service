@@ -13,4 +13,11 @@ public class MiReportRepository(MiBffReadDbContext dbContext)
     {
         return await Query().SingleOrDefaultAsync(r => r.ReportId == reportId, cancellationToken);
     }
+
+    public async Task<IEnumerable<MiBirthSummaryResult>> GetBirthSummaryAsync(DateOnly fromDate, DateOnly toDate, CancellationToken cancellationToken = default)
+    {
+        return await DbContext.GetBirthsSummary(fromDate, toDate)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
 }
