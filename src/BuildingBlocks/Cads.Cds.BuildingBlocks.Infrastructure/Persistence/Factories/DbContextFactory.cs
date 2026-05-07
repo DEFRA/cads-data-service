@@ -25,7 +25,7 @@ public static class DbContextFactory
             "Ensure the type has a constructor accepting DbContextOptions or DbContextOptions<T>."
         );
     }
-    
+
     public static U CreateInMemoryTestDbContextFromDbContext<T, U>(string dbName)
         where T : DbContext
         where U : T
