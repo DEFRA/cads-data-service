@@ -1,6 +1,7 @@
+using Cads.Cds.MiBff.Application.Reports.Authorisation;
 using Cads.Cds.MiBff.Controllers.Authorisation.Handlers;
 using Cads.Cds.MiBff.Controllers.Authorisation.Requirements;
-using Cads.Cds.MiBff.Core.Services.Reports;
+using Cads.Cds.MiBff.Testing.Support.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -14,7 +15,7 @@ public class ReportAccessHandlerTests
     public async Task HandleRequirementAsync_NoEmail_DoesNotSucceed()
     {
         // Arrange
-        var requirement = new ReportAccessRequirement("holding_summary");
+        var requirement = new ReportAccessRequirement(TestReportKeyConstants.HoldingSummaryReportKey);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity());
         var accessor = CreateHttpContextAccessor(user);
@@ -39,7 +40,7 @@ public class ReportAccessHandlerTests
     public async Task HandleRequirementAsync_EmailPresent_AccessDenied_DoesNotSucceed()
     {
         // Arrange
-        var requirement = new ReportAccessRequirement("holding_summary");
+        var requirement = new ReportAccessRequirement(TestReportKeyConstants.HoldingSummaryReportKey);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.Email, "test@internal.test")],
@@ -50,7 +51,7 @@ public class ReportAccessHandlerTests
 
         var reportService = new Mock<IReportAccessService>();
         reportService
-            .Setup(s => s.HasReportAccessAsync("test@internal.test", "holding_summary", It.IsAny<CancellationToken>()))
+            .Setup(s => s.HasReportAccessAsync("test@internal.test", TestReportKeyConstants.HoldingSummaryReportKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         var handler = new ReportAccessHandler(reportService.Object, accessor);
@@ -68,7 +69,7 @@ public class ReportAccessHandlerTests
     public async Task HandleRequirementAsync_EmailPresent_AccessGranted_Succeeds()
     {
         // Arrange
-        var requirement = new ReportAccessRequirement("holding_summary");
+        var requirement = new ReportAccessRequirement(TestReportKeyConstants.HoldingSummaryReportKey);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim(ClaimTypes.Email, "test@internal.test")],
@@ -79,7 +80,7 @@ public class ReportAccessHandlerTests
 
         var reportService = new Mock<IReportAccessService>();
         reportService
-            .Setup(s => s.HasReportAccessAsync("test@internal.test", "holding_summary", It.IsAny<CancellationToken>()))
+            .Setup(s => s.HasReportAccessAsync("test@internal.test", TestReportKeyConstants.HoldingSummaryReportKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         var handler = new ReportAccessHandler(reportService.Object, accessor);

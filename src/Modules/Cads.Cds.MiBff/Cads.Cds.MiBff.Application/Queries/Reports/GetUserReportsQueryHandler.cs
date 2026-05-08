@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.MiBff.Application.Reports.Authorisation;
 using Cads.Cds.MiBff.Core.DTOs.Reports;
-using Cads.Cds.MiBff.Core.Services.Reports;
 
 namespace Cads.Cds.MiBff.Application.Queries.Reports;
 
