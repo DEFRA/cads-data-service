@@ -70,7 +70,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
 
         return new NpgsqlCommand
         {
-            CommandText = $"INSERT INTO {tableName} " +
+            CommandText = $"INSERT INTO {tableName} ({string.Join(",", columnNames)}) " +
                 $"SELECT {string.Join(",", columnNames)} FROM {tempTableName} " +
                 // Exclude record type check from the upsert operation
                 //$"WHERE {RecordTypeColumnName} IN ({RecordType.Insert}','{RecordType.Update}')" +
@@ -88,7 +88,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
 
         return new NpgsqlCommand
         {
-            CommandText = $"INSERT INTO {tableName} " +
+            CommandText = $"INSERT INTO {tableName} ({string.Join(",", columnNames)}) " +
                 $"SELECT {string.Join(",", columnNames)} FROM {tempTableName} ",
             // Exclude record type check from the upsert operation
             //$"WHERE {RecordTypeColumnName} IN ('{RecordType.Insert}')" +
