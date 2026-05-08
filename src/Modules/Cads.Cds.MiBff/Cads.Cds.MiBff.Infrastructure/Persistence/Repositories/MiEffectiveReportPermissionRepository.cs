@@ -16,6 +16,7 @@ public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
         externalSubject = externalSubject.ToLower();
         return await DbContext.GetMiEffectiveReportPermission(externalSubject, null)
             .AsNoTracking()
+            .Where(x => x.IsActive)
             .ToListAsync(cancellationToken);
     }
 
@@ -27,6 +28,6 @@ public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
         externalSubject = externalSubject.ToLower();
         return await DbContext.GetMiEffectiveReportPermission(externalSubject, reportKey)
             .AsNoTracking()
-            .AnyAsync(cancellationToken);
+            .AnyAsync(x => x.IsActive, cancellationToken);
     }
 }
