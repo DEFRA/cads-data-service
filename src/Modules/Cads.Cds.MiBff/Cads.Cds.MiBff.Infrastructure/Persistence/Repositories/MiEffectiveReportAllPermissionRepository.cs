@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories
 {
     public class MiEffectiveReportAllPermissionRepository(MiBffReadDbContext dbContext)
-        : EFReadOnlyRepository<MiEffectiveReportAllPermissionView, MiBffReadDbContext>(dbContext), IMiEffectiveReportAllPermissionRepository
+        : EFReadOnlyRepository<MiEffectiveReportAllPermission, MiBffReadDbContext>(dbContext), IMiEffectiveReportAllPermissionRepository
     {
-        public async Task<IReadOnlyList<MiEffectiveReportAllPermissionView>> GetUserReportPermissionsAsync(
+        public async Task<IReadOnlyList<MiEffectiveReportAllPermission>> GetUserReportPermissionsAsync(
             string externalSubject,
             string reportKey,
             CancellationToken cancellationToken = default)

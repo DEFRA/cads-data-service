@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IAuthorizationPolicyProvider, ReportAccessPolicyProvider>();
 
         services.AddScoped<IAuthorizationHandler, ReportAccessHandler>();
+        services.AddScoped<IAuthorizationHandler, DynamicReportAccessHandler>();
 
         return services;
     }

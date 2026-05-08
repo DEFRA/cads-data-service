@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.EntityConfigurations;
 
-public class MiBirthSummaryResultConfiguration : IEntityTypeConfiguration<MiBirthSummaryResult>
+public class MiBirthSummaryResultConfiguration : IEntityTypeConfiguration<MiBirthSummary>
 {
-    public void Configure(EntityTypeBuilder<MiBirthSummaryResult> builder)
+    public void Configure(EntityTypeBuilder<MiBirthSummary> builder)
     {
         builder.HasNoKey();
 

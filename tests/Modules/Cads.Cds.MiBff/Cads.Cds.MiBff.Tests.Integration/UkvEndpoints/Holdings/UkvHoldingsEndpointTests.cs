@@ -1,5 +1,5 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
+using Cads.Cds.MiBff.Testing.Support.Constants;
 using FluentAssertions;
 
 namespace Cads.Cds.MiBff.Tests.Integration.UkvEndpoints.Holdings;
