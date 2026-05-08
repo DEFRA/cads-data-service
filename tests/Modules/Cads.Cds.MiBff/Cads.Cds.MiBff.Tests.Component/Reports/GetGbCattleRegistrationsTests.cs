@@ -18,6 +18,9 @@ public class GetGbCattleRegistrationsTests
     private readonly Fixture _fixture;
     private static Mock<IMiBirthSummaryRepository> CreateRepositoryMock() => new();
 
+    private static string Endpoint =>
+        $"/api/v1/bff/mi/reports/{TestReportKeyConstants.GbCattleRegistrationsReportKey}";
+
     public GetGbCattleRegistrationsTests()
     {
         _fixture = new Fixture();
@@ -59,6 +62,29 @@ public class GetGbCattleRegistrationsTests
     }
 
     [Fact]
+    public async Task GivenValidRequest_AndSingleRecordFoundNullable_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
+    {
+        var expectedBirthSummaryResult = _fixture.Build<MiBirthSummary>()
+            .With(x => x.GovRegion, () => null)
+            .With(x => x.County, () => null)
+            .With(x => x.Sex, () => null)
+            .With(x => x.ApplicationType, () => null)
+            .Create();
+
+        var _miBirthSummaryRepositoryMock = CreateRepositoryMock();
+        _miBirthSummaryRepositoryMock.Setup(x => x.GetBirthSummaryAsync(
+            It.IsAny<DateOnly>(),
+                It.IsAny<DateOnly>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([expectedBirthSummaryResult]);
+
+        var response = await ExecuteTest(_miBirthSummaryRepositoryMock, 2026, 4);
+
+        response.Should().NotBeNull();
+        response.IsSuccessStatusCode.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task GivenValidRequest_AndRecordsFound_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
     {
         var expectedBirthSummaryResult = _fixture.CreateMany<MiBirthSummary>(5)
@@ -77,7 +103,7 @@ public class GetGbCattleRegistrationsTests
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
-    private MiBffWebApplicationFactory GetFactory(Mock<IMiBirthSummaryRepository> repositoryMock, bool useFakeAuth = true)
+    private static MiBffWebApplicationFactory GetFactory(Mock<IMiBirthSummaryRepository> repositoryMock, bool useFakeAuth = true)
     {
         var factory = new MiBffWebApplicationFactory(useFakeAuth: useFakeAuth);
 
@@ -86,9 +112,8 @@ public class GetGbCattleRegistrationsTests
         return factory;
     }
 
-    private async Task<HttpResponseMessage?> ExecuteTest(Mock<IMiBirthSummaryRepository> repositoryMock, int year, int month)
+    private static async Task<HttpResponseMessage?> ExecuteTest(Mock<IMiBirthSummaryRepository> repositoryMock, int year, int month)
     {
-        var endpoint = $"/api/v1/bff/mi/reports/{TestReportKeyConstants.GbCattleRegistrationsReportKey}";
         var request = new GetGbCattleRegistrationsRequest { Year = year, Month = month };
         var payload = HttpContentUtility.CreateApplicationJsonAsStringContent(request);
 
@@ -96,6 +121,6 @@ public class GetGbCattleRegistrationsTests
         var client = factory.CreateClient();
         client.AddJwt();
 
-        return await client.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);
+        return await client.PostAsync(Endpoint, payload, TestContext.Current.CancellationToken);
     }
 }
