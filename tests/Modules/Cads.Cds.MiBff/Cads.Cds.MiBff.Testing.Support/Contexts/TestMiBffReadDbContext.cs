@@ -7,24 +7,32 @@ namespace Cads.Cds.MiBff.Testing.Support.Contexts;
 public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options)
     : MiBffReadDbContext(options)
 {
-    public DbSet<MiEffectiveReportPermissionView> EffectiveReportPermissions
-        => Set<MiEffectiveReportPermissionView>();
+    public DbSet<MiEffectiveReportPermission> EffectiveReportPermissions
+        => Set<MiEffectiveReportPermission>();
 
-    public DbSet<MiEffectiveReportAllPermissionView> EffectiveReportAllPermissions
-        => Set<MiEffectiveReportAllPermissionView>();
+    public DbSet<MiEffectiveReportAllPermission> EffectiveReportAllPermissions
+        => Set<MiEffectiveReportAllPermission>();
 
-    public override IQueryable<MiEffectiveReportPermissionView> GetMiEffectiveReportPermission(
+    public DbSet<MiBirthSummary> GetBirthsSummaries
+        => Set<MiBirthSummary>();
+
+    public override IQueryable<MiEffectiveReportPermission> GetMiEffectiveReportPermission(
         string externalSubject, string? reportKey)
     {
         return EffectiveReportPermissions.AsQueryable()
             .Where(x => x.ExternalSubject == externalSubject && (reportKey == null || x.ReportKey == reportKey));
     }
 
-    public override IQueryable<MiEffectiveReportAllPermissionView> GetMiEffectiveReportAllPermission(
+    public override IQueryable<MiEffectiveReportAllPermission> GetMiEffectiveReportAllPermission(
         string externalSubject, string reportKey)
     {
         return EffectiveReportAllPermissions.AsQueryable()
             .Where(x => x.ExternalSubject == externalSubject && x.ReportKey == reportKey);
     }
 
+    public override IQueryable<MiBirthSummary> GetBirthsSummary(
+        DateOnly birthDateFrom, DateOnly birthDateTo)
+    {
+        return GetBirthsSummaries.AsQueryable();
+    }
 }
