@@ -1,6 +1,6 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
+using Cads.Cds.MiBff.Testing.Support.Constants;
 using FluentAssertions;
 using System.Net;
 
@@ -21,6 +21,7 @@ public class GetUserReportsTests(ApiContainerFixture apiContainerFixture)
         var responseBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         responseBody.Should().NotBeNull().And.Contain("reportId");
     }
+
 
     [Fact]
     public async Task GivenScopeMissing_WhenGetUserReportsRequested_ShouldFailWithUnauthorized()

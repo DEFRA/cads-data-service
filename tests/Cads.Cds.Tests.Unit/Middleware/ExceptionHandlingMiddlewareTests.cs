@@ -150,7 +150,7 @@ public class ExceptionHandlingMiddlewareTests
     }
 
     [Fact]
-    public async Task FluentValidationException_returns_422_with_structured_errors()
+    public async Task FluentValidationException_returns_400_with_structured_errors()
     {
         var validationFailures = new List<ValidationFailure>
         {
@@ -163,12 +163,12 @@ public class ExceptionHandlingMiddlewareTests
         var middleware = CreateMiddleware(_ => throw exceptionToThrow);
 
         await middleware.InvokeAsync(context);
-        context.Response.StatusCode.Should().Be(422);
+        context.Response.StatusCode.Should().Be(400);
 
         var problem = await GetProblemDetailsFromResponse(context);
-        problem.Status.Should().Be(422);
+        problem.Status.Should().Be(400);
 
-        problem.Title.Should().Be("Unprocessable Content");
+        problem.Title.Should().Be("Validation errors");
         problem.Detail.Should().Be("One or more validation errors occurred. See the 'errors' field for details.");
 
         problem.Extensions.Should().ContainKey("errors");
@@ -187,18 +187,33 @@ public class ExceptionHandlingMiddlewareTests
     }
 
     [Fact]
-    public async Task DomainException_returns_400()
+    public async Task DomainException_returns_409()
     {
         var context = CreateHttpContext();
         var middleware = CreateMiddleware(_ => throw new DomainException("Domain error"));
 
         await middleware.InvokeAsync(context);
 
-        context.Response.StatusCode.Should().Be(400);
+        context.Response.StatusCode.Should().Be(409);
 
         var problem = await GetProblemDetailsFromResponse(context);
-        problem.Status.Should().Be(400);
-        problem.Title.Should().Be("Bad Request");
+        problem.Status.Should().Be(409);
+        problem.Title.Should().Be("Conflict error");
+    }
+
+    [Fact]
+    public async Task UnprocessableException_returns_422()
+    {
+        var context = CreateHttpContext();
+        var middleware = CreateMiddleware(_ => throw new UnprocessableException("Unprocessable error"));
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(422);
+
+        var problem = await GetProblemDetailsFromResponse(context);
+        problem.Status.Should().Be(422);
+        problem.Title.Should().Be("Unprocessable content");
     }
 
     [Fact]

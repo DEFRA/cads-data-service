@@ -25,13 +25,13 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
     public DbSet<MiUserReportPermission> UserReportPermissions => Set<MiUserReportPermission>();
 
     // Functions
-    public virtual IQueryable<MiEffectiveReportPermissionView> GetMiEffectiveReportPermission(string externalSubject, string? reportKey)
+    public virtual IQueryable<MiEffectiveReportPermission> GetMiEffectiveReportPermission(string externalSubject, string? reportKey)
         => FromExpression(() => GetMiEffectiveReportPermission(externalSubject, reportKey));
 
-    public virtual IQueryable<MiEffectiveReportAllPermissionView> GetMiEffectiveReportAllPermission(string externalSubject, string reportKey)
+    public virtual IQueryable<MiEffectiveReportAllPermission> GetMiEffectiveReportAllPermission(string externalSubject, string reportKey)
         => FromExpression(() => GetMiEffectiveReportAllPermission(externalSubject, reportKey));
 
-    public virtual IQueryable<MiBirthSummaryResult> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
+    public virtual IQueryable<MiBirthSummary> GetBirthsSummary(DateOnly birthDateFrom, DateOnly birthDateTo)
         => FromExpression(() => GetBirthsSummary(birthDateFrom, birthDateTo));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,17 +39,17 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MiBffReadDbContext).Assembly);
 
         modelBuilder.HasDbFunction(
-                typeof(MiBffReadDbContext).GetMethod(nameof(GetMiEffectiveReportPermission))!)
+            typeof(MiBffReadDbContext).GetMethod(nameof(GetMiEffectiveReportPermission))!)
             .HasName("get_mi_effective_report_permission")
             .HasSchema("public");
 
         modelBuilder.HasDbFunction(
-                typeof(MiBffReadDbContext).GetMethod(nameof(GetMiEffectiveReportAllPermission))!)
+            typeof(MiBffReadDbContext).GetMethod(nameof(GetMiEffectiveReportAllPermission))!)
             .HasName("get_mi_effective_report_all_permission")
             .HasSchema("public");
 
         modelBuilder.HasDbFunction(
-                typeof(MiBffReadDbContext).GetMethod(nameof(GetBirthsSummary))!)
+            typeof(MiBffReadDbContext).GetMethod(nameof(GetBirthsSummary))!)
             .HasName("get_births_summary")
             .HasSchema("public");
 
