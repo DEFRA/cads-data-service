@@ -34,7 +34,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         {
             CommandText = $"CREATE TEMP TABLE {tempTableName} (" +
                 $"LIKE {tableName} INCLUDING ALL) " +
-                $"ON COMMIT DROP " +
+                $"ON COMMIT DROP; " +
                 $"ALTER TABLE {tempTableName} DROP COLUMN {quotedRowNumberColumnName};",
             Connection = connection
         };
