@@ -6,6 +6,7 @@ using Cads.Cds.StorageBridge.Infrastructure.Database.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -113,6 +114,15 @@ public class BulkImportCopyService(
             if (dto.UpdateConstraints)
             {
                 await _commandFactory.CreateSetContraintStateCommand(dto.BulkImportType, false).ExecuteNonQueryAsync(cancellationToken);
+            }
+
+            foreach (var command in actionCommands)
+            {
+
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("Command: {commandText}", command.CommandText);
+                }
             }
 
             // Process each file found under the specified bucket and prefix
