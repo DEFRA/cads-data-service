@@ -14,7 +14,6 @@ public static class ServiceCollectionExtensions
     {
         services.RegisterDbContexts();
         services.RegisterTableRepositories();
-        services.RegisterViewRepositories();
         services.RegisterFunctionRepositories();
 
         return services;
@@ -43,14 +42,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMiUserRoleRepository, MiUserRoleRepository>();
     }
 
-    private static void RegisterViewRepositories(this IServiceCollection services)
+    private static void RegisterFunctionRepositories(this IServiceCollection services)
     {
         services.AddScoped<IMiEffectiveReportPermissionRepository, MiEffectiveReportPermissionRepository>();
         services.AddScoped<IMiEffectiveReportAllPermissionRepository, MiEffectiveReportAllPermissionRepository>();
-    }
-
-    private static void RegisterFunctionRepositories(this IServiceCollection services)
-    {
         services.AddScoped<IMiBirthSummaryRepository, MiBirthSummaryRepository>();
     }
 }
