@@ -9,9 +9,12 @@ namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 public class MiBirthSummaryRepository(MiBffReadDbContext dbContext)
     : EFReadOnlyRepository<MiBirthSummary, MiBffReadDbContext>(dbContext), IMiBirthSummaryRepository
 {
+    protected virtual IQueryable<MiBirthSummary> QueryBirthSummary(DateOnly fromDate, DateOnly toDate)
+        => DbContext.GetBirthsSummary(fromDate, toDate);
+
     public async Task<IEnumerable<MiBirthSummary>> GetBirthSummaryAsync(DateOnly fromDate, DateOnly toDate, CancellationToken cancellationToken = default)
     {
-        return await DbContext.GetBirthsSummary(fromDate, toDate)
+        return await QueryBirthSummary(fromDate, toDate)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
