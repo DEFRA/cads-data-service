@@ -15,14 +15,14 @@ public class MiEffectiveReportPermissionBuilder(
 
     public object Create(object request, ISpecimenContext context)
     {
-        if (request is Type type && type == typeof(MiEffectiveReportPermissionView))
+        if (request is Type type && type == typeof(MiEffectiveReportPermission))
         {
             if (_pairs.Count == 0)
                 return new NoSpecimen();
 
             var (report, user) = _pairs.Dequeue();
 
-            return new MiEffectiveReportPermissionView
+            return new MiEffectiveReportPermission
             {
                 ReportId = report.ReportId,
                 ReportKey = report.ReportKey,

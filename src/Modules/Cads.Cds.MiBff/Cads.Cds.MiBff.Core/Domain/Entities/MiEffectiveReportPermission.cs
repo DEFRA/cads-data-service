@@ -1,6 +1,6 @@
 namespace Cads.Cds.MiBff.Core.Domain.Entities;
 
-public class MiEffectiveReportPermissionView
+public class MiEffectiveReportPermission
 {
     public Guid ReportId { get; set; }
 

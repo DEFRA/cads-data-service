@@ -8,6 +8,6 @@ public class ReportsMappingProfile : Profile
 {
     public ReportsMappingProfile()
     {
-        CreateMap<MiEffectiveReportPermissionView, ReportDto>();
+        CreateMap<MiEffectiveReportPermission, ReportDto>();
     }
 }

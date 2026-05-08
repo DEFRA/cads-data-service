@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.EntityConfigurations;
 
-public class MiEffectiveReportAllPermissionConfiguration : IEntityTypeConfiguration<MiEffectiveReportAllPermissionView>
+public class MiEffectiveReportAllPermissionConfiguration : IEntityTypeConfiguration<MiEffectiveReportAllPermission>
 {
-    public void Configure(EntityTypeBuilder<MiEffectiveReportAllPermissionView> builder)
+    public void Configure(EntityTypeBuilder<MiEffectiveReportAllPermission> builder)
     {
         builder.ToView("mi_effective_report_all_permission");
         builder.HasKey(x => new { x.ExternalSubject, x.ReportKey, x.PermissionKey });

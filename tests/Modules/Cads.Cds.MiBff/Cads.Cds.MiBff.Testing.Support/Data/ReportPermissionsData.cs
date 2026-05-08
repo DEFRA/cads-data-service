@@ -9,6 +9,6 @@ public record ReportPermissionsData(
     List<MiReport> MiReports,
     List<MiUserRole> MiUserRoles,
     List<MiRoleReportPermission> MiRoleReportPermissions,
-    List<MiEffectiveReportPermissionView> MiEffectiveReportPermissions,
-    List<MiEffectiveReportAllPermissionView> MiEffectiveReportAllPermissions
+    List<MiEffectiveReportPermission> MiEffectiveReportPermissions,
+    List<MiEffectiveReportAllPermission> MiEffectiveReportAllPermissions
 );

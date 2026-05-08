@@ -83,9 +83,9 @@ public class ReportPermissionsDataFactory
 
         _fixture.Customizations.Add(new MiEffectiveReportPermissionBuilder(miReports, miUsers));
 
-        var miEffectiveReportPermissions = _fixture.CreateMany<MiEffectiveReportPermissionView>(_reportKeys.Count * _userIdentifiers.Count).ToList();
+        var miEffectiveReportPermissions = _fixture.CreateMany<MiEffectiveReportPermission>(_reportKeys.Count * _userIdentifiers.Count).ToList();
 
-        var miEffectiveReportAllPermissions = miEffectiveReportPermissions.Select(x => new MiEffectiveReportAllPermissionView
+        var miEffectiveReportAllPermissions = miEffectiveReportPermissions.Select(x => new MiEffectiveReportAllPermission
         {
             ReportKey = x.ReportKey,
             ExternalSubject = x.ExternalSubject,
