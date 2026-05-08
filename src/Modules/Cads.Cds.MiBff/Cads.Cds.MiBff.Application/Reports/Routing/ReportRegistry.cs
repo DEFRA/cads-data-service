@@ -9,9 +9,14 @@ public class ReportRegistry : IReportRegistry
     private readonly Dictionary<string, (Type Handler, Type Request)> _handlerTypes = [];
 
     public ReportRegistry()
+        : this([typeof(IReportHandler).Assembly])
     {
-        var handlers = Assembly.GetExecutingAssembly()
-            .GetTypes()
+    }
+
+    public ReportRegistry(IEnumerable<Assembly> assembliesToScan)
+    {
+        var handlers = assembliesToScan
+            .SelectMany(x => x.GetTypes())
             .Where(t => !t.IsAbstract &&
                         typeof(IReportHandler).IsAssignableFrom(t))
             .Select(t => new

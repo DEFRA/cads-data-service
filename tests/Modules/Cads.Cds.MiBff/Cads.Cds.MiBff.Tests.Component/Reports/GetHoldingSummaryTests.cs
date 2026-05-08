@@ -25,7 +25,7 @@ public class GetHoldingSummaryTests
         return factory;
     }
 
-    private async Task<HttpResponseMessage?> ExecuteTest()
+    private static async Task<HttpResponseMessage?> ExecuteTest()
     {
         var endpoint = $"/api/v1/bff/mi/reports/{TestReportKeyConstants.HoldingSummaryReportKey}";
         var request = new GetHoldingSummaryRequest();

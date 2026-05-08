@@ -41,7 +41,7 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUserReportPermissions([FromRoute] string reportKey, CancellationToken cancellationToken)
     {
-        if (reportKey is null)
+        if (string.IsNullOrWhiteSpace(reportKey))
             return BadRequest("Invalid reportKey");
 
         var query = new GetUserReportPermissionsQuery { ExternalSubject = _userContext.UserIdentifier ?? Guid.NewGuid().ToString(), ReportKey = reportKey };
