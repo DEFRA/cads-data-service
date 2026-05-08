@@ -40,7 +40,7 @@ jobs:
             -reports:"./coverage/**/coverage.cobertura.xml" \
             -targetdir:"coverage-report" \
             -reporttypes:"Cobertura;MarkdownSummary" \
-            -assemblyfilters:"+Cads.*;-Cads.Cds.BuildingBlocks.Testing.Support"
+            -assemblyfilters:"+Cads.*;-Cads.Cds.*.Testing.Support"
       - name: Code coverage report
         uses: irongut/CodeCoverageSummary@51cc3a756ddcd398d447c044c02cb6aa83fdae95
         with:
