@@ -85,7 +85,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, true);
         var columnNames = await GetColumnNamesAsync(bulkImportType, cancellationToken);
-       
+
         return new NpgsqlCommand
         {
             CommandText = $"INSERT INTO {tableName} " +
