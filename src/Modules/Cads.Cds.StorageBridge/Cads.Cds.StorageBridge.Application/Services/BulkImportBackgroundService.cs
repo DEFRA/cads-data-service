@@ -15,7 +15,7 @@ public class BulkImportBackgroundService(
 {
     private readonly int _maxParallelImports = 5;
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var semaphore = new SemaphoreSlim(_maxParallelImports);
         var runningTasks = new ConcurrentBag<Task>();
@@ -23,23 +23,23 @@ public class BulkImportBackgroundService(
 
         using var scope = scopeFactory.CreateScope();
 
-        await foreach (var request in channel.Reader.ReadAllAsync(cancellationToken))
+        await foreach (var request in channel.Reader.ReadAllAsync(stoppingToken))
         {
             service = service ?? scope.ServiceProvider.GetRequiredService<IBulkImportCopyService>();
 
-            if (cancellationToken.IsCancellationRequested)
+            if (stoppingToken.IsCancellationRequested)
             {
                 logger.LogInformation("Cancellation requested, aborting import");
                 return;
             }
 
-            await semaphore.WaitAsync(cancellationToken);
+            await semaphore.WaitAsync(stoppingToken);
 
             var task = Task.Run(async () =>
             {
                 try
                 {
-                    var result = await service.ExecuteAsync(request, cancellationToken);
+                    var result = await service.ExecuteAsync(request, stoppingToken);
 
                     if (result)
                     {
@@ -58,7 +58,7 @@ public class BulkImportBackgroundService(
                 {
                     semaphore.Release();
                 }
-            }, cancellationToken);
+            }, stoppingToken);
 
             runningTasks.Add(task);
         }

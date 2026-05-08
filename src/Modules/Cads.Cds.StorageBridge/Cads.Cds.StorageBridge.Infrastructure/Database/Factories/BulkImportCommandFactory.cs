@@ -85,8 +85,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, true);
         var columnNames = await GetColumnNamesAsync(bulkImportType, cancellationToken);
-        var key = bulkImportType.GetTableKey() ?? columnNames[0];
-
+       
         return new NpgsqlCommand
         {
             CommandText = $"INSERT INTO {tableName} " +
@@ -107,8 +106,8 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         return new NpgsqlCommand
         {
             CommandText = $"UPDATE {tableName} AS m " +
-                $"SET {string.Join(", ", columnNames.Select(col => $"m.{col} = t.{col}"))}" +
-                $"FROM tempTableName AS t " +
+                $"SET {string.Join(", ", columnNames.Select(col => $"m.{col} = t.{col}"))} " +
+                $"FROM {tempTableName} AS t " +
                 $"WHERE m.{key} = t.{key} ",
             // Exclude record type check from the upsert operation
             //$"WHERE {RecordTypeColumnName} IN ('{RecordType.Update}')" +
