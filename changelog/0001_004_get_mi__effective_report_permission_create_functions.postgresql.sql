@@ -38,8 +38,7 @@ FROM (((((mi_user u
    LEFT JOIN mi_role_report_permission rpr ON (((rpr.role_id = ur.role_id) AND (rpr.report_id = rep.report_id) AND (rpr.permission_id = p.permission_id))))
 WHERE 
     ((u.external_subject_normalized = p_external_subject) AND 
-    (p_report_key is null or rep.report_key = p_report_key)) AND
-    (rep.is_active = true)
+    (p_report_key is null or rep.report_key = p_report_key))
 GROUP BY u.display_name, u.external_subject, u.external_subject_normalized, rep.report_key, rep.report_id, p.permission_id, upr.granted
 HAVING (COALESCE(upr.granted, bool_or(rpr.granted), false) = true)
 $$;
