@@ -23,6 +23,6 @@ public enum BulkImportType
     RegisteredMovements,
     [TableName("_ct_valid_applications")]
     ValidApplications,
-    [TableName("_ct_locations")]
+    [TableName("_ct_locations", "loc_id")]
     Locations
 }
