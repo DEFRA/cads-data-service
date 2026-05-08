@@ -13,6 +13,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Text.RegularExpressions;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Services;
 
@@ -329,10 +330,21 @@ public class BulkImportCopyService(
                 break;
             }
 
-            await writer.WriteLineAsync(line);
+            await writer.WriteLineAsync(SanitiseLine(line));
 
             line = await streamReader.ReadLineAsync(cancellationToken);
         }
+    }
+
+    private static string SanitiseLine(string? line)
+    {
+        var sanitisedResult = line ?? string.Empty;
+
+        sanitisedResult = sanitisedResult.Replace("\"", "\"\"");
+
+        sanitisedResult = Regex.Replace(sanitisedResult, @"[\u0000-\u001F]", " ");
+
+        return sanitisedResult;
     }
 
     private static DataSet ExecuteQueryToDataSet(DbCommand command)
