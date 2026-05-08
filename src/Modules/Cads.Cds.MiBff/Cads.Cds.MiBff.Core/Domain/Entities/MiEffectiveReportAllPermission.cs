@@ -1,6 +1,6 @@
 namespace Cads.Cds.MiBff.Core.Domain.Entities;
 
-public class MiEffectiveReportAllPermissionView
+public class MiEffectiveReportAllPermission
 {
     public string ReportKey { get; set; } = string.Empty;
 

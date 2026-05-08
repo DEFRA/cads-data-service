@@ -219,9 +219,9 @@ internal static class TestDataSeeder
         }
     ];
 
-    private static MiEffectiveReportPermissionView[] GetEffectiveReportPermissions() =>
+    private static MiEffectiveReportPermission[] GetEffectiveReportPermissions() =>
     [
-        new MiEffectiveReportPermissionView
+        new MiEffectiveReportPermission
         {
             ReportId = Guid.NewGuid(),
             ReportKey = ReportAKey,
@@ -232,7 +232,7 @@ internal static class TestDataSeeder
             ExternalSubject = User1Email,
             Granted = true
         },
-        new MiEffectiveReportPermissionView
+        new MiEffectiveReportPermission
         {
             ReportId = Guid.NewGuid(),
             ReportKey = ReportBKey,
