@@ -17,30 +17,23 @@ public class OpenXmlReport<T>(IReportDefinition<T> definition, List<T> data)
 
     public MemoryStream Generate()
     {
-        var stream = new MemoryStream();
-        using var spreadsheet = BuildFromTemplate();
-        spreadsheet.Clone(stream);
-        return stream;
-    }
+        using var template = SpreadsheetDocument.Open(TemplateFileName!, false);
 
-    private SpreadsheetDocument BuildFromTemplate()
-    {
-        SpreadsheetDocument? spreadsheet = null;
-        try
-        {
-            spreadsheet = SpreadsheetDocument.Open(TemplateFileName!, true);
-            var workbookPart = spreadsheet.WorkbookPart!;
-            var worksheet = workbookPart.WorksheetParts!.FirstOrDefault()!.Worksheet!;
-            var sheetData = worksheet.GetFirstChild<SheetData>();
-            AddTableData(sheetData!);
-            worksheet.Save();
-            return spreadsheet;
-        }
-        catch
-        {
-            spreadsheet?.Dispose();
-            throw;
-        }
+        var stream = new MemoryStream();
+        template.Clone(stream);
+        stream.Position = 0;
+
+        using var spreadsheet = SpreadsheetDocument.Open(stream, true);
+
+        var workbookPart = spreadsheet.WorkbookPart!;
+        var worksheet = workbookPart.WorksheetParts.First().Worksheet!;
+        var sheetData = worksheet.GetFirstChild<SheetData>();
+
+        AddTableData(sheetData!);
+        worksheet.Save();
+
+        stream.Position = 0;
+        return stream;
     }
 
     private void AddTableData(SheetData sheetData)
