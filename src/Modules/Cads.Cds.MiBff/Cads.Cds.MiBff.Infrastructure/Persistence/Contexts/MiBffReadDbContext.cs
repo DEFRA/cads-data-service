@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 
+[ExcludeFromCodeCoverage]
 public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : DbContext(options)
 {
     // Tables
