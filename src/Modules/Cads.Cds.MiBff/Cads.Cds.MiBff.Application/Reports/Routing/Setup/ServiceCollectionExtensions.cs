@@ -8,7 +8,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureMiBffReportsRouting(this IServiceCollection services)
     {
-        services.AddSingleton<IReportRegistry, ReportRegistry>();
+        services.AddSingleton<IReportRegistry>(_ =>
+            new ReportRegistry([typeof(IReportHandler).Assembly]));
 
         var handlerTypes = Assembly.GetExecutingAssembly()
             .GetTypes()
