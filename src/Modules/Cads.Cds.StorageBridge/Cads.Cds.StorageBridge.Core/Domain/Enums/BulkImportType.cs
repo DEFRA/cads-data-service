@@ -13,11 +13,11 @@ public enum BulkImportType
     ConditionMarkers,
     [TableName("_ct_eartags", "etg_id")]
     EarTags,
-    [TableName("_ct_issued_documents","ido_id")]
+    [TableName("_ct_issued_documents", "ido_id")]
     IssuedDocuments,
     [TableName("_ct_parties", "par_id")]
     Parties,
-    [TableName("_ct_registered_animals","ran_id")]
+    [TableName("_ct_registered_animals", "ran_id")]
     RegisteredAnimals,
     [TableName("_ct_registered_movements", "mov_id")]
     RegisteredMovements,
