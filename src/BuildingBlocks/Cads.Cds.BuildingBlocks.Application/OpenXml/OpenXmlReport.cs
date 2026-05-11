@@ -44,13 +44,14 @@ public class OpenXmlReport<T>(IReportDefinition<T> definition, List<T> data)
 
         foreach (var row in sheetData.ChildElements.OfType<Row>().Where(x => x.RowIndex?.Value > TableTemplateRow))
         {
-            row.RowIndex = null;
+            row.ReindexTo(row.RowIndex!.Value + (uint)_data.Count);
         }
 
         var previousRow = header;
         foreach (var rowData in _data)
         {
             var nextRow = FillCopyOfTemplateRowWithData(templateRow, rowData);
+            nextRow.ReindexTo(previousRow.RowIndex!.Value + 1);
             previousRow.InsertAfterSelf(nextRow);
             previousRow = nextRow;
         }
@@ -59,14 +60,12 @@ public class OpenXmlReport<T>(IReportDefinition<T> definition, List<T> data)
     private Row FillCopyOfTemplateRowWithData(Row templateRow, T rowData)
     {
         var nextRow = (Row)templateRow.CloneNode(true);
-        nextRow.RowIndex = null;
         var cells = nextRow.ChildElements.OfType<Cell>();
         foreach (var cell in cells)
         {
-            var columnIndex = cell!.CellReference!.GetColumnIndex();
+            var columnIndex = cell!.CellReference!.GetIntegerColumnIndex();
             if (columnIndex < TemplateRowFirstColumn || columnIndex > TemplateRowFirstColumn + Selectors.Count - 1)
                 continue;
-            cell.CellReference = null;
 
             var value = Selectors[columnIndex - TemplateRowFirstColumn](rowData);
             cell.CellValue = new CellValue(value.ToString(CultureInfo.InvariantCulture));
