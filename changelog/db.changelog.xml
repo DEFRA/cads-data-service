@@ -25,6 +25,12 @@
   <property name="jtExtTestEmail" value="SA-O365-CADS-MIP-EXT-TEST-tst@defradev.onmicrosoft.com" context="ext-test"/>
   <property name="jtPerfTestNam" value="SA-O365-CADS-MIP-PERF-TEST" context="perf-test"/>
   <property name="jtPerfTestEmail" value="SA-O365-CADS-MIP-PERF-TEST-tst@defradev.onmicrosoft.com" context="perf-test"/>
+  <property name="mhName" value="Matthew Hodgson" context="dev,test,ext-test,perf-test"/>
+  <property name="mhEmail" value="matthew.hodgson@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="msName" value="Mark Stocker" context="dev,test,ext-test,perf-test"/>
+  <property name="msEmail" value="mark.stocker@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="vsName" value="Verrol Skerritt" context="dev,test,ext-test,perf-test"/>
+  <property name="vsEmail" value="verrol.skerritt@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <!-- Your existing includes -->
   <include file="0000_000__drop_all_tables.postgresql.sql"/>
   <include file="0001_000__create_cads_tables.postgresql.sql"/>
@@ -43,6 +49,10 @@
   <include file="0002_016_mi_user_seed_journey_test_users_test.postgresql.sql"/>
   <include file="0002_017_mi_user_seed_journey_test_users_ext-test.postgresql.sql"/>
   <include file="0002_018_mi_user_seed_journey_test_users_perf-test.postgresql.sql"/>
+  <include file="0002_019_mi_user_seed_additional_users_dev.postgresql.sql"/>
+  <include file="0002_020_mi_user_seed_additional_users_test.postgresql.sql"/>
+  <include file="0002_021_mi_user_seed_additional_users_ext-test.postgresql.sql"/>
+  <include file="0002_022_mi_user_seed_additional_users_perf-test.postgresql.sql"/>
   <include file="0003_000__ct_sublocation_types_seed_data.postgresql.sql"/>
   <include file="0003_001__ct_param_header_seed_data.postgresql.sql"/>
   <include file="0003_002__ct_param_group_seed_data.postgresql.sql"/>
