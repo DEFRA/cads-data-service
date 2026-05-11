@@ -44,7 +44,7 @@ public class OpenXmlReport<T>(IReportDefinition<T> definition, List<T> data)
 
         foreach (var row in sheetData.ChildElements.OfType<Row>().Where(x => x.RowIndex?.Value > TableTemplateRow))
         {
-            row.ReindexTo(row.RowIndex!.Value + (uint)_data.Count);
+            row.ReindexTo(row.RowIndex!.Value + (uint)_data.Count - 1);
         }
 
         var previousRow = header;
