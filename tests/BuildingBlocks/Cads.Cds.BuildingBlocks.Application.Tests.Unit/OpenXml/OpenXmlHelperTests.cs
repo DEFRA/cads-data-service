@@ -42,7 +42,7 @@ public class OpenXmlHelperTests
         sut.CellReference!.GetIntegerColumnIndex().Should().Be(expectedColumnIndex);
     }
 
-    private Cell CellWithReference(string reference)
+    private static Cell CellWithReference(string reference)
     {
         var cell = new Cell();
         cell.CellReference = reference;
