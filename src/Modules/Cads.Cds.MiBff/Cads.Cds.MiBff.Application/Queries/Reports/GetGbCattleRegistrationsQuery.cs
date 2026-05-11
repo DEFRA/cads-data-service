@@ -10,3 +10,11 @@ public class GetGbCattleRegistrationsQuery(string reportKey, int year, int month
     public int Year { get; init; } = year;
     public int Month { get; init; } = month;
 }
+
+public class GetGbCattleDeathsQuery(string reportKey, int year)
+    : GetReportQuery<FileReportResult>(reportKey)
+{
+    public const string ExpectedKey = "gb_cattle_deaths";
+
+    public int Year { get; init; } = year;
+}

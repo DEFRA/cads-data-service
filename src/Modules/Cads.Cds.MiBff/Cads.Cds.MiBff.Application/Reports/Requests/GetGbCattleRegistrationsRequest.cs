@@ -12,3 +12,11 @@ public class GetGbCattleRegistrationsRequest : GetReportRequest
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int Month { get; set; }
 }
+
+// TODO BEEP
+public class GetGbCattleDeathsRequest : GetReportRequest
+{
+    [JsonPropertyName("year")]
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+    public int Year { get; set; }
+}
