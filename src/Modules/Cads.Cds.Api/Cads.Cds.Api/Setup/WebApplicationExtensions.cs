@@ -44,7 +44,7 @@ public static class WebApplicationExtensions
         var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
 
         var aspNetCoreUrls = configuration["ASPNETCORE_URLS"] ?? string.Empty;
-    
+
         // If URLS is explicitly set, it wins (mirrors ASP.NET Core's own precedence)
         if (!string.IsNullOrEmpty(aspNetCoreUrls))
             return aspNetCoreUrls.Split(';').Any(u => u.StartsWith("https", StringComparison.OrdinalIgnoreCase));
