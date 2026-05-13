@@ -4,6 +4,8 @@ using CoreWCF.Channels;
 using CoreWCF.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.Api.Setup;
 
@@ -39,16 +41,21 @@ public static class WebApplicationExtensions
 
     private static bool HasHttpsAddress(IApplicationBuilder app)
     {
-        try
-        {
-            var serverAddresses = app.ServerFeatures.Get<IServerAddressesFeature>();
-            return serverAddresses?.Addresses.Any(a =>
-                a.StartsWith("https", StringComparison.OrdinalIgnoreCase)) == true;
-        }
-        catch
-        {
-            return false;
-        }
+        var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
+
+        var aspNetCoreUrls = configuration["ASPNETCORE_URLS"] ?? string.Empty;
+
+        // If URLS is explicitly set, it wins (mirrors ASP.NET Core's own precedence)
+        if (!string.IsNullOrEmpty(aspNetCoreUrls))
+            return aspNetCoreUrls.Split(';').Any(u => u.StartsWith("https", StringComparison.OrdinalIgnoreCase));
+
+        // Only check HTTPS_PORTS if URLS is not set
+        if (!string.IsNullOrEmpty(configuration["ASPNETCORE_HTTPS_PORTS"]))
+            return true;
+
+        return configuration.GetSection("Kestrel:Endpoints")
+            .GetChildren()
+            .Any(e => e["Url"]?.StartsWith("https", StringComparison.OrdinalIgnoreCase) == true);
     }
 
     private static IServiceBuilder AddServiceEndpoints<TServiceContract, TServiceImplementation>(this IServiceBuilder builder, string path, bool includeHttps)

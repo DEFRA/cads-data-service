@@ -41,6 +41,7 @@
   <include file="0001_005_get_mi_effective_report_all_permissions_create_functions.postgresql.sql"/>
   <include file="0001_006_get_deaths_summary_create_function.postgresql.sql"/>
   <include file="0002_000_mi_seed.postgresql.sql"/>
+  <include file="0002_001_mi_cattle_import_report_seed.postgresql.sql"/>
   <include file="0002_010_mi_user_seed_initial_users_local.postgresql.sql"/>
   <include file="0002_011_mi_user_seed_initial_users_dev.postgresql.sql"/>
   <include file="0002_012_mi_user_seed_initial_users_test.postgresql.sql"/>
