@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 
 public class MiDeathSummaryRepository(MiBffReadDbContext dbContext)
-    : EFReadOnlyRepository<MiDeathSummary, MiBffReadDbContext>(dbContext), IMiDeathSummaryRepository    
+    : EFReadOnlyRepository<MiDeathSummary, MiBffReadDbContext>(dbContext), IMiDeathSummaryRepository
 {
     protected virtual IQueryable<MiDeathSummary> QueryDeathSummary(DateOnly fromDate, DateOnly toDate)
         => DbContext.GetDeathsSummary(fromDate, toDate);
