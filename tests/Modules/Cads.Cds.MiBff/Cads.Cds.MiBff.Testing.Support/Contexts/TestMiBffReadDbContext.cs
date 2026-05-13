@@ -13,8 +13,11 @@ public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options
     public DbSet<MiEffectiveReportAllPermission> EffectiveReportAllPermissions
         => Set<MiEffectiveReportAllPermission>();
 
-    public DbSet<MiBirthSummary> GetBirthsSummaries
+    public DbSet<MiBirthSummary> BirthSummaries
         => Set<MiBirthSummary>();
+
+    public DbSet<MiDeathSummary> DeathSummaries
+        => Set<MiDeathSummary>();
 
     public override IQueryable<MiEffectiveReportPermission> GetMiEffectiveReportPermission(
         string externalSubject, string? reportKey)
@@ -33,6 +36,12 @@ public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options
     public override IQueryable<MiBirthSummary> GetBirthsSummary(
         DateOnly birthDateFrom, DateOnly birthDateTo)
     {
-        return GetBirthsSummaries.AsQueryable();
+        return BirthSummaries.AsQueryable();
+    }
+
+    public override IQueryable<MiDeathSummary> GetDeathsSummary(
+        DateOnly deathDateFrom, DateOnly deathDateTo)
+    {
+        return DeathSummaries.AsQueryable();
     }
 }
