@@ -1,4 +1,5 @@
 -- liquibase formatted sql
+
 -- changeset david:0001_006 endDelimiter://
 DROP FUNCTION IF EXISTS public.get_deaths_summary(
     p_death_date_from DATE,
