@@ -11,14 +11,15 @@ public class CattleDeathsReportDefinition : IReportDefinition<MiDeathSummary>
 
     public List<Func<MiDeathSummary, IConvertible>> Selectors =>
     [
-        x => x.MonthName,
+        x => x.DeathYear,
+        x => x.DeathMonth,
         x => x.Breed,
         x => x.BreedCode,
         x => x.BreedType,
         x => x.Sex ?? "",
         x => x.Country,
+        x => x.County,
         x => x.AgeAtDeathInMonths,
-        x => x.PremiseTypeGroups,
         x => x.NumberOfDeaths
     ];
 }
