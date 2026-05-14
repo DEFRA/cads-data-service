@@ -10,31 +10,24 @@ public static class OpenXmlHelper
     {
         public CellValue MapValueToExcelValue()
         {
-            if (value is int || value is long)
-                return new CellValue(value.ToString(CultureInfo.InvariantCulture));
-
-            if (value is string)
-                return new CellValue((string)value);
-
-            if (value is DateTime)
-                return new CellValue(((DateTime)value).ToOADate().ToString(CultureInfo.InvariantCulture)); ;
-
-            throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}");
-
+            return value switch
+            {
+                int or long => new CellValue(value.ToString(CultureInfo.InvariantCulture)),
+                string s => new CellValue(s),
+                DateTime time => new CellValue(time.ToOADate().ToString(CultureInfo.InvariantCulture)),
+                _ => throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}")
+            };
         }
 
         public EnumValue<CellValues>? MapValueToExcelType()
         {
-            if (value is int || value is long)
-                return new EnumValue<CellValues>(CellValues.Number);
-
-            if (value is string)
-                return new EnumValue<CellValues>(CellValues.String);
-
-            if (value is DateTime)
-                return null;
-
-            throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}");
+            return value switch
+            {
+                int or long => new EnumValue<CellValues>(CellValues.Number),
+                string => new EnumValue<CellValues>(CellValues.String),
+                DateTime => null,
+                _ => throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}")
+            };
         }
     }
 
