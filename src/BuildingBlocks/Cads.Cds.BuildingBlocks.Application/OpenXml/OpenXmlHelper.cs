@@ -1,3 +1,4 @@
+using System.Globalization;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Spreadsheet;
 
@@ -5,15 +6,36 @@ namespace Cads.Cds.BuildingBlocks.Application.OpenXml;
 
 public static class OpenXmlHelper
 {
-    public static EnumValue<CellValues> MapValueToExcelType(this IConvertible value)
+    extension(IConvertible value)
     {
-        if (value is int || value is long)
-            return new EnumValue<CellValues>(CellValues.Number);
+        public CellValue MapValueToExcelValue()
+        {
+            if (value is int || value is long)
+                return new CellValue(value.ToString(CultureInfo.InvariantCulture));
 
-        if (value is string)
-            return new EnumValue<CellValues>(CellValues.String);
+            if (value is string)
+                return new CellValue((string)value);
 
-        throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}");
+            if (value is DateTime)
+                return new CellValue(((DateTime)value).ToOADate().ToString(CultureInfo.InvariantCulture)); ;
+
+            throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}");
+
+        }
+
+        public EnumValue<CellValues>? MapValueToExcelType()
+        {
+            if (value is int || value is long)
+                return new EnumValue<CellValues>(CellValues.Number);
+
+            if (value is string)
+                return new EnumValue<CellValues>(CellValues.String);
+
+            if (value is DateTime)
+                return null;
+
+            throw new ArgumentException($"Unsupported value type for excel report builder - {value.GetType()}");
+        }
     }
 
     extension(StringValue cellReference)
