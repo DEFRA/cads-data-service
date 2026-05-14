@@ -68,7 +68,7 @@ public class OpenXmlReport<T>(IReportDefinition<T> definition, List<T> data)
                 continue;
 
             var value = Selectors[columnIndex - TemplateRowFirstColumn](rowData);
-            cell.CellValue = new CellValue(value.ToString(CultureInfo.InvariantCulture));
+            cell.CellValue = value.MapValueToExcelValue();
             cell.DataType = value.MapValueToExcelType();
         }
 

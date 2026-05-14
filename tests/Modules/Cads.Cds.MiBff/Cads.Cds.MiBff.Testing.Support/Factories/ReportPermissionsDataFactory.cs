@@ -16,6 +16,7 @@ public class ReportPermissionsDataFactory
         TestReportKeyConstants.CohortTracingReportKey,
         TestReportKeyConstants.GbCattleDeathsReportKey,
         TestReportKeyConstants.GbCattleRegistrationsReportKey,
+        TestReportKeyConstants.GbCattleImportsReportKey,
         TestReportKeyConstants.HoldingSummaryReportKey,
         TestReportKeyConstants.JourneyByHaulierReportKey,
         TestReportKeyConstants.MovementsAllHoldingsReportKey,

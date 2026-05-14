@@ -13,22 +13,22 @@ using Moq;
 
 namespace Cads.Cds.MiBff.Tests.Component.Reports;
 
-public class GetGbCattleDeathsTests
+public class GetGbCattleImportsTests
 {
     private readonly Fixture _fixture;
-    private static Mock<IMiDeathSummaryRepository> CreateRepositoryMock() => new();
+    private static Mock<IMiImportSummaryRepository> CreateRepositoryMock() => new();
 
     private static string Endpoint =>
-        $"/api/v1/bff/mi/reports/{TestReportKeyConstants.GbCattleDeathsReportKey}";
+        $"/api/v1/bff/mi/reports/{TestReportKeyConstants.GbCattleImportsReportKey}";
 
-    public GetGbCattleDeathsTests()
+    public GetGbCattleImportsTests()
     {
         _fixture = new Fixture();
         _fixture.Customizations.Add(new IgnoreNavigationProperties());
     }
 
     [Fact]
-    public async Task GivenInvalidYear_WhenGetGbCattleDeathsRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidYear_WhenGetGbCattleImportsRequested_ShouldReturnBadRequest()
     {
         var response = await ExecuteTest(CreateRepositoryMock(), 0);
 
@@ -37,60 +37,60 @@ public class GetGbCattleDeathsTests
     }
 
     [Fact]
-    public async Task GivenValidRequest_AndNoRecordsFound_WhenGetGbCattleDeathsRequested_ShouldSucceed()
+    public async Task GivenValidRequest_AndNoRecordsFound_WhenGetGbCattleImportsRequested_ShouldSucceed()
     {
-        var _miDeathSummaryRepositoryMock = CreateRepositoryMock();
-        _miDeathSummaryRepositoryMock.Setup(x => x.GetDeathSummaryAsync(
+        var _miImportSummaryRepositoryMock = CreateRepositoryMock();
+        _miImportSummaryRepositoryMock.Setup(x => x.GetImportSummaryAsync(
                 It.IsAny<DateOnly>(),
                 It.IsAny<DateOnly>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var response = await ExecuteTest(_miDeathSummaryRepositoryMock, 2026);
+        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2026);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
     [Fact]
-    public async Task GivenValidRequest_AndSingleRecordFoundNullable_WhenGetGbCattleDeathsRequested_ShouldSucceed()
+    public async Task GivenValidRequest_AndSingleRecordFoundNullable_WhenGetGbCattleImportsRequested_ShouldSucceed()
     {
-        var expectedDeathSummaryResult = _fixture.Build<MiDeathSummary>()
+        var expectedImportSummaryResult = _fixture.Build<MiImportSummary>()
             .With(x => x.Sex, () => null)
             .Create();
 
-        var _miDeathSummaryRepositoryMock = CreateRepositoryMock();
-        _miDeathSummaryRepositoryMock.Setup(x => x.GetDeathSummaryAsync(
+        var _miImportSummaryRepositoryMock = CreateRepositoryMock();
+        _miImportSummaryRepositoryMock.Setup(x => x.GetImportSummaryAsync(
                 It.IsAny<DateOnly>(),
                 It.IsAny<DateOnly>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([expectedDeathSummaryResult]);
+            .ReturnsAsync([expectedImportSummaryResult]);
 
-        var response = await ExecuteTest(_miDeathSummaryRepositoryMock, 2026);
+        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2026);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
     [Fact]
-    public async Task GivenValidRequest_AndRecordsFound_WhenGetGbCattleDeathsRequested_ShouldSucceed()
+    public async Task GivenValidRequest_AndRecordsFound_WhenGetGbCattleImportsRequested_ShouldSucceed()
     {
-        var expectedDeathSummaryResult = _fixture.CreateMany<MiDeathSummary>(5).ToList();
+        var expectedImportSummaryResult = _fixture.CreateMany<MiImportSummary>(5).ToList();
 
-        var _miDeathSummaryRepositoryMock = CreateRepositoryMock();
-        _miDeathSummaryRepositoryMock.Setup(x => x.GetDeathSummaryAsync(
+        var _miImportSummaryRepositoryMock = CreateRepositoryMock();
+        _miImportSummaryRepositoryMock.Setup(x => x.GetImportSummaryAsync(
                 It.IsAny<DateOnly>(),
                 It.IsAny<DateOnly>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expectedDeathSummaryResult);
+            .ReturnsAsync(expectedImportSummaryResult);
 
-        var response = await ExecuteTest(_miDeathSummaryRepositoryMock, 2026);
+        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2026);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
-    private static MiBffWebApplicationFactory GetFactory(Mock<IMiDeathSummaryRepository> repositoryMock, bool useFakeAuth = true)
+    private static MiBffWebApplicationFactory GetFactory(Mock<IMiImportSummaryRepository> repositoryMock, bool useFakeAuth = true)
     {
         var factory = new MiBffWebApplicationFactory(useFakeAuth: useFakeAuth);
 
@@ -99,9 +99,9 @@ public class GetGbCattleDeathsTests
         return factory;
     }
 
-    private static async Task<HttpResponseMessage?> ExecuteTest(Mock<IMiDeathSummaryRepository> repositoryMock, int year)
+    private static async Task<HttpResponseMessage?> ExecuteTest(Mock<IMiImportSummaryRepository> repositoryMock, int year)
     {
-        var request = new GetGbCattleDeathsRequest { Year = year };
+        var request = new GetGbCattleImportsRequest { Year = year };
         var payload = HttpContentUtility.CreateApplicationJsonAsStringContent(request);
 
         await using var factory = GetFactory(repositoryMock);
