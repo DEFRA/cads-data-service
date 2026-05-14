@@ -11,7 +11,7 @@ public class StubMiImportSummaryRepository : IMiImportSummaryRepository
             .Select(x => new MiImportSummary()
             {
                 CountryMovedFrom = "IRELAND",
-                MonthYear = new DateTime(fromDate.Year, fromDate.Month, 1),
+                MonthYear = new DateTime(fromDate.Year, fromDate.Month, 1, 0, 0, 0, DateTimeKind.Utc),
                 AgeAtMovement = x * 2,
                 AgeBand = $"{(x * 2 / 12) * 12} to {(x * 2 / 12 + 1) * 12}",
                 BreedType = "Dairy",
