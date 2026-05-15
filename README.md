@@ -423,7 +423,7 @@ dotnet test Cads.Cds.sln --collect:"XPlat Code Coverage" --filter Dependence!=te
 Step 3: Create the report but exclude the `Cads.Cds.BuildingBlocks.Testing.Support` project
 
 ```
-reportgenerator -reports:"**/TestResults/**/coverage.cobertura.xml" -targetdir:"coverage-report" -reporttypes:"Cobertura;Html;MarkdownSummary" -filefilters:"-*.g.cs" -assemblyfilters:"-*.Tests.*;-Cads.Cds.BuildingBlocks.Testing.Support"
+reportgenerator -reports:"**/TestResults/**/coverage.cobertura.xml" -targetdir:"coverage-report" -reporttypes:"Cobertura;Html;MarkdownSummary" -filefilters:"-*.g.cs" -assemblyfilters:"-*.Tests.*;-Cads.Cds.*.Testing.Support"
 ```
 
 Before running steps 2 & 3, it is a good idea to delete any existing coverage report files to avoid interference from previous results.
@@ -464,3 +464,4 @@ information providers in the public sector to license the use and re-use of thei
 licence.
 
 It is designed to encourage use and re-use of information freely and flexibly, with only a few conditions.
+ 

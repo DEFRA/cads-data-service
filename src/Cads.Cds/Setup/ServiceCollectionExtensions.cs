@@ -1,6 +1,5 @@
-using Amazon.RDS.Model;
-using Amazon.Runtime.Internal.Transform;
 using Cads.Cds.Api.Application;
+using Cads.Cds.BuildingBlocks.Application.Behaviors;
 using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
@@ -12,6 +11,8 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
 using Cads.Cds.StorageBridge.Application;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -43,13 +44,7 @@ public static class ServiceCollectionExtensions
 
         services.ConfigureHealthChecks();
 
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(typeof(IApiApplicationMarker).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(IIngesterApplicationMarker).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
-            cfg.RegisterServicesFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
-        });
+        services.ConfigureMediatR();
 
         services.AddModules(configuration);
 
@@ -88,6 +83,21 @@ public static class ServiceCollectionExtensions
                 [new OpenApiSecuritySchemeReference("basic", document)] = []
             });
         });
+    }
+
+    private static void ConfigureMediatR(this IServiceCollection services)
+    {
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(IApiApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IIngesterApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
+        });
+
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        services.AddValidatorsFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)

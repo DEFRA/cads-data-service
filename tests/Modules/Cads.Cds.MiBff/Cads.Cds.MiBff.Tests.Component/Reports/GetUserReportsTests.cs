@@ -1,6 +1,8 @@
 using Cads.Cds.MiBff.Core.DTOs.Reports;
+using Cads.Cds.MiBff.Testing.Support.Constants;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
+using System.Net;
 using System.Net.Http.Json;
 
 namespace Cads.Cds.MiBff.Tests.Component.Reports;
@@ -22,9 +24,19 @@ public class GetUserReportsTests(MiBffTestFixture testFixture) : IClassFixture<M
     }
 
     [Fact]
+    public async Task GivenMissingReportKey_GetUserReportPermissions_ShouldReturnBadRequest()
+    {
+        var reportKey = " ";
+        var endpoint = $"/api/v1/bff/mi/reports/{reportKey}/permissions";
+
+        var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task GivenMatchingReportKey_GetUserReportPermissions_ShouldSucceed()
     {
-        var reportKey = "holding_summary";
+        var reportKey = TestReportKeyConstants.HoldingSummaryReportKey;
         var endpoint = $"/api/v1/bff/mi/reports/{reportKey}/permissions";
 
         var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
