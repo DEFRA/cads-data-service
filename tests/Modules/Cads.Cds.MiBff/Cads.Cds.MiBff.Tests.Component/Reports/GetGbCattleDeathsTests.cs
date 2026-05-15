@@ -3,13 +3,10 @@ using AutoFixture;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.MiBff.Application.Reports.Requests;
-using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Testing.Support.Constants;
-using Cads.Cds.MiBff.Testing.Support.Contexts;
 using Cads.Cds.MiBff.Testing.Support.SpecimenBuilders;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
-using Moq;
 
 namespace Cads.Cds.MiBff.Tests.Component.Reports;
 
@@ -38,7 +35,7 @@ public class GetGbCattleDeathsTests
     [Fact]
     public async Task GivenValidRequest_AndNoRecordsFound_WhenGetGbCattleDeathsRequested_ShouldSucceed()
     {
-        var response = await ExecuteTest(2026, []);
+        var response = await ExecuteTest(2000);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -47,11 +44,7 @@ public class GetGbCattleDeathsTests
     [Fact]
     public async Task GivenValidRequest_AndSingleRecordFoundNullable_WhenGetGbCattleDeathsRequested_ShouldSucceed()
     {
-        var response = await ExecuteTest(2026, [
-            _fixture.Build<MiDeathSummary>()
-                .With(x => x.Sex, () => null)
-                .Create()
-        ]);
+        var response = await ExecuteTest(2001);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -60,22 +53,18 @@ public class GetGbCattleDeathsTests
     [Fact]
     public async Task GivenValidRequest_AndRecordsFound_WhenGetGbCattleDeathsRequested_ShouldSucceed()
     {
-        var deathSummaryData = _fixture.CreateMany<MiDeathSummary>(5).ToList();
-
-        var response = await ExecuteTest(2026, deathSummaryData);
+        var response = await ExecuteTest(2026);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
-    private static async Task<HttpResponseMessage?> ExecuteTest(int year, List<MiDeathSummary>? deathSummaries = null)
+    private static async Task<HttpResponseMessage?> ExecuteTest(int year)
     {
         var request = new GetGbCattleDeathsRequest { Year = year };
         var payload = HttpContentUtility.CreateApplicationJsonAsStringContent(request);
 
-        List<Action<TestMiBffReadDbContext>> dataOverrides = deathSummaries == null ? [] : [(db) => { db.DeathSummaries = deathSummaries; }];
-
-        await using var factory = new MiBffWebApplicationFactory(useFakeAuth: true, dataOverrides: dataOverrides);
+        await using var factory = new MiBffWebApplicationFactory(useFakeAuth: true);
         using var client = factory.CreateClient();
         client.AddJwt();
 

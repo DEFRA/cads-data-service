@@ -1,4 +1,6 @@
+using Cads.Cds.MiBff.Testing.Support.Contexts;
 using Cads.Cds.MiBff.Testing.Support.Data;
+using Cads.Cds.MiBff.Testing.Support.Factories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.MiBff.Testing.Support.Seeding;
@@ -23,5 +25,11 @@ public static class TestMiBffDataSeeder
         context.AddRange(reportPermissionsData.MiEffectiveReportPermissions);
         context.AddRange(reportPermissionsData.MiEffectiveReportAllPermissions);
         context.SaveChanges();
+    }
+
+    public static void Seed(TestMiBffReadDbContext context, ReportData reportData)
+    {
+        context.BirthSummaries.AddRange(reportData.Births);
+        context.DeathSummaries.AddRange(reportData.Deaths);
     }
 }

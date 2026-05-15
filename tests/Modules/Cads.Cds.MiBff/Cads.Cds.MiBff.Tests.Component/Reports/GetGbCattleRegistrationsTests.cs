@@ -3,14 +3,11 @@ using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.MiBff.Application.Reports.Requests;
 using Cads.Cds.MiBff.Core.Domain.Entities;
-using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Testing.Support.Constants;
 using Cads.Cds.MiBff.Testing.Support.SpecimenBuilders;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
-using Moq;
 using System.Net;
-using Cads.Cds.MiBff.Testing.Support.Contexts;
 
 namespace Cads.Cds.MiBff.Tests.Component.Reports;
 
@@ -48,7 +45,7 @@ public class GetGbCattleRegistrationsTests
     [Fact]
     public async Task GivenValidRequest_AndNoRecordsFound_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
     {
-        var response = await ExecuteTest(2026, 1, []);
+        var response = await ExecuteTest(2026, 1);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -57,14 +54,7 @@ public class GetGbCattleRegistrationsTests
     [Fact]
     public async Task GivenValidRequest_AndSingleRecordFoundNullable_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
     {
-        var birthSummaryData = _fixture.Build<MiBirthSummary>()
-            .With(x => x.GovRegion, () => null)
-            .With(x => x.County, () => null)
-            .With(x => x.Sex, () => null)
-            .With(x => x.ApplicationType, () => null)
-            .Create();
-
-        var response = await ExecuteTest(2026, 4, [birthSummaryData]);
+        var response = await ExecuteTest(2026, 4);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -73,22 +63,18 @@ public class GetGbCattleRegistrationsTests
     [Fact]
     public async Task GivenValidRequest_AndRecordsFound_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
     {
-        var birthSummaryData = _fixture.CreateMany<MiBirthSummary>(5).ToList();
-
-        var response = await ExecuteTest(2026, 4, birthSummaryData);
+        var response = await ExecuteTest(2026, 4);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
     }
 
-    private static async Task<HttpResponseMessage?> ExecuteTest(int year, int month, List<MiBirthSummary>? birthSummaries = null)
+    private static async Task<HttpResponseMessage?> ExecuteTest(int year, int month)
     {
         var request = new GetGbCattleRegistrationsRequest { Year = year, Month = month };
         var payload = HttpContentUtility.CreateApplicationJsonAsStringContent(request);
 
-        List<Action<TestMiBffReadDbContext>> dataOverrides = birthSummaries == null ? [] : [(db) => { db.BirthSummaries = birthSummaries; }];
-
-        await using var factory = new MiBffWebApplicationFactory(useFakeAuth: true, dataOverrides: dataOverrides);
+        await using var factory = new MiBffWebApplicationFactory(useFakeAuth: true);
         var client = factory.CreateClient();
         client.AddJwt();
 

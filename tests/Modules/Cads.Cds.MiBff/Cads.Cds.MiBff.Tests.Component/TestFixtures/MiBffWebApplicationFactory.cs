@@ -11,8 +11,7 @@ namespace Cads.Cds.MiBff.Tests.Component.TestFixtures;
 
 public class MiBffWebApplicationFactory(
     IDictionary<string, string?>? configOverrides = null,
-    bool useFakeAuth = false,
-    List<Action<TestMiBffReadDbContext>>? dataOverrides = null) : WebAppFactoryBase<Program>(
+    bool useFakeAuth = false) : WebAppFactoryBase<Program>(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
@@ -21,15 +20,17 @@ public class MiBffWebApplicationFactory(
     protected override void ConfigureDatabase(IServiceCollection services)
     {
         var reportPermissionsData = new ReportPermissionsDataFactory().CreateMockData();
+        var reportsData = new ReportsDataFactory().CreateMockData();
+
         var miBffReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<MiBffReadDbContext, TestMiBffReadDbContext>(Guid.NewGuid().ToString());
         TestMiBffDataSeeder.Seed(miBffReadDbContext, reportPermissionsData);
+        TestMiBffDataSeeder.Seed(miBffReadDbContext, reportsData);
 
         var miBffWriteDbContext = DbContextFactory.CreateInMemoryDbContext<MiBffWriteDbContext>(Guid.NewGuid().ToString());
         TestMiBffDataSeeder.Seed(miBffWriteDbContext, reportPermissionsData);
+        //TestMiBffDataSeeder.Seed(miBffWriteDbContext, reportsData);
 
         services.Replace(new ServiceDescriptor(typeof(MiBffReadDbContext), miBffReadDbContext));
         services.Replace(new ServiceDescriptor(typeof(MiBffWriteDbContext), miBffWriteDbContext));
-
-        dataOverrides?.ForEach(overrideAction => overrideAction(miBffReadDbContext));
     }
 }
