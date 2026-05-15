@@ -1,17 +1,17 @@
+using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
-using Cads.Cds.StorageBridge.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Threading.Channels;
 
-namespace Cads.Cds.StorageBridge.Application.Services;
+namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
-public class BulkImportBackgroundService(
-    Channel<CreateBulkImportJobDto> channel,
+public class S3BulkLoadBackgroundService(
+    Channel<CreateS3BulkLoadJobDto> channel,
     IServiceScopeFactory scopeFactory,
-    ILogger<BulkImportBackgroundService> logger) : BackgroundService
+    ILogger<S3BulkLoadBackgroundService> logger) : BackgroundService
 {
     private readonly int _maxParallelImports = 5;
 
@@ -19,13 +19,13 @@ public class BulkImportBackgroundService(
     {
         var semaphore = new SemaphoreSlim(_maxParallelImports);
         var runningTasks = new ConcurrentBag<Task>();
-        IBulkImportCopyService? service = null;
+        IS3ToPostgresCopyService? service = null;
 
         using var scope = scopeFactory.CreateScope();
 
         await foreach (var request in channel.Reader.ReadAllAsync(stoppingToken))
         {
-            service = service ?? scope.ServiceProvider.GetRequiredService<IBulkImportCopyService>();
+            service ??= scope.ServiceProvider.GetRequiredService<IS3ToPostgresCopyService>();
 
             if (stoppingToken.IsCancellationRequested)
             {
@@ -43,11 +43,11 @@ public class BulkImportBackgroundService(
 
                     if (result)
                     {
-                        //_progressStore.MarkSucceeded(request.JobId, request.SourceKey);
+                        // _progressStore.MarkSucceeded(request.JobId, request.SourceKey);
                     }
                     else
                     {
-                        //_progressStore.MarkFailed(request.JobId, request.SourceKey, "Unknown error during splt");
+                        // _progressStore.MarkFailed(request.JobId, request.SourceKey, "Unknown error during splt");
                     }
                 }
                 catch (Exception ex)

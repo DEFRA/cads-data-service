@@ -1,13 +1,13 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 
-namespace Cads.Cds.StorageBridge.Application.Commands.BulkImport;
+namespace Cads.Cds.StorageBridge.Application.BulkLoad.Commands;
 
-public class BulkImportCommand : ICommand<Guid>
+public class S3BulkLoadCommand : ICommand<Guid>
 {
     public string SourceKey { get; set; } = string.Empty;
 
-    public BulkImportType BulkImportType { get; set; }
+    public BulkLoadDataType BulkImportType { get; set; }
 
     public char Delimiter { get; set; } = '|';
 

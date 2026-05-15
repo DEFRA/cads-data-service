@@ -1,15 +1,15 @@
+using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
-using Cads.Cds.StorageBridge.Core.Services;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
 
-namespace Cads.Cds.StorageBridge.Application.Services;
+namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
-public class BulkImportEnqueueService(
-    Channel<CreateBulkImportJobDto> channel,
-    ILogger<BulkImportBackgroundService> logger) : IBulkImportEnqueueService
+public class S3BulkLoadJobEnqueuer(
+    Channel<CreateS3BulkLoadJobDto> channel,
+    ILogger<S3BulkLoadBackgroundService> logger) : IS3BulkLoadJobEnqueuer
 {
-    public async Task<Guid> EnqueueAsync(CreateBulkImportJobDto job, CancellationToken cancellationToken = default)
+    public async Task<Guid> EnqueueAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
     {
         job.JobId = Guid.NewGuid();
 

@@ -4,9 +4,9 @@ using Npgsql;
 using System.Data;
 using System.Data.Common;
 
-namespace Cads.Cds.StorageBridge.Infrastructure.Database.Factories;
+namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 
-public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImportCommandFactory
+public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoadCommandFactory
 {
     // Use a single NpgsqlCommandBuilder instance to call instance methods like QuoteIdentifier
     private static readonly NpgsqlCommandBuilder s_commandBuilder = new();
@@ -21,7 +21,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         public const string Update = "U";
     }
 
-    public DbCommand CreateTempTableCommand(BulkImportType bulkImportType)
+    public DbCommand CreateTempTableCommand(BulkLoadDataType bulkImportType)
     {
         // Get quoted table identifiers for the target and its temporary staging table
         var tableName = GetTableName(bulkImportType);
@@ -40,17 +40,17 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         };
     }
 
-    public StreamWriter CreateTextImport(BulkImportType bulkImportType, char delimiter) =>
+    public StreamWriter CreateTextImport(BulkLoadDataType bulkImportType, char delimiter) =>
       connection.BeginTextImport(
           $"COPY {GetTableName(bulkImportType, true)} " +
           $"FROM STDIN WITH (FORMAT csv, DELIMITER '{delimiter}', HEADER true)");
 
-    public StreamWriter CreateTextImport(BulkImportType bulkImportType, char delimiter, IEnumerable<string> columns) =>
+    public StreamWriter CreateTextImport(BulkLoadDataType bulkImportType, char delimiter, IEnumerable<string> columns) =>
         connection.BeginTextImport(
             $"COPY {GetTableName(bulkImportType, true)} ({string.Join(",", columns)}) " +
             $"FROM STDIN WITH (FORMAT csv, DELIMITER '{delimiter}', HEADER true)");
 
-    public DbCommand CreateReindexCommand(BulkImportType bulkImportType)
+    public DbCommand CreateReindexCommand(BulkLoadDataType bulkImportType)
     {
         var tableName = GetTableName(bulkImportType);
 
@@ -61,7 +61,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         };
     }
 
-    public async Task<DbCommand> CreateUpsertCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateUpsertCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, true);
@@ -80,7 +80,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         };
     }
 
-    public async Task<DbCommand> CreateInsertCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateInsertCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, true);
@@ -96,7 +96,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         };
     }
 
-    public async Task<DbCommand> CreateUpdateCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateUpdateCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, true);
@@ -115,7 +115,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         };
     }
 
-    public async Task<DbCommand> CreateDeleteCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateDeleteCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, true);
@@ -131,7 +131,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         };
     }
 
-    public DbCommand CreateSetContraintStateCommand(BulkImportType bulkImportType, bool state) => new NpgsqlCommand
+    public DbCommand CreateSetContraintStateCommand(BulkLoadDataType bulkImportType, bool state) => new NpgsqlCommand
     {
         CommandText = $"ALTER TABLE {GetTableName(bulkImportType)} " +
             $"{(state ? "ENABLE" : "DISABLE")} TRIGGER ALL",
@@ -144,7 +144,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         Connection = connection
     };
 
-    public async Task<DbCommand> CreateTempTableQueryCommandAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var tempTableName = GetTableName(bulkImportType, true);
         var columnNames = string.Join(',', await GetColumnNamesAsync(bulkImportType, cancellationToken));
@@ -156,7 +156,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         };
     }
 
-    private static string GetTableName(BulkImportType bulkImportType, bool isTemp = false)
+    private static string GetTableName(BulkLoadDataType bulkImportType, bool isTemp = false)
     {
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
@@ -171,7 +171,7 @@ public class BulkImportCommandFactory(NpgsqlConnection connection) : IBulkImport
         return string.Join(", ", columnsToUpdate.Select(c => $"{c} = EXCLUDED.{c}"));
     }
 
-    private async Task<List<string>> GetColumnNamesAsync(BulkImportType bulkImportType, CancellationToken cancellationToken = default)
+    private async Task<List<string>> GetColumnNamesAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));

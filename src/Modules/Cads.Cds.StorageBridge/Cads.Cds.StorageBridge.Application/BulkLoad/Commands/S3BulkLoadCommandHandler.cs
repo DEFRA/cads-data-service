@@ -1,14 +1,14 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
+using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
-using Cads.Cds.StorageBridge.Core.Services;
 
-namespace Cads.Cds.StorageBridge.Application.Commands.BulkImport;
+namespace Cads.Cds.StorageBridge.Application.BulkLoad.Commands;
 
-public class BulkImportCommandHandler(IBulkImportEnqueueService bulkImportEnqueueService) : ICommandHandler<BulkImportCommand, Guid>
+public class S3BulkLoadCommandHandler(IS3BulkLoadJobEnqueuer bulkImportEnqueueService) : ICommandHandler<S3BulkLoadCommand, Guid>
 {
-    public async Task<Guid> Handle(BulkImportCommand command, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(S3BulkLoadCommand command, CancellationToken cancellationToken)
     {
-        var dto = new CreateBulkImportJobDto
+        var dto = new CreateS3BulkLoadJobDto
         {
             SourceKey = command.SourceKey,
             BulkImportType = command.BulkImportType,
