@@ -11,10 +11,13 @@ namespace Cads.Cds.MiBff.Tests.Component.TestFixtures;
 
 public class MiBffWebApplicationFactory(
     IDictionary<string, string?>? configOverrides = null,
-    bool useFakeAuth = false) : WebAppFactoryBase<Program>(
+    bool useFakeAuth = false,
+    List<Action<TestMiBffReadDbContext>>? dataOverrides = null) : WebAppFactoryBase<Program>(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
+    public MiBffWriteDbContext WriteDbContext => Services.GetRequiredService<MiBffWriteDbContext>();
+
     protected override void ConfigureDatabase(IServiceCollection services)
     {
         var reportPermissionsData = new ReportPermissionsDataFactory().CreateMockData();
@@ -26,5 +29,7 @@ public class MiBffWebApplicationFactory(
 
         services.Replace(new ServiceDescriptor(typeof(MiBffReadDbContext), miBffReadDbContext));
         services.Replace(new ServiceDescriptor(typeof(MiBffWriteDbContext), miBffWriteDbContext));
+
+        dataOverrides?.ForEach(overrideAction => overrideAction(miBffReadDbContext));
     }
 }

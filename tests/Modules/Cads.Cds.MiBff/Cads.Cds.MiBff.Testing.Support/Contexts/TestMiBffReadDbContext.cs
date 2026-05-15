@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Testing.Support.Persistence;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,9 @@ public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options
     public DbSet<MiEffectiveReportAllPermission> EffectiveReportAllPermissions
         => Set<MiEffectiveReportAllPermission>();
 
-    public DbSet<MiBirthSummary> BirthSummaries
-        => Set<MiBirthSummary>();
+    public List<MiBirthSummary> BirthSummaries { get; set; } = [];
 
-    public DbSet<MiDeathSummary> DeathSummaries
-        => Set<MiDeathSummary>();
+    public List<MiDeathSummary> DeathSummaries { get; set; } = [];
 
     public override IQueryable<MiEffectiveReportPermission> GetMiEffectiveReportPermission(
         string externalSubject, string? reportKey)
@@ -36,12 +35,12 @@ public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options
     public override IQueryable<MiBirthSummary> GetBirthsSummary(
         DateOnly birthDateFrom, DateOnly birthDateTo)
     {
-        return BirthSummaries.AsQueryable();
+        return new TestAsyncEnumerable<MiBirthSummary>(BirthSummaries);
     }
 
     public override IQueryable<MiDeathSummary> GetDeathsSummary(
         DateOnly deathDateFrom, DateOnly deathDateTo)
     {
-        return DeathSummaries.AsQueryable();
+        return new TestAsyncEnumerable<MiDeathSummary>(DeathSummaries);
     }
 }
