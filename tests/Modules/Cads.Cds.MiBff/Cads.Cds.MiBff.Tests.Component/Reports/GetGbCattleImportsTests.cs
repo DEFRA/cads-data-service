@@ -1,4 +1,3 @@
-using System.Net;
 using AutoFixture;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
@@ -10,6 +9,7 @@ using Cads.Cds.MiBff.Testing.Support.SpecimenBuilders;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
 using Moq;
+using System.Net;
 
 namespace Cads.Cds.MiBff.Tests.Component.Reports;
 

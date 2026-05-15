@@ -1,12 +1,11 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
+using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
-using Cads.Cds.StorageBridge.Core.Services;
-using Cads.Cds.StorageBridge.Infrastructure.Database.Factories;
+using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -16,18 +15,18 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Text.RegularExpressions;
 
-namespace Cads.Cds.StorageBridge.Infrastructure.Services;
+namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
-public class BulkImportCopyService(
+public class S3ToPostgresCopyService(
     IServiceScopeFactory scopeFactory,
     IStorageReader<CadsInternalClient> storageReader,
-    ILogger<BulkImportCopyService> logger) : IBulkImportCopyService
+    ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
-    private BulkImportCommandFactory? _commandFactory;
+    private S3BulkLoadCommandFactory? _commandFactory;
 
-    private bool QueryTestData => false; // Set to true to enable temporary table data logging for debugging purposes, should be false for production use to avoid unnecessary overhead
+    private static bool QueryTestData => false; // Set to true to enable temporary table data logging for debugging purposes, should be false for production use to avoid unnecessary overhead
 
-    public async Task<bool> ExecuteAsync(CreateBulkImportJobDto dto, CancellationToken cancellationToken = default)
+    public async Task<bool> ExecuteAsync(CreateS3BulkLoadJobDto dto, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -74,22 +73,13 @@ public class BulkImportCopyService(
             }
 
             // Create a bulk import command factory to generate commands for the specified bulk import type
-            _commandFactory = new BulkImportCommandFactory((NpgsqlConnection)connection);
-
-            if (_commandFactory == null)
-            {
-                throw new InvalidOperationException("Failed to create bulk import command factory.");
-            }
+            _commandFactory = new S3BulkLoadCommandFactory((NpgsqlConnection)connection) 
+                ?? throw new InvalidOperationException("Failed to create bulk import command factory.");
 
             // Create a temporary table for the bulk import type
-            var createTempTableCommand = _commandFactory.CreateTempTableCommand(dto.BulkImportType);
-
-            if (createTempTableCommand == null)
-            {
-                throw new InvalidOperationException("One or more required database commands could not be created.");
-            }
-
-            var actionCommands = await GetCommandsAsync(dto, cancellationToken) ?? new List<DbCommand>();
+            var createTempTableCommand = _commandFactory.CreateTempTableCommand(dto.BulkImportType)
+                ?? throw new InvalidOperationException("One or more required database commands could not be created.");
+            var actionCommands = await GetCommandsAsync(dto, cancellationToken) ?? [];
 
             var meter = new Meter("Cads.Postgres.Metrics", "1.0");
 
@@ -217,7 +207,7 @@ public class BulkImportCopyService(
         return true;
     }
 
-    private async Task<DataSet?> GetTempDataAsync(CreateBulkImportJobDto dto, CancellationToken cancellationToken = default)
+    private async Task<DataSet?> GetTempDataAsync(CreateS3BulkLoadJobDto dto, CancellationToken cancellationToken = default)
     {
         // Ensure command factory is available
         if (_commandFactory == null)
@@ -242,7 +232,7 @@ public class BulkImportCopyService(
         return data;
     }
 
-    private async Task<List<DbCommand>> GetCommandsAsync(CreateBulkImportJobDto dto, CancellationToken cancellationToken = default)
+    private async Task<List<DbCommand>> GetCommandsAsync(CreateS3BulkLoadJobDto dto, CancellationToken cancellationToken = default)
     {
         var commands = new List<DbCommand>();
 
@@ -291,7 +281,7 @@ public class BulkImportCopyService(
     }
 
     private async Task CopyFileToStagingAsync(
-        BulkImportType bulkImportType,
+        BulkLoadDataType bulkImportType,
         char delimiter,
         string key,
         CancellationToken cancellationToken = default)
@@ -335,7 +325,7 @@ public class BulkImportCopyService(
 
         while (line != null)
         {
-            if (line?.StartsWith("T|") == true) // Skip the termination definition line if it exists
+            if (line.StartsWith("T|") == true) // Skip the termination definition line if it exists
             {
                 break;
             }
@@ -352,7 +342,12 @@ public class BulkImportCopyService(
 
         sanitisedResult = sanitisedResult.Replace("\"", "\"\"");
 
-        sanitisedResult = Regex.Replace(sanitisedResult, @"[\u0000-\u001F]", " ");
+        sanitisedResult = Regex.Replace(
+            sanitisedResult,
+            @"[\u0000-\u001F]",
+            " ",
+            RegexOptions.None,
+            TimeSpan.FromMicroseconds(50));
 
         return sanitisedResult;
     }
