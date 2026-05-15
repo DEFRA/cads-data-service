@@ -14,9 +14,17 @@ public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options
     public DbSet<MiEffectiveReportAllPermission> EffectiveReportAllPermissions
         => Set<MiEffectiveReportAllPermission>();
 
-    public List<MiBirthSummary> BirthSummaries { get; set; } = [];
+    public DbSet<MiBirthSummary> BirthSummaries => Set<MiBirthSummary>();
 
-    public List<MiDeathSummary> DeathSummaries { get; set; } = [];
+    public DbSet<MiDeathSummary> DeathSummaries => Set<MiDeathSummary>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<MiBirthSummary>().HasNoKey();
+        modelBuilder.Entity<MiDeathSummary>().HasNoKey();
+    }
 
     public override IQueryable<MiEffectiveReportPermission> GetMiEffectiveReportPermission(
         string externalSubject, string? reportKey)
@@ -35,12 +43,14 @@ public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options
     public override IQueryable<MiBirthSummary> GetBirthsSummary(
         DateOnly birthDateFrom, DateOnly birthDateTo)
     {
-        return new TestAsyncEnumerable<MiBirthSummary>(BirthSummaries);
+        return BirthSummaries.AsQueryable()
+            .Where(x => x.BirthYear >= birthDateFrom.Year && x.BirthYear <= birthDateTo.Year);
     }
 
     public override IQueryable<MiDeathSummary> GetDeathsSummary(
         DateOnly deathDateFrom, DateOnly deathDateTo)
     {
-        return new TestAsyncEnumerable<MiDeathSummary>(DeathSummaries);
+        return DeathSummaries.AsQueryable()
+            .Where(x => x.DeathYear >= deathDateFrom.Year && x.DeathYear <= deathDateTo.Year);
     }
 }
