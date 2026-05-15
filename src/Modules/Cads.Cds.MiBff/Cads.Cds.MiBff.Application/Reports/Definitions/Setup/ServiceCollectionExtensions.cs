@@ -25,5 +25,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<IReportDefinition<MiBirthSummary>, CattleRegistrationReportDefinition>();
         services.AddTransient<IReportDefinition<MiDeathSummary>, CattleDeathsReportDefinition>();
+        services.AddTransient<IReportDefinition<MiImportSummary>, CattleImportsReportDefinition>();
     }
 }
