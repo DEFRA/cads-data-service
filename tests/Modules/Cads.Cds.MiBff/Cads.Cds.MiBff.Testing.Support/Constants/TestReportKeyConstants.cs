@@ -15,4 +15,5 @@ public static class TestReportKeyConstants
 
     public const string GbCattleDeathsReportKey = "gb_cattle_deaths";
     public const string GbCattleRegistrationsReportKey = "gb_cattle_registrations";
+    public const string GbCattleImportsReportKey = "gb_cattle_imports";
 }

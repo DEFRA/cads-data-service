@@ -48,5 +48,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMiEffectiveReportAllPermissionRepository, MiEffectiveReportAllPermissionRepository>();
         services.AddScoped<IMiBirthSummaryRepository, MiBirthSummaryRepository>();
         services.AddScoped<IMiDeathSummaryRepository, MiDeathSummaryRepository>();
+        services.AddScoped<IMiImportSummaryRepository, StubMiImportSummaryRepository>();
     }
 }

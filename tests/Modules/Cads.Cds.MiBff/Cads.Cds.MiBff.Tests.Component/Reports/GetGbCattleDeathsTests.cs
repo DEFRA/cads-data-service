@@ -28,7 +28,7 @@ public class GetGbCattleDeathsTests
     }
 
     [Fact]
-    public async Task GivenInvalidYear_WhenGetGbCattleRegistrationsRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidYear_WhenGetGbCattleDeathsRequested_ShouldReturnBadRequest()
     {
         var response = await ExecuteTest(CreateRepositoryMock(), 0);
 
@@ -37,7 +37,7 @@ public class GetGbCattleDeathsTests
     }
 
     [Fact]
-    public async Task GivenValidRequest_AndNoRecordsFound_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
+    public async Task GivenValidRequest_AndNoRecordsFound_WhenGetGbCattleDeathsRequested_ShouldSucceed()
     {
         var _miDeathSummaryRepositoryMock = CreateRepositoryMock();
         _miDeathSummaryRepositoryMock.Setup(x => x.GetDeathSummaryAsync(
@@ -53,7 +53,7 @@ public class GetGbCattleDeathsTests
     }
 
     [Fact]
-    public async Task GivenValidRequest_AndSingleRecordFoundNullable_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
+    public async Task GivenValidRequest_AndSingleRecordFoundNullable_WhenGetGbCattleDeathsRequested_ShouldSucceed()
     {
         var expectedDeathSummaryResult = _fixture.Build<MiDeathSummary>()
             .With(x => x.Sex, () => null)
@@ -73,7 +73,7 @@ public class GetGbCattleDeathsTests
     }
 
     [Fact]
-    public async Task GivenValidRequest_AndRecordsFound_WhenGetGbCattleRegistrationsRequested_ShouldSucceed()
+    public async Task GivenValidRequest_AndRecordsFound_WhenGetGbCattleDeathsRequested_ShouldSucceed()
     {
         var expectedDeathSummaryResult = _fixture.CreateMany<MiDeathSummary>(5).ToList();
 
