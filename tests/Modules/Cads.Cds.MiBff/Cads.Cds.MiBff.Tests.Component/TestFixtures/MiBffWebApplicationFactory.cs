@@ -20,15 +20,16 @@ public class MiBffWebApplicationFactory(
     protected override void ConfigureDatabase(IServiceCollection services)
     {
         var reportPermissionsData = new ReportPermissionsDataFactory().CreateMockData();
-        var reportsData = new ReportsDataFactory().CreateMockData();
+        var reportsData = new GbCattleReportDataFactory().CreateMockData();
 
         var miBffReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<MiBffReadDbContext, TestMiBffReadDbContext>(Guid.NewGuid().ToString());
         TestMiBffDataSeeder.Seed(miBffReadDbContext, reportPermissionsData);
         TestMiBffDataSeeder.Seed(miBffReadDbContext, reportsData);
+        TestMiBffDataSeeder.SeedSaveChanges(miBffReadDbContext);
 
         var miBffWriteDbContext = DbContextFactory.CreateInMemoryDbContext<MiBffWriteDbContext>(Guid.NewGuid().ToString());
         TestMiBffDataSeeder.Seed(miBffWriteDbContext, reportPermissionsData);
-        //TestMiBffDataSeeder.Seed(miBffWriteDbContext, reportsData);
+        TestMiBffDataSeeder.SeedSaveChanges(miBffWriteDbContext);
 
         services.Replace(new ServiceDescriptor(typeof(MiBffReadDbContext), miBffReadDbContext));
         services.Replace(new ServiceDescriptor(typeof(MiBffWriteDbContext), miBffWriteDbContext));
