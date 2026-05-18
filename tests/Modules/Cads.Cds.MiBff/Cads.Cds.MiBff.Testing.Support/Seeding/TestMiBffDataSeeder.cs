@@ -1,7 +1,4 @@
-using Cads.Cds.BuildingBlocks.Testing.Support.Persistence;
-using Cads.Cds.MiBff.Testing.Support.Contexts;
 using Cads.Cds.MiBff.Testing.Support.Data;
-using Cads.Cds.MiBff.Testing.Support.Factories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.MiBff.Testing.Support.Seeding;
@@ -15,7 +12,7 @@ public static class TestMiBffDataSeeder
     /// <param name="reportPermissionsData"></param>
     public static void Seed(DbContext context, ReportPermissionsData reportPermissionsData)
     {
-        // Add in an order that respects FK constraints
+        // Mi Users, Roles, Reports and Permissions
         context.AddRange(reportPermissionsData.MiRoles);
         context.AddRange(reportPermissionsData.MiPermissions);
         context.AddRange(reportPermissionsData.MiReports);
@@ -25,12 +22,17 @@ public static class TestMiBffDataSeeder
         context.AddRange(reportPermissionsData.MiRoleReportPermissions);
         context.AddRange(reportPermissionsData.MiEffectiveReportPermissions);
         context.AddRange(reportPermissionsData.MiEffectiveReportAllPermissions);
-        context.SaveChanges();
     }
 
-    public static void Seed(TestMiBffReadDbContext context, ReportData reportData)
+    public static void Seed(DbContext context, GbCattleReportData reportData)
     {
-        FakeQueryProvider.SetQuery(reportData.Births);
-        FakeQueryProvider.SetQuery(reportData.Deaths);
+        // GB Cattle Reports
+        context.AddRange(reportData.BirthSummaries);
+        context.AddRange(reportData.DeathSummaries);
+    }
+
+    public static void SeedSaveChanges(DbContext context)
+    {
+        context.SaveChanges();
     }
 }

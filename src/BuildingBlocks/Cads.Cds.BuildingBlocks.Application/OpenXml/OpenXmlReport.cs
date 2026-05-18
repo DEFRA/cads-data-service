@@ -1,7 +1,6 @@
 using Cads.Cds.BuildingBlocks.Core.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using System.Globalization;
 
 namespace Cads.Cds.BuildingBlocks.Application.OpenXml;
 

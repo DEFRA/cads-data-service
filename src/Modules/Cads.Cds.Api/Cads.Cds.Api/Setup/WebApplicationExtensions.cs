@@ -3,7 +3,6 @@ using Cads.Cds.Api.Application.Soap.ServiceContracts.Abstractions;
 using CoreWCF.Channels;
 using CoreWCF.Configuration;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
