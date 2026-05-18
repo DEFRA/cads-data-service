@@ -46,7 +46,7 @@ public class GetGbCattleImportsTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2026);
+        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2000);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -66,7 +66,7 @@ public class GetGbCattleImportsTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([expectedImportSummaryResult]);
 
-        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2026);
+        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2001);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
