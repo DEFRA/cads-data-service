@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
 
         // Register module storage readers
         services.AddSingleton<IStorageReader<CadsInternalClient>, BulkImportStorageReader<CadsInternalClient>>();
-        
+
         // Register module storage writers
 
         if (moduleConfig.CadsInternal.HealthcheckEnabled)

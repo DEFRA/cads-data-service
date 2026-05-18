@@ -18,51 +18,37 @@ public class S3BulkLoadBackgroundService(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var semaphore = new SemaphoreSlim(_maxParallelImports);
-        var runningTasks = new ConcurrentBag<Task>();
-        IS3ToPostgresCopyService? service = null;
-
-        using var scope = scopeFactory.CreateScope();
+        var tasks = new ConcurrentBag<Task>();
 
         await foreach (var request in channel.Reader.ReadAllAsync(stoppingToken))
         {
-            service ??= scope.ServiceProvider.GetRequiredService<IS3ToPostgresCopyService>();
-
-            if (stoppingToken.IsCancellationRequested)
-            {
-                logger.LogInformation("Cancellation requested, aborting import");
-                return;
-            }
-
             await semaphore.WaitAsync(stoppingToken);
 
-            var task = Task.Run(async () =>
-            {
-                try
-                {
-                    var result = await service.ExecuteAsync(request, stoppingToken);
-
-                    if (result)
-                    {
-                        // _progressStore.MarkSucceeded(request.JobId, request.SourceKey);
-                    }
-                    else
-                    {
-                        // _progressStore.MarkFailed(request.JobId, request.SourceKey, "Unknown error during splt");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to copy file {Key}", request.SourceKey);
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            }, stoppingToken);
-
-            runningTasks.Add(task);
+            tasks.Add(ProcessJobAsync(request, semaphore, stoppingToken));
         }
 
-        await Task.WhenAll(runningTasks);
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task ProcessJobAsync(
+        CreateS3BulkLoadJobDto request,
+        SemaphoreSlim semaphore,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var scope = scopeFactory.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<IS3ToPostgresCopyService>();
+
+            await service.ExecuteAsync(request, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
+        }
+        finally
+        {
+            semaphore.Release();
+        }
     }
 }

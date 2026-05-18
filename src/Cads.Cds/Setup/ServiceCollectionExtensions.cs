@@ -10,6 +10,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
+using Cads.Cds.StorageBridge;
 using Cads.Cds.StorageBridge.Application;
 using FluentValidation;
 using MediatR;
@@ -98,6 +99,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.AddValidatorsFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(IStorageBridgeMarker).Assembly);
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)

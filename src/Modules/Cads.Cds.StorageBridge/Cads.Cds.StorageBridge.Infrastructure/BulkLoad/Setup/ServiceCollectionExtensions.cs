@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<IS3BulkLoadJobEnqueuer, S3BulkLoadJobEnqueuer>();
 
-        services.AddSingleton<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
+        services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
 
         return services;
     }
