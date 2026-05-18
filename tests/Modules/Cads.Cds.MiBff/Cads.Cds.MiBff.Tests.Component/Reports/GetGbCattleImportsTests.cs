@@ -1,4 +1,3 @@
-using System.Net;
 using AutoFixture;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
@@ -10,6 +9,7 @@ using Cads.Cds.MiBff.Testing.Support.SpecimenBuilders;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
 using FluentAssertions;
 using Moq;
+using System.Net;
 
 namespace Cads.Cds.MiBff.Tests.Component.Reports;
 
@@ -46,7 +46,7 @@ public class GetGbCattleImportsTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2026);
+        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2000);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -66,7 +66,7 @@ public class GetGbCattleImportsTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([expectedImportSummaryResult]);
 
-        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2026);
+        var response = await ExecuteTest(_miImportSummaryRepositoryMock, 2001);
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();

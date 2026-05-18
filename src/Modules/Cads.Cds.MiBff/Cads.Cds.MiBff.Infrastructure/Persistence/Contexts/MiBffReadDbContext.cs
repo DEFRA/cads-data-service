@@ -1,6 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 
