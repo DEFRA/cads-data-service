@@ -280,3 +280,4 @@ library.db
 /coverage-report
 .sonar/
 !.gitkeep
+*.lscache

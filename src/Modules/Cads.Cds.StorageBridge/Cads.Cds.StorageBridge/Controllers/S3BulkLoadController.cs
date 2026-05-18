@@ -2,7 +2,6 @@ using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.StorageBridge.Application.BulkLoad.Commands;
 using Cads.Cds.StorageBridge.Controllers.Requests;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.StorageBridge.Controllers;
 
@@ -12,9 +11,8 @@ public class S3BulkLoadController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
 
-    [ExcludeFromCodeCoverage]
     [HttpPost]
-    public async Task<IActionResult> Execute([FromBody] S3BulkLoadRequest request)
+    public async Task<IActionResult> Execute([FromBody] S3BulkLoadRequest request, CancellationToken cancellationToken)
     {
         var command = new S3BulkLoadCommand
         {
@@ -24,8 +22,8 @@ public class S3BulkLoadController(IRequestExecutor executor) : ControllerBase
             ImportActionType = request.ActionType
         };
 
-        var result = await _executor.ExecuteCommand(command);
+        var jobId = await _executor.ExecuteCommand(command, cancellationToken);
 
-        return Ok(result);
+        return Accepted(new { JobId = jobId });
     }
 }

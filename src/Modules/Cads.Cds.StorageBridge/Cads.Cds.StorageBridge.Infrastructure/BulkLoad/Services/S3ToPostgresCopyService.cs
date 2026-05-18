@@ -22,318 +22,169 @@ public class S3ToPostgresCopyService(
     IStorageReader<CadsInternalClient> storageReader,
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
-    private S3BulkLoadCommandFactory? _commandFactory;
-
-    private static bool QueryTestData => false; // Set to true to enable temporary table data logging for debugging purposes, should be false for production use to avoid unnecessary overhead
-
-    public async Task<bool> ExecuteAsync(CreateS3BulkLoadJobDto dto, CancellationToken cancellationToken = default)
+    public async Task<bool> ExecuteAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
     {
-        try
+        ValidateJob(job);
+
+        if (logger.IsEnabled(LogLevel.Information))
         {
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation("Starting bulk import copy for job {jobId} with key prefix {prefix}",
-                    dto.JobId, dto.SourceKey);
-            }
+            logger.LogInformation("Starting bulk import copy for job {jobId} with key sourceKey {sourceKey}",
+                job.JobId, job.SourceKey);
+        }
 
-            // List all keys under the specified bucket and prefix
-            var keys = await storageReader.ListKeysAsync(dto.SourceKey, cancellationToken);
+        var keys = await storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
+        if (!keys.Any()) return false;
 
-            if (keys == null || !keys.Any())
-            {
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.LogInformation("No objects found for job {jobId} with key prefix {prefix}.",
-                        dto.JobId, dto.SourceKey);
-                }
+        using var scope = scopeFactory.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
+        var connection = await OpenConnectionAsync(dbContext, cancellationToken);
 
-                return false;
-            }
+        var factory = new S3BulkLoadCommandFactory((NpgsqlConnection)connection);
+        var createTempTableCommand = factory.CreateTempTableCommand(job.BulkImportType);
+        var actionCommands = await GetCommandsAsync(job, factory, cancellationToken);
 
-            if (dto.ImportActionType == ImportActionType.None)
-            {
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.LogInformation("No import action defined for job {jobId} with key prefix {prefix}.",
-                        dto.JobId, dto.SourceKey);
-                }
+        var (counter, fileHistogram, batchHistogram) = CreateMetrics();
 
-                return false;
-            }
+        var sw = Stopwatch.StartNew();
+        var totalRows = 0;
 
-            using var scope = scopeFactory.CreateScope();
-
-            var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-
-            var connection = dbContext.Database.GetDbConnection();
-
-            if (connection.State != ConnectionState.Open)
-            {
-                await connection.OpenAsync(cancellationToken);
-            }
-
-            // Create a bulk import command factory to generate commands for the specified bulk import type
-            _commandFactory = new S3BulkLoadCommandFactory((NpgsqlConnection)connection) 
-                ?? throw new InvalidOperationException("Failed to create bulk import command factory.");
-
-            // Create a temporary table for the bulk import type
-            var createTempTableCommand = _commandFactory.CreateTempTableCommand(dto.BulkImportType)
-                ?? throw new InvalidOperationException("One or more required database commands could not be created.");
-            var actionCommands = await GetCommandsAsync(dto, cancellationToken) ?? [];
-
-            var meter = new Meter("Cads.Postgres.Metrics", "1.0");
-
-            var counter = meter.CreateCounter<int>(
-                name: "cads_batch_import_rows_affected",
-                unit: "rows",
-                description: "Number of rows processed");
-
-            var batchImportDurationHistogram = meter.CreateHistogram<double>(
-                name: "postgres_batch_import_duration_ms",
-                unit: "ms",
-                description: "batch import duration");
-
-            var fileImportDurationHistogram = meter.CreateHistogram<double>(
-                name: "postgres_file_import_duration_ms",
-                unit: "ms",
-                description: "file import duration");
-
-            var sw = Stopwatch.StartNew();
-            var totalRowsAffected = 0;
-
-            if (dto.UpdateConstraints)
-            {
-                await _commandFactory.CreateSetContraintStateCommand(dto.BulkImportType, false).ExecuteNonQueryAsync(cancellationToken);
-            }
-
-            foreach (var command in actionCommands)
-            {
-
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.LogInformation("Command: {commandText}", command.CommandText);
-                }
-            }
-
-            // Process each file found under the specified bucket and prefix
-            foreach (var key in keys)
-            {
-                if (key == null)
-                {
-                    // skip null keys defensively
-                    continue;
-                }
-
-                var fsw = Stopwatch.StartNew();
-
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.LogInformation("Processing file {key} for bulk import job {jobId}", key, dto.JobId);
-                }
-
-                var transaction = await connection.BeginTransactionAsync(cancellationToken);
-
-                await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
-
-                await CopyFileToStagingAsync(dto.BulkImportType, dto.Delimiter, key, cancellationToken);
-
-                var rowsAffected = 0;
-
-                foreach (var actionCommand in actionCommands)
-                {
-                    if (actionCommand == null) continue;
-                    rowsAffected += await actionCommand.ExecuteNonQueryAsync(cancellationToken);
-                }
-
-                if (QueryTestData && rowsAffected > 0)
-                {
-                    var tempData = await GetTempDataAsync(dto, cancellationToken);
-                    if (logger.IsEnabled(LogLevel.Information))
-                    {
-                        logger.LogInformation("Temporary table populated with {recordCount} records for job {jobId} with key prefix {prefix}",
-                            tempData?.Tables[0].Rows.Count, dto.JobId, dto.SourceKey);
-                    }
-                }
-
-                counter.Add(rowsAffected);
-
-                totalRowsAffected += rowsAffected;
-
-                await transaction.CommitAsync(cancellationToken);
-
-                fsw.Stop();
-                var fileImportQueryElapsed = fsw.Elapsed.TotalMilliseconds;
-                fileImportDurationHistogram.Record(fileImportQueryElapsed,
-                    new KeyValuePair<string, object?>("job", dto.JobId),
-                    new KeyValuePair<string, object?>("key", key),
-                    new KeyValuePair<string, object?>("rows", rowsAffected));
-
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.LogInformation("Completed processing for file {key} for bulk import job {jobId}, {rowsAffected} records processed in {ElapsedMilliseconds} ms",
-                        key, dto.JobId, rowsAffected, fileImportQueryElapsed);
-                }
-            }
-
-            if (dto.UpdateConstraints)
-            {
-                await _commandFactory.CreateSetContraintStateCommand(dto.BulkImportType, true).ExecuteNonQueryAsync(cancellationToken);
-                await _commandFactory.CreateReindexCommand(dto.BulkImportType).ExecuteNonQueryAsync(cancellationToken);
-            }
-
-            sw.Stop();
-            var batchImportElapsed = sw.Elapsed.TotalMilliseconds;
-            batchImportDurationHistogram.Record(batchImportElapsed,
-                new KeyValuePair<string, object?>("job", dto.JobId),
-                new KeyValuePair<string, object?>("rows", totalRowsAffected));
+        foreach (var key in keys)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Completed bulk import copy for job {jobId} with key prefix {prefix}, {totalRowsAffected} records processed in {ElapsedMilliseconds} ms",
-                    dto.JobId, dto.SourceKey, totalRowsAffected, batchImportElapsed);
+                logger.LogInformation("Processing file {key} for bulk import job {jobId}", key, job.JobId);
+            }
+
+            var fileSw = Stopwatch.StartNew();
+
+            var rows = await ProcessFileAsync(
+                key,
+                job,
+                factory,
+                createTempTableCommand,
+                actionCommands,
+                cancellationToken);
+
+            totalRows += rows;
+            counter.Add(rows);
+
+            fileHistogram.Record(fileSw.Elapsed.TotalMilliseconds);
+
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("Completed processing for file {key} for bulk import job {jobId}, {totalRows} records processed in {totalMilliseconds} ms",
+                    key, job.JobId, rows, fileSw.Elapsed.TotalMilliseconds);
             }
         }
-        catch (Exception ex)
-        {
-            if (logger.IsEnabled(LogLevel.Error))
-            {
-                logger.LogError(ex, "Error occurred during bulk import copy for job {jobId} with key prefix {prefix}",
-                    dto.JobId, dto.SourceKey);
-            }
 
-            throw;
+        batchHistogram.Record(sw.Elapsed.TotalMilliseconds);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Completed bulk import copy for job {jobId} with key sourceKey {sourceKey}, {totalRows} records processed in {totalMilliseconds} ms",
+                job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
         return true;
     }
 
-    private async Task<DataSet?> GetTempDataAsync(CreateS3BulkLoadJobDto dto, CancellationToken cancellationToken = default)
+    private async Task<int> ProcessFileAsync(
+        string key,
+        CreateS3BulkLoadJobDto job,
+        S3BulkLoadCommandFactory factory,
+        DbCommand createTempTableCommand,
+        List<DbCommand> actionCommands,
+        CancellationToken cancellationToken)
     {
-        // Ensure command factory is available
-        if (_commandFactory == null)
-        {
-            throw new InvalidOperationException("Command factory is not initialized.");
-        }
+        using var transaction = await factory.Connection.BeginTransactionAsync(cancellationToken);
 
-        // Generates a DbCommand to query the temporary table for the specified bulk import type.
-        // This command is used to load the data into memory before performing upsert/delete operations.
-        // The command is created using the bulk import command factory and is specific to the database schema for the bulk import type.
-        var command = await _commandFactory.CreateTempTableQueryCommandAsync(dto.BulkImportType, cancellationToken);
+        await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
-        if (command == null)
-        {
-            return null;
-        }
+        await CopyFileToStagingAsync(job.BulkImportType, job.Delimiter, key, factory, cancellationToken);
 
-        // Temporarily execute the query command to load the data into a DataSet.
-        // This is necessary to ensure that the data is loaded into memory before we turn off constraints and perform upsert/delete operations.
-        var data = ExecuteQueryToDataSet(command);
+        var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
 
-        return data;
+        await transaction.CommitAsync(cancellationToken);
+
+        return rows;
     }
 
-    private async Task<List<DbCommand>> GetCommandsAsync(CreateS3BulkLoadJobDto dto, CancellationToken cancellationToken = default)
+    private async Task<int> ExecuteActionCommandsAsync(
+        IEnumerable<DbCommand> actionCommands,
+        CancellationToken cancellationToken)
     {
-        var commands = new List<DbCommand>();
+        var total = 0;
 
-        switch (dto.ImportActionType)
+        foreach (var command in actionCommands)
         {
-            case ImportActionType.None:
-                return commands;
+            cancellationToken.ThrowIfCancellationRequested();
 
-            case ImportActionType.Insert:
-                {
-                    var cmd = await _commandFactory!.CreateInsertCommandAsync(dto.BulkImportType, cancellationToken);
-                    if (cmd != null) commands.Add(cmd);
-                    break;
-                }
+            if (command == null) continue;
 
-            case ImportActionType.Update:
-                {
-                    var cmd = await _commandFactory!.CreateUpdateCommandAsync(dto.BulkImportType, cancellationToken);
-                    if (cmd != null) commands.Add(cmd);
-                    break;
-                }
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("Command: {commandText}", command.CommandText);
+            }
 
-            case ImportActionType.Delete:
-                // Removed for now, unsure how we will handle deletes
-                //commands.Add(await bulkImportCommandFactory.CreateDeleteCommandAsync(dto.BulkImportType, cancellationToken));
-                break;
-
-            case var a when (a & ImportActionType.Insert) != 0 && (a & ImportActionType.Update) != 0:
-                {
-                    var cmd = await _commandFactory!.CreateUpsertCommandAsync(dto.BulkImportType, cancellationToken);
-                    if (cmd != null) commands.Add(cmd);
-                    break;
-                }
-
-            case var a when (a & ImportActionType.Insert) != 0 && (a & ImportActionType.Update) != 0 && (a & ImportActionType.Delete) != 0:
-                {
-                    var cmd = await _commandFactory!.CreateUpsertCommandAsync(dto.BulkImportType, cancellationToken);
-                    if (cmd != null) commands.Add(cmd);
-                    // Removed for now, unsure how we will handle deletes
-                    // commands.Add(await bulkImportCommandFactory.CreateDeleteCommandAsync(dto.BulkImportType, cancellationToken));
-                    break;
-                }
+            total += await command.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        return commands;
+        return total;
     }
 
     private async Task CopyFileToStagingAsync(
-        BulkLoadDataType bulkImportType,
+        BulkLoadDataType bulkLoadDataType,
         char delimiter,
         string key,
-        CancellationToken cancellationToken = default)
+        S3BulkLoadCommandFactory factory,
+        CancellationToken cancellationToken)
     {
-        // Ensure command factory is available
-        if (_commandFactory == null)
-        {
-            throw new InvalidOperationException("Command factory is not initialized.");
-        }
-
-        // Get a stream reader for the specified key from storage
         using var response = await storageReader.GetObjectResponseAsync(key, cancellationToken);
+
         if (response?.ResponseStream == null)
         {
-            if (logger.IsEnabled(LogLevel.Warning))
-            {
-                logger.LogWarning("Storage response or response stream was null for key {key}", key);
-            }
+            logger.LogWarning("Null stream for key {key}", key);
             return;
         }
 
-        using var streamReader = new StreamReader(response.ResponseStream);
+        using var reader = new StreamReader(response.ResponseStream);
 
-        // Read each line from the input stream and write it to the text import writer
-        var line = await streamReader.ReadLineAsync(cancellationToken);
+        //var header = await reader.ReadLineAsync(cancellationToken) ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
+        //var columns = header.Split(delimiter) ?? throw new InvalidOperationException("Missing header row");
+        //using var writer = factory.CreateTextImport(bulkLoadDataType, delimiter, columns);
 
-        // First line is expected to contain column headers,
-        // split it by the delimiter to get the column names for the text import writer
-        var columns = line?.Split(delimiter);
+        var header = await reader.ReadLineAsync(cancellationToken)
+            ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
 
-        // Validate that we have column headers to work with, 
-        // if not, we cannot proceed with the bulk import as
-        // the text import writer requires column names to map the data correctly
-        if (columns == null || columns.Length == 0)
+        var fileColumns = header.Split(delimiter);
+
+        var matchedColumns = await factory.FilterColumnsToTableAsync(
+            bulkLoadDataType,
+            fileColumns,
+            cancellationToken);
+
+        using var writer = factory.CreateTextImport(bulkLoadDataType, delimiter, matchedColumns);
+
+        string? line;
+        while ((line = await reader.ReadLineAsync(cancellationToken)) != null)
         {
-            throw new InvalidOperationException($"Failed to read column headers from the input file for key {key}. The first line must contain column names separated by the specified delimiter.");
-        }
-
-        // Create a text import writer for the bulk import type and delimiter
-        using var writer = _commandFactory.CreateTextImport(bulkImportType, delimiter, columns);
-
-        while (line != null)
-        {
-            if (line.StartsWith("T|") == true) // Skip the termination definition line if it exists
-            {
-                break;
-            }
-
+            cancellationToken.ThrowIfCancellationRequested();
+            if (line.StartsWith("T|")) break;
             await writer.WriteLineAsync(SanitiseLine(line));
-
-            line = await streamReader.ReadLineAsync(cancellationToken);
         }
+    }
+
+    private static (Counter<int> counter, Histogram<double> fileHistogram, Histogram<double> batchHistogram) CreateMetrics()
+    {
+        var meter = new Meter("Cads.Postgres.Metrics", "1.0");
+
+        var counter = meter.CreateCounter<int>("cads_batch_import_rows_affected", "rows");
+        var fileHistogram = meter.CreateHistogram<double>("postgres_file_import_duration_ms", "ms");
+        var batchHistogram = meter.CreateHistogram<double>("postgres_batch_import_duration_ms", "ms");
+
+        return (counter, fileHistogram, batchHistogram);
     }
 
     private static string SanitiseLine(string? line)
@@ -352,19 +203,66 @@ public class S3ToPostgresCopyService(
         return sanitisedResult;
     }
 
-    private static DataSet ExecuteQueryToDataSet(DbCommand command)
+    private static void ValidateJob(CreateS3BulkLoadJobDto job)
     {
-        // Creates a DataSet and fills it with the results of the provided DbCommand.
-        // Uses NpgsqlDataAdapter to execute the command and populate the DataSet in-memory.
-        // Returned DataSet must be disposed by the caller when no longer needed.
-        // Exceptions from the adapter/command will bubble up to the caller.
-        var dataSet = new DataSet();
+        if (job.ImportActionType == ImportActionType.None)
+            throw new InvalidOperationException("ImportActionType cannot be None.");
 
-        using (var adapter = new NpgsqlDataAdapter((NpgsqlCommand)command))
+        if (string.IsNullOrWhiteSpace(job.SourceKey))
+            throw new InvalidOperationException("SourceKey is required.");
+    }
+
+    private static async Task<DbConnection> OpenConnectionAsync(
+        StorageBridgeWriteDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var connection = dbContext.Database.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        return connection;
+    }
+
+    private static async Task<List<DbCommand>> GetCommandsAsync(
+        CreateS3BulkLoadJobDto job,
+        S3BulkLoadCommandFactory factory,
+        CancellationToken cancellationToken)
+    {
+        var commands = new List<DbCommand>();
+        var action = job.ImportActionType;
+
+        if (action == ImportActionType.None)
+            return commands;
+
+        var insert = action.HasFlag(ImportActionType.Insert);
+        var update = action.HasFlag(ImportActionType.Update);
+        var delete = action.HasFlag(ImportActionType.Delete);
+
+        if (insert && update)
         {
-            adapter.Fill(dataSet);
+            commands.Add(await factory.CreateUpsertCommandAsync(job.BulkImportType, cancellationToken));
+            return commands;
         }
 
-        return dataSet;
+        if (insert)
+        {
+            commands.Add(await factory.CreateInsertCommandAsync(job.BulkImportType, cancellationToken));
+            return commands;
+        }
+
+        if (update)
+        {
+            commands.Add(await factory.CreateUpdateCommandAsync(job.BulkImportType, cancellationToken));
+            return commands;
+        }
+
+        if (delete)
+        {
+            commands.Add(await factory.CreateDeleteCommandAsync(job.BulkImportType, cancellationToken));
+            return commands;
+        }
+
+        return commands;
     }
 }
