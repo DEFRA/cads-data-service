@@ -37,6 +37,9 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
     public virtual IQueryable<MiDeathSummary> GetDeathsSummary(DateOnly deathDateFrom, DateOnly deathDateTo)
         => FromExpression(() => GetDeathsSummary(deathDateFrom, deathDateTo));
 
+    public virtual IQueryable<MiImportSummary> GetImportsSummary(DateOnly importDateFrom, DateOnly importDateTo)
+        => FromExpression(() => GetImportsSummary(importDateFrom, importDateTo));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MiBffReadDbContext).Assembly);
@@ -57,8 +60,13 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
             .HasSchema("public");
 
         modelBuilder.HasDbFunction(
-            typeof(MiBffReadDbContext).GetMethod(nameof(GetDeathsSummary))!)
+                typeof(MiBffReadDbContext).GetMethod(nameof(GetDeathsSummary))!)
             .HasName("get_deaths_summary")
+            .HasSchema("public");
+
+        modelBuilder.HasDbFunction(
+                typeof(MiBffReadDbContext).GetMethod(nameof(GetImportsSummary))!)
+            .HasName("get_imports_summary")
             .HasSchema("public");
 
         base.OnModelCreating(modelBuilder);
