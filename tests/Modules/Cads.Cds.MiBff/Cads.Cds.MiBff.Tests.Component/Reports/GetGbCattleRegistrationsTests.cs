@@ -2,7 +2,6 @@ using AutoFixture;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.MiBff.Application.Reports.Requests;
-using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Testing.Support.Constants;
 using Cads.Cds.MiBff.Testing.Support.SpecimenBuilders;
 using Cads.Cds.MiBff.Tests.Component.TestFixtures;
