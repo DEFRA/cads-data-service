@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Testing.Support.Persistence;
 using Cads.Cds.MiBff.Testing.Support.Contexts;
 using Cads.Cds.MiBff.Testing.Support.Data;
 using Cads.Cds.MiBff.Testing.Support.Factories;
@@ -29,7 +30,7 @@ public static class TestMiBffDataSeeder
 
     public static void Seed(TestMiBffReadDbContext context, ReportData reportData)
     {
-        context.BirthSummaries.AddRange(reportData.Births);
-        context.DeathSummaries.AddRange(reportData.Deaths);
+        FakeQueryProvider.SetQuery(reportData.Births);
+        FakeQueryProvider.SetQuery(reportData.Deaths);
     }
 }
