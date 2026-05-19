@@ -1,7 +1,7 @@
 namespace Cads.Cds.StorageBridge.Core.Domain.Enums;
 
 [Flags]
-public enum ImportActionType
+public enum ImportActions
 {
     None,
     Insert = 1 << 0, // 1

@@ -28,7 +28,7 @@ public class S3ToPostgresCopyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Starting bulk import copy for job {jobId} with key sourceKey {sourceKey}",
+            logger.LogInformation("Starting bulk import copy for job {JobId} with key SourceKey {sourceKey}",
                 job.JobId, job.SourceKey);
         }
 
@@ -54,7 +54,7 @@ public class S3ToPostgresCopyService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Processing file {key} for bulk import job {jobId}", key, job.JobId);
+                logger.LogInformation("Processing file {Key} for bulk import job {JobId}", key, job.JobId);
             }
 
             var fileSw = Stopwatch.StartNew();
@@ -74,7 +74,7 @@ public class S3ToPostgresCopyService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Completed processing for file {key} for bulk import job {jobId}, {totalRows} records processed in {totalMilliseconds} ms",
+                logger.LogInformation("Completed processing for file {Key} for bulk import job {JobId}, {TotalRows} records processed in {TotalMilliseconds} ms",
                     key, job.JobId, rows, fileSw.Elapsed.TotalMilliseconds);
             }
         }
@@ -83,7 +83,7 @@ public class S3ToPostgresCopyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Completed bulk import copy for job {jobId} with key sourceKey {sourceKey}, {totalRows} records processed in {totalMilliseconds} ms",
+            logger.LogInformation("Completed bulk import copy for job {JobId} with key sourceKey {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
                 job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
@@ -125,7 +125,7 @@ public class S3ToPostgresCopyService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Command: {commandText}", command.CommandText);
+                logger.LogInformation("Command: {CommandText}", command.CommandText);
             }
 
             total += await command.ExecuteNonQueryAsync(cancellationToken);
@@ -135,7 +135,7 @@ public class S3ToPostgresCopyService(
     }
 
     private async Task CopyFileToStagingAsync(
-        BulkLoadDataType bulkLoadDataType,
+        BulkLoadDataTypes bulkLoadDataType,
         char delimiter,
         string key,
         S3BulkLoadCommandFactory factory,
@@ -145,15 +145,11 @@ public class S3ToPostgresCopyService(
 
         if (response?.ResponseStream == null)
         {
-            logger.LogWarning("Null stream for key {key}", key);
+            logger.LogWarning("Null stream for key {Key}", key);
             return;
         }
 
         using var reader = new StreamReader(response.ResponseStream);
-
-        //var header = await reader.ReadLineAsync(cancellationToken) ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
-        //var columns = header.Split(delimiter) ?? throw new InvalidOperationException("Missing header row");
-        //using var writer = factory.CreateTextImport(bulkLoadDataType, delimiter, columns);
 
         var header = await reader.ReadLineAsync(cancellationToken)
             ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
@@ -205,7 +201,7 @@ public class S3ToPostgresCopyService(
 
     private static void ValidateJob(CreateS3BulkLoadJobDto job)
     {
-        if (job.ImportActionType == ImportActionType.None)
+        if (job.ImportActionType == ImportActions.None)
             throw new InvalidOperationException("ImportActionType cannot be None.");
 
         if (string.IsNullOrWhiteSpace(job.SourceKey))
@@ -232,12 +228,12 @@ public class S3ToPostgresCopyService(
         var commands = new List<DbCommand>();
         var action = job.ImportActionType;
 
-        if (action == ImportActionType.None)
+        if (action == ImportActions.None)
             return commands;
 
-        var insert = action.HasFlag(ImportActionType.Insert);
-        var update = action.HasFlag(ImportActionType.Update);
-        var delete = action.HasFlag(ImportActionType.Delete);
+        var insert = action.HasFlag(ImportActions.Insert);
+        var update = action.HasFlag(ImportActions.Update);
+        var delete = action.HasFlag(ImportActions.Delete);
 
         if (insert && update)
         {
