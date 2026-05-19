@@ -8,11 +8,11 @@ public class CreateS3BulkLoadJobDto
 
     public string SourceKey { get; set; } = string.Empty;
 
-    public BulkLoadDataType BulkImportType { get; set; }
+    public BulkLoadDataTypes BulkImportType { get; set; }
 
     public char Delimiter { get; set; } = '|';
 
-    public ImportActionType ImportActionType { get; set; }
+    public ImportActions ImportActionType { get; set; }
 
     public bool UpdateConstraints { get; set; } = false;
 }

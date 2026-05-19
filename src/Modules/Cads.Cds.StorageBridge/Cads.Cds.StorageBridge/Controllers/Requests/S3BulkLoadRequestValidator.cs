@@ -12,7 +12,7 @@ public class S3BulkLoadRequestValidator : AbstractValidator<S3BulkLoadRequest>
             .WithMessage("SourceKey is required.");
 
         RuleFor(x => x.BulkImportType)
-            .NotEqual(BulkLoadDataType.None)
+            .NotEqual(BulkLoadDataTypes.None)
             .WithMessage("BulkImportType must be specified.");
 
         RuleFor(x => x.Delimiter)
@@ -20,7 +20,7 @@ public class S3BulkLoadRequestValidator : AbstractValidator<S3BulkLoadRequest>
             .WithMessage("Delimiter cannot be whitespace.");
 
         RuleFor(x => x.ActionType)
-            .NotEqual(ImportActionType.None)
+            .NotEqual(ImportActions.None)
             .WithMessage("ImportActionType cannot be None.");
     }
 }

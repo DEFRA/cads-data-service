@@ -6,9 +6,9 @@ public class S3BulkLoadRequest
 {
     public required string SourceKey { get; set; }
 
-    public required BulkLoadDataType BulkImportType { get; set; }
+    public required BulkLoadDataTypes BulkImportType { get; set; }
 
-    public ImportActionType ActionType { get; set; } = ImportActionType.Insert | ImportActionType.Update;
+    public ImportActions ActionType { get; set; } = ImportActions.Insert | ImportActions.Update;
 
     public char Delimiter { get; set; } = '|';
 }
