@@ -48,6 +48,9 @@ Objectives:
 - **Docker & Docker Compose** - [Download](https://www.docker.com/products/docker-desktop)
 - **Git** - [Download](https://git-scm.com/)
 - **CADS Tools** - [CADS Tools](https://github.com/DEFRA/cads-tools)
+- **CADS DATA SEED** - [CADS DATA SEED](https://github.com/DEFRA/cads-data-seed)
+- **CADS MIS (optional)** - [CADS MIS](https://github.com/DEFRA/cads-mis)
+- **AWS CLI** - [Download](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
 
 ## Project Structure
 
@@ -152,7 +155,7 @@ Objectives:
 
 #### Cads.Cds (Host)
 
-The composition root of the Modulat Monalithic Service.
+The composition root of the Modular Monalithic Service.
 
 This is responsible for:
 
@@ -237,6 +240,7 @@ Your local workspace should contain all three repos side‑by‑side:
 D:\git\cads-data-service      # Backend (this repo)
 D:\git\cads-mis               # UI
 D:\git\cads-tools             # Shared infra, OIDC mock, harness scripts
+D:\git\cads-data-seed         # Private repository containing pseudo-anonymised reference data for testing
 ```
 
 Clone them like this:
@@ -245,6 +249,7 @@ Clone them like this:
 git clone https://github.com/DEFRA/cads-data-service.git
 git clone https://github.com/DEFRA/cads-mis.git
 git clone https://github.com/DEFRA/cads-tools.git
+git clone https://github.com/DEFRA/cads-data-seed.git
 ```
 
 ### Backend setup
@@ -282,6 +287,7 @@ platform/platform.sh
 This script starts:
 
 - Shared infra (Postgres, Redis, LocalStack, OIDC mock)
+- Imports reference data from `cads-data-seed` into the s3 bucket in LocalStack
 - Backend (CADS CDS + pgAdmin + Reference postgres database)
 - UI (CADS MIS)
 - Or any combination you want
@@ -300,6 +306,7 @@ Starts:
 - Postgres
 - Redis
 - LocalStack (S3, SQS)
+- Imports reference data from `cads-data-seed` into the s3 bucket in LocalStack
 - OIDC mock
 
 **Start backend + shared infra**
