@@ -106,7 +106,7 @@ public class ExceptionHandlingMiddlewareTests
         context.Response.Body.Seek(0, SeekOrigin.Begin);
         using var reader = new StreamReader(context.Response.Body);
         var json = await reader.ReadToEndAsync();
-        return JsonSerializer.Deserialize<ProblemDetails>(json, JsonDefaults.DefaultOptionsWithStringEnumConversion)!;
+        return JsonSerializer.Deserialize<ProblemDetails>(json, JsonDefaults.DefaultOptions)!;
     }
 
     [Fact]

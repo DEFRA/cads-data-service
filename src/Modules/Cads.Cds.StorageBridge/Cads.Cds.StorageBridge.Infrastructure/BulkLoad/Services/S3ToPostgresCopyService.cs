@@ -28,7 +28,7 @@ public class S3ToPostgresCopyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Starting bulk import copy for job {JobId} with key SourceKey {sourceKey}",
+            logger.LogInformation("Starting bulk import copy for job {JobId} with key SourceKey {SourceKey}",
                 job.JobId, job.SourceKey);
         }
 
