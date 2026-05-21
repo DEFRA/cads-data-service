@@ -31,9 +31,9 @@ public static class ServiceCollectionExtensions
         services.AddControllers()
             .AddJsonOptions(opts =>
             {
-                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptions.PropertyNamingPolicy;
-                opts.JsonSerializerOptions.WriteIndented = JsonDefaults.DefaultOptions.WriteIndented;
-                foreach (var converter in JsonDefaults.DefaultOptions.Converters)
+                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptionsWithStringEnumConversion.PropertyNamingPolicy;
+                opts.JsonSerializerOptions.WriteIndented = JsonDefaults.DefaultOptionsWithStringEnumConversion.WriteIndented;
+                foreach (var converter in JsonDefaults.DefaultOptionsWithStringEnumConversion.Converters)
                 {
                     opts.JsonSerializerOptions.Converters.Add(converter);
                 }

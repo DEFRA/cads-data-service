@@ -9,13 +9,19 @@ public static class JsonDefaults
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = false,
+        Converters = { }
+    };
+
+    public static JsonSerializerOptions DefaultOptionsWithStringEnumConversion { get; set; } = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = false,
         Converters = { new JsonStringEnumConverter() }
     };
 
     public static JsonSerializerOptions DefaultOptionsWithIndented { get; set; } = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() }
+        WriteIndented = true
     };
 }
