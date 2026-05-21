@@ -1,10 +1,15 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
+using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Contexts;
+using Cads.Cds.StorageBridge.Testing.Support.Fakes.Channels;
 using Cads.Cds.StorageBridge.Testing.Support.Seeding;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Threading.Channels;
 
 namespace Cads.Cds.StorageBridge.Tests.Component.TestFixtures;
 
@@ -14,6 +19,18 @@ public class StorageBridgeWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
+    public TestBulkLoadJobChannel TestBulkLoadJobChannel { get; } = new();
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+
+        builder.ConfigureTestServices(services =>
+        {
+            OverrideBulkLoadChannels(services);
+        });
+    }
+
     protected override void ConfigureDatabase(IServiceCollection services)
     {
         var storageBridgeReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<StorageBridgeReadDbContext, TestStorageBridgeReadDbContext>(Guid.NewGuid().ToString());
@@ -24,5 +41,12 @@ public class StorageBridgeWebApplicationFactory(
 
         services.Replace(new ServiceDescriptor(typeof(StorageBridgeReadDbContext), storageBridgeReadDbContext));
         services.Replace(new ServiceDescriptor(typeof(StorageBridgeWriteDbContext), storageBridgeWriteDbContext));
+    }
+
+    private void OverrideBulkLoadChannels(IServiceCollection services)
+    {
+        services.RemoveAll<Channel<CreateS3BulkLoadJobDto>>();
+        services.AddSingleton(TestBulkLoadJobChannel.Channel);
+        services.AddSingleton(TestBulkLoadJobChannel);
     }
 }

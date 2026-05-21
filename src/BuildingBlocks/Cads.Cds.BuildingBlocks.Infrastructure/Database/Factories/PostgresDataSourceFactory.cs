@@ -7,7 +7,7 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 
 public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIamTokenGeneratorService? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
 {
-    private readonly Dictionary<string, NpgsqlDataSource> _dataSources = new();
+    private readonly Dictionary<string, NpgsqlDataSource> _dataSources = [];
     private readonly SemaphoreSlim _lock = new(1, 1);
     private bool _disposed;
 

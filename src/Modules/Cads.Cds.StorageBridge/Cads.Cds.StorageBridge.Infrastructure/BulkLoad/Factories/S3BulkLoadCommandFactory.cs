@@ -6,7 +6,7 @@ using System.Data.Common;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 
-public class S3BulkLoadCommandFactory(NpgsqlConnection connection)
+public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoadCommandFactory
 {
     public NpgsqlConnection Connection { get; } = connection ?? throw new ArgumentNullException(nameof(connection));
 
@@ -43,23 +43,6 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection)
             $"COPY {GetTableName(bulkImportType, isTemp: true)} ({string.Join(",", columns)}) " +
             $"FROM STDIN WITH (FORMAT csv, DELIMITER '{delimiter}', HEADER false)");
 
-    public async Task<DbCommand> CreateUpsertCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
-    {
-        var tableName = GetTableName(bulkImportType);
-        var tempTableName = GetTableName(bulkImportType, isTemp: true);
-        var columnNames = await GetColumnNamesAsync(bulkImportType, cancellationToken);
-        var key = bulkImportType.GetTableKey() ?? columnNames[0];
-
-        return new NpgsqlCommand
-        {
-            CommandText =
-                $"INSERT INTO {tableName} ({string.Join(",", columnNames)}) " +
-                $"SELECT {string.Join(",", columnNames)} FROM {tempTableName} " +
-                $"ON CONFLICT ({key}) DO UPDATE SET {string.Join(", ", columnNames.Select(c => $"{c} = EXCLUDED.{c}"))}",
-            Connection = Connection
-        };
-    }
-
     public async Task<DbCommand> CreateInsertCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = GetTableName(bulkImportType);
@@ -91,6 +74,23 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection)
         };
     }
 
+    public async Task<DbCommand> CreateUpsertCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    {
+        var tableName = GetTableName(bulkImportType);
+        var tempTableName = GetTableName(bulkImportType, isTemp: true);
+        var columnNames = await GetColumnNamesAsync(bulkImportType, cancellationToken);
+        var key = bulkImportType.GetTableKey() ?? columnNames[0];
+
+        return new NpgsqlCommand
+        {
+            CommandText =
+                $"INSERT INTO {tableName} ({string.Join(",", columnNames)}) " +
+                $"SELECT {string.Join(",", columnNames)} FROM {tempTableName} " +
+                $"ON CONFLICT ({key}) DO UPDATE SET {string.Join(", ", columnNames.Select(c => $"{c} = EXCLUDED.{c}"))}",
+            Connection = Connection
+        };
+    }
+
     public async Task<DbCommand> CreateDeleteCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = GetTableName(bulkImportType);
@@ -105,19 +105,17 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection)
         };
     }
 
-    public async Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<List<string>> FilterColumnsToTableAsync(
+        BulkLoadDataTypes bulkImportType,
+        IEnumerable<string> fileColumns,
+        CancellationToken cancellationToken = default)
     {
-        var tempTableName = GetTableName(bulkImportType, isTemp: true);
-        var columnNames = string.Join(',', await GetColumnNamesAsync(bulkImportType, cancellationToken));
+        var dbColumns = await GetColumnNamesAsync(bulkImportType, cancellationToken);
 
-        return new NpgsqlCommand
-        {
-            CommandText = $"SELECT {columnNames} FROM {tempTableName}",
-            Connection = Connection
-        };
+        return [.. fileColumns.Where(c => dbColumns.Contains(c, StringComparer.OrdinalIgnoreCase))];
     }
 
-    private static string GetTableName(BulkLoadDataTypes bulkImportType, bool isTemp = false)
+    public string GetTableName(BulkLoadDataTypes bulkImportType, bool isTemp = false)
     {
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
@@ -125,7 +123,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection)
         return s_commandBuilder.QuoteIdentifier(isTemp ? $"temp_{tableName}" : tableName);
     }
 
-    private async Task<List<string>> GetColumnNamesAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public virtual async Task<List<string>> GetColumnNamesAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
@@ -149,13 +147,15 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection)
         return columnNames;
     }
 
-    public async Task<List<string>> FilterColumnsToTableAsync(
-        BulkLoadDataTypes bulkImportType,
-        IEnumerable<string> fileColumns,
-        CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
     {
-        var dbColumns = await GetColumnNamesAsync(bulkImportType, cancellationToken);
+        var tempTableName = GetTableName(bulkImportType, isTemp: true);
+        var columnNames = string.Join(',', await GetColumnNamesAsync(bulkImportType, cancellationToken));
 
-        return [.. fileColumns.Where(c => dbColumns.Contains(c, StringComparer.OrdinalIgnoreCase))];
+        return new NpgsqlCommand
+        {
+            CommandText = $"SELECT {columnNames} FROM {tempTableName}",
+            Connection = Connection
+        };
     }
 }
