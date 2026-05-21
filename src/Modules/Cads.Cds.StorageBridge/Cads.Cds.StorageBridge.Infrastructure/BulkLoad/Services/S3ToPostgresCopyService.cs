@@ -3,6 +3,7 @@ using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
+using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ using Npgsql;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
@@ -44,7 +45,7 @@ public class S3ToPostgresCopyService(
         var createTempTableCommand = factory.CreateTempTableCommand(job.BulkImportType);
         var actionCommands = await GetCommandsAsync(job, factory, cancellationToken);
 
-        var (counter, fileHistogram, batchHistogram) = CreateMetrics();
+        var (counter, fileHistogram, batchHistogram) = BulkLoadMetrics.CreateBulkLoadMetrics();
 
         var sw = Stopwatch.StartNew();
         var totalRows = 0;
@@ -175,17 +176,6 @@ public class S3ToPostgresCopyService(
         }
     }
 
-    private static (Counter<int> counter, Histogram<double> fileHistogram, Histogram<double> batchHistogram) CreateMetrics()
-    {
-        var meter = new Meter("Cads.Postgres.Metrics", "1.0");
-
-        var counter = meter.CreateCounter<int>("cads_batch_import_rows_affected", "rows");
-        var fileHistogram = meter.CreateHistogram<double>("postgres_file_import_duration_ms", "ms");
-        var batchHistogram = meter.CreateHistogram<double>("postgres_batch_import_duration_ms", "ms");
-
-        return (counter, fileHistogram, batchHistogram);
-    }
-
     private static string? SanitiseLine(string? line)
     {
         var sanitisedResult = line ?? string.Empty;
@@ -211,6 +201,7 @@ public class S3ToPostgresCopyService(
             throw new InvalidOperationException("SourceKey is required.");
     }
 
+    [ExcludeFromCodeCoverage]
     private static async Task<DbConnection> OpenConnectionAsync(
         StorageBridgeWriteDbContext dbContext,
         CancellationToken cancellationToken)

@@ -1,253 +1,293 @@
+using Amazon.S3.Model;
+using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
+using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
+using Cads.Cds.StorageBridge.Core.Domain.Enums;
+using Cads.Cds.StorageBridge.Core.DTOs;
+using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
+using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
+using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Npgsql;
+using System.Data.Common;
+using System.Reflection;
+using System.Text;
+
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.BulkLoad.Services;
 
 public class S3ToPostgresCopyServiceTests
 {
-    //private readonly Mock<IServiceScopeFactory> _scopeFactory = new();    
-    //private readonly Mock<IServiceScope> _scope = new();
-    //private readonly Mock<IServiceProvider> _provider = new();
-    //private readonly Mock<IStorageReader<CadsInternalClient>> _storageReader = new();
-    //private readonly Mock<IS3BulkLoadCommandFactoryProvider> _factoryProvider = new();
-    //private readonly Mock<IS3BulkLoadCommandFactory> _factory = new();
-    //private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
+    private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
+    private readonly Mock<IServiceScope> _scope = new();
+    private readonly Mock<IServiceProvider> _provider = new();
+    private readonly Mock<IStorageReader<CadsInternalClient>> _storageReader = new();
+    private readonly Mock<IS3BulkLoadCommandFactoryProvider> _factoryProvider = new();
+    private readonly Mock<IS3BulkLoadCommandFactory> _factory = new();
+    private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
 
-    //[Fact]
-    //public async Task ExecuteAsync_ShouldThrow_WhenImportActionTypeIsNone()
-    //{
-    //    var service = CreateService();
+    private const string TestFileName = "LOCATIONS.part-0001.csv";
 
-    //    var job = new CreateS3BulkLoadJobDto
-    //    {
-    //        ImportActionType = ImportActions.None,
-    //        SourceKey = TestFileName
-    //    };
+    [Fact]
+    public async Task ExecuteAsync_ShouldThrow_WhenImportActionTypeIsNone()
+    {
+        var service = CreateService();
 
-    //    await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
-    //}
+        var job = new CreateS3BulkLoadJobDto
+        {
+            ImportActionType = ImportActions.None,
+            SourceKey = TestFileName
+        };
 
-    //[Fact]
-    //public async Task ExecuteAsync_ShouldThrow_WhenSourceKeyMissing()
-    //{
-    //    var service = CreateService();
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
+    }
 
-    //    var job = new CreateS3BulkLoadJobDto
-    //    {
-    //        ImportActionType = ImportActions.Insert,
-    //        SourceKey = ""
-    //    };
+    [Fact]
+    public async Task ExecuteAsync_ShouldThrow_WhenSourceKeyMissing()
+    {
+        var service = CreateService();
 
-    //    await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
-    //}
+        var job = new CreateS3BulkLoadJobDto
+        {
+            ImportActionType = ImportActions.Insert,
+            SourceKey = ""
+        };
 
-    //[Fact]
-    //public async Task ExecuteAsync_ShouldReturnFalse_WhenNoKeysFound()
-    //{
-    //    var service = CreateService();
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
+    }
 
-    //    _storageReader.Setup(x => x.ListKeysAsync(TestFileName, It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync([]);
+    [Fact]
+    public async Task ExecuteAsync_ShouldReturnFalse_WhenNoKeysFound()
+    {
+        var service = CreateService();
 
-    //    var job = new CreateS3BulkLoadJobDto
-    //    {
-    //        ImportActionType = ImportActions.Insert,
-    //        SourceKey = TestFileName,
-    //        BulkImportType = BulkLoadDataTypes.Locations
-    //    };
+        _storageReader.Setup(x => x.ListKeysAsync(TestFileName, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
-    //    var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
+        var job = new CreateS3BulkLoadJobDto
+        {
+            ImportActionType = ImportActions.Insert,
+            SourceKey = TestFileName,
+            BulkImportType = BulkLoadDataTypes.Locations
+        };
 
-    //    result.Should().BeFalse();
-    //}
+        var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
 
-    //[Theory]
-    //[InlineData("A\"B", "A\"\"B")]
-    //[InlineData("A\u0001B", "A B")]
-    //[InlineData(null, "")]
-    //public void SanitiseLine_ShouldSanitiseCorrectly(string? input, string expected)
-    //{
-    //    var result = InvokeSanitise(input!);
-    //    result.Should().Be(expected);
-    //}
+        result.Should().BeFalse();
+    }
 
-    //[Fact]
-    //public async Task GetCommandsAsync_ShouldReturnInsertCommand()
-    //{
-    //    var insertCmd = new Mock<DbCommand>().Object;
-    //    var factory = GetFactory();
-    //    factory.InsertCommand = insertCmd;
+    [Theory]
+    [InlineData("A\"B", "A\"\"B")]
+    [InlineData("A\u0001B", "A B")]
+    [InlineData(null, "")]
+    public void SanitiseLine_ShouldSanitiseCorrectly(string? input, string expected)
+    {
+        var result = InvokeSanitise(input!);
+        result.Should().Be(expected);
+    }
 
-    //    var job = new CreateS3BulkLoadJobDto
-    //    {
-    //        ImportActionType = ImportActions.Insert,
-    //        BulkImportType = BulkLoadDataTypes.Locations
-    //    };
+    [Fact]
+    public async Task GetCommandsAsync_ShouldReturnInsertCommand()
+    {
+        var insertCmd = new Mock<DbCommand>().Object;
 
-    //    var result = await InvokeGetCommandsAsync(job, factory);
+        _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<BulkLoadDataTypes>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(insertCmd);
 
-    //    result.Should().ContainSingle().Which.Should().Be(insertCmd);
-    //}
+        var job = new CreateS3BulkLoadJobDto
+        {
+            ImportActionType = ImportActions.Insert,
+            BulkImportType = BulkLoadDataTypes.Locations
+        };
 
-    //[Fact]
-    //public async Task GetCommandsAsync_ShouldReturnUpdateCommand()
-    //{
-    //    var updateCmd = new Mock<DbCommand>().Object;
+        var result = await InvokeGetCommandsAsync(job, _factory.Object);
 
-    //    var factory = GetFactory();
-    //    factory.UpdateCommand = updateCmd;
+        result.Should().ContainSingle().Which.Should().Be(insertCmd);
+    }
 
-    //    var job = new CreateS3BulkLoadJobDto
-    //    {
-    //        ImportActionType = ImportActions.Update,
-    //        BulkImportType = BulkLoadDataTypes.Locations
-    //    };
+    [Fact]
+    public async Task GetCommandsAsync_ShouldReturnUpdateCommand()
+    {
+        var updateCmd = new Mock<DbCommand>().Object;
 
-    //    var result = await InvokeGetCommandsAsync(job, factory);
+        _factory.Setup(x => x.CreateUpdateCommandAsync(It.IsAny<BulkLoadDataTypes>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(updateCmd);
 
-    //    result.Should().ContainSingle().Which.Should().Be(updateCmd);
-    //}
+        var job = new CreateS3BulkLoadJobDto
+        {
+            ImportActionType = ImportActions.Update,
+            BulkImportType = BulkLoadDataTypes.Locations
+        };
 
-    //[Fact]
-    //public async Task GetCommandsAsync_ShouldReturnUpsertCommand_WhenInsertAndUpdate()
-    //{
-    //    var upsertCmd = new Mock<DbCommand>().Object;
+        var result = await InvokeGetCommandsAsync(job, _factory.Object);
 
-    //    var factory = GetFactory();
-    //    factory.UpsertCommand = upsertCmd;
+        result.Should().ContainSingle().Which.Should().Be(updateCmd);
+    }
 
-    //    var job = new CreateS3BulkLoadJobDto
-    //    {
-    //        ImportActionType = ImportActions.Insert | ImportActions.Update,
-    //        BulkImportType = BulkLoadDataTypes.Locations
-    //    };
+    [Fact]
+    public async Task GetCommandsAsync_ShouldReturnUpsertCommand_WhenInsertAndUpdate()
+    {
+        var upsertCmd = new Mock<DbCommand>().Object;
 
-    //    var result = await InvokeGetCommandsAsync(job, factory);
+        _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<BulkLoadDataTypes>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(upsertCmd);
 
-    //    result.Should().ContainSingle().Which.Should().Be(upsertCmd);
-    //}
+        var job = new CreateS3BulkLoadJobDto
+        {
+            ImportActionType = ImportActions.Insert | ImportActions.Update,
+            BulkImportType = BulkLoadDataTypes.Locations
+        };
 
-    //[Fact]
-    //public async Task GetCommandsAsync_ShouldReturnDeleteCommand()
-    //{
-    //    var deleteCmd = new Mock<DbCommand>().Object;
+        var result = await InvokeGetCommandsAsync(job, _factory.Object);
 
-    //    var factory = GetFactory();
-    //    factory.DeleteCommand = deleteCmd;
+        result.Should().ContainSingle().Which.Should().Be(upsertCmd);
+    }
 
-    //    var job = new CreateS3BulkLoadJobDto
-    //    {
-    //        ImportActionType = ImportActions.Delete,
-    //        BulkImportType = BulkLoadDataTypes.Locations
-    //    };
+    [Fact]
+    public async Task GetCommandsAsync_ShouldReturnDeleteCommand()
+    {
+        var deleteCmd = new Mock<DbCommand>().Object;
 
-    //    var result = await InvokeGetCommandsAsync(job, factory);
+        _factory.Setup(x => x.CreateDeleteCommandAsync(It.IsAny<BulkLoadDataTypes>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(deleteCmd);
 
-    //    result.Should().ContainSingle().Which.Should().Be(deleteCmd);
-    //}
+        var job = new CreateS3BulkLoadJobDto
+        {
+            ImportActionType = ImportActions.Delete,
+            BulkImportType = BulkLoadDataTypes.Locations
+        };
 
-    //[Fact]
-    //public async Task ExecuteActionCommandsAsync_ShouldSumResults()
-    //{
-    //    var service = CreateService();
+        var result = await InvokeGetCommandsAsync(job, _factory.Object);
 
-    //    var cmd1 = new Mock<DbCommand>();
-    //    cmd1.Setup(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(5);
+        result.Should().ContainSingle().Which.Should().Be(deleteCmd);
+    }
 
-    //    var cmd2 = new Mock<DbCommand>();
-    //    cmd2.Setup(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(7);
+    [Fact]
+    public async Task ExecuteActionCommandsAsync_ShouldSumResults()
+    {
+        var service = CreateService();
 
-    //    var method = MethodInfoUtility.GetPrivate<S3ToPostgresCopyService>("ExecuteActionCommandsAsync");
+        var cmd1 = new Mock<DbCommand>();
+        cmd1.Setup(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(5);
 
-    //    var result = await (Task<int>)method!.Invoke(
-    //        service,
-    //        [new[] { cmd1.Object, cmd2.Object }, CancellationToken.None])!;
+        var cmd2 = new Mock<DbCommand>();
+        cmd2.Setup(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(7);
 
-    //    result.Should().Be(12);
-    //}
+        var method = MethodInfoUtility.GetPrivate<S3ToPostgresCopyService>("ExecuteActionCommandsAsync");
 
-    //[Fact]
-    //public async Task CopyFileToStagingAsync_ShouldWriteSanitisedLines()
-    //{
-    //    var service = CreateService();
+        var result = await (Task<int>)method!.Invoke(
+            service,
+            [new[] { cmd1.Object, cmd2.Object }, CancellationToken.None])!;
 
-    //    var response = new GetObjectResponse
-    //    {
-    //        ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes("col1|col2\nA\"B|C\nT|END"))
-    //    };
+        result.Should().Be(12);
+    }
 
-    //    _storageReader
-    //        .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(response);
+    [Fact]
+    public async Task GivenNullableResponseStream_CopyFileToStagingAsync_ShouldReturnEmpty()
+    {
+        var service = CreateService();
 
-    //    var outputStream = new MemoryStream();
-    //    var writer = new NonDisposingStreamWriter(outputStream);
+        var outputStream = new MemoryStream();
+        var writer = new NonDisposingStreamWriter(outputStream);
 
-    //    var factory = new TestableS3BulkLoadCommandFactory(
-    //        new NpgsqlConnection(),
-    //        ["col1", "col2"])
-    //    {
-    //        CreateTextImportOverride = (_, _, _) => writer
-    //    };
+        _storageReader
+            .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetObjectResponse());
 
-    //    var method = typeof(S3ToPostgresCopyService)
-    //        .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var method = typeof(S3ToPostgresCopyService)
+            .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
-    //    await (Task)method!.Invoke(service,
-    //        [
-    //        BulkLoadDataTypes.Locations,
-    //        '|',
-    //        TestFileName,
-    //        factory,
-    //        CancellationToken.None
-    //        ])!;
+        await (Task)method!.Invoke(service,
+            [
+            BulkLoadDataTypes.Locations,
+            '|',
+            TestFileName,
+            _factory.Object,
+            CancellationToken.None
+            ])!;
 
-    //    writer.Flush();
-    //    var output = Encoding.UTF8.GetString(outputStream.ToArray());
-    //    output = output.Replace("\r\n", "\n");
-    //    output.Should().Be("A\"\"B|C\n");
-    //}
+        writer.Flush();
 
-    //private const string TestFileName = "LOCATIONS.part-0001.csv";
+        var output = Encoding.UTF8.GetString(outputStream.ToArray());
+        output.Should().BeNullOrEmpty();
+    }
 
-    //private static TestableS3BulkLoadCommandFactory GetFactory() =>
-    //    new(new NpgsqlConnection("Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres"));
+    [Fact]
+    public async Task CopyFileToStagingAsync_ShouldWriteSanitisedLines()
+    {
+        var service = CreateService();
 
-    //private static string LocationsHeader =>
-    //    "record_type|record_count|loc_id";
+        var outputStream = new MemoryStream();
+        var writer = new NonDisposingStreamWriter(outputStream);
 
-    //private S3ToPostgresCopyService CreateService()
-    //{
-    //    _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
-    //        .Returns(null!);
-    //    _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
-    //    _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
+        var response = new GetObjectResponse
+        {
+            ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes("col1|col2\nA\"B|C\nT|END"))
+        };
 
-    //    _factoryProvider
-    //        .Setup(x => x.Create(It.IsAny<NpgsqlConnection>()))
-    //        .Returns(_factory.Object);
+        _factory.Setup(x => x.CreateTextImport(It.IsAny<BulkLoadDataTypes>(), It.IsAny<char>(), It.IsAny<List<string>>()))
+            .Returns(writer);
 
-    //    return new S3ToPostgresCopyService(
-    //        _scopeFactory.Object,
-    //        _storageReader.Object,
-    //        _factoryProvider.Object,
-    //        _logger.Object);
-    //}
+        _storageReader
+            .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
 
-    //private static string? InvokeSanitise(string input)
-    //{
-    //    var method = MethodInfoUtility.GetPrivateStatic<S3ToPostgresCopyService>("SanitiseLine");
+        var method = typeof(S3ToPostgresCopyService)
+            .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
-    //    return (string?)method!.Invoke(null, [input]);
-    //}
+        await (Task)method!.Invoke(service,
+            [
+            BulkLoadDataTypes.Locations,
+            '|',
+            TestFileName,
+            _factory.Object,
+            CancellationToken.None
+            ])!;
 
-    //private static async Task<List<DbCommand>> InvokeGetCommandsAsync(CreateS3BulkLoadJobDto job, S3BulkLoadCommandFactory factory)
-    //{
-    //    var method = MethodInfoUtility.GetPrivateStatic<S3ToPostgresCopyService>("GetCommandsAsync");
+        writer.Flush();
+        var output = Encoding.UTF8.GetString(outputStream.ToArray());
+        output = output.Replace("\r\n", "\n");
+        output.Should().Be("A\"\"B|C\n");
+    }
 
-    //    var task = (Task<List<DbCommand>>)method.Invoke(
-    //        null,
-    //        [job, factory, CancellationToken.None])!;
+    private S3ToPostgresCopyService CreateService()
+    {
+        _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
+            .Returns(null!);
+        _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
+        _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
 
-    //    return await task;
-    //}
+        _factoryProvider
+            .Setup(x => x.Create(It.IsAny<NpgsqlConnection>()))
+            .Returns(_factory.Object);
+
+        return new S3ToPostgresCopyService(
+            _scopeFactory.Object,
+            _storageReader.Object,
+            _factoryProvider.Object,
+            _logger.Object);
+    }
+
+    private static string? InvokeSanitise(string input)
+    {
+        var method = MethodInfoUtility.GetPrivateStatic<S3ToPostgresCopyService>("SanitiseLine");
+
+        return (string?)method!.Invoke(null, [input]);
+    }
+
+    private static async Task<List<DbCommand>> InvokeGetCommandsAsync(CreateS3BulkLoadJobDto job, IS3BulkLoadCommandFactory factory)
+    {
+        var method = MethodInfoUtility.GetPrivateStatic<S3ToPostgresCopyService>("GetCommandsAsync");
+
+        var task = (Task<List<DbCommand>>)method.Invoke(
+            null,
+            [job, factory, CancellationToken.None])!;
+
+        return await task;
+    }
 }
