@@ -19,6 +19,8 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
 
+        services.AddScoped<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
+
         services.AddScoped<IS3BulkLoadCommandFactory, S3BulkLoadCommandFactory>();
 
         return services;

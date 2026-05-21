@@ -22,12 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\BuildingBlocks\Cads.Cds.BuildingBlocks.Testing.Support\Cads.Cds.BuildingBlocks.Testing.Support.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.csproj" />
     <ProjectReference Include="..\Cads.Cds.StorageBridge.Testing.Support\Cads.Cds.StorageBridge.Testing.Support.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\certs\https-dev-cert.pfx" Link="certs\https-dev-cert.pfx" Condition="Exists('..\..\..\..\certs\https-dev-cert.pfx')" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 </Project>
