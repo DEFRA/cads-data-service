@@ -20,6 +20,7 @@ namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 public class S3ToPostgresCopyService(
     IServiceScopeFactory scopeFactory,
     IStorageReader<CadsInternalClient> storageReader,
+    IS3BulkLoadCommandFactoryProvider factoryProvider,
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
     public async Task<bool> ExecuteAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
@@ -39,7 +40,7 @@ public class S3ToPostgresCopyService(
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
         var connection = await OpenConnectionAsync(dbContext, cancellationToken);
 
-        var factory = new S3BulkLoadCommandFactory((NpgsqlConnection)connection);
+        var factory = factoryProvider.Create((NpgsqlConnection)connection);
         var createTempTableCommand = factory.CreateTempTableCommand(job.BulkImportType);
         var actionCommands = await GetCommandsAsync(job, factory, cancellationToken);
 
@@ -63,6 +64,7 @@ public class S3ToPostgresCopyService(
                 key,
                 job,
                 factory,
+                connection,
                 createTempTableCommand,
                 actionCommands,
                 cancellationToken);
@@ -93,12 +95,13 @@ public class S3ToPostgresCopyService(
     private async Task<int> ProcessFileAsync(
         string key,
         CreateS3BulkLoadJobDto job,
-        S3BulkLoadCommandFactory factory,
+        IS3BulkLoadCommandFactory factory,
+        DbConnection connection,
         DbCommand createTempTableCommand,
         List<DbCommand> actionCommands,
         CancellationToken cancellationToken)
     {
-        using var transaction = await factory.Connection.BeginTransactionAsync(cancellationToken);
+        using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
         await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
@@ -138,7 +141,7 @@ public class S3ToPostgresCopyService(
         BulkLoadDataTypes bulkLoadDataType,
         char delimiter,
         string key,
-        S3BulkLoadCommandFactory factory,
+        IS3BulkLoadCommandFactory factory,
         CancellationToken cancellationToken)
     {
         using var response = await storageReader.GetObjectResponseAsync(key, cancellationToken);
@@ -183,7 +186,7 @@ public class S3ToPostgresCopyService(
         return (counter, fileHistogram, batchHistogram);
     }
 
-    private static string SanitiseLine(string? line)
+    private static string? SanitiseLine(string? line)
     {
         var sanitisedResult = line ?? string.Empty;
 
@@ -194,7 +197,7 @@ public class S3ToPostgresCopyService(
             @"[\u0000-\u001F]",
             " ",
             RegexOptions.None,
-            TimeSpan.FromMicroseconds(50));
+            TimeSpan.FromMilliseconds(50));
 
         return sanitisedResult;
     }
@@ -222,7 +225,7 @@ public class S3ToPostgresCopyService(
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
         CreateS3BulkLoadJobDto job,
-        S3BulkLoadCommandFactory factory,
+        IS3BulkLoadCommandFactory factory,
         CancellationToken cancellationToken)
     {
         var commands = new List<DbCommand>();

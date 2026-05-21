@@ -8,7 +8,7 @@ public class S3BulkLoadRequest
 
     public BulkLoadDataTypes BulkImportType { get; set; }
 
-    public ImportActions ActionType { get; set; }
+    public ImportActions ActionType { get; set; } = ImportActions.Insert | ImportActions.Update;
 
     public char Delimiter { get; set; } = '|';
 }

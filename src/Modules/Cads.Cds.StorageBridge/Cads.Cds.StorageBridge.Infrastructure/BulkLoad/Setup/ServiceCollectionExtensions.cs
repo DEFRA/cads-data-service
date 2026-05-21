@@ -1,5 +1,6 @@
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
+using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Channels;
@@ -17,6 +18,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IS3BulkLoadJobEnqueuer, S3BulkLoadJobEnqueuer>();
 
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
+
+        services.AddScoped<IS3BulkLoadCommandFactory, S3BulkLoadCommandFactory>();
 
         return services;
     }
