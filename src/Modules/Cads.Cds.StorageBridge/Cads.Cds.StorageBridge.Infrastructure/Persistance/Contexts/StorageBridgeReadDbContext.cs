@@ -1,4 +1,4 @@
-using Cads.Cds.StorageBridge.Core.Domain.Entities;
+using Cads.Cds.StorageBridge.Core.Domain.Entities.Ct;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 

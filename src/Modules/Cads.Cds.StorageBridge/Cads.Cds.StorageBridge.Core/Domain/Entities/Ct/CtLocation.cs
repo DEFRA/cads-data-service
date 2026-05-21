@@ -1,5 +1,8 @@
-namespace Cads.Cds.StorageBridge.Core.Domain.Entities;
+using System.Diagnostics.CodeAnalysis;
 
+namespace Cads.Cds.StorageBridge.Core.Domain.Entities.Ct;
+
+[ExcludeFromCodeCoverage]
 public class CtLocation
 {
     public int LocId { get; set; }

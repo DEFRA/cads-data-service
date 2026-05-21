@@ -36,4 +36,8 @@
     <ProjectReference Include="..\Cads.Cds.StorageBridge.Application\Cads.Cds.StorageBridge.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistance\Repositories\" />
+  </ItemGroup>
+
 </Project>
