@@ -1,8 +1,10 @@
 using Cads.Cds.BuildingBlocks.Core.Domain.Aggregates;
 using Cads.Cds.BuildingBlocks.Core.Domain.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Core.Domain.Livestock;
 
+[ExcludeFromCodeCoverage]
 public class Location : IAggregateRoot
 {
     public string Id { get; set; } = string.Empty;
