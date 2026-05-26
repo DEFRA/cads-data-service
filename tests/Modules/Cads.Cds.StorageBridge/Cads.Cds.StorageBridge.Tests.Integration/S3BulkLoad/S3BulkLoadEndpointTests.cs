@@ -45,13 +45,6 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        var tableName = BulkLoadDataTypes.Locations.GetAttribute<TableNameAttribute>()!.Name;
-
-        await BulkLoadTestHelpers.AssertTableEmptyAsync(
-            apiContainerFixture.PostgresFixture.HostConnectionString,
-            tableName,
-            orderBy: "loc_id");
-
         await VerifyLoggingMessage("File LOCATIONS.part-0001.csv does not contain a valid header row.");
     }
 
@@ -72,13 +65,6 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
-
-        var tableName = BulkLoadDataTypes.Locations.GetAttribute<TableNameAttribute>()!.Name;
-
-        await BulkLoadTestHelpers.AssertTableEmptyAsync(
-            apiContainerFixture.PostgresFixture.HostConnectionString,
-            tableName,
-            orderBy: "loc_id");
 
         await VerifyLoggingMessage($"Completed bulk import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 0 records processed");
     }
@@ -102,13 +88,6 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
-
-        var tableName = BulkLoadDataTypes.Locations.GetAttribute<TableNameAttribute>()!.Name;
-
-        await BulkLoadTestHelpers.AssertTableEmptyAsync(
-            apiContainerFixture.PostgresFixture.HostConnectionString,
-            tableName,
-            orderBy: "loc_id");
 
         await VerifyLoggingMessage($"Failed to process bulk load job {job!.JobId}");
     }

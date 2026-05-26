@@ -16,6 +16,19 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddStorageBridgeInfrastructureLayer(this IServiceCollection services, IConfiguration config)
     {
+        services.ConfigurePrometheusScraping(config);
+
+        services.AddPostgresDbContext<StorageBridgeWriteDbContext>();
+        services.AddPostgresDbContext<StorageBridgeReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+
+        services.AddStorageBridgeStorage(config);
+        services.ConfigureBulkLoadServices();
+
+        return services;
+    }
+
+    private static void ConfigurePrometheusScraping(this IServiceCollection services, IConfiguration config)
+    {
         var prometheusScrapingEnabled = config.GetValue<bool>("PrometheusScrapingEnabled");
 
         if (prometheusScrapingEnabled)
@@ -37,13 +50,5 @@ public static class ServiceCollectionExtensions
                         .AddConsoleExporter();
                 });
         }
-
-        services.AddPostgresDbContext<StorageBridgeWriteDbContext>();
-        services.AddPostgresDbContext<StorageBridgeReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
-
-        services.AddStorageBridgeStorage(config);
-        services.ConfigureBulkLoadServices();
-
-        return services;
     }
 }
