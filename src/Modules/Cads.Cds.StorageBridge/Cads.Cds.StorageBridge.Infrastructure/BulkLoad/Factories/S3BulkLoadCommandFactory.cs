@@ -3,6 +3,7 @@ using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Npgsql;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 
@@ -32,11 +33,6 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
             Connection = Connection
         };
     }
-
-    public StreamWriter CreateTextImport(BulkLoadDataTypes bulkImportType, char delimiter) =>
-        Connection.BeginTextImport(
-            $"COPY {GetTableName(bulkImportType, isTemp: true)} " +
-            $"FROM STDIN WITH (FORMAT csv, DELIMITER '{delimiter}', HEADER true)");
 
     public StreamWriter CreateTextImport(BulkLoadDataTypes bulkImportType, char delimiter, IEnumerable<string> columns) =>
         Connection.BeginTextImport(
@@ -123,6 +119,14 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         return s_commandBuilder.QuoteIdentifier(isTemp ? $"temp_{tableName}" : tableName);
     }
 
+    /// <summary>
+    /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB. Made virtual so can use test friendly factory.
+    /// </summary>
+    /// <param name="bulkImportType"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    [ExcludeFromCodeCoverage]
     public virtual async Task<List<string>> GetColumnNamesAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = bulkImportType.GetTableName()
