@@ -227,7 +227,7 @@ public class S3ToPostgresCopyServiceTests
 
         var response = new GetObjectResponse
         {
-            ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes("col1|col2\nA\"B|C\nT|END"))
+            ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes("record_type|col2\nA\"B|C\nT|END"))
         };
 
         _factory.Setup(x => x.CreateTextImport(It.IsAny<BulkLoadDataTypes>(), It.IsAny<char>(), It.IsAny<List<string>>()))
