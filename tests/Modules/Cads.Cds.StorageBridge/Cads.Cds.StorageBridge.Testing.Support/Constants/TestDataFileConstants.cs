@@ -42,6 +42,9 @@ public static class TestDataFileConstants
     public static string LocationsDataRow2 =>
         "D|2|2|1|2|88|N|01-JUL-21|17-JAN-23|BC|AH|Row 2 comments|TL 234567|VT|23456789|0202345678|07723456789|0209876543|email2@internal.test|1|m100000|10-JUN-25|29|AC|1|Y";
 
+    public static string InvalidLocationsDataRow1 =>
+        "D|1|1|1|ABC|DEF|GHI|2|33|N|XX|true|N";
+
     public static GetObjectResponse FakeCsvFileContent(string content)
     {
         return new GetObjectResponse

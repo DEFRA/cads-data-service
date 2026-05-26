@@ -2,6 +2,7 @@ using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.StorageBridge.Application.BulkLoad.Commands;
 using Cads.Cds.StorageBridge.Controllers.Requests;
+using Cads.Cds.StorageBridge.Controllers.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +28,6 @@ public class S3BulkLoadController(IRequestExecutor executor) : ControllerBase
 
         var jobId = await _executor.ExecuteCommand(command, cancellationToken);
 
-        return Accepted(new { JobId = jobId });
+        return Accepted(new JobResponse(jobId));
     }
 }

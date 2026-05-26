@@ -1,34 +1,33 @@
 using Npgsql;
-using Xunit;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 
-public static class PostgresTestHelpers
+public static class PostgresQueryUtilities
 {
-    public static async Task<long> WaitForRowCountAsync(
+    public static async Task<List<Dictionary<string, object?>>> QueryRowsAsync(
         string connectionString,
-        string sql,
-        long expectedCount,
-        TimeSpan timeout,
-        TimeSpan pollInterval)
+        string tableName,
+        string orderBy)
     {
-        var start = DateTime.UtcNow;
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
 
-        while (DateTime.UtcNow - start < timeout)
+        var rows = new List<Dictionary<string, object?>>();
+
+        var sql = $"SELECT * FROM {tableName} ORDER BY {orderBy}";
+        await using var cmd = new NpgsqlCommand(sql, conn);
+        await using var reader = await cmd.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
         {
-            await using var conn = new NpgsqlConnection(connectionString);
-            await conn.OpenAsync();
+            var row = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
-            await using var cmd = new NpgsqlCommand(sql, conn);
-            var count = (long?)await cmd.ExecuteScalarAsync(TestContext.Current.CancellationToken) ?? 0;
+            for (var i = 0; i < reader.FieldCount; i++)
+                row[reader.GetName(i)] = reader.IsDBNull(i) ? null : reader.GetValue(i);
 
-            if (count == expectedCount)
-                return count;
-
-            await Task.Delay(pollInterval);
+            rows.Add(row);
         }
 
-        throw new TimeoutException(
-            $"Timed out waiting for row count {expectedCount} for query: {sql}");
+        return rows;
     }
 }

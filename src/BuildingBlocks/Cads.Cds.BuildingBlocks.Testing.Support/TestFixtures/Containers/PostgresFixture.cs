@@ -34,6 +34,7 @@ public class PostgresFixture : IAsyncLifetime
             .WithEnvironment("POSTGRES_PASSWORD", TestDatabaseConstants.PostgresPassword)
             .WithNetwork(TestContainerConstants.NetworkName)
             .WithNetworkAliases("postgres")
+            .WithPortBinding(5432, 5432)
             .Build();
 
         await Container.StartAsync();
