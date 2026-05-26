@@ -1,4 +1,3 @@
-using Cads.Cds.StorageBridge.Core.Domain.Entities.Ct;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
@@ -10,11 +9,10 @@ public class StorageBridgeWriteDbContext(DbContextOptions<StorageBridgeWriteDbCo
     // Shared canonical entities
 
     // Module-specific entities
-    public DbSet<CtLocation> CtLocations => Set<CtLocation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Import shared canonical entities
+        // Import shared canonical entities (from BuildingBlocks)
 
         // Import module-specific entities
         modelBuilder.ApplyConfigurationsFromAssembly(
