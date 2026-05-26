@@ -6,7 +6,7 @@ public class S3BulkLoadRequest
 {
     public required string SourceKey { get; set; }
 
-    public BulkLoadDataTypes BulkImportType { get; set; }
+    public required BulkLoadDataTypes BulkImportType { get; set; }
 
     public ImportActions ActionType { get; set; } = ImportActions.Insert | ImportActions.Update;
 
