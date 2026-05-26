@@ -160,6 +160,12 @@ public class S3ToPostgresCopyService(
 
         var fileColumns = header.Split(delimiter);
 
+        if (!string.Equals(fileColumns[0], "record_type", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"File {key} does not contain a valid header row.");
+        }
+
         var matchedColumns = await factory.FilterColumnsToTableAsync(
             bulkLoadDataType,
             fileColumns,

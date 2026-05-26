@@ -17,7 +17,7 @@ public static class WebApplicationExtensions
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
         var configuration = app.Services.GetRequiredService<IConfiguration>();
         var healthcheckMaskingEnabled = configuration.GetValue<bool>("HealthcheckMaskingEnabled");
-        var prometheusScrapingEnabled = configuration.GetValue<bool>("PrometheusScrapingEnabled");        
+        var prometheusScrapingEnabled = configuration.GetValue<bool>("PrometheusScrapingEnabled");
 
         if (logger.IsEnabled(LogLevel.Information))
         {
