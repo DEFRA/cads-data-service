@@ -157,12 +157,13 @@ Never manually modify the CADS database.
 ### Step 3 — Detect differences
 
 ```
-liquibase diff 
-	--url=jdbc:postgresql://localhost:5432/<POSTGRES_DB> 
-	--username=<POSTGRES_USER> 
-	--password=<POSTGRES_PASSWORD> 
-	--reference-url=jdbc:postgresql://localhost:54432/<POSTGRES_REF_DB> 
-	--reference-username=<POSTGRES_USER> 
+liquibase diff \
+	--url=jdbc:postgresql://localhost:5432/cads_data_service \
+	--username=<POSTGRES_USER> \
+	--password=<POSTGRES_PASSWORD> \
+	--reference-url=jdbc:postgresql://localhost:54432/reference_schema \
+	--reference-username=<POSTGRES_USER> \
+	--reference-password=<POSTGRES_PASSWORD>
 ```
 
 Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff`
@@ -175,12 +176,12 @@ This shows what changed between:
 
 ```
 liquibase diff-changelog 
-	--changelog-file=changelog/<XXXX_NEW_CHANGESET_NAME>.postgresql.sql 
-	--url=jdbc:postgresql://localhost:5432/<POSTGRES_DB> 
-	--username=<POSTGRES_USER> 
-	--password=<POSTGRES_PASSWORD> 
-	--reference-url=jdbc:postgresql://localhost:54432/<POSTGRES_REF_DB> 
-	--reference-username=<POSTGRES_USER> 
+	--changelog-file=changelog/<XXXX_NEW_CHANGESET_NAME>.postgresql.sql \
+	--url=jdbc:postgresql://localhost:5432/cads_data_service  \
+	--username=<POSTGRES_USER> \
+	--password=<POSTGRES_PASSWORD> \
+	--reference-url=jdbc:postgresql://localhost:54432/reference_schema  \
+	--reference-username=<POSTGRES_USER> \
 	--reference-password=<POSTGRES_PASSWORD>
 ```
 
