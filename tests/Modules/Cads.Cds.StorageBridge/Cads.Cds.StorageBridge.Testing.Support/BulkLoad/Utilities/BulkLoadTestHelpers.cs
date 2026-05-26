@@ -29,20 +29,4 @@ public static class BulkLoadTestHelpers
 
         actual.Should().BeEquivalentTo(expected);
     }
-
-    public static async Task AssertTableEmptyAsync(
-        string connectionString,
-        string tableName,
-        string orderBy)
-    {
-        var rows = await PostgresWaitUtilities.WaitForRowsAsync(
-            connectionString,
-            tableName,
-            orderBy,
-            expectedCount: 0,
-            timeout: TimeSpan.FromSeconds(5),
-            pollInterval: TimeSpan.FromMilliseconds(200));
-
-        rows.Should().BeEmpty();
-    }
 }

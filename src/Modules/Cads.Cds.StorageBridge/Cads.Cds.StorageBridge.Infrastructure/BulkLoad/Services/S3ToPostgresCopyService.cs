@@ -24,6 +24,13 @@ public class S3ToPostgresCopyService(
     IS3BulkLoadCommandFactoryProvider factoryProvider,
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
+    /// <summary>
+    /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
+    /// </summary>
+    /// <param name="job"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [ExcludeFromCodeCoverage]
     public async Task<bool> ExecuteAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
     {
         ValidateJob(job);
@@ -93,6 +100,18 @@ public class S3ToPostgresCopyService(
         return true;
     }
 
+    /// <summary>
+    /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="job"></param>
+    /// <param name="factory"></param>
+    /// <param name="connection"></param>
+    /// <param name="createTempTableCommand"></param>
+    /// <param name="actionCommands"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [ExcludeFromCodeCoverage]
     private async Task<int> ProcessFileAsync(
         string key,
         CreateS3BulkLoadJobDto job,
