@@ -7,8 +7,6 @@ public interface IS3BulkLoadCommandFactory
 {
     DbCommand CreateTempTableCommand(BulkLoadDataTypes bulkImportType);
 
-    StreamWriter CreateTextImport(BulkLoadDataTypes bulkImportType, char delimiter);
-
     StreamWriter CreateTextImport(BulkLoadDataTypes bulkImportType, char delimiter, IEnumerable<string> columns);
 
     Task<DbCommand> CreateInsertCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default);

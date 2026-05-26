@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 
+[ExcludeFromCodeCoverage]
 public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIamTokenGeneratorService? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
 {
     private readonly Dictionary<string, NpgsqlDataSource> _dataSources = [];

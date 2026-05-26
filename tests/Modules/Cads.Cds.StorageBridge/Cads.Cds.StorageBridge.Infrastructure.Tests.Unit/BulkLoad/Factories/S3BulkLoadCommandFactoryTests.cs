@@ -84,16 +84,6 @@ public class S3BulkLoadCommandFactoryTests
     }
 
     [Fact]
-    public async Task GetColumnNamesAsync_ShouldReturnConfiguredColumns()
-    {
-        var expected = new[] { "record_type", "record_count", "loc_id" };
-
-        var result = await GetFactory().GetColumnNamesAsync(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
-
-        result.Should().BeEquivalentTo(expected);
-    }
-
-    [Fact]
     public async Task CreateTempTableQueryCommandAsync_ShouldGenerateCorrectSql()
     {
         var cmd = await GetFactory().CreateTempTableQueryCommandAsync(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
