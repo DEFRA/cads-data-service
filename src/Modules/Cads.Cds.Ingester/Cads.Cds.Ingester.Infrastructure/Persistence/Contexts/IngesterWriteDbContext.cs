@@ -1,4 +1,3 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Configurations.Livestock;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
@@ -13,10 +12,7 @@ public class IngesterWriteDbContext(DbContextOptions<IngesterWriteDbContext> opt
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Import shared canonical entities
-        modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(AnimalConfiguration).Assembly
-        );
+        // Import shared canonical entities (from BuildingBlocks)
 
         // Import module-specific entities
         modelBuilder.ApplyConfigurationsFromAssembly(
