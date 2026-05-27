@@ -9,7 +9,7 @@ public class S3BulkLoadCommand : ICommand<Guid>
 
     public BulkLoadDataType BulkImportType { get; set; }
 
-    public char Delimiter { get; set; } = '|';
+    public ImportActions ActionType { get; set; }
 
-    public ImportActionType ImportActionType { get; set; } = ImportActionType.Insert | ImportActionType.Update;
+    public char Delimiter { get; set; }
 }

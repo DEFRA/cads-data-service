@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Cads.Cds.Ingester.Tests.Component.AnimalMovementsEndpoints;
 
-public class AnimalMovementsEnpointTests(IngesterTestFixture testFixture) : IClassFixture<IngesterTestFixture>
+public class AnimalMovementsEndpointTests(IngesterTestFixture testFixture) : IClassFixture<IngesterTestFixture>
 {
     [Fact]
     public async Task AnimalMovements_Enpoint_Passes_And_Returns_Accepted()

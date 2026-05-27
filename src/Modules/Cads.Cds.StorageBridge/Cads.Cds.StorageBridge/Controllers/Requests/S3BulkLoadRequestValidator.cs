@@ -20,7 +20,7 @@ public class S3BulkLoadRequestValidator : AbstractValidator<S3BulkLoadRequest>
             .WithMessage("Delimiter cannot be whitespace.");
 
         RuleFor(x => x.ActionType)
-            .NotEqual(ImportActionType.None)
+            .NotEqual(ImportActions.None)
             .WithMessage("ImportActionType cannot be None.");
     }
 }

@@ -3,6 +3,7 @@ using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
+using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using Npgsql;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
 using System.Text.RegularExpressions;
 
@@ -20,15 +22,23 @@ namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 public class S3ToPostgresCopyService(
     IServiceScopeFactory scopeFactory,
     IStorageReader<CadsInternalClient> storageReader,
+    IS3BulkLoadCommandFactoryProvider factoryProvider,
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
+    /// <summary>
+    /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
+    /// </summary>
+    /// <param name="job"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [ExcludeFromCodeCoverage]
     public async Task<bool> ExecuteAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
     {
         ValidateJob(job);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Starting bulk import copy for job {jobId} with key sourceKey {sourceKey}",
+            logger.LogInformation("Starting bulk import copy for job {JobId} with key SourceKey {SourceKey}",
                 job.JobId, job.SourceKey);
         }
 
@@ -39,11 +49,11 @@ public class S3ToPostgresCopyService(
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
         var connection = await OpenConnectionAsync(dbContext, cancellationToken);
 
-        var factory = new S3BulkLoadCommandFactory((NpgsqlConnection)connection);
+        var factory = factoryProvider.Create((NpgsqlConnection)connection);
         var createTempTableCommand = factory.CreateTempTableCommand(job.BulkImportType);
         var actionCommands = await GetCommandsAsync(job, factory, cancellationToken);
 
-        var (counter, fileHistogram, batchHistogram) = CreateMetrics();
+        var (counter, fileHistogram, batchHistogram) = BulkLoadMetrics.CreateBulkLoadMetrics();
 
         var sw = Stopwatch.StartNew();
         var totalRows = 0;
@@ -54,7 +64,7 @@ public class S3ToPostgresCopyService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Processing file {key} for bulk import job {jobId}", key, job.JobId);
+                logger.LogInformation("Processing file {Key} for bulk import job {JobId}", key, job.JobId);
             }
 
             var fileSw = Stopwatch.StartNew();
@@ -63,6 +73,7 @@ public class S3ToPostgresCopyService(
                 key,
                 job,
                 factory,
+                connection,
                 createTempTableCommand,
                 actionCommands,
                 cancellationToken);
@@ -74,7 +85,7 @@ public class S3ToPostgresCopyService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Completed processing for file {key} for bulk import job {jobId}, {totalRows} records processed in {totalMilliseconds} ms",
+                logger.LogInformation("Completed processing for file {Key} for bulk import job {JobId}, {TotalRows} records processed in {TotalMilliseconds} ms",
                     key, job.JobId, rows, fileSw.Elapsed.TotalMilliseconds);
             }
         }
@@ -83,22 +94,35 @@ public class S3ToPostgresCopyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Completed bulk import copy for job {jobId} with key sourceKey {sourceKey}, {totalRows} records processed in {totalMilliseconds} ms",
+            logger.LogInformation("Completed bulk import copy for job {JobId} with key sourceKey {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
                 job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
         return true;
     }
 
+    /// <summary>
+    /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="job"></param>
+    /// <param name="factory"></param>
+    /// <param name="connection"></param>
+    /// <param name="createTempTableCommand"></param>
+    /// <param name="actionCommands"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [ExcludeFromCodeCoverage]
     private async Task<int> ProcessFileAsync(
         string key,
         CreateS3BulkLoadJobDto job,
-        S3BulkLoadCommandFactory factory,
+        IS3BulkLoadCommandFactory factory,
+        DbConnection connection,
         DbCommand createTempTableCommand,
         List<DbCommand> actionCommands,
         CancellationToken cancellationToken)
     {
-        using var transaction = await factory.Connection.BeginTransactionAsync(cancellationToken);
+        using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
         await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
@@ -125,7 +149,7 @@ public class S3ToPostgresCopyService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Command: {commandText}", command.CommandText);
+                logger.LogInformation("Command: {CommandText}", command.CommandText);
             }
 
             total += await command.ExecuteNonQueryAsync(cancellationToken);
@@ -138,14 +162,14 @@ public class S3ToPostgresCopyService(
         BulkLoadDataType bulkLoadDataType,
         char delimiter,
         string key,
-        S3BulkLoadCommandFactory factory,
+        IS3BulkLoadCommandFactory factory,
         CancellationToken cancellationToken)
     {
         using var response = await storageReader.GetObjectResponseAsync(key, cancellationToken);
 
         if (response?.ResponseStream == null)
         {
-            logger.LogWarning("Null stream for key {key}", key);
+            logger.LogWarning("Null stream for key {Key}", key);
             return;
         }
 
@@ -159,6 +183,12 @@ public class S3ToPostgresCopyService(
             ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
 
         var fileColumns = header.Split(delimiter);
+
+        if (!string.Equals(fileColumns[0], "record_type", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"File {key} does not contain a valid header row.");
+        }
 
         var matchedColumns = await factory.FilterColumnsToTableAsync(
             bulkLoadDataType,
@@ -187,7 +217,7 @@ public class S3ToPostgresCopyService(
         return (counter, fileHistogram, batchHistogram);
     }
 
-    private static string SanitiseLine(string? line)
+    private static string? SanitiseLine(string? line)
     {
         var sanitisedResult = line ?? string.Empty;
 
@@ -198,20 +228,21 @@ public class S3ToPostgresCopyService(
             @"[\u0000-\u001F]",
             " ",
             RegexOptions.None,
-            TimeSpan.FromMicroseconds(50));
+            TimeSpan.FromMilliseconds(50));
 
         return sanitisedResult;
     }
 
     private static void ValidateJob(CreateS3BulkLoadJobDto job)
     {
-        if (job.ImportActionType == ImportActionType.None)
+        if (job.ImportActionType == ImportActions.None)
             throw new InvalidOperationException("ImportActionType cannot be None.");
 
         if (string.IsNullOrWhiteSpace(job.SourceKey))
             throw new InvalidOperationException("SourceKey is required.");
     }
 
+    [ExcludeFromCodeCoverage]
     private static async Task<DbConnection> OpenConnectionAsync(
         StorageBridgeWriteDbContext dbContext,
         CancellationToken cancellationToken)
@@ -226,18 +257,18 @@ public class S3ToPostgresCopyService(
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
         CreateS3BulkLoadJobDto job,
-        S3BulkLoadCommandFactory factory,
+        IS3BulkLoadCommandFactory factory,
         CancellationToken cancellationToken)
     {
         var commands = new List<DbCommand>();
         var action = job.ImportActionType;
 
-        if (action == ImportActionType.None)
+        if (action == ImportActions.None)
             return commands;
 
-        var insert = action.HasFlag(ImportActionType.Insert);
-        var update = action.HasFlag(ImportActionType.Update);
-        var delete = action.HasFlag(ImportActionType.Delete);
+        var insert = action.HasFlag(ImportActions.Insert);
+        var update = action.HasFlag(ImportActions.Update);
+        var delete = action.HasFlag(ImportActions.Delete);
 
         if (insert && update)
         {

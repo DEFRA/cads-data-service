@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Cads.Cds.BuildingBlocks.Infrastructure\Cads.Cds.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\Cads.Cds.StorageBridge.Application\Cads.Cds.StorageBridge.Application.csproj" />
     <ProjectReference Include="..\Cads.Cds.StorageBridge.Infrastructure\Cads.Cds.StorageBridge.Infrastructure.csproj" />
   </ItemGroup>
 

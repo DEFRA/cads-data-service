@@ -1,16 +1,15 @@
 using Cads.Cds.StorageBridge.Core.Attributes;
 using System.Reflection;
 
-namespace Cads.Cds.StorageBridge.Core.Extensions;
+namespace Cads.Cds.StorageBridge.Application.Extensions;
 
-public static class EnumExtensions
+public static class StorageBridgeEnumExtensions
 {
     public static T? GetAttribute<T>(this Enum value)
         where T : Attribute
     {
         ArgumentNullException.ThrowIfNull(value);
 
-        // Get the enum type and member info
         var type = value.GetType();
         var name = Enum.GetName(type, value);
         if (name == null) return null;
@@ -18,7 +17,6 @@ public static class EnumExtensions
         var field = type.GetField(name);
         if (field == null) return null;
 
-        // Retrieve the TableNameAttribute if it exists
         return field.GetCustomAttribute<T>();
     }
 
