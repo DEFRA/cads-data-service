@@ -14,7 +14,6 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Metrics;
 using System.Text.RegularExpressions;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
@@ -175,10 +174,6 @@ public class S3ToPostgresCopyService(
 
         using var reader = new StreamReader(response.ResponseStream);
 
-        //var header = await reader.ReadLineAsync(cancellationToken) ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
-        //var columns = header.Split(delimiter) ?? throw new InvalidOperationException("Missing header row");
-        //using var writer = factory.CreateTextImport(bulkLoadDataType, delimiter, columns);
-
         var header = await reader.ReadLineAsync(cancellationToken)
             ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
 
@@ -204,17 +199,6 @@ public class S3ToPostgresCopyService(
             if (line.StartsWith("T|")) break;
             await writer.WriteLineAsync(SanitiseLine(line));
         }
-    }
-
-    private static (Counter<int> counter, Histogram<double> fileHistogram, Histogram<double> batchHistogram) CreateMetrics()
-    {
-        var meter = new Meter("Cads.Postgres.Metrics", "1.0");
-
-        var counter = meter.CreateCounter<int>("cads_batch_import_rows_affected", "rows");
-        var fileHistogram = meter.CreateHistogram<double>("postgres_file_import_duration_ms", "ms");
-        var batchHistogram = meter.CreateHistogram<double>("postgres_batch_import_duration_ms", "ms");
-
-        return (counter, fileHistogram, batchHistogram);
     }
 
     private static string? SanitiseLine(string? line)
