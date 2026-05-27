@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\BuildingBlocks\Cads.Cds.BuildingBlocks.Testing.Support\Cads.Cds.BuildingBlocks.Testing.Support.csproj" />
     <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.Application\Cads.Cds.StorageBridge.Application.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.Core\Cads.Cds.StorageBridge.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
