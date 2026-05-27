@@ -9,6 +9,7 @@ using Npgsql;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Setup;
 
@@ -27,6 +28,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    [ExcludeFromCodeCoverage]
     private static void ConfigurePrometheusScraping(this IServiceCollection services, IConfiguration config)
     {
         var prometheusScrapingEnabled = config.GetValue<bool>("PrometheusScrapingEnabled");

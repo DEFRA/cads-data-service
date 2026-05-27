@@ -1,5 +1,6 @@
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 
@@ -17,6 +18,7 @@ public interface IS3BulkLoadCommandFactory
 
     Task<DbCommand> CreateDeleteCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default);
 
+    [ExcludeFromCodeCoverage]
     Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default);
 
     string GetTableName(BulkLoadDataTypes bulkImportType, bool isTemp = false);
