@@ -1,5 +1,7 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Services;
 using Cads.Cds.StorageBridge.Core.Configuration;
+using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Health;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(moduleConfig);
 
         services.AddSingleton<IConfigureS3Clients, StorageBridgeS3Configurator>();
-
+        services.AddSingleton<IFileChecksumService, S3FileChecksumService<CadsInternalClient>>();
         // Register module storage readers
         // Register module storage writers
 
