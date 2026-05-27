@@ -85,7 +85,7 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
         var request = (GetReportRequest?)await JsonSerializer.DeserializeAsync(
             HttpContext.Request.Body,
             requestType,
-            JsonDefaults.DefaultOptions,
+            JsonDefaults.DefaultOptionsWithStringEnumConversion,
             cancellationToken);
 
         return request;
