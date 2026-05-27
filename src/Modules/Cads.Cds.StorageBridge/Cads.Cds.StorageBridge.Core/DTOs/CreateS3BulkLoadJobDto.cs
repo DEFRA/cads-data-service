@@ -8,7 +8,7 @@ public class CreateS3BulkLoadJobDto
 
     public string SourceKey { get; set; } = string.Empty;
 
-    public BulkLoadDataTypes BulkImportType { get; set; }
+    public BulkLoadDataType BulkImportType { get; set; }
 
     public char Delimiter { get; set; } = '|';
 
