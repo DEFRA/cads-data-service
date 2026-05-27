@@ -30,4 +30,8 @@
     <ProjectReference Include="..\Cads.Cds.BuildingBlocks.Application\Cads.Cds.BuildingBlocks.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\Configurations\Livestock\" />
+  </ItemGroup>
+
 </Project>
