@@ -158,7 +158,7 @@ public class S3ToPostgresCopyService(
     }
 
     private async Task CopyFileToStagingAsync(
-        BulkLoadDataTypes bulkLoadDataType,
+        BulkLoadDataType bulkLoadDataType,
         char delimiter,
         string key,
         IS3BulkLoadCommandFactory factory,
