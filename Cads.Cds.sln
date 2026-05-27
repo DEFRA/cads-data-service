@@ -146,6 +146,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cads.Cds.MiBff.Testing.Supp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cads.Cds.Ingester.Testing.Support", "tests\Modules\Cads.Cds.Ingester\Cads.Cds.Ingester.Testing.Support\Cads.Cds.Ingester.Testing.Support.csproj", "{58DF04D6-6F98-47BC-A0FE-7A399CA1B9DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cads.Cds.StorageBridge.Testing.Support", "tests\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.Testing.Support\Cads.Cds.StorageBridge.Testing.Support.csproj", "{3BD576C8-C7B3-4435-99D7-7517CE1C19E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -352,6 +354,10 @@ Global
 		{58DF04D6-6F98-47BC-A0FE-7A399CA1B9DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58DF04D6-6F98-47BC-A0FE-7A399CA1B9DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58DF04D6-6F98-47BC-A0FE-7A399CA1B9DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BD576C8-C7B3-4435-99D7-7517CE1C19E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BD576C8-C7B3-4435-99D7-7517CE1C19E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BD576C8-C7B3-4435-99D7-7517CE1C19E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BD576C8-C7B3-4435-99D7-7517CE1C19E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -418,6 +424,7 @@ Global
 		{604593FA-C7A4-45E7-9B94-37BA5F2FB9C5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{221D39A9-2182-49BF-B56B-51585C9A0132} = {D0923E26-B5F7-48E5-93C5-76578F3A57B5}
 		{58DF04D6-6F98-47BC-A0FE-7A399CA1B9DB} = {4194F778-5CCD-4F14-AEA0-5C81B2552309}
+		{3BD576C8-C7B3-4435-99D7-7517CE1C19E3} = {F584A886-B4C8-41B5-8721-6954A2A38EFB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {763A7DEB-4335-4DB0-9695-9D98D867F687}
