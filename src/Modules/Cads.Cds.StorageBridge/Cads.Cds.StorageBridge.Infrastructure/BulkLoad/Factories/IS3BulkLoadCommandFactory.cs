@@ -17,11 +17,11 @@ public interface IS3BulkLoadCommandFactory
 
     Task<DbCommand> CreateDeleteCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default);
 
+    Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default);
+
     string GetTableName(BulkLoadDataTypes bulkImportType, bool isTemp = false);
 
     Task<List<string>> FilterColumnsToTableAsync(BulkLoadDataTypes bulkImportType, IEnumerable<string> fileColumns, CancellationToken cancellationToken = default);
 
     Task<List<string>> GetColumnNamesAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default);
-
-    Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default);
 }

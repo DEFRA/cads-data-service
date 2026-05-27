@@ -21,8 +21,6 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
 
-        services.AddScoped<IS3BulkLoadCommandFactory, S3BulkLoadCommandFactory>();
-
         return services;
     }
 }

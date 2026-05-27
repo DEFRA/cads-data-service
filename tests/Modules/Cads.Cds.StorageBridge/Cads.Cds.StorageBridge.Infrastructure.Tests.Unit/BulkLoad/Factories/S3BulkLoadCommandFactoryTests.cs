@@ -10,9 +10,9 @@ public class S3BulkLoadCommandFactoryTests
     [Fact]
     public void CreateTempTableCommand_ShouldGenerateCorrectSql()
     {
-        var cmd = GetFactory().CreateTempTableCommand(BulkLoadDataTypes.Locations);
+        var sql = GetFactory().SqlForTempTable(BulkLoadDataTypes.Locations);
 
-        cmd.CommandText.Should().Be(
+        sql.Should().Be(
             "CREATE TEMP TABLE \"temp__ct_locations\" (LIKE \"_ct_locations\" INCLUDING ALL) ON COMMIT DROP;");
     }
 
@@ -27,18 +27,18 @@ public class S3BulkLoadCommandFactoryTests
     [Fact]
     public async Task CreateInsertCommandAsync_ShouldGenerateCorrectSql()
     {
-        var cmd = await GetFactory().CreateInsertCommandAsync(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForInsert(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
 
-        cmd.CommandText.Should().Be(
+        sql.Should().Be(
             "INSERT INTO \"_ct_locations\" (record_type,record_count,loc_id) SELECT record_type,record_count,loc_id FROM \"temp__ct_locations\"");
     }
 
     [Fact]
     public async Task CreateUpdateCommandAsync_ShouldGenerateCorrectSql()
     {
-        var cmd = await GetFactory().CreateUpdateCommandAsync(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForUpdate(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
 
-        cmd.CommandText.Should().Be(
+        sql.Should().Be(
             "UPDATE \"_ct_locations\" AS m SET m.record_type = t.record_type, m.record_count = t.record_count, m.loc_id = t.loc_id " +
             "FROM \"temp__ct_locations\" AS t WHERE m.loc_id = t.loc_id");
     }
@@ -46,9 +46,9 @@ public class S3BulkLoadCommandFactoryTests
     [Fact]
     public async Task CreateUpsertCommandAsync_ShouldGenerateCorrectSql()
     {
-        var cmd = await GetFactory().CreateUpsertCommandAsync(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForUpsert(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
 
-        cmd.CommandText.Should().Be(
+        sql.Should().Be(
             "INSERT INTO \"_ct_locations\" (record_type,record_count,loc_id) SELECT record_type,record_count,loc_id FROM \"temp__ct_locations\" " +
             "ON CONFLICT (loc_id) DO UPDATE SET record_type = EXCLUDED.record_type, record_count = EXCLUDED.record_count, loc_id = EXCLUDED.loc_id");
     }
@@ -56,9 +56,9 @@ public class S3BulkLoadCommandFactoryTests
     [Fact]
     public async Task CreateDeleteCommandAsync_ShouldGenerateCorrectSql()
     {
-        var cmd = await GetFactory().CreateDeleteCommandAsync(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForDelete(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
 
-        cmd.CommandText.Should().Be(
+        sql.Should().Be(
             "DELETE FROM \"_ct_locations\" WHERE loc_id IN (SELECT loc_id FROM \"temp__ct_locations\")");
     }
 
@@ -86,9 +86,9 @@ public class S3BulkLoadCommandFactoryTests
     [Fact]
     public async Task CreateTempTableQueryCommandAsync_ShouldGenerateCorrectSql()
     {
-        var cmd = await GetFactory().CreateTempTableQueryCommandAsync(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForQuery(BulkLoadDataTypes.Locations, TestContext.Current.CancellationToken);
 
-        cmd.CommandText.Should().Be(
+        sql.Should().Be(
             "SELECT record_type,record_count,loc_id FROM \"temp__ct_locations\"");
     }
 
