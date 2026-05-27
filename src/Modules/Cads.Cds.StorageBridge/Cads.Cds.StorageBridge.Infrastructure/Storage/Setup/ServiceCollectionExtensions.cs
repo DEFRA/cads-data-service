@@ -21,7 +21,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(moduleConfig);
 
         services.AddSingleton<IConfigureS3Clients, StorageBridgeS3Configurator>();
-        services.AddSingleton<IFileChecksumService, S3FileChecksumService<CadsInternalClient>>();
+        
+        services.AddScoped<IFileChecksumService, S3FileChecksumService<CadsInternalClient>>();
         // Register module storage readers
         services.AddSingleton<IStorageReader<CadsInternalClient>, BulkImportStorageReader<CadsInternalClient>>();
 
