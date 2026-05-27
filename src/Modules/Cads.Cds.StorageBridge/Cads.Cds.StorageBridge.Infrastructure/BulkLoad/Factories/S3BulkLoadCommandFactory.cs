@@ -21,14 +21,14 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         public const string Data = "D";
     }
 
-    protected virtual string GenerateTempTableSql(BulkLoadDataTypes bulkImportType)
+    protected virtual string GenerateTempTableSql(BulkLoadDataType bulkImportType)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, isTemp: true);
         return $"CREATE TEMP TABLE {tempTableName} (LIKE {tableName} INCLUDING ALL) ON COMMIT DROP;";
     }
 
-    protected virtual async Task<string> GenerateInsertSqlAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    protected virtual async Task<string> GenerateInsertSqlAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, isTemp: true);
@@ -38,7 +38,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
                $"SELECT {string.Join(",", columnNames)} FROM {tempTableName}";
     }
 
-    protected virtual async Task<string> GenerateUpdateSqlAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    protected virtual async Task<string> GenerateUpdateSqlAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, isTemp: true);
@@ -49,7 +49,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
                $"FROM {tempTableName} AS t WHERE m.{key} = t.{key}";
     }
 
-    protected virtual async Task<string> GenerateUpsertSqlAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    protected virtual async Task<string> GenerateUpsertSqlAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, isTemp: true);
@@ -61,7 +61,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
                $"ON CONFLICT ({key}) DO UPDATE SET {string.Join(", ", columnNames.Select(c => $"{c} = EXCLUDED.{c}"))}";
     }
 
-    protected virtual async Task<string> GenerateDeleteSqlAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    protected virtual async Task<string> GenerateDeleteSqlAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
     {
         var tableName = GetTableName(bulkImportType);
         var tempTableName = GetTableName(bulkImportType, isTemp: true);
@@ -71,14 +71,14 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         return $"DELETE FROM {tableName} WHERE {key} IN (SELECT {key} FROM {tempTableName})";
     }
 
-    protected virtual async Task<string> GenerateTempTableQuerySqlAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    protected virtual async Task<string> GenerateTempTableQuerySqlAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
     {
         var tempTableName = GetTableName(bulkImportType, isTemp: true);
         var columnNames = string.Join(',', await GetColumnNamesAsync(bulkImportType, cancellationToken));
         return $"SELECT {columnNames} FROM {tempTableName}";
     }
 
-    public DbCommand CreateTempTableCommand(BulkLoadDataTypes bulkImportType)
+    public DbCommand CreateTempTableCommand(BulkLoadDataType bulkImportType)
     {
         var sql = GenerateTempTableSql(bulkImportType);
 
@@ -89,14 +89,14 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         };
     }
 
-    public StreamWriter CreateTextImport(BulkLoadDataTypes bulkImportType, char delimiter, IEnumerable<string> columns)
+    public StreamWriter CreateTextImport(BulkLoadDataType bulkImportType, char delimiter, IEnumerable<string> columns)
     {
         return _connection.BeginTextImport(
             $"COPY {GetTableName(bulkImportType, isTemp: true)} ({string.Join(",", columns)}) " +
             $"FROM STDIN WITH (FORMAT csv, DELIMITER '{delimiter}', HEADER false)");
     }
 
-    public async Task<DbCommand> CreateInsertCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateInsertCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateInsertSqlAsync(bulkImportType, cancellationToken);
 
@@ -107,7 +107,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         };
     }
 
-    public async Task<DbCommand> CreateUpdateCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateUpdateCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateUpdateSqlAsync(bulkImportType, cancellationToken);
 
@@ -118,7 +118,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         };
     }
 
-    public async Task<DbCommand> CreateUpsertCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateUpsertCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateUpsertSqlAsync(bulkImportType, cancellationToken);
 
@@ -129,7 +129,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         };
     }
 
-    public async Task<DbCommand> CreateDeleteCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateDeleteCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateDeleteSqlAsync(bulkImportType, cancellationToken);
 
@@ -141,7 +141,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
     }
 
     [ExcludeFromCodeCoverage]
-    public async Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public async Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateTempTableQuerySqlAsync(bulkImportType, cancellationToken);
 
@@ -152,22 +152,12 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         };
     }
 
-    public string GetTableName(BulkLoadDataTypes bulkImportType, bool isTemp = false)
+    public string GetTableName(BulkLoadDataType bulkImportType, bool isTemp = false)
     {
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
 
         return s_commandBuilder.QuoteIdentifier(isTemp ? $"temp_{tableName}" : tableName);
-    }
-
-    public async Task<List<string>> FilterColumnsToTableAsync(
-        BulkLoadDataTypes bulkImportType,
-        IEnumerable<string> fileColumns,
-        CancellationToken cancellationToken = default)
-    {
-        var dbColumns = await GetColumnNamesAsync(bulkImportType, cancellationToken);
-
-        return [.. fileColumns.Where(c => dbColumns.Contains(c, StringComparer.OrdinalIgnoreCase))];
     }
 
     /// <summary>
@@ -178,7 +168,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     [ExcludeFromCodeCoverage]
-    public virtual async Task<List<string>> GetColumnNamesAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public virtual async Task<List<string>> GetColumnNamesAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
     {
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
@@ -200,5 +190,15 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
             columnNames.Add(reader.GetString(0));
 
         return columnNames;
+    }
+
+    public async Task<List<string>> FilterColumnsToTableAsync(
+        BulkLoadDataType bulkImportType,
+        IEnumerable<string> fileColumns,
+        CancellationToken cancellationToken = default)
+    {
+        var dbColumns = await GetColumnNamesAsync(bulkImportType, cancellationToken);
+
+        return [.. fileColumns.Where(c => dbColumns.Contains(c, StringComparer.OrdinalIgnoreCase))];
     }
 }

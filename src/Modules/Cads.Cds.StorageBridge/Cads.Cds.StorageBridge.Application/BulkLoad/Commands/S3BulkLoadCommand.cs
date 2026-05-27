@@ -7,7 +7,7 @@ public class S3BulkLoadCommand : ICommand<Guid>
 {
     public string SourceKey { get; set; } = string.Empty;
 
-    public BulkLoadDataTypes BulkImportType { get; set; }
+    public BulkLoadDataType BulkImportType { get; set; }
 
     public ImportActions ActionType { get; set; }
 

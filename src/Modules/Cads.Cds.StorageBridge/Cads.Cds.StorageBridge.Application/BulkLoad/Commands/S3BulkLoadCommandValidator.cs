@@ -11,7 +11,7 @@ public class S3BulkLoadCommandValidator : AbstractValidator<S3BulkLoadCommand>
             .NotEmpty();
 
         RuleFor(x => x.BulkImportType)
-            .NotEqual(BulkLoadDataTypes.None);
+            .NotEqual(BulkLoadDataType.None);
 
         RuleFor(x => x.ActionType)
             .NotEqual(ImportActions.None);

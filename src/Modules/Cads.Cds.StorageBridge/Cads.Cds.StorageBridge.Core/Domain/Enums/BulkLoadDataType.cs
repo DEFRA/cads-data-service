@@ -2,7 +2,7 @@ using Cads.Cds.StorageBridge.Core.Attributes;
 
 namespace Cads.Cds.StorageBridge.Core.Domain.Enums;
 
-public enum BulkLoadDataTypes
+public enum BulkLoadDataType
 {
     None,
     [TableName("_ct_animal_relationships", "aar_id")]

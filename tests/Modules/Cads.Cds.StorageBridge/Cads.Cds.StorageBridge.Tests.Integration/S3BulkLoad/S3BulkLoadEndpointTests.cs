@@ -112,7 +112,7 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        var tableName = BulkLoadDataTypes.Locations.GetAttribute<TableNameAttribute>()!.Name;
+        var tableName = BulkLoadDataType.Locations.GetAttribute<TableNameAttribute>()!.Name;
 
         await BulkLoadTestHelpers.AssertCsvRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
@@ -130,7 +130,7 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3BulkLoadRequest
         {
             SourceKey = string.Empty,
-            BulkImportType = BulkLoadDataTypes.None,
+            BulkImportType = BulkLoadDataType.None,
             ActionType = ImportActions.None
         });
 
@@ -138,7 +138,7 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3BulkLoadRequest
         {
             SourceKey = "LOCATIONS.part-0001.csv",
-            BulkImportType = BulkLoadDataTypes.Locations,
+            BulkImportType = BulkLoadDataType.Locations,
             ActionType = ImportActions.Insert
         });
 

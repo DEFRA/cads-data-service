@@ -71,7 +71,7 @@ public class S3ToPostgresCopyServiceTests
         {
             ImportActionType = ImportActions.Insert,
             SourceKey = TestFileName,
-            BulkImportType = BulkLoadDataTypes.Locations
+            BulkImportType = BulkLoadDataType.Locations
         };
 
         var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
@@ -94,13 +94,13 @@ public class S3ToPostgresCopyServiceTests
     {
         var insertCmd = new Mock<DbCommand>().Object;
 
-        _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<BulkLoadDataTypes>(), It.IsAny<CancellationToken>()))
+        _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insertCmd);
 
         var job = new CreateS3BulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert,
-            BulkImportType = BulkLoadDataTypes.Locations
+            BulkImportType = BulkLoadDataType.Locations
         };
 
         var result = await InvokeGetCommandsAsync(job, _factory.Object);
@@ -113,13 +113,13 @@ public class S3ToPostgresCopyServiceTests
     {
         var updateCmd = new Mock<DbCommand>().Object;
 
-        _factory.Setup(x => x.CreateUpdateCommandAsync(It.IsAny<BulkLoadDataTypes>(), It.IsAny<CancellationToken>()))
+        _factory.Setup(x => x.CreateUpdateCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(updateCmd);
 
         var job = new CreateS3BulkLoadJobDto
         {
             ImportActionType = ImportActions.Update,
-            BulkImportType = BulkLoadDataTypes.Locations
+            BulkImportType = BulkLoadDataType.Locations
         };
 
         var result = await InvokeGetCommandsAsync(job, _factory.Object);
@@ -132,13 +132,13 @@ public class S3ToPostgresCopyServiceTests
     {
         var upsertCmd = new Mock<DbCommand>().Object;
 
-        _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<BulkLoadDataTypes>(), It.IsAny<CancellationToken>()))
+        _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(upsertCmd);
 
         var job = new CreateS3BulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert | ImportActions.Update,
-            BulkImportType = BulkLoadDataTypes.Locations
+            BulkImportType = BulkLoadDataType.Locations
         };
 
         var result = await InvokeGetCommandsAsync(job, _factory.Object);
@@ -151,13 +151,13 @@ public class S3ToPostgresCopyServiceTests
     {
         var deleteCmd = new Mock<DbCommand>().Object;
 
-        _factory.Setup(x => x.CreateDeleteCommandAsync(It.IsAny<BulkLoadDataTypes>(), It.IsAny<CancellationToken>()))
+        _factory.Setup(x => x.CreateDeleteCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(deleteCmd);
 
         var job = new CreateS3BulkLoadJobDto
         {
             ImportActionType = ImportActions.Delete,
-            BulkImportType = BulkLoadDataTypes.Locations
+            BulkImportType = BulkLoadDataType.Locations
         };
 
         var result = await InvokeGetCommandsAsync(job, _factory.Object);
@@ -204,7 +204,7 @@ public class S3ToPostgresCopyServiceTests
 
         await (Task)method!.Invoke(service,
             [
-            BulkLoadDataTypes.Locations,
+            BulkLoadDataType.Locations,
             '|',
             TestFileName,
             _factory.Object,
@@ -230,7 +230,7 @@ public class S3ToPostgresCopyServiceTests
             ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes("record_type|col2\nA\"B|C\nT|END"))
         };
 
-        _factory.Setup(x => x.CreateTextImport(It.IsAny<BulkLoadDataTypes>(), It.IsAny<char>(), It.IsAny<List<string>>()))
+        _factory.Setup(x => x.CreateTextImport(It.IsAny<BulkLoadDataType>(), It.IsAny<char>(), It.IsAny<List<string>>()))
             .Returns(writer);
 
         _storageReader
@@ -242,7 +242,7 @@ public class S3ToPostgresCopyServiceTests
 
         await (Task)method!.Invoke(service,
             [
-            BulkLoadDataTypes.Locations,
+            BulkLoadDataType.Locations,
             '|',
             TestFileName,
             _factory.Object,

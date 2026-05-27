@@ -29,6 +29,7 @@ public static class TestMiBffDataSeeder
         // GB Cattle Reports
         context.AddRange(reportData.BirthSummaries);
         context.AddRange(reportData.DeathSummaries);
+        context.AddRange(reportData.ImportSummaries);
     }
 
     public static void SeedSaveChanges(DbContext context)

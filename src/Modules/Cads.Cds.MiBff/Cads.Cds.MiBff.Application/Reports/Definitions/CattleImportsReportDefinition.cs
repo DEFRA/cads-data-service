@@ -11,12 +11,12 @@ public class CattleImportsReportDefinition : IReportDefinition<MiImportSummary>
 
     public List<Func<MiImportSummary, IConvertible>> Selectors =>
     [
-        x => x.CountryMovedFrom,
+        x => x.Country,
         x => x.MonthYear,
-        x => x.AgeAtMovement,
+        x => x.AgeAtImport,
         x => x.AgeBand,
         x => x.BreedType,
         x => x.Sex ?? "",
-        x => x.NumberOfMovements
+        x => x.NumberOfImports
     ];
 }
