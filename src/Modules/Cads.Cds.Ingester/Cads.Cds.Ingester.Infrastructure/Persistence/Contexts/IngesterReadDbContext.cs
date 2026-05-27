@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
+using Cads.Cds.Ingester.Core.Domain.Entities;
 
 namespace Cads.Cds.Ingester.Infrastructure.Persistence.Contexts;
 
@@ -9,6 +10,7 @@ public class IngesterReadDbContext(DbContextOptions<IngesterReadDbContext> optio
     // Shared canonical entities
 
     // Module-specific entities
+    public DbSet<DataSeedIngestionHistory> DataSeedIngestionHistories => Set<DataSeedIngestionHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
