@@ -16,6 +16,12 @@ public class PostgresFixture : IAsyncLifetime
     public static string ReadConnectionString =>
         $"Host=postgres;Port=5432;Database={TestDatabaseConstants.TestCadsDatabaseName};Username={TestDatabaseConstants.PostgresReadUser};Password={TestDatabaseConstants.PostgresReadPassword}";
 
+    public string HostConnectionString =>
+        $"Host=127.0.0.1;Port={Container!.GetMappedPublicPort(5432)};" +
+        $"Database={TestDatabaseConstants.TestCadsDatabaseName};" +
+        $"Username={TestDatabaseConstants.PostgresUserName};" +
+        $"Password={TestDatabaseConstants.PostgresPassword}";
+
     private string InitialisationConnectionString =>
         $"Host=127.0.0.1;Port={Container!.GetMappedPublicPort(5432)};Database=postgres;Username={TestDatabaseConstants.PostgresUserName};Password={TestDatabaseConstants.PostgresPassword}";
 
@@ -28,6 +34,7 @@ public class PostgresFixture : IAsyncLifetime
             .WithEnvironment("POSTGRES_PASSWORD", TestDatabaseConstants.PostgresPassword)
             .WithNetwork(TestContainerConstants.NetworkName)
             .WithNetworkAliases("postgres")
+            .WithPortBinding(5432, 5432)
             .Build();
 
         await Container.StartAsync();

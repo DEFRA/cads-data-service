@@ -5,9 +5,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 
+[ExcludeFromCodeCoverage]
 public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIamTokenGeneratorService? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
 {
-    private readonly Dictionary<string, NpgsqlDataSource> _dataSources = new();
+    private readonly Dictionary<string, NpgsqlDataSource> _dataSources = [];
     private readonly SemaphoreSlim _lock = new(1, 1);
     private bool _disposed;
 
@@ -71,7 +72,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         {
             DefaultConnectionIdentifier => config.DefaultHost,
             ReadOnlyConnectionIdentifier => config.ReadOnlyHost,
-            _ => throw new ArgumentException($"Unknown connection identifier: {connectionIdentifier}")
+            _ => throw new ArgumentException($"Unknown connection identifier (host): {connectionIdentifier}")
         };
 
         var builder = new NpgsqlDataSourceBuilder
