@@ -46,6 +46,22 @@ public class GbCattleReportDataFactory
             .With(x => x.BirthYear, () => 2026)
             .CreateMany(5));
 
-        return new GbCattleReportData(deaths, births);
+        var imports = new List<MiImportSummary>
+        {
+            _fixture.Build<MiImportSummary>()
+                .With(x => x.Sex, () => "Male")
+                .With(x => x.NumberOfImports, () => 1)
+                .With(x => x.MonthYear, () =>  DateTime.Parse("2025-5-01"))
+                .With(x => x.AgeAtImport, () => 1)
+                .With(x => x.AgeBand, () => "1 to 2")
+                .Create()
+        };
+
+        imports.AddRange(_fixture
+            .Build<MiImportSummary>()
+            .With(x => x.MonthYear, () => DateTime.Parse("2025-5-01"))
+            .CreateMany(5));
+
+        return new GbCattleReportData(deaths, births, imports);
     }
 }
