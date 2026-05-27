@@ -9,4 +9,8 @@
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\BuildingBlocks\Cads.Cds.BuildingBlocks.Testing.Support\Cads.Cds.BuildingBlocks.Testing.Support.csproj" />
+  </ItemGroup>
+
 </Project>
