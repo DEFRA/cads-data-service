@@ -140,6 +140,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         };
     }
 
+    [ExcludeFromCodeCoverage]
     public async Task<DbCommand> CreateTempTableQueryCommandAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateTempTableQuerySqlAsync(bulkImportType, cancellationToken);
