@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Cads.Cds.Ingester.Application\Cads.Cds.Ingester.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\EntityConfigurations\" />
+  </ItemGroup>
+
 </Project>
