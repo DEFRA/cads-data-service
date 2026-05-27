@@ -15,23 +15,23 @@ public class TestableS3BulkLoadCommandFactory(NpgsqlConnection connection,
     /// <param name="bulkImportType"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task<List<string>> GetColumnNamesAsync(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken = default)
+    public override async Task<List<string>> GetColumnNamesAsync(BulkLoadDataType bulkImportType, CancellationToken cancellationToken = default)
         => _columns;
 
-    public string SqlForTempTable(BulkLoadDataTypes bulkImportType) => GenerateTempTableSql(bulkImportType);
+    public string SqlForTempTable(BulkLoadDataType bulkImportType) => GenerateTempTableSql(bulkImportType);
 
-    public Task<string> SqlForInsert(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    public Task<string> SqlForInsert(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
         => GenerateInsertSqlAsync(bulkImportType, cancellationToken);
 
-    public Task<string> SqlForUpdate(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    public Task<string> SqlForUpdate(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
         => GenerateUpdateSqlAsync(bulkImportType, cancellationToken);
 
-    public Task<string> SqlForUpsert(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    public Task<string> SqlForUpsert(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
         => GenerateUpsertSqlAsync(bulkImportType, cancellationToken);
 
-    public Task<string> SqlForDelete(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    public Task<string> SqlForDelete(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
         => GenerateDeleteSqlAsync(bulkImportType, cancellationToken);
 
-    public Task<string> SqlForQuery(BulkLoadDataTypes bulkImportType, CancellationToken cancellationToken)
+    public Task<string> SqlForQuery(BulkLoadDataType bulkImportType, CancellationToken cancellationToken)
         => GenerateTempTableQuerySqlAsync(bulkImportType, cancellationToken);
 }
