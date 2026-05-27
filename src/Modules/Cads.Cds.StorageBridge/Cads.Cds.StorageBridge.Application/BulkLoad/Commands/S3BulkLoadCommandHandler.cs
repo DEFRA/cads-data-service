@@ -14,7 +14,7 @@ public class S3BulkLoadCommandHandler(IS3BulkLoadJobEnqueuer bulkImportEnqueueSe
             SourceKey = command.SourceKey,
             BulkImportType = command.BulkImportType,
             Delimiter = command.Delimiter,
-            ImportActionType = command.ImportActionType
+            ImportActionType = command.ActionType
         };
 
         return await bulkImportEnqueueService.EnqueueAsync(createS3BulkLoadJob, cancellationToken);

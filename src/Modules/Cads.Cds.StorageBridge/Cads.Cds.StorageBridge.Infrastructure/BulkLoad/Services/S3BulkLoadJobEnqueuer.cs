@@ -7,7 +7,7 @@ namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
 public class S3BulkLoadJobEnqueuer(
     Channel<CreateS3BulkLoadJobDto> channel,
-    ILogger<S3BulkLoadBackgroundService> logger) : IS3BulkLoadJobEnqueuer
+    ILogger<S3BulkLoadJobEnqueuer> logger) : IS3BulkLoadJobEnqueuer
 {
     public async Task<Guid> EnqueueAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
     {

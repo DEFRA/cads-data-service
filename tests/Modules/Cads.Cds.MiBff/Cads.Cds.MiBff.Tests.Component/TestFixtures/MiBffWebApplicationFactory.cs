@@ -15,8 +15,6 @@ public class MiBffWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
-    public MiBffWriteDbContext WriteDbContext => Services.GetRequiredService<MiBffWriteDbContext>();
-
     protected override void ConfigureDatabase(IServiceCollection services)
     {
         var reportPermissionsData = new ReportPermissionsDataFactory().CreateMockData();

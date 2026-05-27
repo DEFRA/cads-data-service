@@ -12,7 +12,7 @@ public class CreateS3BulkLoadJobDto
 
     public char Delimiter { get; set; } = '|';
 
-    public ImportActionType ImportActionType { get; set; }
+    public ImportActions ImportActionType { get; set; }
 
     public bool UpdateConstraints { get; set; } = false;
 }
