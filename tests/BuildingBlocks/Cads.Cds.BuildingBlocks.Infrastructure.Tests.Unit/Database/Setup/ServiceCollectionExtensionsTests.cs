@@ -67,7 +67,7 @@ public class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                (config ?? new Dictionary<string, string>())
+                (config ?? [])
                     .ToDictionary(kvp => kvp.Key, kvp => (string?)kvp.Value)
             )
             .Build();

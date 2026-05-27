@@ -4,6 +4,7 @@ using Cads.Cds.StorageBridge.Core.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Health;
+using Cads.Cds.StorageBridge.Infrastructure.Storage.Readers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,9 +23,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConfigureS3Clients, StorageBridgeS3Configurator>();
         services.AddSingleton<IFileChecksumService, S3FileChecksumService<CadsInternalClient>>();
         // Register module storage readers
+        services.AddSingleton<IStorageReader<CadsInternalClient>, BulkImportStorageReader<CadsInternalClient>>();
+
         // Register module storage writers
 
-        if (moduleConfig.CadsInternal.HealthcheckEnabled || moduleConfig.CadsExternal.HealthcheckEnabled)
+        if (moduleConfig.CadsInternal.HealthcheckEnabled)
         {
             services.AddSingleton<IEnableS3HealthCheck, CadsInternalHealthCheckMarker>();
         }
