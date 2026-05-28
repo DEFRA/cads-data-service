@@ -8,15 +8,14 @@ public abstract class EFRepository<TEntity, TDbContext>(TDbContext dbContext)
     where TEntity : class
     where TDbContext : DbContext
 {
-    public async Task AddAndSaveAsync(TEntity entity, CancellationToken cancellationToken)
+    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
         await DbContext.AddAsync(entity, cancellationToken);
-        await DbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task Remove(TEntity entity, CancellationToken cancellationToken)
+    public Task Remove(TEntity entity, CancellationToken cancellationToken)
     {
         DbContext.Remove(entity);
-        await DbContext.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 }
