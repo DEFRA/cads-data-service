@@ -80,7 +80,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
         await _context.DataSeedIngestionHistories.AddAsync(entity, TestContext.Current.CancellationToken);
         await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        await _repository.Remove(entity, TestContext.Current.CancellationToken);
+        await _repository.Remove(entity);
         await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _context.DataSeedIngestionHistories
@@ -103,7 +103,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
         await _context.DataSeedIngestionHistories.AddAsync(entity, TestContext.Current.CancellationToken);
         await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        await _repository.Remove(entity, TestContext.Current.CancellationToken);
+        await _repository.Remove(entity);
 
         var entry = _context.Entry(entity);
 
@@ -114,7 +114,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
     public async Task Remove_WithNullEntity_ThrowsException()
     {
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            _repository.Remove(null!, TestContext.Current.CancellationToken));
+            _repository.Remove(null!));
 
         Assert.NotNull(exception);
     }

@@ -5,5 +5,5 @@ public interface IRepository<TEntity> : IReadOnlyRepository<TEntity>
 {
     Task AddAsync(TEntity entity, CancellationToken cancellationToken);
 
-    Task Remove(TEntity entity, CancellationToken cancellationToken);
+    Task Remove(TEntity entity);
 }

@@ -13,7 +13,7 @@ public abstract class EFRepository<TEntity, TDbContext>(TDbContext dbContext)
         await DbContext.AddAsync(entity, cancellationToken);
     }
 
-    public Task Remove(TEntity entity, CancellationToken cancellationToken)
+    public Task Remove(TEntity entity)
     {
         DbContext.Remove(entity);
         return Task.CompletedTask;
