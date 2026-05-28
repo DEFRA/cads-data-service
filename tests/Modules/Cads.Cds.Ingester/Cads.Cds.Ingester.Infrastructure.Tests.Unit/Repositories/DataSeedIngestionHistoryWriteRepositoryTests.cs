@@ -19,7 +19,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task AddAsync_WithValidEntity_AddsEntityToContextAndSavesChanges()
+    public async Task AddAsync_WithValidEntity_AddsEntityToContext()
     {
         var entity = new DataSeedIngestionHistory
         {
@@ -29,10 +29,10 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
             Checksum = "abc123"
         };
 
-        await _repository.AddAndSaveAsync(entity, TestContext.Current.CancellationToken);
+        await _repository.AddAsync(entity, TestContext.Current.CancellationToken);
 
         var entry = _context.Entry(entity);
-        Assert.Equal(EntityState.Unchanged, entry.State);
+        Assert.Equal(EntityState.Added, entry.State);
     }
 
     [Fact]
@@ -46,8 +46,9 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
             Checksum = "abc123"
         };
 
-        await _repository.AddAndSaveAsync(entity, TestContext.Current.CancellationToken);
-
+        await _repository.AddAsync(entity, TestContext.Current.CancellationToken);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        
         var result = await _context.DataSeedIngestionHistories
             .SingleOrDefaultAsync(x => x.Id == entity.Id, TestContext.Current.CancellationToken);
 
@@ -61,7 +62,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
     public async Task AddAsync_WithNullEntity_ThrowsException()
     {
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() =>
-            _repository.AddAndSaveAsync(null!, TestContext.Current.CancellationToken));
+            _repository.AddAsync(null!, TestContext.Current.CancellationToken));
 
         Assert.NotNull(exception);
     }
@@ -80,6 +81,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
         await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         await _repository.Remove(entity, TestContext.Current.CancellationToken);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var result = await _context.DataSeedIngestionHistories
             .SingleOrDefaultAsync(x => x.Id == entity.Id, TestContext.Current.CancellationToken);
@@ -88,7 +90,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task Remove_WithExistingEntity_DetachesDeletedEntityAfterSaveChanges()
+    public async Task Remove_WithExistingEntity_DetachesDeletedEntity()
     {
         var entity = new DataSeedIngestionHistory
         {
@@ -105,7 +107,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
 
         var entry = _context.Entry(entity);
 
-        Assert.Equal(EntityState.Detached, entry.State);
+        Assert.Equal(EntityState.Deleted, entry.State);
     }
 
     [Fact]
