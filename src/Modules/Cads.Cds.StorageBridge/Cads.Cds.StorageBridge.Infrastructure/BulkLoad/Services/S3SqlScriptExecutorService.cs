@@ -28,18 +28,17 @@ public class S3SqlScriptExecutorService(
     [ExcludeFromCodeCoverage]
     public async Task<int> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
     {
-        var sourceKeyPrefix = job.SourceKey;
-        if (string.IsNullOrWhiteSpace(sourceKeyPrefix))
-            throw new ArgumentException("sourceKeyPrefix must not be empty.", nameof(sourceKeyPrefix));
+        if (string.IsNullOrWhiteSpace(job.SourceKey))
+            throw new ArgumentException("job.SourceKey must not be empty.", nameof(job.SourceKey));
 
-        logger.LogInformation("Starting SQL script execution for prefix {SourceKeyPrefix}", sourceKeyPrefix);
+        logger.LogInformation("Starting SQL script execution for prefix {SourceKey}", job.SourceKey);
 
-        var keys = await storageReader.ListKeysAsync(sourceKeyPrefix, cancellationToken);
+        var keys = await storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
         var keyList = keys.ToList();
 
         if (keyList.Count == 0)
         {
-            logger.LogWarning("No SQL script files found under prefix {SourceKeyPrefix}", sourceKeyPrefix);
+            logger.LogWarning("No SQL script files found under prefix {SourceKey}", job.SourceKey);
             return 0;
         }
 
@@ -55,13 +54,13 @@ public class S3SqlScriptExecutorService(
         }
 
         logger.LogInformation(
-            "Completed SQL script execution for prefix {SourceKeyPrefix}. {SuccessCount}/{TotalCount} files succeeded in {ElapsedMs}ms",
-            sourceKeyPrefix, successCount, keyList.Count, sw.ElapsedMilliseconds);
+            "Completed SQL script execution for prefix {SourceKey}. {SuccessCount}/{TotalCount} files succeeded in {ElapsedMs}ms",
+            job.SourceKey, successCount, keyList.Count, sw.ElapsedMilliseconds);
 
         return successCount;
     }
 
-    [ExcludeFromCodeCoverage(Justification = "Requires live PostgreSQL connection — covered by integration tests.")]
+    [ExcludeFromCodeCoverage]
     private async Task<bool> TryExecuteFileAsync(string key, CancellationToken cancellationToken)
     {
         logger.LogInformation("Processing SQL script file {Key}", key);
@@ -104,6 +103,7 @@ public class S3SqlScriptExecutorService(
     /// Handles the case where a history record already exists for the file.
     /// Returns false in all cases — either skipped (matching checksum) or quarantined (mismatched checksum).
     /// </summary>
+    [ExcludeFromCodeCoverage]
     private async Task<bool> HandleExistingFileAsync(
         DataSeedIngestionHistory existingRecord,
         string key,
@@ -131,7 +131,7 @@ public class S3SqlScriptExecutorService(
     /// Moves an S3 file to the error subdirectory by copying then deleting the original.
     /// S3 has no native move; this is copy + delete.
     /// </summary>
-    [ExcludeFromCodeCoverage(Justification = "Requires live S3/LocalStack — covered by integration tests.")]
+    [ExcludeFromCodeCoverage]
     private async Task MoveFileToErrorDirectoryAsync(string key, CancellationToken cancellationToken)
     {
         var s3Client = s3ClientFactory.GetClient<CadsInternalClient>();
@@ -160,6 +160,7 @@ public class S3SqlScriptExecutorService(
     /// Streams the S3 object and reads SQL text. The download is streamed from S3
     /// but the full string is materialised before PostgreSQL execution (driver requirement).
     /// </summary>
+    [ExcludeFromCodeCoverage]
     private async Task<string> ReadSqlFromS3Async(string key, CancellationToken cancellationToken)
     {
         using var response = await storageReader.GetObjectResponseAsync(key, cancellationToken);
@@ -174,7 +175,7 @@ public class S3SqlScriptExecutorService(
         return await reader.ReadToEndAsync(cancellationToken);
     }
 
-    [ExcludeFromCodeCoverage(Justification = "Requires live PostgreSQL connection — covered by integration tests.")]
+    [ExcludeFromCodeCoverage]
     private async Task ExecuteSqlInTransactionAsync(string sql, CancellationToken cancellationToken)
     {
         var connection = dbContext.Database.GetDbConnection();
@@ -201,7 +202,7 @@ public class S3SqlScriptExecutorService(
         }
     }
 
-    [ExcludeFromCodeCoverage(Justification = "Requires live PostgreSQL connection — covered by integration tests.")]
+    [ExcludeFromCodeCoverage]
     private async Task RecordIngestionHistoryAsync(string key, string checksum, CancellationToken cancellationToken)
     {
         await historyWriteRepository.AddAsync(new DataSeedIngestionHistory
