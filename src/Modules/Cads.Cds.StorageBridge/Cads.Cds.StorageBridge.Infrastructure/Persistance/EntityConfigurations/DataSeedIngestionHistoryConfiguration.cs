@@ -1,8 +1,8 @@
-using Cads.Cds.Ingester.Core.Domain.Entities;
+using Cads.Cds.StorageBridge.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Cads.Cds.Ingester.Infrastructure.Persistence.EntityConfigurations;
+namespace Cads.Cds.StorageBridge.Infrastructure.Persistance.EntityConfigurations;
 
 public class DataSeedIngestionHistoryConfiguration : IEntityTypeConfiguration<DataSeedIngestionHistory>
 {

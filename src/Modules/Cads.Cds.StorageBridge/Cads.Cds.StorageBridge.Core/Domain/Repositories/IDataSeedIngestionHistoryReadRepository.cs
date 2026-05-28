@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Core.Persistence;
-using Cads.Cds.Ingester.Core.Domain.Entities;
+using Cads.Cds.StorageBridge.Core.Domain.Entities;
 
-namespace Cads.Cds.Ingester.Core.Domain.Repositories;
+namespace Cads.Cds.StorageBridge.Core.Domain.Repositories;
 
 public interface IDataSeedIngestionHistoryReadRepository : IReadOnlyRepository<DataSeedIngestionHistory>
 {

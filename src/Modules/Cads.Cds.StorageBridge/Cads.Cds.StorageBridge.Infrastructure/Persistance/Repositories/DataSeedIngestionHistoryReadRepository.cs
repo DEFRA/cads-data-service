@@ -1,13 +1,13 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Repositories;
-using Cads.Cds.Ingester.Core.Domain.Entities;
-using Cads.Cds.Ingester.Core.Domain.Repositories;
-using Cads.Cds.Ingester.Infrastructure.Persistence.Contexts;
+using Cads.Cds.StorageBridge.Core.Domain.Entities;
+using Cads.Cds.StorageBridge.Core.Domain.Repositories;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cads.Cds.Ingester.Infrastructure.Persistence.Repositories;
+namespace Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 
-public class DataSeedIngestionHistoryReadRepository(IngesterReadDbContext dbContext)
-    : EFReadOnlyRepository<DataSeedIngestionHistory, IngesterReadDbContext>(dbContext),
+public class DataSeedIngestionHistoryReadRepository(StorageBridgeReadDbContext dbContext)
+    : EFReadOnlyRepository<DataSeedIngestionHistory, StorageBridgeReadDbContext>(dbContext),
         IDataSeedIngestionHistoryReadRepository
 {
     public async Task<DataSeedIngestionHistory?> GetByIdAsync(

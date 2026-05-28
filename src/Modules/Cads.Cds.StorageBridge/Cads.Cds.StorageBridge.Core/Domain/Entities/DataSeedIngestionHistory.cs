@@ -1,4 +1,4 @@
-namespace Cads.Cds.Ingester.Core.Domain.Entities;
+namespace Cads.Cds.StorageBridge.Core.Domain.Entities;
 
 public class DataSeedIngestionHistory
 {
