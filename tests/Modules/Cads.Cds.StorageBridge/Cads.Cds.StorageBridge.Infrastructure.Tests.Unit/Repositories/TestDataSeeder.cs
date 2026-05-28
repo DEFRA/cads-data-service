@@ -1,4 +1,4 @@
-using Cads.Cds.Ingester.Core.Domain.Entities;
+using Cads.Cds.StorageBridge.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.Ingester.Infrastructure.Tests.Unit.Repositories;

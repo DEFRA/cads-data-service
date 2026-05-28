@@ -1,20 +1,20 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
-using Cads.Cds.Ingester.Core.Domain.Entities;
-using Cads.Cds.Ingester.Infrastructure.Persistence.Contexts;
-using Cads.Cds.Ingester.Infrastructure.Persistence.Repositories;
+using Cads.Cds.StorageBridge.Core.Domain.Entities;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cads.Cds.Ingester.Infrastructure.Tests.Unit.Repositories;
+namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.Repositories;
 
 public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
 {
-    private readonly IngesterWriteDbContext _context;
+    private readonly StorageBridgeWriteDbContext _context;
     private readonly DataSeedIngestionHistoryWriteRepository _repository;
 
     public DataSeedIngestionHistoryWriteRepositoryTests()
     {
         // unique in-memory database name per test instance to isolate data
-        _context = DbContextFactory.CreateInMemoryDbContext<IngesterWriteDbContext>(Guid.NewGuid().ToString());
+        _context = DbContextFactory.CreateInMemoryDbContext<StorageBridgeWriteDbContext>(Guid.NewGuid().ToString());
         _repository = new DataSeedIngestionHistoryWriteRepository(_context);
     }
 

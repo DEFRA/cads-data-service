@@ -1,18 +1,19 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
-using Cads.Cds.Ingester.Infrastructure.Persistence.Contexts;
-using Cads.Cds.Ingester.Infrastructure.Persistence.Repositories;
+using Cads.Cds.Ingester.Infrastructure.Tests.Unit.Repositories;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 
-namespace Cads.Cds.Ingester.Infrastructure.Tests.Unit.Repositories;
+namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.Repositories;
 
 public class DataSeedIngestionHistoryReadRepositoryTests : IDisposable
 {
-    private readonly IngesterReadDbContext _context;
+    private readonly StorageBridgeReadDbContext _context;
     private readonly DataSeedIngestionHistoryReadRepository _repository;
 
     public DataSeedIngestionHistoryReadRepositoryTests()
     {
         // unique in-memory database name per test instance to isolate data
-        _context = DbContextFactory.CreateInMemoryDbContext<IngesterReadDbContext>(Guid.NewGuid().ToString());
+        _context = DbContextFactory.CreateInMemoryDbContext<StorageBridgeReadDbContext>(Guid.NewGuid().ToString());
         TestDataSeeder.Seed(_context);
         _repository = new DataSeedIngestionHistoryReadRepository(_context);
     }
