@@ -48,7 +48,7 @@ public class DataSeedIngestionHistoryWriteRepositoryTests : IDisposable
 
         await _repository.AddAsync(entity, TestContext.Current.CancellationToken);
         await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        
+
         var result = await _context.DataSeedIngestionHistories
             .SingleOrDefaultAsync(x => x.Id == entity.Id, TestContext.Current.CancellationToken);
 
