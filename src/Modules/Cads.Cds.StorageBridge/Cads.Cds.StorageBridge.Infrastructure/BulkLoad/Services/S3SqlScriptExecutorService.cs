@@ -29,7 +29,7 @@ public class S3SqlScriptExecutorService(
     public async Task<int> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(job.SourceKey))
-            throw new ArgumentException("job.SourceKey must not be empty.", nameof(job.SourceKey));
+            throw new ArgumentException("SourceKey must not be empty.", nameof(job));
 
         logger.LogInformation("Starting SQL script execution for prefix {SourceKey}", job.SourceKey);
 
