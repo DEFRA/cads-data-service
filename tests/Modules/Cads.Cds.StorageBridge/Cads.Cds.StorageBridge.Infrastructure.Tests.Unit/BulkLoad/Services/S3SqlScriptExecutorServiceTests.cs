@@ -1,6 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
+using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Repositories;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
@@ -14,7 +15,7 @@ namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.BulkLoad.Services;
 
 public class S3SqlScriptExecutorServiceTests
 {
-    private readonly Mock<IStorageReader<CadsInternalClient>> _storageReader = new();
+    private readonly Mock<IStorageService<CadsInternalClient>> _storageService = new();
     private readonly Mock<IS3ClientFactory> _s3ClientFactory = new();
     private readonly Mock<IFileChecksumService> _checksumService = new();
     private readonly Mock<IDataSeedIngestionHistoryRepository> _historyRepo = new();
@@ -52,7 +53,7 @@ public class S3SqlScriptExecutorServiceTests
     [Fact]
     public async Task ExecuteAsync_ShouldReturnZero_WhenNoKeysFound()
     {
-        _storageReader
+        _storageService
             .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -71,7 +72,7 @@ public class S3SqlScriptExecutorServiceTests
     [Fact]
     public async Task ExecuteAsync_ShouldReturnEmpty_WhenResponseStreamIsNull()
     {
-        _storageReader
+        _storageService
             .Setup(x => x.GetObjectResponseAsync(TestKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetObjectResponse());
         var sut = CreateService();
@@ -91,8 +92,7 @@ public class S3SqlScriptExecutorServiceTests
     private S3SqlScriptExecutorService CreateService() =>
         new(
             _dbContext,
-            _storageReader.Object,
-            _s3ClientFactory.Object,
+            _storageService.Object,
             _checksumService.Object,
             _historyRepo.Object,
             _logger.Object);
