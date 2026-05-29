@@ -19,8 +19,7 @@ public class S3SqlScriptExecutorService(
     IStorageReader<CadsInternalClient> storageReader,
     IS3ClientFactory s3ClientFactory,
     IFileChecksumService checksumService,
-    IDataSeedIngestionHistoryReadRepository historyReadRepository,
-    IDataSeedIngestionHistoryWriteRepository historyWriteRepository,
+    IDataSeedIngestionHistoryRepository historyRepository,
     ILogger<S3SqlScriptExecutorService> logger) : IS3SqlScriptExecutorService
 {
     private const string FileErrorSubDirectory = "data-seed/file-error";
@@ -75,7 +74,7 @@ public class S3SqlScriptExecutorService(
                 return false;
             }
 
-            var existingRecord = await historyReadRepository.GetByFileNameAsync(key, cancellationToken);
+            var existingRecord = await historyRepository.GetByFileNameAsync(key, cancellationToken);
 
             if (existingRecord is not null)
             {
@@ -205,7 +204,7 @@ public class S3SqlScriptExecutorService(
     [ExcludeFromCodeCoverage]
     private async Task RecordIngestionHistoryAsync(string key, string checksum, CancellationToken cancellationToken)
     {
-        await historyWriteRepository.AddAsync(new DataSeedIngestionHistory
+        await historyRepository.AddAsync(new DataSeedIngestionHistory
         {
             FileName = key,
             Checksum = checksum,
