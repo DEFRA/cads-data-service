@@ -3,7 +3,7 @@ using Cads.Cds.StorageBridge.Core.Domain.Entities;
 
 namespace Cads.Cds.StorageBridge.Core.Domain.Repositories;
 
-public interface IDataSeedIngestionHistoryReadRepository : IReadOnlyRepository<DataSeedIngestionHistory>
+public interface IDataSeedIngestionHistoryRepository : IRepository<DataSeedIngestionHistory>
 {
     Task<DataSeedIngestionHistory?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
