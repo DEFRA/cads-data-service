@@ -31,7 +31,7 @@ public class S3ToPostgresCopyService(
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
-    public async Task<bool> ExecuteAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
+    public async Task<bool> ExecuteAsync(CreateS3CsvBulkLoadJobDto job, CancellationToken cancellationToken = default)
     {
         ValidateJob(job);
 
@@ -114,7 +114,7 @@ public class S3ToPostgresCopyService(
     [ExcludeFromCodeCoverage]
     private async Task<int> ProcessFileAsync(
         string key,
-        CreateS3BulkLoadJobDto job,
+        CreateS3CsvBulkLoadJobDto job,
         IS3BulkLoadCommandFactory factory,
         DbConnection connection,
         DbCommand createTempTableCommand,
@@ -217,7 +217,7 @@ public class S3ToPostgresCopyService(
         return sanitisedResult;
     }
 
-    private static void ValidateJob(CreateS3BulkLoadJobDto job)
+    private static void ValidateJob(CreateS3CsvBulkLoadJobDto job)
     {
         if (job.ImportActionType == ImportActions.None)
             throw new InvalidOperationException("ImportActionType cannot be None.");
@@ -240,7 +240,7 @@ public class S3ToPostgresCopyService(
     }
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
-        CreateS3BulkLoadJobDto job,
+        CreateS3CsvBulkLoadJobDto job,
         IS3BulkLoadCommandFactory factory,
         CancellationToken cancellationToken)
     {

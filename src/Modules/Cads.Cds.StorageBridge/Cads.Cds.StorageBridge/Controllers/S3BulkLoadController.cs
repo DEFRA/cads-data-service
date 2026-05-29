@@ -15,15 +15,28 @@ public class S3BulkLoadController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
 
-    [HttpPost]
-    public async Task<IActionResult> Execute([FromBody] S3BulkLoadRequest request, CancellationToken cancellationToken)
+    [HttpPost("csv-import")]
+    public async Task<IActionResult> ExecuteCsvImport([FromBody] S3BulkLoadRequest request, CancellationToken cancellationToken)
     {
-        var command = new S3BulkLoadCommand
+        var command = new S3CsvBulkLoadCommand
         {
             SourceKey = request.SourceKey,
             BulkImportType = request.BulkImportType,
             Delimiter = request.Delimiter,
             ActionType = request.ActionType
+        };
+
+        var jobId = await _executor.ExecuteCommand(command, cancellationToken);
+
+        return Accepted(new JobResponse(jobId));
+    }
+
+    [HttpPost("sql-import")]
+    public async Task<IActionResult> ExecuteSqlImport([FromBody] S3BulkLoadRequest request, CancellationToken cancellationToken)
+    {
+        var command = new S3SqlImportCommand  
+        {
+            SourceKey = request.SourceKey
         };
 
         var jobId = await _executor.ExecuteCommand(command, cancellationToken);

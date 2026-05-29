@@ -19,7 +19,7 @@ public class StorageBridgeWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
-    public TestBulkLoadJobChannel TestBulkLoadJobChannel { get; } = new();
+    public TestCsvBulkLoadJobChannel TestBulkLoadJobChannel { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

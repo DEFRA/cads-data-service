@@ -13,9 +13,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton(Channel.CreateUnbounded<CreateS3BulkLoadJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
 
-        services.AddHostedService<S3BulkLoadBackgroundService>();
+        services.AddHostedService<S3CsvBulkLoadBackgroundService>();
+        services.AddHostedService<S3SqlBulkLoadBackgroundService>();
 
-        services.AddTransient<IS3BulkLoadJobEnqueuer, S3BulkLoadJobEnqueuer>();
+        services.AddTransient<IS3BulkLoadJobEnqueuer<CreateS3CsvBulkLoadJobDto>, S3BulkLoadJobEnqueuer<CreateS3CsvBulkLoadJobDto>>();
+        services.AddTransient<IS3BulkLoadJobEnqueuer<CreateS3SqlImportJobDto>, S3BulkLoadJobEnqueuer<CreateS3SqlImportJobDto>>();
 
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
 
