@@ -29,14 +29,20 @@ public class S3SqlScriptExecutorService(
         if (string.IsNullOrWhiteSpace(job.SourceKey))
             throw new ArgumentException("SourceKey must not be empty.", nameof(job));
 
-        logger.LogInformation("Starting SQL script execution for prefix {SourceKey}", job.SourceKey);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Starting SQL script execution for prefix {SourceKey}", job.SourceKey);
+        }
 
         var keys = await storageService.ListKeysAsync(job.SourceKey, cancellationToken);
         var keyList = keys.ToList();
 
         if (keyList.Count == 0)
         {
-            logger.LogWarning("No SQL script files found under prefix {SourceKey}", job.SourceKey);
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning("No SQL script files found under prefix {SourceKey}", job.SourceKey);
+            }
             return 0;
         }
 
@@ -51,9 +57,12 @@ public class S3SqlScriptExecutorService(
             if (executed) successCount++;
         }
 
-        logger.LogInformation(
-            "Completed SQL script execution for prefix {SourceKey}. {SuccessCount}/{TotalCount} files succeeded in {ElapsedMs}ms",
-            job.SourceKey, successCount, keyList.Count, sw.ElapsedMilliseconds);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Completed SQL script execution for prefix {SourceKey}. {SuccessCount}/{TotalCount} files succeeded in {ElapsedMs}ms",
+                job.SourceKey, successCount, keyList.Count, sw.ElapsedMilliseconds);
+        }
 
         return successCount;
     }
@@ -61,7 +70,10 @@ public class S3SqlScriptExecutorService(
     [ExcludeFromCodeCoverage]
     private async Task<bool> TryExecuteFileAsync(string key, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Processing SQL script file {Key}", key);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Processing SQL script file {Key}", key);
+        }
 
         try
         {
@@ -69,7 +81,10 @@ public class S3SqlScriptExecutorService(
 
             if (string.IsNullOrWhiteSpace(sql))
             {
-                logger.LogWarning("SQL script file {Key} is empty — skipping.", key);
+                if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    logger.LogWarning("SQL script file {Key} is empty — skipping.", key);
+                }
                 return false;
             }
 
@@ -89,12 +104,19 @@ public class S3SqlScriptExecutorService(
 
             await MoveFileToDirectoryAsync(key, FileProcessedSubDirectory, cancellationToken);
 
-            logger.LogInformation("Successfully executed SQL script file {Key}", key);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("Successfully executed SQL script file {Key}", key);
+            }
+
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to execute SQL script file {Key}: {Reason}", key, ex.Message);
+            if (logger.IsEnabled(LogLevel.Error))
+            {
+                logger.LogError(ex, "Failed to execute SQL script file {Key}: {Reason}", key, ex.Message);
+            }
             return false;
         }
     }
@@ -113,15 +135,21 @@ public class S3SqlScriptExecutorService(
 
         if (string.Equals(currentChecksum, existingRecord.Checksum, StringComparison.OrdinalIgnoreCase))
         {
-            logger.LogInformation(
-                "SQL script file {Key} has already been applied and checksum matches — skipping.", key);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("SQL script file {Key} has already been applied and checksum matches — skipping.",
+                    key);
+            }
             return false;
         }
 
-        logger.LogError(
-            "SQL script file {Key} checksum mismatch. Expected: {ExpectedChecksum}, Actual: {ActualChecksum}. " +
-            "File will be moved to error directory.",
-            key, existingRecord.Checksum, currentChecksum);
+        if (logger.IsEnabled(LogLevel.Error))
+        {
+            logger.LogError(
+                "SQL script file {Key} checksum mismatch. Expected: {ExpectedChecksum}, Actual: {ActualChecksum}. " +
+                "File will be moved to error directory.",
+                key, existingRecord.Checksum, currentChecksum);
+        }
 
         await MoveFileToDirectoryAsync(key, FileErrorSubDirectory, cancellationToken);
         return false;
@@ -138,8 +166,10 @@ public class S3SqlScriptExecutorService(
         var destinationKey = $"{fileSubDirectory}/{fileName}";
 
         await storageService.CopyAsync(key, destinationKey, cancellationToken);
-
-        logger.LogInformation("Moved SQL script file {Key} to {DestinationKey}", key, destinationKey);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Moved SQL script file {Key} to {DestinationKey}", key, destinationKey);
+        }
     }
 
     /// <summary>
@@ -153,7 +183,11 @@ public class S3SqlScriptExecutorService(
 
         if (response?.ResponseStream == null)
         {
-            logger.LogWarning("Null or missing response stream for SQL script file {Key}", key);
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning("Null or missing response stream for SQL script file {Key}", key);
+            }
+
             return string.Empty;
         }
 

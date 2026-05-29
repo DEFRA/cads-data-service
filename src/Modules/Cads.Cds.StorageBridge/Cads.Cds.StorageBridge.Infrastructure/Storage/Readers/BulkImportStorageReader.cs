@@ -7,15 +7,15 @@ namespace Cads.Cds.StorageBridge.Infrastructure.Storage.Readers;
 public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
     : IStorageReader<T> where T : IStorageClient, new()
 {
-    private readonly IAmazonS3 _s3Client = s3ClientFactory.GetClient<T>();
-    private readonly string _bucketName = s3ClientFactory.GetClientBucketName<T>();
+    protected readonly IAmazonS3 S3Client = s3ClientFactory.GetClient<T>();
+    protected readonly string BucketName = s3ClientFactory.GetClientBucketName<T>();
 
     public async Task<GetObjectResponse> GetObjectResponseAsync(string key, CancellationToken cancellationToken = default)
     {
         // Get the object from S3
-        return await _s3Client.GetObjectAsync(new GetObjectRequest
+        return await S3Client.GetObjectAsync(new GetObjectRequest
         {
-            BucketName = _bucketName,
+            BucketName = BucketName,
             Key = key
         }, cancellationToken);
     }
@@ -37,7 +37,7 @@ public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
 
         var request = new ListObjectsV2Request
         {
-            BucketName = _bucketName,
+            BucketName = BucketName,
             Prefix = prefix.EndsWith('/') ? prefix : prefix + "/"
         };
 
@@ -45,7 +45,7 @@ public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
 
         do
         {
-            response = await _s3Client.ListObjectsV2Async(request, cancellationToken);
+            response = await S3Client.ListObjectsV2Async(request, cancellationToken);
             keys.AddRange(response.S3Objects.Select(o => o.Key));
             request.ContinuationToken = response.NextContinuationToken;
         }
@@ -62,7 +62,7 @@ public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
         // 1. Check if exact object exists (file)
         try
         {
-            await _s3Client.GetObjectMetadataAsync(_bucketName, key);
+            await S3Client.GetObjectMetadataAsync(BucketName, key);
             return "File";
         }
         catch (AmazonS3Exception e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -73,12 +73,12 @@ public class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
         // 2. Check if any object exists with this key as a prefix (folder)
         var request = new ListObjectsV2Request
         {
-            BucketName = _bucketName,
+            BucketName = BucketName,
             Prefix = key.EndsWith('/') ? key : key + "/",
             MaxKeys = 1
         };
 
-        var response = await _s3Client.ListObjectsV2Async(request);
+        var response = await S3Client.ListObjectsV2Async(request);
 
         if (response?.S3Objects?.Count > 0)
         {
