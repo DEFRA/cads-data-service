@@ -36,7 +36,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.None,
             SourceKey = TestFileName
@@ -50,7 +50,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert,
             SourceKey = ""
@@ -67,7 +67,7 @@ public class S3ToPostgresCopyServiceTests
         _storageReader.Setup(x => x.ListKeysAsync(TestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert,
             SourceKey = TestFileName,
@@ -97,7 +97,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insertCmd);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert,
             BulkImportType = BulkLoadDataType.Locations
@@ -116,7 +116,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateUpdateCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(updateCmd);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Update,
             BulkImportType = BulkLoadDataType.Locations
@@ -135,7 +135,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(upsertCmd);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert | ImportActions.Update,
             BulkImportType = BulkLoadDataType.Locations
@@ -154,7 +154,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateDeleteCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(deleteCmd);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Delete,
             BulkImportType = BulkLoadDataType.Locations
