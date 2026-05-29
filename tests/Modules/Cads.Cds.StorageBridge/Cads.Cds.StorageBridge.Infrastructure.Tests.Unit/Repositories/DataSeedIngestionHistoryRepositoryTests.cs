@@ -125,7 +125,7 @@ public class DataSeedIngestionHistoryRepositoryTests : IDisposable
 
         Assert.NotNull(exception);
     }
-    
+
         [Fact]
     public async Task GetById_Found_ReturnsItem()
     {

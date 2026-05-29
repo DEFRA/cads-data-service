@@ -1,7 +1,6 @@
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Entities;
@@ -16,13 +15,13 @@ namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
 public class S3SqlScriptExecutorService(
     StorageBridgeWriteDbContext dbContext,
-    IStorageReader<CadsInternalClient> storageReader,
-    IS3ClientFactory s3ClientFactory,
+    IStorageService<CadsInternalClient> storageService,
     IFileChecksumService checksumService,
     IDataSeedIngestionHistoryRepository historyRepository,
     ILogger<S3SqlScriptExecutorService> logger) : IS3SqlScriptExecutorService
 {
     private const string FileErrorSubDirectory = "data-seed/file-error";
+    private const string FileProcessedSubDirectory = "data-seed/file-processed";
 
     [ExcludeFromCodeCoverage]
     public async Task<int> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
@@ -32,7 +31,7 @@ public class S3SqlScriptExecutorService(
 
         logger.LogInformation("Starting SQL script execution for prefix {SourceKey}", job.SourceKey);
 
-        var keys = await storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
+        var keys = await storageService.ListKeysAsync(job.SourceKey, cancellationToken);
         var keyList = keys.ToList();
 
         if (keyList.Count == 0)
@@ -88,6 +87,8 @@ public class S3SqlScriptExecutorService(
             var checksum = await checksumService.ComputeChecksumAsync(key, cancellationToken);
             await RecordIngestionHistoryAsync(key, checksum, cancellationToken);
 
+            await MoveFileToDirectoryAsync(key, FileProcessedSubDirectory, cancellationToken);
+
             logger.LogInformation("Successfully executed SQL script file {Key}", key);
             return true;
         }
@@ -122,7 +123,7 @@ public class S3SqlScriptExecutorService(
             "File will be moved to error directory.",
             key, existingRecord.Checksum, currentChecksum);
 
-        await MoveFileToErrorDirectoryAsync(key, cancellationToken);
+        await MoveFileToDirectoryAsync(key, FileErrorSubDirectory, cancellationToken);
         return false;
     }
 
@@ -131,26 +132,12 @@ public class S3SqlScriptExecutorService(
     /// S3 has no native move; this is copy + delete.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    private async Task MoveFileToErrorDirectoryAsync(string key, CancellationToken cancellationToken)
+    private async Task MoveFileToDirectoryAsync(string key, string fileSubDirectory, CancellationToken cancellationToken)
     {
-        var s3Client = s3ClientFactory.GetClient<CadsInternalClient>();
-        var bucketName = s3ClientFactory.GetClientBucketName<CadsInternalClient>();
         var fileName = Path.GetFileName(key);
-        var destinationKey = $"{FileErrorSubDirectory}/{fileName}";
+        var destinationKey = $"{fileSubDirectory}/{fileName}";
 
-        await s3Client.CopyObjectAsync(new CopyObjectRequest
-        {
-            SourceBucket = bucketName,
-            SourceKey = key,
-            DestinationBucket = bucketName,
-            DestinationKey = destinationKey
-        }, cancellationToken);
-
-        await s3Client.DeleteObjectAsync(new DeleteObjectRequest
-        {
-            BucketName = bucketName,
-            Key = key
-        }, cancellationToken);
+        await storageService.CopyAsync(key, destinationKey, cancellationToken);
 
         logger.LogInformation("Moved SQL script file {Key} to {DestinationKey}", key, destinationKey);
     }
@@ -162,7 +149,7 @@ public class S3SqlScriptExecutorService(
     [ExcludeFromCodeCoverage]
     private async Task<string> ReadSqlFromS3Async(string key, CancellationToken cancellationToken)
     {
-        using var response = await storageReader.GetObjectResponseAsync(key, cancellationToken);
+        using var response = await storageService.GetObjectResponseAsync(key, cancellationToken);
 
         if (response?.ResponseStream == null)
         {
