@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 
-public class DataSeedIngestionHistoryReadRepository(StorageBridgeReadDbContext dbContext)
-    : EFReadOnlyRepository<DataSeedIngestionHistory, StorageBridgeReadDbContext>(dbContext),
-        IDataSeedIngestionHistoryReadRepository
+public class DataSeedIngestionHistoryRepository(StorageBridgeWriteDbContext dbContext)
+    : EFRepository<DataSeedIngestionHistory, StorageBridgeWriteDbContext>(dbContext),
+        IDataSeedIngestionHistoryRepository
 {
     public async Task<DataSeedIngestionHistory?> GetByIdAsync(
         long id,

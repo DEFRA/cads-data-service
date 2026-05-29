@@ -1,7 +1,6 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
-using Cads.Cds.StorageBridge.Core.Domain.Entities;
 using Cads.Cds.StorageBridge.Core.Domain.Repositories;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
@@ -10,7 +9,6 @@ using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Text;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.BulkLoad.Services;
 
@@ -19,8 +17,7 @@ public class S3SqlScriptExecutorServiceTests
     private readonly Mock<IStorageReader<CadsInternalClient>> _storageReader = new();
     private readonly Mock<IS3ClientFactory> _s3ClientFactory = new();
     private readonly Mock<IFileChecksumService> _checksumService = new();
-    private readonly Mock<IDataSeedIngestionHistoryReadRepository> _historyReadRepo = new();
-    private readonly Mock<IDataSeedIngestionHistoryWriteRepository> _historyWriteRepo = new();
+    private readonly Mock<IDataSeedIngestionHistoryRepository> _historyRepo = new();
     private readonly Mock<ILogger<S3SqlScriptExecutorService>> _logger = new();
 
     // DbContext is not exercised in unit tests — pass null; DB-touching methods are ExcludeFromCodeCoverage
@@ -97,7 +94,6 @@ public class S3SqlScriptExecutorServiceTests
             _storageReader.Object,
             _s3ClientFactory.Object,
             _checksumService.Object,
-            _historyReadRepo.Object,
-            _historyWriteRepo.Object,
+            _historyRepo.Object,
             _logger.Object);
 }
