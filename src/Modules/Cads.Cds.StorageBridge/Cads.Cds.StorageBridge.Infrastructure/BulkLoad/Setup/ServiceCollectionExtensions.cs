@@ -22,8 +22,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
 
         services.AddTransient<IS3SqlScriptExecutorService, S3SqlScriptExecutorService>();
-        services.AddScoped<IDataSeedIngestionHistoryReadRepository, DataSeedIngestionHistoryReadRepository>();
-        services.AddScoped<IDataSeedIngestionHistoryWriteRepository, DataSeedIngestionHistoryWriteRepository>();
+
+        services.AddScoped<IDataSeedIngestionHistoryRepository, DataSeedIngestionHistoryRepository>();
 
         services.AddScoped<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
 
