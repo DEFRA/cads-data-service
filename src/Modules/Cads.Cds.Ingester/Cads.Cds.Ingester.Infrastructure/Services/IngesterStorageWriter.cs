@@ -20,4 +20,9 @@ public class IngesterStorageWriter<T>(IS3ClientFactory s3ClientFactory) : IStora
 
         await _s3Client.PutObjectAsync(putObjectRequest, cancellationToken);
     }
+
+    public Task CopyAsync(string sourceKey, string targetKey, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }
