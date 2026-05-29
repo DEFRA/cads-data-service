@@ -1,4 +1,3 @@
-using Amazon.S3;
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
@@ -10,34 +9,32 @@ using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Text;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.BulkLoad.Services;
 
 public class S3SqlScriptExecutorServiceTests
 {
     private readonly Mock<IStorageService<CadsInternalClient>> _storageService = new();
-    private readonly Mock<IS3ClientFactory> _s3ClientFactory = new();
     private readonly Mock<IFileChecksumService> _checksumService = new();
     private readonly Mock<IDataSeedIngestionHistoryRepository> _historyRepo = new();
     private readonly Mock<ILogger<S3SqlScriptExecutorService>> _logger = new();
 
-    // DbContext is not exercised in unit tests — pass null; DB-touching methods are ExcludeFromCodeCoverage
+    // DbContext is not exercised in unit tests — DB-touching methods are ExcludeFromCodeCoverage
     private readonly StorageBridgeWriteDbContext _dbContext = null!;
 
     private const string TestPrefix = "sql-scripts/";
     private const string TestKey = "sql-scripts/insert_animals.sql";
-    private const string TestSql = "INSERT INTO animals (id, name) VALUES (1, 'Cow');";
-    private const string TestChecksum = "abc123def456";
 
     // -----------------------------------------------------------------------
-    // ExecuteAsync — argument validation
+    // ExecuteAsync — argument validation (fires before any I/O, fully testable)
     // -----------------------------------------------------------------------
 
     [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public async Task ExecuteAsync_ShouldThrow_WhenSourceKeyPrefixIsNullOrWhitespace(string? prefix)
+    public async Task ExecuteAsync_ShouldThrow_WhenSourceKeyIsNullOrWhitespace(string? prefix)
     {
         var sut = CreateService();
         var job = new CreateS3SqlImportJobDto { SourceKey = prefix! };
@@ -57,32 +54,87 @@ public class S3SqlScriptExecutorServiceTests
             .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var sut = CreateService();
-        var job = new CreateS3SqlImportJobDto { SourceKey = TestPrefix };
+        var result = await CreateService().ExecuteAsync(
+            new CreateS3SqlImportJobDto { SourceKey = TestPrefix },
+            TestContext.Current.CancellationToken);
 
-        var result = await sut.ExecuteAsync(job, TestContext.Current.CancellationToken);
+        result.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ShouldNotCallGetObject_WhenNoKeysFound()
+    {
+        _storageService
+            .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        await CreateService().ExecuteAsync(
+            new CreateS3SqlImportJobDto { SourceKey = TestPrefix },
+            TestContext.Current.CancellationToken);
+
+        _storageService.Verify(
+            x => x.GetObjectResponseAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    // -----------------------------------------------------------------------
+    // ExecuteAsync — empty/null S3 stream skips file (returns 0 successes)
+    // -----------------------------------------------------------------------
+
+    [Fact]
+    public async Task ExecuteAsync_ShouldReturnZero_WhenResponseStreamIsNull()
+    {
+        _storageService
+            .Setup(x => x.ListKeysAsync(TestKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([TestKey]);
+
+        _storageService
+            .Setup(x => x.GetObjectResponseAsync(TestKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetObjectResponse()); // ResponseStream is null
+
+        var result = await CreateService().ExecuteAsync(
+            new CreateS3SqlImportJobDto { SourceKey = TestKey },
+            TestContext.Current.CancellationToken);
+
+        result.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ShouldReturnZero_WhenFileContentIsWhitespace()
+    {
+        _storageService
+            .Setup(x => x.ListKeysAsync(TestKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([TestKey]);
+
+        _storageService
+            .Setup(x => x.GetObjectResponseAsync(TestKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetObjectResponse
+            {
+                ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes("   "))
+            });
+
+        var result = await CreateService().ExecuteAsync(
+            new CreateS3SqlImportJobDto { SourceKey = TestKey },
+            TestContext.Current.CancellationToken);
 
         result.Should().Be(0);
     }
 
     // -----------------------------------------------------------------------
-    // ReadSqlFromS3Async — null response stream returns empty string
+    // ExecuteAsync — ListKeysAsync propagates exceptions
     // -----------------------------------------------------------------------
 
     [Fact]
-    public async Task ExecuteAsync_ShouldReturnEmpty_WhenResponseStreamIsNull()
+    public async Task ExecuteAsync_ShouldPropagate_WhenListKeysFails()
     {
         _storageService
-            .Setup(x => x.GetObjectResponseAsync(TestKey, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetObjectResponse());
-        var sut = CreateService();
-        var result = await sut.ExecuteAsync(new CreateS3SqlImportJobDto
-        {
-            JobId = Guid.NewGuid(),
-            SourceKey = TestKey,
-        }, TestContext.Current.CancellationToken);
+            .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("S3 unreachable"));
 
-        result.Should().Be(0);
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            CreateService().ExecuteAsync(
+                new CreateS3SqlImportJobDto { SourceKey = TestPrefix },
+                TestContext.Current.CancellationToken));
     }
 
     // -----------------------------------------------------------------------
