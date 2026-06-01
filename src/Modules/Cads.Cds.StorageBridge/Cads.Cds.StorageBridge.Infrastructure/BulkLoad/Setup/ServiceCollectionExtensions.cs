@@ -4,6 +4,8 @@ using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Channels;
+using Cads.Cds.StorageBridge.Core.Domain.Repositories;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Setup;
 
@@ -20,7 +22,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IS3BulkLoadJobEnqueuer<CreateS3SqlImportJobDto>, S3BulkLoadJobEnqueuer<CreateS3SqlImportJobDto>>();
 
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
+        services.AddTransient<IS3SqlScriptExecutorService, S3SqlScriptExecutorService>();
 
+        services.AddScoped<IDataSeedIngestionHistoryRepository, DataSeedIngestionHistoryRepository>();
         services.AddScoped<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
 
         return services;

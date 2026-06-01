@@ -8,7 +8,7 @@ namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 public class S3SqlBulkLoadBackgroundService(
     Channel<CreateS3SqlImportJobDto> channel,
     ILogger<S3SqlBulkLoadBackgroundService> logger,
-    IS3ToPostgresSqlImportService processor)
+    IS3SqlScriptExecutorService processor)
     : S3BulkLoadBackgroundService<CreateS3SqlImportJobDto>(channel, logger, processor)
 {
 }   

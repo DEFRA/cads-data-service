@@ -12,11 +12,11 @@ using System.Net.Http.Json;
 
 namespace Cads.Cds.StorageBridge.Tests.Component.S3BulkLoad;
 
-public class S3BulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : IClassFixture<StorageBridgeTestFixture>
+public class S3CsvBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : IClassFixture<StorageBridgeTestFixture>
 {
     private readonly StorageBridgeTestFixture _testFixture = testFixture;
 
-    private const string Endpoint = TestEndpointConstants.StorageBridgeS3BulkLoadRoot;
+    private const string Endpoint = TestEndpointConstants.StorageBridgeS3CsvBulkLoadRoot;
 
     [Fact]
     public async Task GivenInvalidRequest_WhenS3BulkLoadRequested_ShouldReturnBadRequest()
@@ -50,7 +50,7 @@ public class S3BulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : ICl
     }
 
     private static StringContent? InvalidS3BulkLoadRequest =>
-        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3BulkLoadRequest
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvBulkLoadRequest
         {
             SourceKey = string.Empty,
             BulkImportType = BulkLoadDataType.None,
@@ -58,7 +58,7 @@ public class S3BulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : ICl
         });
 
     private static StringContent? ValidS3BulkLoadRequest =>
-        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3BulkLoadRequest
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvBulkLoadRequest
         {
             SourceKey = "LOCATIONS.part-0001.csv",
             BulkImportType = BulkLoadDataType.Locations,

@@ -60,7 +60,7 @@ public class S3ToPostgresCopyServiceTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ShouldReturnFalse_WhenNoKeysFound()
+    public async Task ExecuteAsync_ShouldReturnZero_WhenNoKeysFound()
     {
         var service = CreateService();
 
@@ -76,7 +76,7 @@ public class S3ToPostgresCopyServiceTests
 
         var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
 
-        result.Should().BeFalse();
+        result.Should().Be(0);
     }
 
     [Theory]

@@ -31,7 +31,7 @@ public class S3ToPostgresCopyService(
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
-    public async Task<bool> ExecuteAsync(CreateS3CsvBulkLoadJobDto job, CancellationToken cancellationToken = default)
+    public async Task<int> ExecuteAsync(CreateS3CsvBulkLoadJobDto job, CancellationToken cancellationToken = default)
     {
         ValidateJob(job);
 
@@ -42,7 +42,7 @@ public class S3ToPostgresCopyService(
         }
 
         var keys = await storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
-        if (!keys.Any()) return false;
+        if (!keys.Any()) return 0;
 
         using var scope = scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
@@ -97,7 +97,7 @@ public class S3ToPostgresCopyService(
                 job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
-        return true;
+        return totalRows;
     }
 
     /// <summary>

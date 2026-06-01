@@ -16,7 +16,7 @@ public class S3BulkLoadController(IRequestExecutor executor) : ControllerBase
     private readonly IRequestExecutor _executor = executor;
 
     [HttpPost("csv-import")]
-    public async Task<IActionResult> ExecuteCsvImport([FromBody] S3BulkLoadRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> ExecuteCsvImport([FromBody] S3CsvBulkLoadRequest request, CancellationToken cancellationToken)
     {
         var command = new S3CsvBulkLoadCommand
         {
@@ -32,7 +32,7 @@ public class S3BulkLoadController(IRequestExecutor executor) : ControllerBase
     }
 
     [HttpPost("sql-import")]
-    public async Task<IActionResult> ExecuteSqlImport([FromBody] S3BulkLoadRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> ExecuteSqlImport([FromBody] S3SqlBulkLoadRequest request, CancellationToken cancellationToken)
     {
         var command = new S3SqlImportCommand  
         {
