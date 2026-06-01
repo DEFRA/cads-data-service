@@ -13,7 +13,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureBulkLoadServices(this IServiceCollection services)
     {
-        services.AddSingleton(Channel.CreateUnbounded<CreateS3BulkLoadJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
+        services.AddSingleton(Channel.CreateUnbounded<CreateS3CsvBulkLoadJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
+        services.AddSingleton(Channel.CreateUnbounded<CreateS3SqlImportJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
 
         services.AddHostedService<S3CsvBulkLoadBackgroundService>();
         services.AddHostedService<S3SqlBulkLoadBackgroundService>();
@@ -25,7 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IS3SqlScriptExecutorService, S3SqlScriptExecutorService>();
 
         services.AddScoped<IDataSeedIngestionHistoryRepository, DataSeedIngestionHistoryRepository>();
-        services.AddScoped<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
+        services.AddSingleton<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
 
         return services;
     }
