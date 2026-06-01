@@ -2,6 +2,7 @@ using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
+using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
@@ -257,19 +258,25 @@ public class S3ToPostgresCopyServiceTests
 
     private S3ToPostgresCopyService CreateService()
     {
+        _factoryProvider
+          .Setup(x => x.Create(It.IsAny<NpgsqlConnection>()))
+          .Returns(_factory.Object);
+
         _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
             .Returns(null!);
-        _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
-        _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
 
-        _factoryProvider
-            .Setup(x => x.Create(It.IsAny<NpgsqlConnection>()))
-            .Returns(_factory.Object);
+        _provider.Setup(x => x.GetService(typeof(IStorageService<CadsInternalClient>)))
+           .Returns(_storageReader);
+
+        _provider.Setup(x => x.GetService(typeof(IS3BulkLoadCommandFactoryProvider)))
+           .Returns(_factoryProvider);
+
+        _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
+
+        _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
 
         return new S3ToPostgresCopyService(
             _scopeFactory.Object,
-            _storageReader.Object,
-            _factoryProvider.Object,
             _logger.Object);
     }
 

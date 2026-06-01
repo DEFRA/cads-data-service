@@ -11,8 +11,7 @@ namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 public abstract class S3BulkLoadBackgroundService<T>(
     Channel<T> channel,
     ILogger<S3BulkLoadBackgroundService<T>> logger,
-    IS3ToPostgresService<T> processor, IServiceScopeFactory serviceScopeFactory
-    ) : BackgroundService
+    IS3ToPostgresService<T> processor) : BackgroundService
     where T : CreateS3BulkLoadJobDto
 {
     private readonly int _maxParallelImports = 5;

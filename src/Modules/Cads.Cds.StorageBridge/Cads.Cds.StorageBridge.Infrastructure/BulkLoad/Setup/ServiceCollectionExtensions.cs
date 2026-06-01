@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IS3SqlScriptExecutorService, S3SqlScriptExecutorService>();
 
         services.AddScoped<IDataSeedIngestionHistoryRepository, DataSeedIngestionHistoryRepository>();
-        services.AddSingleton<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
+        services.AddScoped<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
 
         return services;
     }
