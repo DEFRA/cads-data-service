@@ -4,13 +4,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
 public abstract class S3BulkLoadBackgroundService<T>(
     Channel<T> channel,
     ILogger<S3BulkLoadBackgroundService<T>> logger,
-    IS3ToPostgresService<T> processor
+    IS3ToPostgresService<T> processor, IServiceScopeFactory serviceScopeFactory
     ) : BackgroundService
     where T : CreateS3BulkLoadJobDto
 {
