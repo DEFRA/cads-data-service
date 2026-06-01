@@ -1,6 +1,3 @@
-using System.Data;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Entities;
@@ -9,19 +6,25 @@ using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
 public class S3SqlScriptExecutorService(
-    StorageBridgeWriteDbContext dbContext,
-    IStorageService<CadsInternalClient> storageService,
-    IFileChecksumService checksumService,
-    IDataSeedIngestionHistoryRepository historyRepository,
+    IServiceScopeFactory serviceScopeFactory,
     ILogger<S3SqlScriptExecutorService> logger) : IS3SqlScriptExecutorService
 {
     private const string FileErrorSubDirectory = "data-seed/file-error";
     private const string FileProcessedSubDirectory = "data-seed/file-processed";
+
+    private StorageBridgeWriteDbContext _dbContext;
+    private IStorageService<CadsInternalClient> _storageService;
+    private IFileChecksumService _checksumService;
+    private IDataSeedIngestionHistoryRepository _historyRepository;
 
     [ExcludeFromCodeCoverage]
     public async Task<int> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
@@ -34,7 +37,14 @@ public class S3SqlScriptExecutorService(
             logger.LogInformation("Starting SQL script execution for prefix {SourceKey}", job.SourceKey);
         }
 
-        var keys = await storageService.ListKeysAsync(job.SourceKey, cancellationToken);
+        await using var scope = serviceScopeFactory.CreateAsyncScope();
+
+        _dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
+        _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
+        _checksumService = scope.ServiceProvider.GetRequiredService<IFileChecksumService>();
+        _historyRepository = scope.ServiceProvider.GetRequiredService<IDataSeedIngestionHistoryRepository>();
+
+        var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken);
         var keyList = keys.ToList();
 
         if (keyList.Count == 0)
@@ -88,7 +98,7 @@ public class S3SqlScriptExecutorService(
                 return false;
             }
 
-            var existingRecord = await historyRepository.GetByFileNameAsync(key, cancellationToken);
+            var existingRecord = await _historyRepository.GetByFileNameAsync(key, cancellationToken);
 
             if (existingRecord is not null)
             {
@@ -99,7 +109,7 @@ public class S3SqlScriptExecutorService(
             await ExecuteSqlInTransactionAsync(sql, cancellationToken);
 
             // Record successful ingestion
-            var checksum = await checksumService.ComputeChecksumAsync(key, cancellationToken);
+            var checksum = await _checksumService.ComputeChecksumAsync(key, cancellationToken);
             await RecordIngestionHistoryAsync(key, checksum, cancellationToken);
 
             await MoveFileToDirectoryAsync(key, FileProcessedSubDirectory, cancellationToken);
@@ -131,7 +141,7 @@ public class S3SqlScriptExecutorService(
         string key,
         CancellationToken cancellationToken)
     {
-        var currentChecksum = await checksumService.ComputeChecksumAsync(key, cancellationToken);
+        var currentChecksum = await _checksumService.ComputeChecksumAsync(key, cancellationToken);
 
         if (string.Equals(currentChecksum, existingRecord.Checksum, StringComparison.OrdinalIgnoreCase))
         {
@@ -165,7 +175,7 @@ public class S3SqlScriptExecutorService(
         var fileName = Path.GetFileName(key);
         var destinationKey = $"{fileSubDirectory}/{fileName}";
 
-        await storageService.CopyAsync(key, destinationKey, cancellationToken);
+        await _storageService.CopyAsync(key, destinationKey, cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation("Moved SQL script file {Key} to {DestinationKey}", key, destinationKey);
@@ -179,7 +189,7 @@ public class S3SqlScriptExecutorService(
     [ExcludeFromCodeCoverage]
     private async Task<string> ReadSqlFromS3Async(string key, CancellationToken cancellationToken)
     {
-        using var response = await storageService.GetObjectResponseAsync(key, cancellationToken);
+        using var response = await _storageService.GetObjectResponseAsync(key, cancellationToken);
 
         if (response?.ResponseStream == null)
         {
@@ -198,7 +208,7 @@ public class S3SqlScriptExecutorService(
     [ExcludeFromCodeCoverage]
     private async Task ExecuteSqlInTransactionAsync(string sql, CancellationToken cancellationToken)
     {
-        var connection = dbContext.Database.GetDbConnection();
+        var connection = _dbContext.Database.GetDbConnection();
 
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
@@ -225,13 +235,13 @@ public class S3SqlScriptExecutorService(
     [ExcludeFromCodeCoverage]
     private async Task RecordIngestionHistoryAsync(string key, string checksum, CancellationToken cancellationToken)
     {
-        await historyRepository.AddAsync(new DataSeedIngestionHistory
+        await _historyRepository.AddAsync(new DataSeedIngestionHistory
         {
             FileName = key,
             Checksum = checksum,
             AppliedAt = DateTimeOffset.UtcNow
         }, cancellationToken);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }
