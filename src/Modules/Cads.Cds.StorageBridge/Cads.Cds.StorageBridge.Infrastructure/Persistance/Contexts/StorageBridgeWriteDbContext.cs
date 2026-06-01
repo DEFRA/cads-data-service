@@ -1,3 +1,4 @@
+using Cads.Cds.StorageBridge.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
@@ -9,6 +10,7 @@ public class StorageBridgeWriteDbContext(DbContextOptions<StorageBridgeWriteDbCo
     // Shared canonical entities
 
     // Module-specific entities
+    public DbSet<DataSeedIngestionHistory> DataSeedIngestionHistories => Set<DataSeedIngestionHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

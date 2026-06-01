@@ -1,10 +1,12 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Services;
+using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Health;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Readers;
+using Cads.Cds.StorageBridge.Infrastructure.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,6 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IStorageReader<CadsInternalClient>, BulkImportStorageReader<CadsInternalClient>>();
 
         // Register module storage writers
+        services.AddSingleton<IStorageService<CadsInternalClient>, StorageService<CadsInternalClient>>();
 
         if (moduleConfig.CadsInternal.HealthcheckEnabled)
         {

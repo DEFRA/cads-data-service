@@ -10,7 +10,6 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
-using Cads.Cds.StorageBridge;
 using Cads.Cds.StorageBridge.Application;
 using FluentValidation;
 using MediatR;

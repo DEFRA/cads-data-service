@@ -7,7 +7,7 @@ using System.Threading.Channels;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
-public class S3BulkLoadBackgroundService<T>(
+public abstract class S3BulkLoadBackgroundService<T>(
     Channel<T> channel,
     ILogger<S3BulkLoadBackgroundService<T>> logger,
     IS3ToPostgresService<T> processor
@@ -38,9 +38,6 @@ public class S3BulkLoadBackgroundService<T>(
     {
         try
         {
-            //using var scope = scopeFactory.CreateScope();
-            //var service = scope.ServiceProvider.GetRequiredService<IS3ToPostgresCopyService>();
-
             await processor.ExecuteAsync(request, cancellationToken);
         }
         catch (Exception ex)
