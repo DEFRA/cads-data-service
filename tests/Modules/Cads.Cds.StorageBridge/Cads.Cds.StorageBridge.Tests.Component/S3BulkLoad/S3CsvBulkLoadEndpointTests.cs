@@ -44,7 +44,7 @@ public class S3CsvBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        var job = await _testFixture.Factory.TestBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
+        var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
         job.SourceKey.Should().Be("LOCATIONS.part-0001.csv");
         job.BulkImportType.Should().Be(BulkLoadDataType.Locations);
     }
@@ -71,7 +71,7 @@ public class S3CsvBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : 
             .ReturnsAsync(() =>
             {
                 var fileData = $"{TestDataFileConstants.LocationsHeader}\n{row1}\n{row2}";
-                return TestDataFileConstants.FakeCsvFileContent(fileData);
+                return TestDataFileConstants.FakeFileContent(fileData);
             });
     }
 }

@@ -2,7 +2,6 @@ using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.StorageBridge.Controllers.Requests;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
 using Cads.Cds.StorageBridge.Tests.Component.TestFixtures;
 using FluentAssertions;
@@ -21,7 +20,7 @@ public class S3SqlBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : 
     [Fact]
     public async Task GivenInvalidRequest_WhenS3BulkLoadRequested_ShouldReturnBadRequest()
     {
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3BulkLoadRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3SqlBulkLoadRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -30,48 +29,41 @@ public class S3SqlBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : 
         problemDetails.Should().NotBeNull();
         problemDetails.Errors.Should().NotBeNull().And.HaveCount(3);
         problemDetails.Errors["SourceKey"].Should().Contain("'Source Key' must not be empty.");
-        problemDetails.Errors["BulkImportType"].Should().Contain("'Bulk Import Type' must not be equal to 'None'.");
-        problemDetails.Errors["ActionType"].Should().Contain("'Action Type' must not be equal to 'None'.");
     }
 
     [Fact]
     public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
     {
-        SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
+        SetupS3MockForSqlFile(TestDataFileConstants.LocationsSqlInsertDataRow1, TestDataFileConstants.LocationsSqlnsertDataRow2);
 
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3BulkLoadRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3SqlBulkLoadRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        var job = await _testFixture.Factory.TestBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
-        job.SourceKey.Should().Be("LOCATIONS.part-0001.csv");
-        job.BulkImportType.Should().Be(BulkLoadDataType.Locations);
+        var job = await _testFixture.Factory.TestSqlImportJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
+        job.SourceKey.Should().Be("test.sql");
     }
 
-    private static StringContent? InvalidS3BulkLoadRequest =>
-        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvBulkLoadRequest
+    private static StringContent? InvalidS3SqlBulkLoadRequest =>
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3SqlBulkLoadRequest
         {
             SourceKey = string.Empty,
-            BulkImportType = BulkLoadDataType.None,
-            ActionType = ImportActions.None
         });
 
-    private static StringContent? ValidS3BulkLoadRequest =>
-        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvBulkLoadRequest
+    private static StringContent? ValidS3SqlBulkLoadRequest =>
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3SqlBulkLoadRequest
         {
-            SourceKey = "LOCATIONS.part-0001.csv",
-            BulkImportType = BulkLoadDataType.Locations,
-            ActionType = ImportActions.Update
+            SourceKey = "test.sql",
         });
 
-    private void SetupS3MockForLocations(string row1, string row2)
+    private void SetupS3MockForSqlFile(string row1, string row2)
     {
         _testFixture.Factory.AmazonS3Mock.Setup(x => x.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
-                var fileData = $"{TestDataFileConstants.LocationsHeader}\n{row1}\n{row2}";
-                return TestDataFileConstants.FakeCsvFileContent(fileData);
+                var fileData = $"{row1}\n{row2}";
+                return TestDataFileConstants.FakeFileContent(fileData);
             });
     }
 }
