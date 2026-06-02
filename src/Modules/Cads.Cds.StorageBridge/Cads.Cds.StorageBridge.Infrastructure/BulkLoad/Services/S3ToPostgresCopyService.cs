@@ -41,7 +41,7 @@ public class S3ToPostgresCopyService(
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
         var storageReader = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
-       
+
         var keys = await storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
         if (!keys.Any()) return 0;
 
