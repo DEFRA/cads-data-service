@@ -34,7 +34,7 @@ public class S3BulkLoadController(IRequestExecutor executor) : ControllerBase
     [HttpPost("sql-import")]
     public async Task<IActionResult> ExecuteSqlImport([FromBody] S3SqlBulkLoadRequest request, CancellationToken cancellationToken)
     {
-        var command = new S3SqlImportCommand  
+        var command = new S3SqlImportCommand
         {
             SourceKey = request.SourceKey
         };
