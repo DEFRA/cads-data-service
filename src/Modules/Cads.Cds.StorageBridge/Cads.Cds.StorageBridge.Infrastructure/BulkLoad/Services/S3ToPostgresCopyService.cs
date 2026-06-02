@@ -1,4 +1,3 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
@@ -22,8 +21,6 @@ public class S3ToPostgresCopyService(
     IServiceScopeFactory serviceScopeFactory,
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
-    private IStorageService<CadsInternalClient> _storageReader;
-
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
     /// </summary>
@@ -43,9 +40,9 @@ public class S3ToPostgresCopyService(
 
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-        _storageReader = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
+        var storageReader = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
        
-        var keys = await _storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
+        var keys = await storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
         if (!keys.Any()) return 0;
 
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
@@ -80,6 +77,7 @@ public class S3ToPostgresCopyService(
                 connection,
                 createTempTableCommand,
                 actionCommands,
+                storageReader,
                 cancellationToken);
 
             totalRows += rows;
@@ -124,13 +122,14 @@ public class S3ToPostgresCopyService(
         DbConnection connection,
         DbCommand createTempTableCommand,
         List<DbCommand> actionCommands,
+        IStorageService<CadsInternalClient> storageReader,
         CancellationToken cancellationToken)
     {
         using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
         await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
-        await CopyFileToStagingAsync(job.BulkImportType, job.Delimiter, key, factory, cancellationToken);
+        await CopyFileToStagingAsync(job.BulkImportType, job.Delimiter, key, factory, storageReader, cancellationToken);
 
         var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
 
@@ -167,9 +166,10 @@ public class S3ToPostgresCopyService(
         char delimiter,
         string key,
         IS3BulkLoadCommandFactory factory,
+        IStorageService<CadsInternalClient> storageReader,
         CancellationToken cancellationToken)
     {
-        using var response = await _storageReader.GetObjectResponseAsync(key, cancellationToken);
+        using var response = await storageReader.GetObjectResponseAsync(key, cancellationToken);
 
         if (response?.ResponseStream == null)
         {
