@@ -1,11 +1,11 @@
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
+using Cads.Cds.StorageBridge.Core.Domain.Repositories;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Channels;
-using Cads.Cds.StorageBridge.Core.Domain.Repositories;
-using Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Setup;
 
