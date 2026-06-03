@@ -27,6 +27,7 @@ for arg in "${@:2}"; do
   case "$arg" in
     --mac-intel|--mac-arm) MAC_OVERRIDE="$arg" ;;
     --sync-data-seed)      SYNC_DATA_SEED="$arg" ;;
+    *)                     ;;
   esac
 done
 
