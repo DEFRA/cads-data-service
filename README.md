@@ -368,6 +368,16 @@ Mac developers must specify their architecture when starting the backend or full
 
 Windows/Linux users do not need an override.
 
+#### Data seeding optional argument
+
+You can command the platform script to copy the seed data from your locally cloned cads-data-seed repository into the LocalStack S3 bucket, `cads-internal-bucket` on startup with the `--sync-data-seed` flag:
+
+```
+./platform/platform.sh backend --sync-data-seed
+```
+
+This is an optional flag and if not used the syncing of the data seed scripts into the localstack bucket will be skipped.
+
 ## Accessing Services
 
 **Backend API**
