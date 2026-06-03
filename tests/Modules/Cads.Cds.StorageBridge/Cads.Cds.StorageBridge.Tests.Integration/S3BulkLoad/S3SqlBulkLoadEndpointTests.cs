@@ -31,7 +31,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenNoDataRowsExist_WhenS3BulkLoadRequested_ShouldCreateNoRecords()
     {
-        var fileData = string.Empty;
+        var fileData = " ";
 
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
