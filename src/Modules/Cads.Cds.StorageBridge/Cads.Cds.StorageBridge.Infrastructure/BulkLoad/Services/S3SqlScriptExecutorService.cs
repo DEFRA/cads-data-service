@@ -21,10 +21,10 @@ public class S3SqlScriptExecutorService(
     private const string FileErrorSubDirectory = "data-seed/file-error";
     private const string FileProcessedSubDirectory = "data-seed/file-processed";
 
-    private StorageBridgeWriteDbContext? _dbContext;
-    private IStorageService<CadsInternalClient>? _storageService;
-    private IFileChecksumService? _checksumService;
-    private IDataSeedIngestionHistoryRepository? _historyRepository;
+    private StorageBridgeWriteDbContext _dbContext = null!;
+    private IStorageService<CadsInternalClient> _storageService = null!;
+    private IFileChecksumService _checksumService = null!;
+    private IDataSeedIngestionHistoryRepository _historyRepository = null!;
 
     [ExcludeFromCodeCoverage]
     public async Task<int> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
