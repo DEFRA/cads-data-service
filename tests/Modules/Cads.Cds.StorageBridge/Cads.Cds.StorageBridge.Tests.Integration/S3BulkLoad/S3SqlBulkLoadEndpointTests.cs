@@ -52,7 +52,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenInvalidDataRowsExist_WhenS3BulkLoadRequested_ShouldFail()
     {
-        var fileData = $"{TestDataFileConstants.InvalidLocationsDataRow1}";
+        var fileData = TestDataFileConstants.InvalidLocationsSqlInsertStatement;
 
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
@@ -73,8 +73,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
     {
-        var fileData = $"{TestDataFileConstants.LocationsSqlInsertLocationsDataRow1}\n" +
-                       $"{TestDataFileConstants.LocationsSqlInsertLocationsDataRow2}";
+        var fileData = $"{TestDataFileConstants.LocationsSqlInsertStatement}";
 
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
@@ -91,13 +90,11 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var tableName = BulkLoadDataType.Locations.GetAttribute<TableNameAttribute>()!.Name;
 
-        await BulkLoadTestHelpers.AssertCsvRowsMatchDatabaseAsync(
+        await BulkLoadTestHelpers.AssertRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
-            tableName,
-            [
-                TestDataFileConstants.LocationsDataRow1,
-                TestDataFileConstants.LocationsDataRow2
-            ],
+            tableName, 
+            TestDataFileConstants.LocationsSqlInsertDataDictionary,
+            LocationRecordUtilities.MapLocationFromDb,
             orderBy: "loc_id");
 
         await VerifyLoggingMessage($"\"Completed SQL script execution for prefix \"test.sql\"");
@@ -114,7 +111,6 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
        {
            SourceKey = "test.sql"
        });
-
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
     {
