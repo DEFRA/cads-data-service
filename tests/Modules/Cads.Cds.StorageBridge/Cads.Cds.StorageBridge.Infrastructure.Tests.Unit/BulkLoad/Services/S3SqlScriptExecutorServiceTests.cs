@@ -25,9 +25,6 @@ public class S3SqlScriptExecutorServiceTests
     private readonly Mock<IDataSeedIngestionHistoryRepository> _historyRepo = new();
     private readonly Mock<ILogger<S3SqlScriptExecutorService>> _logger = new();
 
-    // DbContext is not exercised in unit tests — DB-touching methods are ExcludeFromCodeCoverage
-    private readonly StorageBridgeWriteDbContext _dbContext = null!;
-
     private const string TestPrefix = "sql-scripts/";
     private const string TestKey = "sql-scripts/insert_animals.sql";
 
