@@ -1,12 +1,13 @@
 using Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Models;
+using System.Globalization;
 
 namespace Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Utilities;
 
 public static class LocationRecordUtilities
 {
-    public static LocationRecord ParseLocationCsvRow(string csv)
+    public static LocationRecord ParseLocationCsvRow(string value, char delimiter = '|')
     {
-        var parts = csv.Split('|');
+        var parts = value.Split(delimiter);
 
         return new LocationRecord(
             RecordType: parts[0],
@@ -67,6 +68,75 @@ public static class LocationRecordUtilities
             LocReasonCode: (string)row["loc_reason_code"]!,
             LocVersion: Convert.ToInt32(row["loc_version"]),
             LocReceivePpafFlag: (string)row["loc_receive_ppaf_flag"]!
+        );
+    }
+
+    // New: map a Dictionary<string, object?> (e.g. LocationsSqlInsertDataDictionary) to LocationRecord.
+    public static LocationRecord MapLocationFromDictionary(Dictionary<string, object?> row)
+    {
+        static string GetString(Dictionary<string, object?> r, string key)
+        {
+            if (!r.TryGetValue(key, out var v) || v is null) return string.Empty;
+            return v is string s ? s : Convert.ToString(v, CultureInfo.InvariantCulture) ?? string.Empty;
+        }
+
+        static int GetInt(Dictionary<string, object?> r, string key)
+        {
+            if (!r.TryGetValue(key, out var v) || v is null) return 0;
+            return v switch
+            {
+                int i => i,
+                long l => Convert.ToInt32(l),
+                short s => Convert.ToInt32(s),
+                decimal d => Convert.ToInt32(d),
+                double db => Convert.ToInt32(db),
+                string str when int.TryParse(str, NumberStyles.Integer, CultureInfo.InvariantCulture, out var x) => x,
+                _ => Convert.ToInt32(v, CultureInfo.InvariantCulture)
+            };
+        }
+
+        static DateOnly GetDateOnly(Dictionary<string, object?> r, string key)
+        {
+            if (!r.TryGetValue(key, out var v) || v is null)
+                throw new InvalidOperationException($"Missing date value for '{key}'.");
+
+            return v switch
+            {
+                DateOnly d => d,
+                DateTime dt => DateOnly.FromDateTime(dt),
+                string s when DateOnly.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed) => parsed,
+                string s when DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDt) => DateOnly.FromDateTime(parsedDt),
+                _ => throw new InvalidCastException($"Cannot convert value for '{key}' to DateOnly.")
+            };
+        }
+
+        return new LocationRecord(
+            RecordType: GetString(row, "record_type"),
+            RecordCount: GetInt(row, "record_count"),
+            LocId: GetInt(row, "loc_id"),
+            LocSltId: GetInt(row, "loc_slt_id"),
+            LocLtyId: GetInt(row, "loc_lty_id"),
+            LocCtyId: GetInt(row, "loc_cty_id"),
+            LocReceiveLabelsFlag: GetString(row, "loc_receive_labels_flag"),
+            LocEffectiveFrom: GetDateOnly(row, "loc_effective_from"),
+            LocEffectiveTo: GetDateOnly(row, "loc_effective_to"),
+            LocCessationReason: GetString(row, "loc_cessation_reason"),
+            LocPremisesType: GetString(row, "loc_premises_type"),
+            LocComments: GetString(row, "loc_comments"),
+            LocMapReference: GetString(row, "loc_map_reference"),
+            LocSourceIdentifier: GetString(row, "loc_source_identifier"),
+            LocSourceReference: GetString(row, "loc_source_reference"),
+            LocTelNumber: GetString(row, "loc_tel_number"),
+            LocMobileNumber: GetString(row, "loc_mobile_number"),
+            LocFaxNumber: GetString(row, "loc_fax_number"),
+            LocEmailAddress: GetString(row, "loc_email_address"),
+            LocCurrentStatus: GetInt(row, "loc_current_status"),
+            LocCurrentUser: GetString(row, "loc_current_user"),
+            LocCurrentModifiedDate: GetDateOnly(row, "loc_current_modified_date"),
+            LocCurrentPid: GetInt(row, "loc_current_pid"),
+            LocReasonCode: GetString(row, "loc_reason_code"),
+            LocVersion: GetInt(row, "loc_version"),
+            LocReceivePpafFlag: GetString(row, "loc_receive_ppaf_flag")
         );
     }
 }

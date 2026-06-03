@@ -1,4 +1,5 @@
 using Amazon.S3.Model;
+using System.Globalization;
 using System.Text;
 
 namespace Cads.Cds.StorageBridge.Testing.Support.Constants;
@@ -45,15 +46,41 @@ public static class TestDataFileConstants
     public static string InvalidLocationsDataRow1 =>
         "D|1|1|1|ABC|DEF|GHI|2|33|N|XX|true|N";
 
-    public static string LocationsSqlInsertLocationsDataRow1 =>
-       "INSERT INTO _ct_locations (loc_receive_ppaf_flag, loc_id, loc_slt_id, loc_lty_id, loc_cty_id, loc_receive_labels_flag, loc_effective_from, loc_effective_to, loc_cessation_reason, loc_premises_type, loc_comments, loc_map_reference, loc_source_identifier, loc_source_reference, loc_tel_number, loc_mobile_number, loc_fax_number, loc_email_address, loc_current_status, loc_current_user, loc_current_modified_date, loc_current_pid, loc_reason_code, loc_version, row_number, record_type, record_count, imported_date) " +
-       "VALUES ('Y', 1, NULL, 2, 278, 'N', DATE '1996-07-01', DATE '1998-01-17', 'BC', 'AH', 'PA-COMMENT-1', NULL, 'VT', '99037438', 'PA-TEL-1', 'PA-MOB-1', 'PA-FAX-1', 'pa_email_1@defra.gov.uk', '1', 'm184910', DATE '2005-06-14', 29, 'AC', 1, 1, 'D', 1, TIMESTAMP '2026-05-01 17:05:45.95947')";
+    public static Dictionary<string, object?> LocationsSqlInsertDataDictionary => new()
+    {
+        ["loc_receive_ppaf_flag"] = "Y",
+        ["loc_id"] = 1,
+        ["loc_slt_id"] = null,
+        ["loc_lty_id"] = 2,
+        ["loc_cty_id"] = 278,
+        ["loc_receive_labels_flag"] = "N",
+        ["loc_effective_from"] = new DateTime(1996, 7, 1),
+        ["loc_effective_to"] = new DateTime(1998, 1, 17),
+        ["loc_cessation_reason"] = "BC",
+        ["loc_premises_type"] = "AH",
+        ["loc_comments"] = "PA-COMMENT-1",
+        ["loc_map_reference"] = null,
+        ["loc_source_identifier"] = "VT",
+        ["loc_source_reference"] = "99037438",
+        ["loc_tel_number"] = "PA-TEL-1",
+        ["loc_mobile_number"] = "PA-MOB-1",
+        ["loc_fax_number"] = "PA-FAX-1",
+        ["loc_email_address"] = "pa_email_1@defra.gov.uk",
+        ["loc_current_status"] = "1",
+        ["loc_current_user"] = "m184910",
+        ["loc_current_modified_date"] = new DateTime(2005, 6, 14),
+        ["loc_current_pid"] = 29,
+        ["loc_reason_code"] = "AC",
+        ["loc_version"] = 1,
+        ["row_number"] = 1,
+        ["record_type"] = "D",
+        ["record_count"] = 1,
+        ["imported_date"] = DateTime.Parse("2026-05-01 17:05:45.95947")
+    };
 
-    public static string LocationsSqlInsertLocationsDataRow2 =>
-       "INSERT INTO _ct_locations (loc_receive_ppaf_flag, loc_id, loc_slt_id, loc_lty_id, loc_cty_id, loc_receive_labels_flag, loc_effective_from, loc_effective_to, loc_cessation_reason, loc_premises_type, loc_comments, loc_map_reference, loc_source_identifier, loc_source_reference, loc_tel_number, loc_mobile_number, loc_fax_number, loc_email_address, loc_current_status, loc_current_user, loc_current_modified_date, loc_current_pid, loc_reason_code, loc_version, row_number, record_type, record_count, imported_date) " +
-       "('Y', 2, NULL, 2, 278, 'N', DATE '1996-07-01', DATE '1998-01-17', 'BC', 'AH', 'PA-COMMENT-2', NULL, 'VT', '99012657', 'PA-TEL-2', 'PA-MOB-2', 'PA-FAX-2', 'pa_email_2@defra.gov.uk', '1', 'm184910', DATE '2005-06-14', 29, 'AC', 1, 2, 'D', 2, TIMESTAMP '2026-05-01 17:05:45.95947'),\r\n    ";
+    public static string LocationsSqlInsertStatement => DictionaryToSqlInsert(LocationsSqlInsertDataDictionary);
 
-    public static string InvalidSqlInsertLocationsDataRow1 =>
+    public static string InvalidLocationsSqlInsertStatement =>
        "INSERT INTO _ct_locations (";
 
     public static GetObjectResponse FakeFileContent(string content)
@@ -62,5 +89,46 @@ public static class TestDataFileConstants
         {
             ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes(content))
         };
+    }
+
+    public static string DictionaryToSqlInsert(Dictionary<string, object?> data, string tableName = "_ct_locations")
+    {
+        if (data == null || data.Count == 0)
+            throw new ArgumentException("Data dictionary must contain at least one column.", nameof(data));
+
+        var columns = string.Join(", ", data.Keys);
+        var values = string.Join(", ", data.Values.Select(FormatSqlValue));
+
+        return $"INSERT INTO {tableName} ({columns}) VALUES ({values});";
+    }
+
+    private static string FormatSqlValue(object? value)
+    {
+        if (value is null)
+            return "NULL";
+
+        if (value is DateTime dt)
+        {
+            // If time component is zero, use DATE, otherwise TIMESTAMP
+            if (dt.TimeOfDay == TimeSpan.Zero)
+                return $"DATE '{dt:yyyy-MM-dd}'";
+            return $"TIMESTAMP '{dt:yyyy-MM-dd HH:mm:ss.ffffff}'";
+        }
+
+        if (value is string s)
+            return $"'{s.Replace("'", "''")}'";
+
+        if (value is char c)
+            return $"'{c}'";
+
+        if (value is bool b)
+            return b ? "1" : "0";
+
+        // Numeric / formattable types
+        if (value is IFormattable formattable)
+            return formattable.ToString(null, CultureInfo.InvariantCulture) ?? "NULL";
+
+        // Fallback to quoted string
+        return $"'{value.ToString()?.Replace("'", "''")}'";
     }
 }

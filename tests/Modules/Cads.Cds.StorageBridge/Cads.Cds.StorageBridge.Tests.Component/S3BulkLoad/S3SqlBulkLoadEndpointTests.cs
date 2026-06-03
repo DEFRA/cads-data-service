@@ -34,7 +34,7 @@ public class S3SqlBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : 
     [Fact]
     public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
     {
-        SetupS3MockForSqlFile(TestDataFileConstants.LocationsSqlInsertLocationsDataRow1, TestDataFileConstants.LocationsSqlInsertLocationsDataRow2);
+        SetupS3MockForSqlFile(TestDataFileConstants.LocationsSqlInsertStatement);
 
         var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3SqlBulkLoadRequest, TestContext.Current.CancellationToken);
 
@@ -57,12 +57,12 @@ public class S3SqlBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : 
             SourceKey = "test.sql",
         });
 
-    private void SetupS3MockForSqlFile(string row1, string row2)
+    private void SetupS3MockForSqlFile(string row1)
     {
         _testFixture.Factory.AmazonS3Mock.Setup(x => x.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
-                var fileData = $"{row1}\n{row2}";
+                var fileData = $"{row1}";
                 return TestDataFileConstants.FakeFileContent(fileData);
             });
     }
