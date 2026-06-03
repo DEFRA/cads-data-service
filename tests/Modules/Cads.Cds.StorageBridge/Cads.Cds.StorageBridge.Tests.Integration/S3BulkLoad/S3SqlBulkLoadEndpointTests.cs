@@ -29,34 +29,14 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenHeadingRowMissing_WhenS3BulkLoadRequested_ShouldFail()
-    {
-        var fileData = $"{TestDataFileConstants.LocationsDataRow1}\n" +
-                       $"{TestDataFileConstants.LocationsDataRow2}";
-
-        await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
-        {
-            BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "LOCATIONS.part-0001.csv",
-            ContentBody = fileData
-        }, TestContext.Current.CancellationToken);
-
-        var response = await ExecuteTest(ValidS3SqlBulkLoadRequest);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
-
-        await VerifyLoggingMessage("File LOCATIONS.part-0001.csv does not contain a valid header row.");
-    }
-
-    [Fact]
     public async Task GivenNoDataRowsExist_WhenS3BulkLoadRequested_ShouldCreateNoRecords()
     {
-        var fileData = $"{TestDataFileConstants.LocationsHeader}";
+        var fileData = string.Empty;
 
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "LOCATIONS.part-0001.csv",
+            Key = "test.sql",
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
@@ -66,20 +46,18 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Completed bulk import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 0 records processed");
+        await VerifyLoggingMessage($"SQL script file \"test.sql\" is empty — skipping.");
     }
 
     [Fact]
     public async Task GivenInvalidDataRowsExist_WhenS3BulkLoadRequested_ShouldFail()
     {
-        var fileData = $"{TestDataFileConstants.LocationsHeader}\n" +
-                       $"{TestDataFileConstants.LocationsDataRow1}\n" +
-                       $"{TestDataFileConstants.InvalidLocationsDataRow1}";
+        var fileData = $"{TestDataFileConstants.InvalidLocationsDataRow1}";
 
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "LOCATIONS.part-0001.csv",
+            Key = "test.sql",
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
@@ -89,20 +67,19 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Failed to process bulk load job {job!.JobId}");
+        await VerifyLoggingMessage($"Failed to execute SQL script file \"test.sql\"");
     }
 
     [Fact]
     public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
     {
-        var fileData = $"{TestDataFileConstants.LocationsHeader}\n" +
-                       $"{TestDataFileConstants.LocationsDataRow1}\n" +
-                       $"{TestDataFileConstants.LocationsDataRow2}";
+        var fileData = $"{TestDataFileConstants.LocationsSqlInsertLocationsDataRow1}\n" +
+                       $"{TestDataFileConstants.LocationsSqlInsertLocationsDataRow2}";
 
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "LOCATIONS.part-0001.csv",
+            Key = "test.sql",
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
@@ -123,7 +100,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
             ],
             orderBy: "loc_id");
 
-        await VerifyLoggingMessage($"Completed bulk import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 2 records processed");
+        await VerifyLoggingMessage($"\"Completed SQL script execution for prefix \"test.sql\"");
     }
 
     private static StringContent? InvalidS3SqlBulkLoadRequest =>
@@ -135,7 +112,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
     private static StringContent? ValidS3SqlBulkLoadRequest =>
        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3SqlBulkLoadRequest
        {
-           SourceKey = "LOCATIONS.part-0001.csv"
+           SourceKey = "test.sql"
        });
 
 

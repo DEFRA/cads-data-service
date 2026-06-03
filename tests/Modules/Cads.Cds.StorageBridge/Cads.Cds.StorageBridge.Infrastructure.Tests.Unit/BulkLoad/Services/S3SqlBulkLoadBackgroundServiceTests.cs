@@ -9,20 +9,20 @@ using System.Threading.Channels;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.BulkLoad.Services;
 
-public class S3CsvBulkLoadBackgroundServiceTests
+public class S3SqlBulkLoadBackgroundServiceTests
 {
     [Fact]
     public async Task ExecuteAsync_ShouldCallExecuteAsync()
     {
-        var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
+        var ctx = new S3SqlBulkLoadBackgroundServiceTestContext();
         var service = ctx.CreateService();
 
-        var job = new CreateS3CsvBulkLoadJobDto { JobId = Guid.NewGuid() };
+        var job = new CreateS3SqlImportJobDto { JobId = Guid.NewGuid() };
 
         await ctx.Channel.Writer.WriteAsync(job, TestContext.Current.CancellationToken);
         ctx.Channel.Writer.Complete();
 
-        await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
+        await S3SqlBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
 
         ctx.CopyService.Verify(s => s.ExecuteAsync(job, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -30,18 +30,18 @@ public class S3CsvBulkLoadBackgroundServiceTests
     [Fact]
     public async Task ExecuteAsync_ShouldLogError_WhenExceptionThrown()
     {
-        var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
+        var ctx = new S3SqlBulkLoadBackgroundServiceTestContext();
 
         ctx.CopyService
-            .Setup(s => s.ExecuteAsync(It.IsAny<CreateS3CsvBulkLoadJobDto>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.ExecuteAsync(It.IsAny<CreateS3SqlImportJobDto>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         var service = ctx.CreateService();
 
-        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvBulkLoadJobDto(), TestContext.Current.CancellationToken);
+        await ctx.Channel.Writer.WriteAsync(new CreateS3SqlImportJobDto(), TestContext.Current.CancellationToken);
         ctx.Channel.Writer.Complete();
 
-        await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
+        await S3SqlBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
 
         ctx.Logger.Verify(
             x => x.Log(
@@ -56,43 +56,43 @@ public class S3CsvBulkLoadBackgroundServiceTests
     [Fact]
     public async Task ExecuteAsync_ShouldProcessAllJobs()
     {
-        var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
+        var ctx = new S3SqlBulkLoadBackgroundServiceTestContext();
         var service = ctx.CreateService();
 
-        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvBulkLoadJobDto(), TestContext.Current.CancellationToken);
-        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvBulkLoadJobDto(), TestContext.Current.CancellationToken);
-        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvBulkLoadJobDto(), TestContext.Current.CancellationToken);
+        await ctx.Channel.Writer.WriteAsync(new CreateS3SqlImportJobDto(), TestContext.Current.CancellationToken);
+        await ctx.Channel.Writer.WriteAsync(new CreateS3SqlImportJobDto(), TestContext.Current.CancellationToken);
+        await ctx.Channel.Writer.WriteAsync(new CreateS3SqlImportJobDto(), TestContext.Current.CancellationToken);
         ctx.Channel.Writer.Complete();
 
         await service.StartAsync(CancellationToken.None);
 
-        var executeTask = S3CsvBulkLoadBackgroundServiceTestContext.GetExecuteTask(service);
+        var executeTask = S3SqlBulkLoadBackgroundServiceTestContext.GetExecuteTask(service);
         await executeTask;
 
         await service.StopAsync(CancellationToken.None);
 
         ctx.CopyService.Verify(
-            s => s.ExecuteAsync(It.IsAny<CreateS3CsvBulkLoadJobDto>(), It.IsAny<CancellationToken>()),
+            s => s.ExecuteAsync(It.IsAny<CreateS3SqlImportJobDto>(), It.IsAny<CancellationToken>()),
             Times.Exactly(3));
     }
 
-    public class S3CsvBulkLoadBackgroundServiceTestContext
+    public class S3SqlBulkLoadBackgroundServiceTestContext
     {
-        public Mock<ILogger<S3CsvBulkLoadBackgroundService>> Logger { get; } = new();
-        public Mock<IS3ToPostgresCopyService> CopyService { get; } = new();
+        public Mock<ILogger<S3SqlBulkLoadBackgroundService>> Logger { get; } = new();
+        public Mock<IS3SqlScriptExecutorService> CopyService { get; } = new();
 
-        public Channel<CreateS3CsvBulkLoadJobDto> Channel { get; } =
-            System.Threading.Channels.Channel.CreateUnbounded<CreateS3CsvBulkLoadJobDto>();
+        public Channel<CreateS3SqlImportJobDto> Channel { get; } =
+            System.Threading.Channels.Channel.CreateUnbounded<CreateS3SqlImportJobDto>();
 
-        public S3CsvBulkLoadBackgroundService CreateService()
+        public S3SqlBulkLoadBackgroundService CreateService()
         {
-            return new S3CsvBulkLoadBackgroundService(Channel, Logger.Object, CopyService.Object);
+            return new S3SqlBulkLoadBackgroundService(Channel, Logger.Object, CopyService.Object);
         }
 
         public static Task InvokeProcessJobAsync(
-            S3CsvBulkLoadBackgroundService service)
+            S3SqlBulkLoadBackgroundService service)
         {
-            var method = typeof(S3CsvBulkLoadBackgroundService)
+            var method = typeof(S3SqlBulkLoadBackgroundService)
                 .GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
             return (Task)method!.Invoke(service, [CancellationToken.None])!;

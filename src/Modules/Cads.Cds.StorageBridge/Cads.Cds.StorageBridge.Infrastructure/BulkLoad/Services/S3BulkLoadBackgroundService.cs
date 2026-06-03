@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Threading.Channels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
@@ -24,7 +23,6 @@ public abstract class S3BulkLoadBackgroundService<T>(
         await foreach (var request in channel.Reader.ReadAllAsync(stoppingToken))
         {
             await semaphore.WaitAsync(stoppingToken);
-
             tasks.Add(ProcessJobAsync(request, semaphore, stoppingToken));
         }
 
