@@ -18,4 +18,10 @@
     <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.Api\Cads.Cds.Api.Core\Cads.Cds.Api.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Specimens\Data\" />
+    <Folder Include="Specimens\Builders\" />
+    <Folder Include="Specimens\Factories\" />
+  </ItemGroup>
+
 </Project>
