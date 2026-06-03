@@ -19,6 +19,9 @@ public class S3CsvBulkLoadBackgroundServiceTests
 
         var job = new CreateS3CsvBulkLoadJobDto { JobId = Guid.NewGuid() };
 
+        await ctx.Channel.Writer.WriteAsync(job, TestContext.Current.CancellationToken);
+        ctx.Channel.Writer.Complete();
+
         await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
 
         ctx.CopyService.Verify(s => s.ExecuteAsync(job, It.IsAny<CancellationToken>()), Times.Once);
@@ -34,6 +37,9 @@ public class S3CsvBulkLoadBackgroundServiceTests
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         var service = ctx.CreateService();
+
+        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvBulkLoadJobDto(), TestContext.Current.CancellationToken);
+        ctx.Channel.Writer.Complete();
 
         await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
 

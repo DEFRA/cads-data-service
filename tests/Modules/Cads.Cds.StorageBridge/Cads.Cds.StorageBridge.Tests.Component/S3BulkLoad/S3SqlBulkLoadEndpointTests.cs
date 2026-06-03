@@ -34,7 +34,7 @@ public class S3SqlBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : 
     [Fact]
     public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
     {
-        SetupS3MockForSqlFile(TestDataFileConstants.LocationsSqlInsertDataRow1, TestDataFileConstants.LocationsSqlnsertDataRow2);
+        SetupS3MockForSqlFile(TestDataFileConstants.LocationsSqlInsertLocationsDataRow1, TestDataFileConstants.LocationsSqlInsertLocationsDataRow2);
 
         var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3SqlBulkLoadRequest, TestContext.Current.CancellationToken);
 
