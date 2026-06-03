@@ -1,5 +1,4 @@
 using Amazon.S3.Model;
-using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
@@ -25,7 +24,7 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
     private readonly Mock<IServiceScope> _scope = new();
     private readonly Mock<IServiceProvider> _provider = new();
-    private readonly Mock<IStorageReader<CadsInternalClient>> _storageReader = new();
+    private readonly Mock<IStorageService<CadsInternalClient>> _storageService = new();
     private readonly Mock<IS3BulkLoadCommandFactoryProvider> _factoryProvider = new();
     private readonly Mock<IS3BulkLoadCommandFactory> _factory = new();
     private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
@@ -65,7 +64,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        _storageReader.Setup(x => x.ListKeysAsync(TestFileName, It.IsAny<CancellationToken>()))
+        _storageService.Setup(x => x.ListKeysAsync(TestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var job = new CreateS3CsvBulkLoadJobDto
@@ -196,7 +195,7 @@ public class S3ToPostgresCopyServiceTests
         var outputStream = new MemoryStream();
         var writer = new NonDisposingStreamWriter(outputStream);
 
-        _storageReader
+        _storageService
             .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetObjectResponse());
 
@@ -209,6 +208,7 @@ public class S3ToPostgresCopyServiceTests
             '|',
             TestFileName,
             _factory.Object,
+            _storageService.Object,
             CancellationToken.None
             ])!;
 
@@ -234,7 +234,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateTextImport(It.IsAny<BulkLoadDataType>(), It.IsAny<char>(), It.IsAny<List<string>>()))
             .Returns(writer);
 
-        _storageReader
+        _storageService
             .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
@@ -247,6 +247,7 @@ public class S3ToPostgresCopyServiceTests
             '|',
             TestFileName,
             _factory.Object,
+            _storageService.Object,
             CancellationToken.None
             ])!;
 
@@ -266,10 +267,10 @@ public class S3ToPostgresCopyServiceTests
             .Returns(null!);
 
         _provider.Setup(x => x.GetService(typeof(IStorageService<CadsInternalClient>)))
-           .Returns(_storageReader);
+           .Returns(_storageService.Object);
 
         _provider.Setup(x => x.GetService(typeof(IS3BulkLoadCommandFactoryProvider)))
-           .Returns(_factoryProvider);
+           .Returns(_factoryProvider.Object);
 
         _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
 

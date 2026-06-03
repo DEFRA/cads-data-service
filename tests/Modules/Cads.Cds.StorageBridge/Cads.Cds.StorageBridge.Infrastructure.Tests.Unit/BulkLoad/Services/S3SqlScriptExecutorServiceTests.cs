@@ -7,6 +7,7 @@ using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -24,6 +25,9 @@ public class S3SqlScriptExecutorServiceTests
     private readonly Mock<IFileChecksumService> _checksumService = new();
     private readonly Mock<IDataSeedIngestionHistoryRepository> _historyRepo = new();
     private readonly Mock<ILogger<S3SqlScriptExecutorService>> _logger = new();
+
+    // DbContext is not exercised in unit tests, but is referenced
+    private readonly StorageBridgeWriteDbContext _dbContext = new(new DbContextOptions<StorageBridgeWriteDbContext>());
 
     private const string TestPrefix = "sql-scripts/";
     private const string TestKey = "sql-scripts/insert_animals.sql";
@@ -147,18 +151,19 @@ public class S3SqlScriptExecutorServiceTests
     private S3SqlScriptExecutorService CreateService()
     {
         _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
-            .Returns(null!);
+            .Returns(_dbContext);
 
         _provider.Setup(x => x.GetService(typeof(IStorageService<CadsInternalClient>)))
-            .Returns(_storageService);
+            .Returns(_storageService.Object);
 
         _provider.Setup(x => x.GetService(typeof(IFileChecksumService)))
-            .Returns(_checksumService);
+            .Returns(_checksumService.Object);
 
         _provider.Setup(x => x.GetService(typeof(IDataSeedIngestionHistoryRepository)))
-            .Returns(_historyRepo);
+            .Returns(_historyRepo.Object);
 
-        _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
+        _scope.Setup(x => x.ServiceProvider)
+            .Returns(_provider.Object);
 
         _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
 

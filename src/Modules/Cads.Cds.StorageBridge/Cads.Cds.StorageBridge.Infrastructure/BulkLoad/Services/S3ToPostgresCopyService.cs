@@ -40,9 +40,9 @@ public class S3ToPostgresCopyService(
 
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-        var storageReader = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
+        var storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
 
-        var keys = await storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
+        var keys = await storageService.ListKeysAsync(job.SourceKey, cancellationToken);
         if (!keys.Any()) return 0;
 
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
@@ -77,7 +77,7 @@ public class S3ToPostgresCopyService(
                 connection,
                 createTempTableCommand,
                 actionCommands,
-                storageReader,
+                storageService,
                 cancellationToken);
 
             totalRows += rows;
@@ -122,14 +122,14 @@ public class S3ToPostgresCopyService(
         DbConnection connection,
         DbCommand createTempTableCommand,
         List<DbCommand> actionCommands,
-        IStorageService<CadsInternalClient> storageReader,
+        IStorageService<CadsInternalClient> storageService,
         CancellationToken cancellationToken)
     {
         using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
         await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
-        await CopyFileToStagingAsync(job.BulkImportType, job.Delimiter, key, factory, storageReader, cancellationToken);
+        await CopyFileToStagingAsync(job.BulkImportType, job.Delimiter, key, factory, storageService, cancellationToken);
 
         var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
 

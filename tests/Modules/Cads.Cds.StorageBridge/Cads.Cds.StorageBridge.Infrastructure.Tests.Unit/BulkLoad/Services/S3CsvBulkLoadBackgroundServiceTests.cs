@@ -12,21 +12,20 @@ namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.BulkLoad.Services;
 public class S3CsvBulkLoadBackgroundServiceTests
 {
     [Fact]
-    public async Task ProcessJobAsync_ShouldCallExecuteAsync()
+    public async Task ExecuteAsync_ShouldCallExecuteAsync()
     {
         var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
         var service = ctx.CreateService();
 
         var job = new CreateS3CsvBulkLoadJobDto { JobId = Guid.NewGuid() };
-        var semaphore = new SemaphoreSlim(1);
 
-        await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service, job, semaphore);
+        await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
 
         ctx.CopyService.Verify(s => s.ExecuteAsync(job, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task ProcessJobAsync_ShouldLogError_WhenExceptionThrown()
+    public async Task ExecuteAsync_ShouldLogError_WhenExceptionThrown()
     {
         var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
 
@@ -36,10 +35,7 @@ public class S3CsvBulkLoadBackgroundServiceTests
 
         var service = ctx.CreateService();
 
-        var job = new CreateS3CsvBulkLoadJobDto { JobId = Guid.NewGuid() };
-        var semaphore = new SemaphoreSlim(1);
-
-        await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service, job, semaphore);
+        await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
 
         ctx.Logger.Verify(
             x => x.Log(
@@ -88,14 +84,12 @@ public class S3CsvBulkLoadBackgroundServiceTests
         }
 
         public static Task InvokeProcessJobAsync(
-            S3CsvBulkLoadBackgroundService service,
-            CreateS3CsvBulkLoadJobDto job,
-            SemaphoreSlim semaphore)
+            S3CsvBulkLoadBackgroundService service)
         {
             var method = typeof(S3CsvBulkLoadBackgroundService)
-                .GetMethod("ProcessJobAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+                .GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            return (Task)method!.Invoke(service, [job, semaphore, CancellationToken.None])!;
+            return (Task)method!.Invoke(service, [CancellationToken.None])!;
         }
 
         public static Task GetExecuteTask(BackgroundService service)
