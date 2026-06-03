@@ -205,7 +205,7 @@ public class S3ToPostgresCopyServiceTests
         var fieldInfo = typeof(S3ToPostgresCopyService).GetField("_storageService",
                 BindingFlags.NonPublic | BindingFlags.Instance);
 
-        fieldInfo.SetValue(service, _storageService.Object);
+        fieldInfo?.SetValue(service, _storageService.Object);
 
         await (Task)method!.Invoke(service,
             [
@@ -248,7 +248,7 @@ public class S3ToPostgresCopyServiceTests
         var fieldInfo = typeof(S3ToPostgresCopyService).GetField("_storageService",
                 BindingFlags.NonPublic | BindingFlags.Instance);
 
-        fieldInfo.SetValue(service, _storageService.Object);
+        fieldInfo?.SetValue(service, _storageService.Object);
 
         await (Task)method!.Invoke(service,
             [
