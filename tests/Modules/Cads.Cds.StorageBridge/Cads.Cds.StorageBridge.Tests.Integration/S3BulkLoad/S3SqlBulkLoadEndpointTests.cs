@@ -92,7 +92,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await BulkLoadTestHelpers.AssertRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
-            tableName, 
+            tableName,
             TestDataFileConstants.LocationsSqlInsertDataDictionary,
             LocationRecordUtilities.MapLocationFromDb,
             orderBy: "loc_id");

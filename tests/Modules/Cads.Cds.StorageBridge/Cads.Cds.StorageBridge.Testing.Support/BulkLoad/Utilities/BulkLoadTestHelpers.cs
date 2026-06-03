@@ -42,7 +42,7 @@ public static class BulkLoadTestHelpers
         string orderBy)
     {
         var expected = dataRows
-           .Select( i=>i.Value)
+           .Select(i => i.Value)
            .ToList();
 
         var actualRows = await PostgresWaitUtilities.WaitForRowsAsync(
