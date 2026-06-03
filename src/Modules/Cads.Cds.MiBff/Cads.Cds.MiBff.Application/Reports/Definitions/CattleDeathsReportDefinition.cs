@@ -18,7 +18,7 @@ public class CattleDeathsReportDefinition : IReportDefinition<MiDeathSummary>
         x => x.BreedType,
         x => x.Sex ?? "",
         x => x.Country,
-        x => x.County,
+        x => x.County ?? "",
         x => x.AgeAtDeathInMonths,
         x => x.NumberOfDeaths
     ];
