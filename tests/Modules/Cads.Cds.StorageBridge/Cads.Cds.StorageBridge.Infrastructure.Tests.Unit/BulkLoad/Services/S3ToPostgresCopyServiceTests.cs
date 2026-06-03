@@ -8,6 +8,7 @@ using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
+using Elastic.CommonSchema;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -202,13 +203,17 @@ public class S3ToPostgresCopyServiceTests
         var method = typeof(S3ToPostgresCopyService)
             .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        var fieldInfo = typeof(S3ToPostgresCopyService).GetField("_storageService",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+        fieldInfo.SetValue(service, _storageService.Object);
+
         await (Task)method!.Invoke(service,
             [
             BulkLoadDataType.Locations,
             '|',
             TestFileName,
             _factory.Object,
-            _storageService.Object,
             CancellationToken.None
             ])!;
 
@@ -241,13 +246,17 @@ public class S3ToPostgresCopyServiceTests
         var method = typeof(S3ToPostgresCopyService)
             .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        var fieldInfo = typeof(S3ToPostgresCopyService).GetField("_storageService",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+        fieldInfo.SetValue(service, _storageService.Object);
+
         await (Task)method!.Invoke(service,
             [
             BulkLoadDataType.Locations,
             '|',
             TestFileName,
             _factory.Object,
-            _storageService.Object,
             CancellationToken.None
             ])!;
 
