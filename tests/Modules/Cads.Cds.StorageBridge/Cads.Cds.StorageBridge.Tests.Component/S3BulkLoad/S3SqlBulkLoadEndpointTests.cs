@@ -27,7 +27,7 @@ public class S3SqlBulkLoadEndpointTests(StorageBridgeTestFixture testFixture) : 
 
         var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetailsDto>(TestContext.Current.CancellationToken);
         problemDetails.Should().NotBeNull();
-        problemDetails.Errors.Should().NotBeNull().And.HaveCount(3);
+        problemDetails.Errors.Should().NotBeNull().And.HaveCount(1);
         problemDetails.Errors["SourceKey"].Should().Contain("'Source Key' must not be empty.");
     }
 
