@@ -1,3 +1,4 @@
+using Cads.Cds.Api.Application.Queries.Setup;
 using Cads.Cds.Api.Application.Soap.ServiceContracts;
 using CoreWCF.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<AnimalPassportAndDetailsServiceContract>();
         services.AddTransient<CattleStatusServiceContract>();
         services.AddTransient<LivestockMovementsServiceContract>();
+
+        // Queries
+        services.AddQueryAdapters();
 
         return services;
     }

@@ -97,6 +97,7 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+        services.AddValidatorsFromAssembly(typeof(IApiApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
     }
