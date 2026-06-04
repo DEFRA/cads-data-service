@@ -1,5 +1,4 @@
 using Cads.Cds.Api.Infrastructure.Persistence.Setup;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.Api.Infrastructure.Setup;
