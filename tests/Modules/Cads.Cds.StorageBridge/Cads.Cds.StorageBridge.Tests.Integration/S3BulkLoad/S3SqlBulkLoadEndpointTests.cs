@@ -96,7 +96,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
             [LocationRecordUtilities.MapLocation(TestDataFileConstants.LocationsSqlInsertDataDictionary)],
             LocationRecordUtilities.MapLocation);
 
-        await VerifyLoggingMessage($"\"Completed SQL script execution for prefix \"test.sql\"");
+        await VerifyLoggingMessage($"Completed SQL script execution for prefix \"test.sql\".");
     }
 
     private static StringContent? InvalidS3SqlBulkLoadRequest =>
