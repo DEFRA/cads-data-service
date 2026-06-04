@@ -1,6 +1,5 @@
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -8,10 +7,11 @@ using System.Threading.Channels;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
-public class S3BulkLoadBackgroundService(
-    Channel<CreateS3BulkLoadJobDto> channel,
-    IServiceScopeFactory scopeFactory,
-    ILogger<S3BulkLoadBackgroundService> logger) : BackgroundService
+public abstract class S3BulkLoadBackgroundService<T>(
+    Channel<T> channel,
+    ILogger<S3BulkLoadBackgroundService<T>> logger,
+    IS3ToPostgresService<T> processor) : BackgroundService
+    where T : CreateS3BulkLoadJobDto
 {
     private readonly int _maxParallelImports = 5;
 
@@ -23,7 +23,6 @@ public class S3BulkLoadBackgroundService(
         await foreach (var request in channel.Reader.ReadAllAsync(stoppingToken))
         {
             await semaphore.WaitAsync(stoppingToken);
-
             tasks.Add(ProcessJobAsync(request, semaphore, stoppingToken));
         }
 
@@ -31,16 +30,13 @@ public class S3BulkLoadBackgroundService(
     }
 
     private async Task ProcessJobAsync(
-        CreateS3BulkLoadJobDto request,
+        T request,
         SemaphoreSlim semaphore,
         CancellationToken cancellationToken)
     {
         try
         {
-            using var scope = scopeFactory.CreateScope();
-            var service = scope.ServiceProvider.GetRequiredService<IS3ToPostgresCopyService>();
-
-            await service.ExecuteAsync(request, cancellationToken);
+            await processor.ExecuteAsync(request, cancellationToken);
         }
         catch (Exception ex)
         {
