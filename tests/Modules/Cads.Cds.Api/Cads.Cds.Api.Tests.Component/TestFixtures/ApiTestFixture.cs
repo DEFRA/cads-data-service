@@ -5,7 +5,7 @@ namespace Cads.Cds.Api.Tests.Component.TestFixtures;
 public class ApiTestFixture : TestFixtureBase<Program, ApiWebApplicationFactory>
 {
     public ApiTestFixture()
-        : base(new ApiWebApplicationFactory())
+        : base(new ApiWebApplicationFactory(useFakeAuth: true))
     {
     }
 }

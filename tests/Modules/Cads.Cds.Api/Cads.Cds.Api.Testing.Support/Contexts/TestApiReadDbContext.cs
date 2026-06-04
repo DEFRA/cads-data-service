@@ -11,7 +11,9 @@ public class TestApiReadDbContext(DbContextOptions<ApiReadDbContext> options)
     public DbSet<LocationSummary> LocationSummaries => Set<LocationSummary>();
 
     public override IQueryable<LocationSummary> GetLocationsSummary(string? cph, DateOnly? lastModifiedDate)
-        => LocationSummaries;
+        => LocationSummaries.Where(x =>
+            (string.IsNullOrEmpty(cph) || x.LidFullIdentifier == cph) &&
+            (!lastModifiedDate.HasValue || x.LocCurrentModifiedDate == lastModifiedDate));
 
     /// <summary>
     /// Give fake keys so EF Core can track them
@@ -22,6 +24,6 @@ public class TestApiReadDbContext(DbContextOptions<ApiReadDbContext> options)
         base.OnModelCreating(modelBuilder);
 
         // Functions
-        modelBuilder.Entity<LocationSummary>().HasKey(x => new { x.LidIdentifier, x.LidFullIdentifier, x.LidCurrentModifiedDate });
+        modelBuilder.Entity<LocationSummary>().HasKey(x => new { x.LidIdentifier, x.LidFullIdentifier, x.LocCurrentModifiedDate });
     }
 }

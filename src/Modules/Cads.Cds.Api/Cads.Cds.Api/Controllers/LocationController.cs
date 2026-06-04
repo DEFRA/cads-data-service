@@ -32,11 +32,7 @@ public class LocationController(IRequestExecutor executor) : ControllerBase
         var result = await _executor.ExecuteQuery(new GetLocationsQuery
         {
             Cph = request.Cph,
-            LastModifiedDate = request.LastModifiedDate,
-            Page = request.Page,
-            PageSize = request.PageSize,
-            Order = request.Order,
-            Sort = request.Sort
+            LastModifiedDate = request.LastModifiedDate
         }, cancellationToken);
 
         return Ok(result);
