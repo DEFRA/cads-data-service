@@ -54,8 +54,8 @@ public static class TestDataFileConstants
         ["loc_lty_id"] = 2,
         ["loc_cty_id"] = 278,
         ["loc_receive_labels_flag"] = "N",
-        ["loc_effective_from"] = new DateTime(1996, 7, 1),
-        ["loc_effective_to"] = new DateTime(1998, 1, 17),
+        ["loc_effective_from"] = new DateOnly(1996, 7, 1),
+        ["loc_effective_to"] = new DateOnly(1998, 1, 17),
         ["loc_cessation_reason"] = "BC",
         ["loc_premises_type"] = "AH",
         ["loc_comments"] = "PA-COMMENT-1",
@@ -68,7 +68,7 @@ public static class TestDataFileConstants
         ["loc_email_address"] = "pa_email_1@defra.gov.uk",
         ["loc_current_status"] = "1",
         ["loc_current_user"] = "m184910",
-        ["loc_current_modified_date"] = new DateTime(2005, 6, 14),
+        ["loc_current_modified_date"] = new DateOnly(2005, 6, 14),
         ["loc_current_pid"] = 29,
         ["loc_reason_code"] = "AC",
         ["loc_version"] = 1,
@@ -111,8 +111,12 @@ public static class TestDataFileConstants
         {
             // If time component is zero, use DATE, otherwise TIMESTAMP
             if (dt.TimeOfDay == TimeSpan.Zero)
-                return $"DATE '{dt:yyyy-MM-dd}'";
-            return $"TIMESTAMP '{dt:yyyy-MM-dd HH:mm:ss.ffffff}'";
+                return $"'{dt:yyyy-MM-dd}'";
+            return $"'{dt:yyyy-MM-dd HH:mm:ss.ffffff}'";
+        }
+        if (value is DateOnly dateonly)
+        {
+            return $"'{dateonly:yyyy-MM-dd}'";
         }
 
         if (value is string s)
