@@ -19,7 +19,9 @@ public class StorageBridgeWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
-    public TestBulkLoadJobChannel TestBulkLoadJobChannel { get; } = new();
+    public TestCsvBulkLoadJobChannel TestCsvBulkLoadJobChannel { get; } = new();
+
+    public TestSqlImportJobChannel TestSqlImportJobChannel { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -46,7 +48,9 @@ public class StorageBridgeWebApplicationFactory(
     private void OverrideBulkLoadChannels(IServiceCollection services)
     {
         services.RemoveAll<Channel<CreateS3BulkLoadJobDto>>();
-        services.AddSingleton(TestBulkLoadJobChannel.Channel);
-        services.AddSingleton(TestBulkLoadJobChannel);
+        services.RemoveAll<Channel<CreateS3SqlImportJobDto>>();
+
+        services.AddSingleton(TestCsvBulkLoadJobChannel.Channel);
+        services.AddSingleton(TestSqlImportJobChannel.Channel);
     }
 }

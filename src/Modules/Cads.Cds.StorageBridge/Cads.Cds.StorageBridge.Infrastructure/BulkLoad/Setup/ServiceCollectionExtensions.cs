@@ -13,18 +13,19 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection ConfigureBulkLoadServices(this IServiceCollection services)
     {
-        services.AddSingleton(Channel.CreateUnbounded<CreateS3BulkLoadJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
+        services.AddSingleton(Channel.CreateUnbounded<CreateS3CsvBulkLoadJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
+        services.AddSingleton(Channel.CreateUnbounded<CreateS3SqlImportJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
 
-        services.AddHostedService<S3BulkLoadBackgroundService>();
+        services.AddHostedService<S3CsvBulkLoadBackgroundService>();
+        services.AddHostedService<S3SqlBulkLoadBackgroundService>();
 
-        services.AddTransient<IS3BulkLoadJobEnqueuer, S3BulkLoadJobEnqueuer>();
+        services.AddTransient<IS3BulkLoadJobEnqueuer<CreateS3CsvBulkLoadJobDto>, S3BulkLoadJobEnqueuer<CreateS3CsvBulkLoadJobDto>>();
+        services.AddTransient<IS3BulkLoadJobEnqueuer<CreateS3SqlImportJobDto>, S3BulkLoadJobEnqueuer<CreateS3SqlImportJobDto>>();
 
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
-
         services.AddTransient<IS3SqlScriptExecutorService, S3SqlScriptExecutorService>();
 
         services.AddScoped<IDataSeedIngestionHistoryRepository, DataSeedIngestionHistoryRepository>();
-
         services.AddScoped<IS3BulkLoadCommandFactoryProvider, S3BulkLoadCommandFactoryProvider>();
 
         return services;
