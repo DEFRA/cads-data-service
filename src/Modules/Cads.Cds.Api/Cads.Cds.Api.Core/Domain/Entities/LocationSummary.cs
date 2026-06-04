@@ -5,16 +5,16 @@ public class LocationSummary
     public string? LidIdentifier { get; set; }
     public string? LidFullIdentifier { get; set; }
     public string? LidSubIdentifier { get; set; }
-    public DateTime? LidEffectiveFromDate { get; set; }
-    public DateTime? LidEffectiveToDate { get; set; }
-    public DateTime? LidCurrentModifiedDate { get; set; }
+    public DateOnly? LidEffectiveFromDate { get; set; }
+    public DateOnly? LidEffectiveToDate { get; set; }
+    public DateOnly? LidCurrentModifiedDate { get; set; }
 
     public string? LtyShortDescription { get; set; }
     public string? LtyLongDescription { get; set; }
 
     public string? LocMapReference { get; set; }
-    public DateTime? LocEffectiveFrom { get; set; }
-    public DateTime? LocEffectiveTo { get; set; }
+    public DateOnly? LocEffectiveFrom { get; set; }
+    public DateOnly? LocEffectiveTo { get; set; }
     public string? LocCessationReason { get; set; }
     public string? LocComments { get; set; }
     public string? LocSourceIdentifier { get; set; }
@@ -22,7 +22,7 @@ public class LocationSummary
     public string? LocMobileNumber { get; set; }
     public string? LocFaxNumber { get; set; }
     public string? LocEmailAddress { get; set; }
-    public DateTime? LocCurrentModifiedDate { get; set; }
+    public DateOnly? LocCurrentModifiedDate { get; set; }
     public string? LocReasonCode { get; set; }
     public decimal? LocVersion { get; set; }
 
