@@ -335,8 +335,13 @@ Starts:
 
 **Stop everything**
 
+To stop everything without removing the postgresql data volume, use:
 ```
 ./platform/platform.sh down
+```
+To remove the postgresql data volume and start with a clean slate, use the `--clean` flag.
+```
+./platform/platform.sh down --clean
 ```
 
 This stops:
