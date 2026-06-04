@@ -1,7 +1,7 @@
 using Amazon.S3.Model;
-using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
+using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Factories;
@@ -24,7 +24,7 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
     private readonly Mock<IServiceScope> _scope = new();
     private readonly Mock<IServiceProvider> _provider = new();
-    private readonly Mock<IStorageReader<CadsInternalClient>> _storageReader = new();
+    private readonly Mock<IStorageService<CadsInternalClient>> _storageService = new();
     private readonly Mock<IS3BulkLoadCommandFactoryProvider> _factoryProvider = new();
     private readonly Mock<IS3BulkLoadCommandFactory> _factory = new();
     private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
@@ -36,7 +36,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.None,
             SourceKey = TestFileName
@@ -50,7 +50,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert,
             SourceKey = ""
@@ -60,14 +60,14 @@ public class S3ToPostgresCopyServiceTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_ShouldReturnFalse_WhenNoKeysFound()
+    public async Task ExecuteAsync_ShouldReturnZero_WhenNoKeysFound()
     {
         var service = CreateService();
 
-        _storageReader.Setup(x => x.ListKeysAsync(TestFileName, It.IsAny<CancellationToken>()))
+        _storageService.Setup(x => x.ListKeysAsync(TestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert,
             SourceKey = TestFileName,
@@ -76,7 +76,7 @@ public class S3ToPostgresCopyServiceTests
 
         var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
 
-        result.Should().BeFalse();
+        result.Should().Be(0);
     }
 
     [Theory]
@@ -97,7 +97,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insertCmd);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert,
             BulkImportType = BulkLoadDataType.Locations
@@ -116,7 +116,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateUpdateCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(updateCmd);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Update,
             BulkImportType = BulkLoadDataType.Locations
@@ -135,7 +135,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(upsertCmd);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Insert | ImportActions.Update,
             BulkImportType = BulkLoadDataType.Locations
@@ -154,7 +154,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateDeleteCommandAsync(It.IsAny<BulkLoadDataType>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(deleteCmd);
 
-        var job = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             ImportActionType = ImportActions.Delete,
             BulkImportType = BulkLoadDataType.Locations
@@ -195,12 +195,17 @@ public class S3ToPostgresCopyServiceTests
         var outputStream = new MemoryStream();
         var writer = new NonDisposingStreamWriter(outputStream);
 
-        _storageReader
+        _storageService
             .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetObjectResponse());
 
         var method = typeof(S3ToPostgresCopyService)
             .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        var fieldInfo = typeof(S3ToPostgresCopyService).GetField("_storageService",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+        fieldInfo?.SetValue(service, _storageService.Object);
 
         await (Task)method!.Invoke(service,
             [
@@ -233,12 +238,17 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateTextImport(It.IsAny<BulkLoadDataType>(), It.IsAny<char>(), It.IsAny<List<string>>()))
             .Returns(writer);
 
-        _storageReader
+        _storageService
             .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var method = typeof(S3ToPostgresCopyService)
             .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        var fieldInfo = typeof(S3ToPostgresCopyService).GetField("_storageService",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+
+        fieldInfo?.SetValue(service, _storageService.Object);
 
         await (Task)method!.Invoke(service,
             [
@@ -257,19 +267,25 @@ public class S3ToPostgresCopyServiceTests
 
     private S3ToPostgresCopyService CreateService()
     {
+        _factoryProvider
+          .Setup(x => x.Create(It.IsAny<NpgsqlConnection>()))
+          .Returns(_factory.Object);
+
         _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
             .Returns(null!);
-        _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
-        _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
 
-        _factoryProvider
-            .Setup(x => x.Create(It.IsAny<NpgsqlConnection>()))
-            .Returns(_factory.Object);
+        _provider.Setup(x => x.GetService(typeof(IStorageService<CadsInternalClient>)))
+           .Returns(_storageService.Object);
+
+        _provider.Setup(x => x.GetService(typeof(IS3BulkLoadCommandFactoryProvider)))
+           .Returns(_factoryProvider.Object);
+
+        _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
+
+        _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
 
         return new S3ToPostgresCopyService(
             _scopeFactory.Object,
-            _storageReader.Object,
-            _factoryProvider.Object,
             _logger.Object);
     }
 
