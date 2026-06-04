@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Cads.Cds.StorageBridge.Application.BulkLoad.Commands;
 
-public class S3BulkLoadCommandValidator : AbstractValidator<S3BulkLoadCommand>
+public class S3CsvBulkLoadCommandValidator : AbstractValidator<S3CsvBulkLoadCommand>
 {
-    public S3BulkLoadCommandValidator()
+    public S3CsvBulkLoadCommandValidator()
     {
         RuleFor(x => x.SourceKey)
             .NotEmpty();
