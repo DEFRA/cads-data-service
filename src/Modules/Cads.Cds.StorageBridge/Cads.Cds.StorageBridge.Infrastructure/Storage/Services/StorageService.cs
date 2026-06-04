@@ -5,7 +5,9 @@ using Cads.Cds.StorageBridge.Infrastructure.Storage.Readers;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Storage.Services;
 
-public class StorageService<T>(IS3ClientFactory s3ClientFactory) : BulkImportStorageReader<T>(s3ClientFactory), IStorageService<T> where T : IStorageClient, new()
+public class StorageService<T>(IS3ClientFactory s3ClientFactory)
+    : BulkImportStorageReader<T>(s3ClientFactory), IStorageService<T>
+    where T : IStorageClient, new()
 {
     public async Task WriteAsync(string key, string payload, CancellationToken cancellationToken)
     {
