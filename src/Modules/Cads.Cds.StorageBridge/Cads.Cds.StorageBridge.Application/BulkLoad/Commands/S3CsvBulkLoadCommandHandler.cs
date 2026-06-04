@@ -4,12 +4,12 @@ using Cads.Cds.StorageBridge.Core.DTOs;
 
 namespace Cads.Cds.StorageBridge.Application.BulkLoad.Commands;
 
-public class S3BulkLoadCommandHandler(IS3BulkLoadJobEnqueuer bulkImportEnqueueService)
-    : ICommandHandler<S3BulkLoadCommand, Guid>
+public class S3CsvBulkLoadCommandHandler(IS3BulkLoadJobEnqueuer<CreateS3CsvBulkLoadJobDto> bulkImportEnqueueService)
+    : ICommandHandler<S3CsvBulkLoadCommand, Guid>
 {
-    public async Task<Guid> Handle(S3BulkLoadCommand command, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(S3CsvBulkLoadCommand command, CancellationToken cancellationToken)
     {
-        var createS3BulkLoadJob = new CreateS3BulkLoadJobDto
+        var job = new CreateS3CsvBulkLoadJobDto
         {
             SourceKey = command.SourceKey,
             BulkImportType = command.BulkImportType,
@@ -17,6 +17,6 @@ public class S3BulkLoadCommandHandler(IS3BulkLoadJobEnqueuer bulkImportEnqueueSe
             ImportActionType = command.ActionType
         };
 
-        return await bulkImportEnqueueService.EnqueueAsync(createS3BulkLoadJob, cancellationToken);
+        return await bulkImportEnqueueService.EnqueueAsync(job, cancellationToken);
     }
 }
