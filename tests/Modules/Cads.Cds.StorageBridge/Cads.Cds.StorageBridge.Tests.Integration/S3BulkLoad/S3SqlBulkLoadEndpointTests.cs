@@ -92,10 +92,9 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await BulkLoadTestHelpers.AssertRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
-            tableName,
-            TestDataFileConstants.LocationsSqlInsertDataDictionary,
-            LocationRecordUtilities.MapLocationFromDb,
-            orderBy: "loc_id");
+            $"SELECT * FROM {tableName} WHERE loc_id = {TestDataFileConstants.LocationsSqlInsertDataDictionary["loc_id"]}",
+            [LocationRecordUtilities.MapLocation(TestDataFileConstants.LocationsSqlInsertDataDictionary)],
+            LocationRecordUtilities.MapLocation);
 
         await VerifyLoggingMessage($"\"Completed SQL script execution for prefix \"test.sql\"");
     }

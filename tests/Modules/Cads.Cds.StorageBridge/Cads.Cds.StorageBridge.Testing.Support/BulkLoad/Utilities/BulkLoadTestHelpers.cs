@@ -28,7 +28,7 @@ public static class BulkLoadTestHelpers
             pollInterval: TimeSpan.FromMilliseconds(200));
 
         var actual = actualRows
-            .Select(LocationRecordUtilities.MapLocationFromDb)
+            .Select(LocationRecordUtilities.MapLocation)
             .ToList();
 
         actual.Should().BeEquivalentTo(expected);
@@ -36,19 +36,16 @@ public static class BulkLoadTestHelpers
 
     public static async Task AssertRowsMatchDatabaseAsync<T>(
         string connectionString,
-        string tableName,
-        Dictionary<string, T?> dataRows,
-        RecordMapper<T> recordMapper,
-        string orderBy)
+        string query,
+        IEnumerable<T> dataRows,
+        RecordMapper<T> recordMapper)
+        where T : class
     {
-        var expected = dataRows
-           .Select(i => i.Value)
-           .ToList();
+        var expected = dataRows.ToList();
 
         var actualRows = await PostgresWaitUtilities.WaitForRowsAsync(
             connectionString,
-            tableName,
-            orderBy,
+            query,
             expectedCount: expected.Count,
             timeout: TimeSpan.FromSeconds(10),
             pollInterval: TimeSpan.FromMilliseconds(200));
