@@ -49,7 +49,7 @@ public static class TestDataFileConstants
     public static Dictionary<string, object?> LocationsSqlInsertDataDictionary => new()
     {
         ["loc_receive_ppaf_flag"] = "Y",
-        ["loc_id"] = 1,
+        ["loc_id"] = 99999,
         ["loc_slt_id"] = null,
         ["loc_lty_id"] = 2,
         ["loc_cty_id"] = 278,
