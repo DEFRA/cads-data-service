@@ -5,11 +5,12 @@ using System.Threading.Channels;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
-public class S3BulkLoadJobEnqueuer(
-    Channel<CreateS3BulkLoadJobDto> channel,
-    ILogger<S3BulkLoadJobEnqueuer> logger) : IS3BulkLoadJobEnqueuer
+public class S3BulkLoadJobEnqueuer<T>(
+    Channel<T> channel,
+    ILogger<S3BulkLoadJobEnqueuer<T>> logger) : IS3BulkLoadJobEnqueuer<T>
+    where T : CreateS3BulkLoadJobDto
 {
-    public async Task<Guid> EnqueueAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
+    public async Task<Guid> EnqueueAsync(T job, CancellationToken cancellationToken = default)
     {
         job.JobId = Guid.NewGuid();
 

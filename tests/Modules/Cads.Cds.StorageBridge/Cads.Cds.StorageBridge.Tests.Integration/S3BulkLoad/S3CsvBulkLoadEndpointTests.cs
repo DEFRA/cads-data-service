@@ -16,14 +16,14 @@ using System.Net.Http.Json;
 namespace Cads.Cds.StorageBridge.Tests.Integration.S3BulkLoad;
 
 [Collection("StorageBridgeIntegration"), Trait("Dependence", "testcontainers")]
-public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
+public class S3CsvBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 {
     private const int ProcessingTimeCircuitBreakerSeconds = 30;
 
     [Fact]
     public async Task GivenInvalidRequest_WhenS3BulkLoadRequested_ShouldReturnBadRequest()
     {
-        var response = await ExecuteTest(InvalidS3BulkLoadRequest);
+        var response = await ExecuteTest(InvalidS3CsvBulkLoadRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -41,7 +41,7 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3BulkLoadRequest);
+        var response = await ExecuteTest(ValidS3CsvBulkLoadRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -60,7 +60,7 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3BulkLoadRequest);
+        var response = await ExecuteTest(ValidS3CsvBulkLoadRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -83,7 +83,7 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3BulkLoadRequest);
+        var response = await ExecuteTest(ValidS3CsvBulkLoadRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -106,7 +106,7 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3BulkLoadRequest);
+        var response = await ExecuteTest(ValidS3CsvBulkLoadRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -126,16 +126,16 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
         await VerifyLoggingMessage($"Completed bulk import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 2 records processed");
     }
 
-    private static StringContent? InvalidS3BulkLoadRequest =>
-        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3BulkLoadRequest
+    private static StringContent? InvalidS3CsvBulkLoadRequest =>
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvBulkLoadRequest
         {
             SourceKey = string.Empty,
             BulkImportType = BulkLoadDataType.None,
             ActionType = ImportActions.None
         });
 
-    private static StringContent? ValidS3BulkLoadRequest =>
-        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3BulkLoadRequest
+    private static StringContent? ValidS3CsvBulkLoadRequest =>
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvBulkLoadRequest
         {
             SourceKey = "LOCATIONS.part-0001.csv",
             BulkImportType = BulkLoadDataType.Locations,
@@ -144,7 +144,7 @@ public class S3BulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
     {
-        var endpoint = TestEndpointConstants.StorageBridgeS3BulkLoadRoot;
+        var endpoint = TestEndpointConstants.StorageBridgeS3CsvBulkLoadRoot;
         var client = apiContainerFixture.CreateBasicClient();
 
         return await client.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);
