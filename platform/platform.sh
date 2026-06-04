@@ -21,12 +21,14 @@ UI_DIR="$ROOT_DIR/../cads-mis"
 COMMAND="${1:-help}"
 MAC_OVERRIDE=""
 SYNC_DATA_SEED=""
+CLEAN=""
 
 # Process additional optional arguments
 for arg in "${@:2}"; do
   case "$arg" in
     --mac-intel|--mac-arm) MAC_OVERRIDE="$arg" ;;
     --sync-data-seed)      SYNC_DATA_SEED="$arg" ;;
+    --clean)           CLEAN="$arg" ;;
     *)                     ;;
   esac
 done
@@ -64,7 +66,7 @@ start_tools() {
 
 stop_tools() {
   echo "[platform] Stopping shared infra..."
-  "$TOOLS_DIR/harness/run-harness.sh" down
+  "$TOOLS_DIR/harness/run-harness.sh" down ${CLEAN:+"$CLEAN"}
   return $?
 }
 
