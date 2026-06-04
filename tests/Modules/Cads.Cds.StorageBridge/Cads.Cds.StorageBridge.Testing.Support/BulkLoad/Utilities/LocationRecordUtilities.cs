@@ -4,9 +4,9 @@ namespace Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Utilities;
 
 public static class LocationRecordUtilities
 {
-    public static LocationRecord ParseLocationCsvRow(string csv)
+    public static LocationRecord ParseLocationCsvRow(string value, char delimiter = '|')
     {
-        var parts = csv.Split('|');
+        var parts = value.Split(delimiter);
 
         return new LocationRecord(
             RecordType: parts[0],
@@ -38,7 +38,7 @@ public static class LocationRecordUtilities
         );
     }
 
-    public static LocationRecord MapLocationFromDb(Dictionary<string, object?> row)
+    public static LocationRecord MapLocation(Dictionary<string, object?> row)
     {
         return new LocationRecord(
             RecordType: (string)row["record_type"]!,
