@@ -4,18 +4,26 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 
 public static class PostgresQueryUtilities
 {
-    public static async Task<List<Dictionary<string, object?>>> QueryRowsAsync(
+    public static async Task<List<Dictionary<string, object?>>> QueryTableAsync(
         string connectionString,
         string tableName,
         string orderBy)
+    {
+        var sql = $"SELECT * FROM {tableName} ORDER BY {orderBy}";
+
+        return await QueryAsync(connectionString, sql);
+    }
+
+    public static async Task<List<Dictionary<string, object?>>> QueryAsync(
+       string connectionString,
+       string query)
     {
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
 
         var rows = new List<Dictionary<string, object?>>();
 
-        var sql = $"SELECT * FROM {tableName} ORDER BY {orderBy}";
-        await using var cmd = new NpgsqlCommand(sql, conn);
+        await using var cmd = new NpgsqlCommand(query, conn);
         await using var reader = await cmd.ExecuteReaderAsync();
 
         while (await reader.ReadAsync())

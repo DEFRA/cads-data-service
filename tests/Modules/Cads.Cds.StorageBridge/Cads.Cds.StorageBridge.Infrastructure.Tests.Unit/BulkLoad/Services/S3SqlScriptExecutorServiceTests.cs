@@ -7,6 +7,8 @@ using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System.Text;
@@ -15,13 +17,17 @@ namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.BulkLoad.Services;
 
 public class S3SqlScriptExecutorServiceTests
 {
+    private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
+    private readonly Mock<IServiceScope> _scope = new();
+    private readonly Mock<IServiceProvider> _provider = new();
+
     private readonly Mock<IStorageService<CadsInternalClient>> _storageService = new();
     private readonly Mock<IFileChecksumService> _checksumService = new();
     private readonly Mock<IDataSeedIngestionHistoryRepository> _historyRepo = new();
     private readonly Mock<ILogger<S3SqlScriptExecutorService>> _logger = new();
 
-    // DbContext is not exercised in unit tests — DB-touching methods are ExcludeFromCodeCoverage
-    private readonly StorageBridgeWriteDbContext _dbContext = null!;
+    // DbContext is not exercised in unit tests, but is referenced
+    private readonly StorageBridgeWriteDbContext _dbContext = new(new DbContextOptions<StorageBridgeWriteDbContext>());
 
     private const string TestPrefix = "sql-scripts/";
     private const string TestKey = "sql-scripts/insert_animals.sql";
@@ -141,11 +147,28 @@ public class S3SqlScriptExecutorServiceTests
     // Helpers
     // -----------------------------------------------------------------------
 
-    private S3SqlScriptExecutorService CreateService() =>
-        new(
-            _dbContext,
-            _storageService.Object,
-            _checksumService.Object,
-            _historyRepo.Object,
+
+    private S3SqlScriptExecutorService CreateService()
+    {
+        _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
+            .Returns(_dbContext);
+
+        _provider.Setup(x => x.GetService(typeof(IStorageService<CadsInternalClient>)))
+            .Returns(_storageService.Object);
+
+        _provider.Setup(x => x.GetService(typeof(IFileChecksumService)))
+            .Returns(_checksumService.Object);
+
+        _provider.Setup(x => x.GetService(typeof(IDataSeedIngestionHistoryRepository)))
+            .Returns(_historyRepo.Object);
+
+        _scope.Setup(x => x.ServiceProvider)
+            .Returns(_provider.Object);
+
+        _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
+
+        return new S3SqlScriptExecutorService(
+            _scopeFactory.Object,
             _logger.Object);
+    }
 }

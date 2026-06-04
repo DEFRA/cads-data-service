@@ -1,4 +1,3 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
@@ -19,11 +18,11 @@ using System.Text.RegularExpressions;
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
 public class S3ToPostgresCopyService(
-    IServiceScopeFactory scopeFactory,
-    IStorageReader<CadsInternalClient> storageReader,
-    IS3BulkLoadCommandFactoryProvider factoryProvider,
+    IServiceScopeFactory serviceScopeFactory,
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
+    private IStorageService<CadsInternalClient> _storageService = null!;
+
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
     /// </summary>
@@ -31,7 +30,7 @@ public class S3ToPostgresCopyService(
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
-    public async Task<bool> ExecuteAsync(CreateS3BulkLoadJobDto job, CancellationToken cancellationToken = default)
+    public async Task<int> ExecuteAsync(CreateS3CsvBulkLoadJobDto job, CancellationToken cancellationToken = default)
     {
         ValidateJob(job);
 
@@ -41,12 +40,17 @@ public class S3ToPostgresCopyService(
                 job.JobId, job.SourceKey);
         }
 
-        var keys = await storageReader.ListKeysAsync(job.SourceKey, cancellationToken);
-        if (!keys.Any()) return false;
+        await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-        using var scope = scopeFactory.CreateScope();
+        _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
+
+        var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken);
+        if (!keys.Any()) return 0;
+
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
         var connection = await OpenConnectionAsync(dbContext, cancellationToken);
+
+        var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3BulkLoadCommandFactoryProvider>();
 
         var factory = factoryProvider.Create((NpgsqlConnection)connection);
         var createTempTableCommand = factory.CreateTempTableCommand(job.BulkImportType);
@@ -97,7 +101,7 @@ public class S3ToPostgresCopyService(
                 job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
-        return true;
+        return totalRows;
     }
 
     /// <summary>
@@ -114,7 +118,7 @@ public class S3ToPostgresCopyService(
     [ExcludeFromCodeCoverage]
     private async Task<int> ProcessFileAsync(
         string key,
-        CreateS3BulkLoadJobDto job,
+        CreateS3CsvBulkLoadJobDto job,
         IS3BulkLoadCommandFactory factory,
         DbConnection connection,
         DbCommand createTempTableCommand,
@@ -164,7 +168,7 @@ public class S3ToPostgresCopyService(
         IS3BulkLoadCommandFactory factory,
         CancellationToken cancellationToken)
     {
-        using var response = await storageReader.GetObjectResponseAsync(key, cancellationToken);
+        using var response = await _storageService.GetObjectResponseAsync(key, cancellationToken);
 
         if (response?.ResponseStream == null)
         {
@@ -217,7 +221,7 @@ public class S3ToPostgresCopyService(
         return sanitisedResult;
     }
 
-    private static void ValidateJob(CreateS3BulkLoadJobDto job)
+    private static void ValidateJob(CreateS3CsvBulkLoadJobDto job)
     {
         if (job.ImportActionType == ImportActions.None)
             throw new InvalidOperationException("ImportActionType cannot be None.");
@@ -240,7 +244,7 @@ public class S3ToPostgresCopyService(
     }
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
-        CreateS3BulkLoadJobDto job,
+        CreateS3CsvBulkLoadJobDto job,
         IS3BulkLoadCommandFactory factory,
         CancellationToken cancellationToken)
     {

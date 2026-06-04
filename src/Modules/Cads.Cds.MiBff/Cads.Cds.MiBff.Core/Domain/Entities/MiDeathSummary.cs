@@ -5,7 +5,7 @@ public class MiDeathSummary
     public int DeathYear { get; set; }
     public string DeathMonth { get; set; } = string.Empty;
     public string Country { get; set; } = string.Empty;
-    public string County { get; set; } = string.Empty;
+    public string? County { get; set; } = string.Empty;
     public string BreedType { get; set; } = string.Empty;
     public string Breed { get; set; } = string.Empty;
     public string BreedCode { get; set; } = string.Empty;
