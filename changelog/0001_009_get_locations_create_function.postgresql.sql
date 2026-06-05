@@ -41,7 +41,7 @@ CREATE OR REPLACE FUNCTION public.get_locations(
 		cty_data_mgt_area_desc varchar(100),
 		cty_current_status varchar(2),
 		lif_description varchar(30),
-		imported_date date
+		imported_date timestamp without time zone
 	)
 	LANGUAGE sql
 AS $$

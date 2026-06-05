@@ -20,8 +20,6 @@
 
   <ItemGroup>
     <Folder Include="Specimens\Data\" />
-    <Folder Include="Specimens\Builders\" />
-    <Folder Include="Specimens\Factories\" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 using Cads.Cds.Api.Testing.Support.Contexts;
 using Cads.Cds.Api.Testing.Support.Seeding;
+using Cads.Cds.Api.Testing.Support.Specimens.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -27,7 +28,10 @@ public class ApiWebApplicationFactory(
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
+        var locationSummaryData = new LocationSummaryDataFactory().CreateMockData();
+
         var apiReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<ApiReadDbContext, TestApiReadDbContext>(Guid.NewGuid().ToString());
+        TestApiDataSeeder.Seed(apiReadDbContext, locationSummaryData);
         TestApiDataSeeder.SeedSaveChanges(apiReadDbContext);
 
         var apiWriteDbContext = DbContextFactory.CreateInMemoryDbContext<ApiWriteDbContext>(Guid.NewGuid().ToString());

@@ -11,9 +11,11 @@ public class TestApiReadDbContext(DbContextOptions<ApiReadDbContext> options)
     public DbSet<LocationSummary> LocationSummaries => Set<LocationSummary>();
 
     public override IQueryable<LocationSummary> GetLocationsSummary(string? cph, DateOnly? lastModifiedDate)
-        => LocationSummaries.Where(x =>
+    {
+        return LocationSummaries.Where(x =>
             (string.IsNullOrEmpty(cph) || x.LidFullIdentifier == cph) &&
-            (!lastModifiedDate.HasValue || x.LocCurrentModifiedDate == lastModifiedDate));
+            (!lastModifiedDate.HasValue || x.LocCurrentModifiedDate!.Value.DayNumber == lastModifiedDate.Value.DayNumber));
+    }
 
     /// <summary>
     /// Give fake keys so EF Core can track them
@@ -24,6 +26,6 @@ public class TestApiReadDbContext(DbContextOptions<ApiReadDbContext> options)
         base.OnModelCreating(modelBuilder);
 
         // Functions
-        modelBuilder.Entity<LocationSummary>().HasKey(x => new { x.LidIdentifier, x.LidFullIdentifier, x.LocCurrentModifiedDate });
+        modelBuilder.Entity<LocationSummary>().HasKey(x => new { x.LidFullIdentifier, x.LocCurrentModifiedDate });
     }
 }
