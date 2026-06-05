@@ -13,7 +13,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureApiPersistence(this IServiceCollection services)
     {
         services.RegisterDbContexts();
-        services.RegisterTableRepositories();
         services.RegisterFunctionRepositories();
 
         return services;
@@ -27,11 +26,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<
             IDbContextFactory<ApiReadDbContext, ApiWriteDbContext>,
             DbContextFactory<ApiReadDbContext, ApiWriteDbContext>>();
-    }
-
-    private static IServiceCollection RegisterTableRepositories(this IServiceCollection services)
-    {
-        return services;
     }
 
     private static void RegisterFunctionRepositories(this IServiceCollection services)
