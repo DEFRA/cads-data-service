@@ -28,7 +28,7 @@ public class LocationQueryBuilder
             parameters.Add($"cph={HttpUtility.UrlEncode(_cph)}");
 
         if (_lastModifiedDate != null)
-            parameters.Add($"lastModifiedDate={HttpUtility.UrlEncode(_lastModifiedDate.Value.ToString("d"))}");
+            parameters.Add($"lastModifiedDate={HttpUtility.UrlEncode(_lastModifiedDate.Value.ToString("yyyy-MM-dd"))}");
 
         var qs = string.Join("&", parameters);
         return $"{TestEndpointConstants.ApiLocationRoot}?{qs}";
