@@ -6,7 +6,7 @@ namespace Cads.Cds.Api.Testing.Support.Utilities.Locations;
 public class LocationQueryBuilder
 {
     private string? _cph;
-    private DateTime? _lastModifiedDate;
+    private DateOnly? _lastModifiedDate;
 
     public LocationQueryBuilder WithCph(string cph)
     {
@@ -14,7 +14,7 @@ public class LocationQueryBuilder
         return this;
     }
 
-    public LocationQueryBuilder WithLastModifiedDate(DateTime date)
+    public LocationQueryBuilder WithLastModifiedDate(DateOnly date)
     {
         _lastModifiedDate = date;
         return this;
@@ -28,7 +28,7 @@ public class LocationQueryBuilder
             parameters.Add($"cph={HttpUtility.UrlEncode(_cph)}");
 
         if (_lastModifiedDate != null)
-            parameters.Add($"lastModifiedDate={HttpUtility.UrlEncode(_lastModifiedDate.Value.ToString("O"))}");
+            parameters.Add($"lastModifiedDate={HttpUtility.UrlEncode(_lastModifiedDate.Value.ToString("yyyy-MM-dd"))}");
 
         var qs = string.Join("&", parameters);
         return $"{TestEndpointConstants.ApiLocationRoot}?{qs}";
