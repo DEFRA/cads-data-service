@@ -43,6 +43,7 @@
   <include file="0001_007_get_imports_summary_create_function.postgresql.sql"/>
   <include file="0001_008_create_data_seed_injestion_history_table.postgresql.sql"/>
   <include file="0001_009_get_locations_create_function.postgresql.sql"/>
+  <include file="0001_010_get_locations_create_function.postgresql.sql"/>
   <include file="0002_000_mi_seed.postgresql.sql"/>
   <include file="0002_001_mi_cattle_import_report_seed.postgresql.sql"/>
   <include file="0002_010_mi_user_seed_initial_users_local.postgresql.sql"/>
@@ -84,4 +85,5 @@
   <include file="0003_022__ct_schemes_seed_data.postgresql.sql"/>
   <include file="0003_023__ct_breeds_seed_data.postgresql.sql"/>
   <include file="0003_024__ct_workgroups_seed_data_faker_data.postgresql.sql"/>
+  <include file="0003_025__integration_ct_locations_seed_data.postgresql.sql"/>
 </databaseChangeLog>

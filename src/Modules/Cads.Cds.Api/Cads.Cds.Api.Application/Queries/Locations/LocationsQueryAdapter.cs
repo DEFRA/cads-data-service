@@ -1,21 +1,16 @@
+using Cads.Cds.Api.Core.Domain.Repositories;
 using Cads.Cds.Api.Core.DTOs;
 
 namespace Cads.Cds.Api.Application.Queries.Locations;
 
-public class LocationsQueryAdapter
+public class LocationsQueryAdapter(ILocationSummaryRepository locationSummaryRepository)
 {
-    /// <summary>
-    /// No data layer yet so just returns empty list.
-    /// </summary>
-    /// <param name="query"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public async Task<(List<LocationDto> Items, int TotalCount)> GetLocationsAsync(
+    public async Task<IEnumerable<LocationDto>> GetLocationsAsync(
         GetLocationsQuery query,
         CancellationToken cancellationToken = default)
     {
-        var (items, totalCount) = (new List<LocationDto>(), 0);
+        var items = await locationSummaryRepository.GetLocationSummaryAsync(query.Cph, query.LastModifiedDate, cancellationToken);
 
-        return (items, totalCount);
+        return items.ToDtoList();
     }
 }

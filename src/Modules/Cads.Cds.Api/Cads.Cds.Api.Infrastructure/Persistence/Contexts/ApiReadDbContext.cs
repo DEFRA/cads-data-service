@@ -1,3 +1,4 @@
+using Cads.Cds.Api.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
@@ -10,6 +11,12 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : DbCo
 
     // Module-specific entities
 
+    // Tables
+
+    // Functions
+    public virtual IQueryable<LocationSummary> GetLocationsSummary(string? cph, DateOnly? lastModifiedDate)
+        => FromExpression(() => GetLocationsSummary(cph, lastModifiedDate));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Import shared canonical entities (from BuildingBlocks)
@@ -18,6 +25,11 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : DbCo
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ApiReadDbContext).Assembly
         );
+
+        modelBuilder.HasDbFunction(
+            typeof(ApiReadDbContext).GetMethod(nameof(GetLocationsSummary))!)
+            .HasName("get_locations")
+            .HasSchema("public");
 
         base.OnModelCreating(modelBuilder);
     }
