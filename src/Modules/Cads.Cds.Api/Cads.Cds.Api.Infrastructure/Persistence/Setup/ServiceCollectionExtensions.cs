@@ -29,8 +29,9 @@ public static class ServiceCollectionExtensions
             DbContextFactory<ApiReadDbContext, ApiWriteDbContext>>();
     }
 
-    private static void RegisterTableRepositories(this IServiceCollection services)
+    private static IServiceCollection RegisterTableRepositories(this IServiceCollection services)
     {
+        return services;
     }
 
     private static void RegisterFunctionRepositories(this IServiceCollection services)
