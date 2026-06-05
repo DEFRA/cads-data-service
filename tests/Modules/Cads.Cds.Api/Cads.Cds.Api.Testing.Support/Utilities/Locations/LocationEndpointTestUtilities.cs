@@ -1,4 +1,5 @@
 using Cads.Cds.Api.Core.DTOs;
+using Cads.Cds.Api.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using FluentAssertions;
@@ -12,18 +13,18 @@ public static class LocationEndpointTestUtilities
 
     public static string ValidScenario_WithCph =>
         new LocationQueryBuilder()
-            .WithCph("12/345/6789")
+            .WithCph($"AH-{string.Format(TestLocationConstants.CphIdentifierBase, 1)}")
             .Build();
 
     public static string ValidScenario_WithLastModifiedDate =>
         new LocationQueryBuilder()
-            .WithLastModifiedDate(DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-1)))
+            .WithLastModifiedDate(new DateOnly(2021, 01, 01).AddDays(2))
             .Build();
 
     public static string ValidScenario_WithCph_AndLastModifiedDate =>
         new LocationQueryBuilder()
-            .WithCph("12/345/6789")
-            .WithLastModifiedDate(DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-1)))
+            .WithCph($"AH-{string.Format(TestLocationConstants.CphIdentifierBase, 3)}")
+            .WithLastModifiedDate(new DateOnly(2021, 01, 01).AddDays(3))
             .Build();
 
     public static async Task VerifyInvalidScenario(HttpResponseMessage response)
@@ -39,20 +40,32 @@ public static class LocationEndpointTestUtilities
     {
         var locations = await HttpResponseMessageUtilities.VerifyOk<IEnumerable<LocationDto>>(response);
 
-        locations.Count().Should().Be(0);
+        locations.Count().Should().Be(1);
+
+        var location = locations.First();
+        location.LidFullIdentifier.Should().Be($"AH-{string.Format(TestLocationConstants.CphIdentifierBase, 1)}");
+        location.LocCurrentModifiedDate.Should().Be(new DateOnly(2021, 01, 01).AddDays(1));
     }
 
     public static async Task VerifyValidScenario_WithLastModifiedDate(HttpResponseMessage response)
     {
         var locations = await HttpResponseMessageUtilities.VerifyOk<IEnumerable<LocationDto>>(response);
 
-        locations.Count().Should().Be(0);
+        locations.Count().Should().Be(1);
+
+        var location = locations.First();
+        location.LidFullIdentifier.Should().Be($"AH-{string.Format(TestLocationConstants.CphIdentifierBase, 2)}");
+        location.LocCurrentModifiedDate.Should().Be(new DateOnly(2021, 01, 01).AddDays(2));
     }
 
     public static async Task VerifyValidScenario_WithCph_AndLastModifiedDate(HttpResponseMessage response)
     {
         var locations = await HttpResponseMessageUtilities.VerifyOk<IEnumerable<LocationDto>>(response);
 
-        locations.Count().Should().Be(0);
+        locations.Count().Should().Be(1);
+
+        var location = locations.First();
+        location.LidFullIdentifier.Should().Be($"AH-{string.Format(TestLocationConstants.CphIdentifierBase, 3)}");
+        location.LocCurrentModifiedDate.Should().Be(new DateOnly(2021, 01, 01).AddDays(3));
     }
 }

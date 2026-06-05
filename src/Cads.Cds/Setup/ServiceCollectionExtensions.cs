@@ -10,6 +10,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
+using Cads.Cds.Setup.Providers;
 using Cads.Cds.StorageBridge.Application;
 using FluentValidation;
 using MediatR;
@@ -28,7 +29,10 @@ public static class ServiceCollectionExtensions
     {
         services.ConfigureAuthentication(configuration);
 
-        services.AddControllers()
+        services.AddControllers(options =>
+        {
+            options.ModelBinderProviders.Insert(0, new DateOnlyModelBinderProvider());
+        })
             .AddJsonOptions(opts =>
             {
                 opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptionsWithStringEnumConversion.PropertyNamingPolicy;

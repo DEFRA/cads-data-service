@@ -31,4 +31,8 @@
     <ProjectReference Include="..\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ModelBinders\" />
+  </ItemGroup>
+
 </Project>
