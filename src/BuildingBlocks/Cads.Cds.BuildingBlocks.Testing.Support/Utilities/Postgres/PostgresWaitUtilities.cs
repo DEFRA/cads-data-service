@@ -12,7 +12,7 @@ public static class PostgresWaitUtilities
         TimeSpan timeout,
         TimeSpan pollInterval)
     {
-        var sql = $"SELECT * FROM {tableName} ORDER BY {orderBy}";
+        var sql = $"SELECT * FROM {tableName} WHERE loc_id > 100 ORDER BY {orderBy}";
 
         return WaitForRowsAsync(
             connectionString,
