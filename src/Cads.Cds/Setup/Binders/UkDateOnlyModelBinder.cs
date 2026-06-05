@@ -15,13 +15,13 @@ namespace Cads.Cds.Setup.Binders
                 return Task.CompletedTask;
             }
 
-            if (DateOnly.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            if (DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             {
                 context.Result = ModelBindingResult.Success(date);
                 return Task.CompletedTask;
             }
 
-            context.ModelState.AddModelError(context.ModelName, "Invalid date format. Use dd/MM/yyyy.");
+            context.ModelState.AddModelError(context.ModelName, "Invalid date format. Use yyyy-MM-dd.");
             return Task.CompletedTask;
         }
     }
