@@ -36,6 +36,13 @@ public static class LocationEndpointTestUtilities
         problemDetails.Errors["LastModifiedDate"].Should().Contain("'Last Modified Date' must not be empty.");
     }
 
+    public static async Task<IEnumerable<LocationDto>> VerifyValidScenario(HttpResponseMessage response)
+    {
+        var locations = await HttpResponseMessageUtilities.VerifyOk<IEnumerable<LocationDto>>(response);
+
+        return locations;
+    }
+
     public static async Task VerifyValidScenario_WithCph(HttpResponseMessage response)
     {
         var locations = await HttpResponseMessageUtilities.VerifyOk<IEnumerable<LocationDto>>(response);
