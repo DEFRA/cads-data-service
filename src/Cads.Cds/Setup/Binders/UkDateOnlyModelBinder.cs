@@ -5,23 +5,23 @@ namespace Cads.Cds.Setup.Binders
 {
     public class UkDateOnlyModelBinder : IModelBinder
     {
-        public Task BindModelAsync(ModelBindingContext context)
+        public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            var value = context.ValueProvider.GetValue(context.ModelName).FirstValue;
+            var value = bindingContext.ValueProvider.GetValue(bindingContext.ModelName).FirstValue;
 
             if (string.IsNullOrWhiteSpace(value))
             {
-                context.Result = ModelBindingResult.Success(null);
+                bindingContext.Result = ModelBindingResult.Success(null);
                 return Task.CompletedTask;
             }
 
             if (DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
             {
-                context.Result = ModelBindingResult.Success(date);
+                bindingContext.Result = ModelBindingResult.Success(date);
                 return Task.CompletedTask;
             }
 
-            context.ModelState.AddModelError(context.ModelName, "Invalid date format. Use yyyy-MM-dd.");
+            bindingContext.ModelState.AddModelError(bindingContext.ModelName, "Invalid date format. Use yyyy-MM-dd.");
             return Task.CompletedTask;
         }
     }
