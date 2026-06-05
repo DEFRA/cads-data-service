@@ -32,8 +32,4 @@
     <ProjectReference Include="..\Cads.Cds.BuildingBlocks.Infrastructure\Cads.Cds.BuildingBlocks.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Specimens\Builders\" />
-  </ItemGroup>
-
 </Project>
