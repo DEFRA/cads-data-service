@@ -164,7 +164,7 @@ public class PostgresFixture : IAsyncLifetime
             $"--searchPath=/liquibase/changelog " +
             $"--changelog-file=db.changelog.xml " +
             $"--liquibaseSchemaName=public " +
-            $"--contexts=local update"
+            $"--contexts=local,integration update"
             ])
             .WithNetwork(TestContainerConstants.NetworkName)
             .Build();
