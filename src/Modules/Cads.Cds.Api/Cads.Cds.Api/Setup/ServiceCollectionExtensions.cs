@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApiModule(this IServiceCollection services, IConfiguration config)
     {
-        services.AddApiInfrastructureLayer(config);
+        services.AddApiInfrastructureLayer();
 
         services.AddApiApplicationLayer();
 

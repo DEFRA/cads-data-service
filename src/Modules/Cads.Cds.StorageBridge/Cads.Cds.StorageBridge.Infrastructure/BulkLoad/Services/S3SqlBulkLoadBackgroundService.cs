@@ -2,7 +2,6 @@ using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Services;
 
