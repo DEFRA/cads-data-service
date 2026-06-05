@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset mark-gent:0001_009 endDelimiter://
+-- changeset mark-gent:0001_010 endDelimiter://
 DROP FUNCTION IF EXISTS public.get_locations(
     cph varchar(17),
     lastModifiedDate date
@@ -41,7 +41,7 @@ CREATE OR REPLACE FUNCTION public.get_locations(
 		cty_data_mgt_area_desc varchar(100),
 		cty_current_status varchar(2),
 		lif_description varchar(30),
-		imported_date date
+		imported_date timestamp without time zone
 	)
 	LANGUAGE sql
 AS $$
