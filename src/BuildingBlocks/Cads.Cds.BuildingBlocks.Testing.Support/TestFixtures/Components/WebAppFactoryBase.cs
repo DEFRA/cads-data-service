@@ -24,6 +24,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Moq;
+using System.Globalization;
 using System.Net;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
@@ -43,6 +44,10 @@ public abstract class WebAppFactoryBase<TStart>(
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        var culture = new CultureInfo("en-GB");
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+
         builder.UseSetting(WebHostDefaults.ApplicationKey, typeof(TStart).Assembly.FullName);
         builder.UseContentRoot(AppContext.BaseDirectory);
         builder.UseEnvironment("Test");
