@@ -2,7 +2,7 @@ using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.EntityConfigurations;
+namespace Cads.Cds.MiBff.Infrastructure.Persistence.EntityConfigurations;
 
 public class MiUserConfiguration : IEntityTypeConfiguration<MiUser>
 {

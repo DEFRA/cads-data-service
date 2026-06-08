@@ -17,6 +17,7 @@ public static class WebApplicationExtensions
         var logger = app.Services.GetRequiredService<ILogger<Program>>();
         var configuration = app.Services.GetRequiredService<IConfiguration>();
         var healthcheckMaskingEnabled = configuration.GetValue<bool>("HealthcheckMaskingEnabled");
+        var prometheusScrapingEnabled = configuration.GetValue<bool>("PrometheusScrapingEnabled");
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -28,12 +29,25 @@ public static class WebApplicationExtensions
                 logger.LogInformation("{ApplicationName} stopped", env.ApplicationName));
         }
 
+        if (prometheusScrapingEnabled)
+        {
+            app.MapPrometheusScrapingEndpoint("/metrics");
+        }
+
         app.UseHeaderPropagation();
         app.UseRouting();
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
+
+        app.UseSwagger();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseSwaggerUI();
+        }
 
         app.UseAuthentication();
         app.UseAuthorization();
