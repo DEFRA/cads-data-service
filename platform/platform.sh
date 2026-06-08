@@ -19,7 +19,19 @@ TOOLS_DIR="$ROOT_DIR"
 UI_DIR="$ROOT_DIR/../cads-mis"
 
 COMMAND="${1:-help}"
-MAC_OVERRIDE="${2:-}"
+MAC_OVERRIDE=""
+SYNC_DATA_SEED=""
+CLEAN=""
+
+# Process additional optional arguments
+for arg in "${@:2}"; do
+  case "$arg" in
+    --mac-intel|--mac-arm) MAC_OVERRIDE="$arg" ;;
+    --sync-data-seed)      SYNC_DATA_SEED="$arg" ;;
+    --clean)           CLEAN="$arg" ;;
+    *)                     ;;
+  esac
+done
 
 ensure_network() {
   if ! docker network inspect cads-tools >/dev/null 2>&1; then
@@ -48,13 +60,13 @@ compose_override() {
 start_tools() {
   echo "[platform] Starting shared infra..."
   ensure_network
-  "$TOOLS_DIR/harness/run-harness.sh" up
+  "$TOOLS_DIR/harness/run-harness.sh" up ${SYNC_DATA_SEED:+"$SYNC_DATA_SEED"}
   return $?
 }
 
 stop_tools() {
   echo "[platform] Stopping shared infra..."
-  "$TOOLS_DIR/harness/run-harness.sh" down
+  "$TOOLS_DIR/harness/run-harness.sh" down ${CLEAN:+"$CLEAN"}
   return $?
 }
 
@@ -68,7 +80,7 @@ start_backend() {
   docker compose -p cads-tools \
     -f docker-compose.yml \
     -f "$OVERRIDE_FILE" \
-    up -d
+    up --build -d
 
   return $?
 }
@@ -83,7 +95,7 @@ stop_backend() {
 start_ui() {
   echo "[platform] Starting UI..."
   cd "$UI_DIR"
-  docker compose -p cads-tools -f docker-compose.yml up -d
+  docker compose -p cads-tools -f docker-compose.yml up --build -d
   return $?
 }
 
@@ -128,9 +140,13 @@ case "$COMMAND" in
     echo "  --mac-intel   Use docker-compose.override.mac.intel.yml"
     echo "  --mac-arm     Use docker-compose.override.mac.arm.yml"
     echo ""
+    echo "Options:"
+    echo "  --sync-data-seed  Pass --sync-data-seed to the harness on start"
+    echo ""
     echo "Examples:"
     echo "  ./platform.sh backend"
     echo "  ./platform.sh backend --mac-intel"
     echo "  ./platform.sh all --mac-arm"
+    echo "  ./platform.sh backend --mac-arm --sync-data-seed"
     ;;
 esac

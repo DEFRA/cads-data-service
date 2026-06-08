@@ -1,0 +1,59 @@
+using Cads.Cds.StorageBridge.Application.Extensions;
+using Cads.Cds.StorageBridge.Core.Attributes;
+using Cads.Cds.StorageBridge.Core.Domain.Enums;
+using FluentAssertions;
+
+namespace Cads.Cds.StorageBridge.Application.Tests.Unit.Extensions;
+
+public class StorageBridgeEnumExtensionsTests
+{
+    [Fact]
+    public void GetAttribute_ShouldReturnAttribute_WhenPresent()
+    {
+        var attr = BulkLoadDataType.Locations.GetAttribute<TableNameAttribute>();
+
+        attr.Should().NotBeNull();
+        attr!.Name.Should().Be("_ct_locations");
+        attr.Key.Should().Be("loc_id");
+    }
+
+    [Fact]
+    public void GetAttribute_ShouldReturnNull_WhenAttributeMissing()
+    {
+        var attr = BulkLoadDataType.None.GetAttribute<TableNameAttribute>();
+
+        attr.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetTableName_ShouldReturnCorrectName()
+    {
+        var name = BulkLoadDataType.Locations.GetTableName();
+
+        name.Should().Be("_ct_locations");
+    }
+
+    [Fact]
+    public void GetTableKey_ShouldReturnCorrectKey()
+    {
+        var key = BulkLoadDataType.Locations.GetTableKey();
+
+        key.Should().Be("loc_id");
+    }
+
+    [Fact]
+    public void GetTableName_ShouldReturnNull_WhenNoAttribute()
+    {
+        var name = BulkLoadDataType.None.GetTableName();
+
+        name.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetTableKey_ShouldReturnNull_WhenNoAttribute()
+    {
+        var key = BulkLoadDataType.None.GetTableKey();
+
+        key.Should().BeNull();
+    }
+}

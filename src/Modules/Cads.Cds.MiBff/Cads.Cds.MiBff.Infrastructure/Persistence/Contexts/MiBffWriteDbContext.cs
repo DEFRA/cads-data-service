@@ -24,10 +24,6 @@ public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) 
 
     public DbSet<MiUserReportPermission> UserReportPermissions => Set<MiUserReportPermission>();
 
-    // Views
-    public DbSet<MiEffectiveReportPermissionView> EffectiveReportPermissions => Set<MiEffectiveReportPermissionView>();
-    public DbSet<MiEffectiveReportAllPermissionView> EffectiveReportAllPermissions => Set<MiEffectiveReportAllPermissionView>();
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MiBffWriteDbContext).Assembly);

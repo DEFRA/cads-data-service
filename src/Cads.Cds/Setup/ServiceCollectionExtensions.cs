@@ -1,4 +1,5 @@
 using Cads.Cds.Api.Application;
+using Cads.Cds.BuildingBlocks.Application.Behaviors;
 using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
@@ -9,11 +10,16 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
+using Cads.Cds.Setup.Providers;
 using Cads.Cds.StorageBridge.Application;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Cads.Cds.Setup;
 
@@ -23,12 +29,15 @@ public static class ServiceCollectionExtensions
     {
         services.ConfigureAuthentication(configuration);
 
-        services.AddControllers()
+        services.AddControllers(options =>
+        {
+            options.ModelBinderProviders.Insert(0, new DateOnlyModelBinderProvider());
+        })
             .AddJsonOptions(opts =>
             {
-                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptions.PropertyNamingPolicy;
-                opts.JsonSerializerOptions.WriteIndented = JsonDefaults.DefaultOptions.WriteIndented;
-                foreach (var converter in JsonDefaults.DefaultOptions.Converters)
+                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptionsWithStringEnumConversion.PropertyNamingPolicy;
+                opts.JsonSerializerOptions.WriteIndented = JsonDefaults.DefaultOptionsWithStringEnumConversion.WriteIndented;
+                foreach (var converter in JsonDefaults.DefaultOptionsWithStringEnumConversion.Converters)
                 {
                     opts.JsonSerializerOptions.Converters.Add(converter);
                 }
@@ -39,6 +48,49 @@ public static class ServiceCollectionExtensions
 
         services.ConfigureHealthChecks();
 
+        services.ConfigureMediatR();
+
+        services.AddModules(configuration);
+
+        // Make endpoints available for discovery by tools like Swagger
+        services.AddEndpointsApiExplorer();
+
+        // Configure Swagger/OpenAPI
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "CADS API", Version = "v1" });
+
+            // Bearer Authentication
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT"
+            });
+
+            // Basic Authentication
+            options.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
+            {
+                Description = "Basic Authentication header. Example: \"Basic {base64(username:password)}\"",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "basic"
+            });
+
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("bearer", document)] = [],
+                [new OpenApiSecuritySchemeReference("basic", document)] = []
+            });
+        });
+    }
+
+    private static void ConfigureMediatR(this IServiceCollection services)
+    {
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(IApiApplicationMarker).Assembly);
@@ -47,7 +99,11 @@ public static class ServiceCollectionExtensions
             cfg.RegisterServicesFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
         });
 
-        services.AddModules(configuration);
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        services.AddValidatorsFromAssembly(typeof(IApiApplicationMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)
@@ -72,6 +128,8 @@ public static class ServiceCollectionExtensions
             configuration.GetSection("AuthenticationConfiguration"));
 
         services.AddSingleton<IConfigureOptions<AuthenticationOptions>, AuthenticationOptionsConfigurator>();
+
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
         var authBuilder = services.AddAuthentication();
 
@@ -119,6 +177,8 @@ public static class ServiceCollectionExtensions
     {
         authenticationBuilder.AddJwtBearer(AuthenticationConstants.AzureADSchemeName, options =>
         {
+            options.MapInboundClaims = false;
+
             if (!string.IsNullOrWhiteSpace(authenticationProviderConfiguration.MetadataAddress))
             {
                 options.MetadataAddress = authenticationProviderConfiguration.MetadataAddress;

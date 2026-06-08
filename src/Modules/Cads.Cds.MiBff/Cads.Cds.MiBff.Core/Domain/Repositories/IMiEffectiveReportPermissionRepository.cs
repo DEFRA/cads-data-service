@@ -3,9 +3,9 @@ using Cads.Cds.MiBff.Core.Domain.Entities;
 
 namespace Cads.Cds.MiBff.Core.Domain.Repositories;
 
-public interface IMiEffectiveReportPermissionRepository : IReadOnlyRepository<MiEffectiveReportPermissionView>
+public interface IMiEffectiveReportPermissionRepository : IReadOnlyRepository<MiEffectiveReportPermission>
 {
-    Task<IReadOnlyList<MiEffectiveReportPermissionView>> GetActiveByExternalSubjectAsync(
+    Task<IReadOnlyList<MiEffectiveReportPermission>> GetActiveByExternalSubjectAsync(
         string externalSubject,
         CancellationToken cancellationToken = default);
 

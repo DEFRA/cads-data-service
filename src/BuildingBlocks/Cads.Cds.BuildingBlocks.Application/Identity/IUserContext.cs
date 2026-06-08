@@ -6,4 +6,5 @@ public interface IUserContext
     string? Email { get; }
     string? DisplayName { get; }
     string? TenantId { get; }
+    string? UserIdentifier { get; }
 }

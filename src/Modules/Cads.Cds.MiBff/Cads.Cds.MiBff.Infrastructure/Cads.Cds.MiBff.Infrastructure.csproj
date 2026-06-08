@@ -15,5 +15,4 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\Cads.Cds.BuildingBlocks.Infrastructure\Cads.Cds.BuildingBlocks.Infrastructure.csproj" />
     <ProjectReference Include="..\Cads.Cds.MiBff.Application\Cads.Cds.MiBff.Application.csproj" />
   </ItemGroup>
-
 </Project>
