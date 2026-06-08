@@ -1,18 +1,20 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
+using Cads.Cds.MiBff.Testing.Support.Contexts;
 
 namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Repositories.Mi;
 
 public class MiEffectiveReportPermissionRepositoryTests : IDisposable
 {
-    private readonly MiBffReadDbContext _context;
+    private readonly TestMiBffReadDbContext _context;
     private readonly MiEffectiveReportPermissionRepository _repository;
 
     public MiEffectiveReportPermissionRepositoryTests()
     {
         // unique in-memory database name per test instance to isolate data
-        _context = DbContextFactory.CreateInMemoryDbContext<MiBffReadDbContext>(Guid.NewGuid().ToString());
+        _context = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<MiBffReadDbContext, TestMiBffReadDbContext>(Guid.NewGuid().ToString());
+
         TestDataSeeder.Seed(_context);
 
         _repository = new MiEffectiveReportPermissionRepository(_context);

@@ -1,0 +1,53 @@
+flowchart TB
+
+    %% ============================
+    %% SHARED DOMAIN + CONFIGURATION
+    %% ============================
+
+    subgraph Shared[BuildingBlocks]
+        direction TB
+
+        subgraph SharedCore[Cads.Cds.BuildingBlocks.Core]
+            direction TB
+            SharedEntities[Shared Domain Entities<br/>Animal, Location, Party, ...]
+        end
+
+        subgraph SharedInfra[Cads.Cds.BuildingBlocks.Infrastructure]
+            direction TB
+            SharedConfigs[Shared EF Configurations<br/>AnimalConfiguration, LocationConfiguration, ...]
+        end
+    end
+
+
+    %% ============================
+    %% MODULE DB CONTEXTS
+    %% ============================
+
+    subgraph ModuleContexts[Module DbContexts]
+        direction TB
+
+        ApiDb[ApiReadDbContext]
+        MiDb[MiBffReadDbContext]
+        IngDb[IngesterReadDbContext]
+        SBReadDb[StorageBridgeReadDbContext]
+        SBWriteDb[StorageBridgeWriteDbContext]
+    end
+
+
+    %% ============================
+    %% RELATIONSHIPS
+    %% ============================
+
+    %% Shared domain entities used by all module DbContexts
+    SharedEntities --> ApiDb
+    SharedEntities --> MiDb
+    SharedEntities --> IngDb
+    SharedEntities --> SBReadDb
+    SharedEntities --> SBWriteDb
+
+    %% Shared EF configurations imported into module DbContexts
+    SharedConfigs --> ApiDb
+    SharedConfigs --> MiDb
+    SharedConfigs --> IngDb
+    SharedConfigs --> SBReadDb
+    SharedConfigs --> SBWriteDb
