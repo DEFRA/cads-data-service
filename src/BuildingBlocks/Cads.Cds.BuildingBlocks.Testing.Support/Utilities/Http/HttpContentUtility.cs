@@ -9,7 +9,7 @@ public static class HttpContentUtility
     public static StringContent CreateApplicationJsonAsStringContent<T>(T data)
     {
         var stringContent = new StringContent(
-            content: JsonSerializer.Serialize(data, JsonDefaults.DefaultOptionsWithStringEnumConversion),
+            content: JsonSerializer.Serialize(data, JsonDefaults.DefaultOptions),
             encoding: Encoding.UTF8,
             mediaType: "application/json");
 

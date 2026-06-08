@@ -9,6 +9,6 @@ public class MiUser
     public bool IsActive { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 
-    public ICollection<MiUserRole> UserRoles { get; set; } = new List<MiUserRole>();
-    public ICollection<MiUserReportPermission> UserReportPermissions { get; set; } = new List<MiUserReportPermission>();
+    public ICollection<MiUserRole> UserRoles { get; set; } = [];
+    public ICollection<MiUserReportPermission> UserReportPermissions { get; set; } = [];
 }

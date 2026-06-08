@@ -48,6 +48,9 @@ Objectives:
 - **Docker & Docker Compose** - [Download](https://www.docker.com/products/docker-desktop)
 - **Git** - [Download](https://git-scm.com/)
 - **CADS Tools** - [CADS Tools](https://github.com/DEFRA/cads-tools)
+- **CADS DATA SEED** - [CADS DATA SEED](https://github.com/DEFRA/cads-data-seed)
+- **CADS MIS (optional)** - [CADS MIS](https://github.com/DEFRA/cads-mis)
+- **AWS CLI** - [Download](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
 
 ## Project Structure
 
@@ -152,7 +155,7 @@ Objectives:
 
 #### Cads.Cds (Host)
 
-The composition root of the Modulat Monalithic Service.
+The composition root of the Modular Monalithic Service.
 
 This is responsible for:
 
@@ -237,6 +240,7 @@ Your local workspace should contain all three repos side‑by‑side:
 D:\git\cads-data-service      # Backend (this repo)
 D:\git\cads-mis               # UI
 D:\git\cads-tools             # Shared infra, OIDC mock, harness scripts
+D:\git\cads-data-seed         # Private repository containing pseudo-anonymised reference data for testing
 ```
 
 Clone them like this:
@@ -245,6 +249,7 @@ Clone them like this:
 git clone https://github.com/DEFRA/cads-data-service.git
 git clone https://github.com/DEFRA/cads-mis.git
 git clone https://github.com/DEFRA/cads-tools.git
+git clone https://github.com/DEFRA/cads-data-seed.git
 ```
 
 ### Backend setup
@@ -282,6 +287,7 @@ platform/platform.sh
 This script starts:
 
 - Shared infra (Postgres, Redis, LocalStack, OIDC mock)
+- Imports reference data from `cads-data-seed` into the s3 bucket in LocalStack
 - Backend (CADS CDS + pgAdmin + Reference postgres database)
 - UI (CADS MIS)
 - Or any combination you want
@@ -300,6 +306,7 @@ Starts:
 - Postgres
 - Redis
 - LocalStack (S3, SQS)
+- Imports reference data from `cads-data-seed` into the s3 bucket in LocalStack
 - OIDC mock
 
 **Start backend + shared infra**
@@ -328,8 +335,13 @@ Starts:
 
 **Stop everything**
 
+To stop everything without removing the postgresql data volume, use:
 ```
 ./platform/platform.sh down
+```
+To remove the postgresql data volume and start with a clean slate, use the `--clean` flag.
+```
+./platform/platform.sh down --clean
 ```
 
 This stops:
@@ -360,6 +372,16 @@ Mac developers must specify their architecture when starting the backend or full
 ```
 
 Windows/Linux users do not need an override.
+
+#### Data seeding optional argument
+
+You can command the platform script to copy the seed data from your locally cloned cads-data-seed repository into the LocalStack S3 bucket, `cads-internal-bucket` on startup with the `--sync-data-seed` flag:
+
+```
+./platform/platform.sh backend --sync-data-seed
+```
+
+This is an optional flag and if not used the syncing of the data seed scripts into the localstack bucket will be skipped.
 
 ## Accessing Services
 
@@ -423,7 +445,7 @@ dotnet test Cads.Cds.sln --collect:"XPlat Code Coverage" --filter Dependence!=te
 Step 3: Create the report but exclude the `Cads.Cds.BuildingBlocks.Testing.Support` project
 
 ```
-reportgenerator -reports:"**/TestResults/**/coverage.cobertura.xml" -targetdir:"coverage-report" -reporttypes:"Cobertura;Html;MarkdownSummary" -filefilters:"-*.g.cs" -assemblyfilters:"-*.Tests.*;-Cads.Cds.BuildingBlocks.Testing.Support"
+reportgenerator -reports:"**/TestResults/**/coverage.cobertura.xml" -targetdir:"coverage-report" -reporttypes:"Cobertura;Html;MarkdownSummary" -filefilters:"-*.g.cs" -assemblyfilters:"-*.Tests.*;-Cads.Cds.*.Testing.Support"
 ```
 
 Before running steps 2 & 3, it is a good idea to delete any existing coverage report files to avoid interference from previous results.
@@ -460,7 +482,6 @@ See detailed `Liquibase Workflow Guide` [here](./changelog/ReadMe.md)
 ### About the licence
 
 The Open Government Licence (OGL) was developed by the Controller of Her Majesty's Stationery Office (HMSO) to enable
-information providers in the public sector to license the use and re-use of their information under a common open
-licence.
+information providers in the public sector to license the use and re-use of their information under a common open licence.
 
 It is designed to encourage use and re-use of information freely and flexibly, with only a few conditions.
