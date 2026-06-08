@@ -1,4 +1,5 @@
 using AutoMapper;
+using Cads.Cds.MiBff.Application.Reports.Mappings;
 using Microsoft.Extensions.Logging;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Mappings;
@@ -12,7 +13,7 @@ public class ReportsMappingProfileTests
         var loggerFactory = LoggerFactory.Create(builder => { });
 
         var config = new MapperConfigurationExpression();
-        config.AddProfile<Application.Mappings.ReportsMappingProfile>();
+        config.AddProfile<ReportsMappingProfile>();
 
         _mapperConfiguration = new MapperConfiguration(config, loggerFactory);
     }

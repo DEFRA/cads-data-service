@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Text.Json;
 
 namespace Cads.Cds.Middleware;
@@ -25,19 +26,23 @@ public sealed class ExceptionHandlingMiddleware(
         }
         catch (FluentValidation.ValidationException ex)
         {
-            await HandleExceptionAsync(context, ex, correlationId, 422, "Unprocessable Content");
+            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.BadRequest, "Validation errors");
         }
         catch (NotFoundException ex)
         {
-            await HandleExceptionAsync(context, ex, correlationId, 404);
+            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.NotFound);
+        }
+        catch (UnprocessableException ex)
+        {
+            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.UnprocessableEntity, "Unprocessable content");
         }
         catch (DomainException ex)
         {
-            await HandleExceptionAsync(context, ex, correlationId, 400);
+            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.Conflict, "Conflict error");
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex, correlationId, 500, "An error occurred");
+            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.InternalServerError, "An error occurred");
         }
     }
 
@@ -54,7 +59,7 @@ public sealed class ExceptionHandlingMiddleware(
         {
             const string logMessageTemplate = "ErrorId: {errorId} | CorrelationId: {correlationId} | StatusCode: {statusCode}";
 
-            if (statusCode == 500)
+            if (statusCode == (int)HttpStatusCode.InternalServerError)
             {
                 _logger.LogError(exception, logMessageTemplate, errorId, correlationId, statusCode);
             }

@@ -12,7 +12,7 @@ public static class TestMiBffDataSeeder
     /// <param name="reportPermissionsData"></param>
     public static void Seed(DbContext context, ReportPermissionsData reportPermissionsData)
     {
-        // Add in an order that respects FK constraints
+        // Mi Users, Roles, Reports and Permissions
         context.AddRange(reportPermissionsData.MiRoles);
         context.AddRange(reportPermissionsData.MiPermissions);
         context.AddRange(reportPermissionsData.MiReports);
@@ -22,6 +22,18 @@ public static class TestMiBffDataSeeder
         context.AddRange(reportPermissionsData.MiRoleReportPermissions);
         context.AddRange(reportPermissionsData.MiEffectiveReportPermissions);
         context.AddRange(reportPermissionsData.MiEffectiveReportAllPermissions);
+    }
+
+    public static void Seed(DbContext context, GbCattleReportData reportData)
+    {
+        // GB Cattle Reports
+        context.AddRange(reportData.BirthSummaries);
+        context.AddRange(reportData.DeathSummaries);
+        context.AddRange(reportData.ImportSummaries);
+    }
+
+    public static void SeedSaveChanges(DbContext context)
+    {
         context.SaveChanges();
     }
 }

@@ -7,15 +7,16 @@ using Microsoft.EntityFrameworkCore;
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
 
 public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
-    : EFReadOnlyRepository<MiEffectiveReportPermissionView, MiBffReadDbContext>(dbContext), IMiEffectiveReportPermissionRepository
+    : EFReadOnlyRepository<MiEffectiveReportPermission, MiBffReadDbContext>(dbContext), IMiEffectiveReportPermissionRepository
 {
-    public async Task<IReadOnlyList<MiEffectiveReportPermissionView>> GetActiveByExternalSubjectAsync(
+    public async Task<IReadOnlyList<MiEffectiveReportPermission>> GetActiveByExternalSubjectAsync(
         string externalSubject,
         CancellationToken cancellationToken = default)
     {
-        return await Query()
-            .Where(p => p.ExternalSubject == externalSubject &&
-                        p.IsActive)
+        externalSubject = externalSubject.ToLower();
+        return await DbContext.GetMiEffectiveReportPermission(externalSubject, null)
+            .AsNoTracking()
+            .Where(x => x.IsActive)
             .ToListAsync(cancellationToken);
     }
 
@@ -24,10 +25,9 @@ public class MiEffectiveReportPermissionRepository(MiBffReadDbContext dbContext)
         string reportKey,
         CancellationToken cancellationToken = default)
     {
-        return await Query()
-            .Where(p => p.ExternalSubject == externalSubject &&
-                        p.ReportKey == reportKey &&
-                        p.IsActive)
-            .AnyAsync(cancellationToken);
+        externalSubject = externalSubject.ToLower();
+        return await DbContext.GetMiEffectiveReportPermission(externalSubject, reportKey)
+            .AsNoTracking()
+            .AnyAsync(x => x.IsActive, cancellationToken);
     }
 }
