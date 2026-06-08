@@ -16,6 +16,12 @@ public class PostgresFixture : IAsyncLifetime
     public static string ReadConnectionString =>
         $"Host=postgres;Port=5432;Database={TestDatabaseConstants.TestCadsDatabaseName};Username={TestDatabaseConstants.PostgresReadUser};Password={TestDatabaseConstants.PostgresReadPassword}";
 
+    public string HostConnectionString =>
+        $"Host=127.0.0.1;Port={Container!.GetMappedPublicPort(5432)};" +
+        $"Database={TestDatabaseConstants.TestCadsDatabaseName};" +
+        $"Username={TestDatabaseConstants.PostgresUserName};" +
+        $"Password={TestDatabaseConstants.PostgresPassword}";
+
     private string InitialisationConnectionString =>
         $"Host=127.0.0.1;Port={Container!.GetMappedPublicPort(5432)};Database=postgres;Username={TestDatabaseConstants.PostgresUserName};Password={TestDatabaseConstants.PostgresPassword}";
 
@@ -28,12 +34,13 @@ public class PostgresFixture : IAsyncLifetime
             .WithEnvironment("POSTGRES_PASSWORD", TestDatabaseConstants.PostgresPassword)
             .WithNetwork(TestContainerConstants.NetworkName)
             .WithNetworkAliases("postgres")
+            .WithPortBinding(5432, 5432)
             .Build();
 
         await Container.StartAsync();
         Container.GetConnectionString();
 
-        InitialiseDatabaseSchema();
+        await InitialiseDatabaseSchema();
     }
 
     public async ValueTask DisposeAsync()
@@ -54,7 +61,7 @@ public class PostgresFixture : IAsyncLifetime
             throw error;
     }
 
-    private void InitialiseDatabaseSchema()
+    private async Task InitialiseDatabaseSchema()
     {
         // 1. Connect to the postgres database to create the test DB + user
         using (var connection = new NpgsqlConnection(InitialisationConnectionString))
@@ -78,7 +85,7 @@ public class PostgresFixture : IAsyncLifetime
         }
 
         // 3. Run Liquibase migrations (creates tables + views)
-        ApplyDatabaseMigrations();
+        await ApplyDatabaseMigrations();
     }
 
     private static void CreateDatabase(NpgsqlConnection connection)
@@ -137,7 +144,7 @@ public class PostgresFixture : IAsyncLifetime
         cmd.ExecuteNonQuery();
     }
 
-    private static void ApplyDatabaseMigrations()
+    private static async Task ApplyDatabaseMigrations()
     {
         // Path to your Liquibase changelog folder
         var changelogPath = FindChangelogFolder();
@@ -157,12 +164,16 @@ public class PostgresFixture : IAsyncLifetime
             $"--searchPath=/liquibase/changelog " +
             $"--changelog-file=db.changelog.xml " +
             $"--liquibaseSchemaName=public " +
-            $"--contexts=local update"
+            $"--contexts=local,integration update"
             ])
             .WithNetwork(TestContainerConstants.NetworkName)
             .Build();
 
-        liquibaseContainer.StartAsync().GetAwaiter().GetResult();
+        await liquibaseContainer.StartAsync();
+
+        var exitCode = await liquibaseContainer.GetExitCodeAsync();
+        if (exitCode != 0)
+            throw new InvalidOperationException($"Liquibase migrations failed with exit code {exitCode}");
     }
 
     private static string FindChangelogFolder()
