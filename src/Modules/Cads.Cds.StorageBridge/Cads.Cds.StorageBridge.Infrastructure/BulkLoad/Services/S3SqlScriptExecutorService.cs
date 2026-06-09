@@ -226,7 +226,7 @@ public class S3SqlScriptExecutorService(
             if (logger.IsEnabled(LogLevel.Information))
             {
                 logger.LogInformation("[DATA-SEED-INGESTION] Executing DbCommand [CommandTimeout='{CommandTimeout}'] {CommandText}",
-                    command.CommandTimeout, command.CommandText.Substring(0, 100));
+                    command.CommandTimeout, command.CommandText[..Math.Min(100, command.CommandText.Length)]);
             }
             var sw = Stopwatch.StartNew();
             var affected = await command.ExecuteNonQueryAsync(cancellationToken);
