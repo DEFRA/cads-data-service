@@ -223,9 +223,20 @@ public class S3SqlScriptExecutorService(
             command.Transaction = transaction;
             command.CommandText = sql;
             command.CommandTimeout = 300;
-
-            await command.ExecuteNonQueryAsync(cancellationToken);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("[DATA-SEED-INGESTION] Executing DbCommand [CommandTimeout='{CommandTimeout}'] {CommandText}",
+                    command.CommandTimeout, command.CommandText[..Math.Min(100, command.CommandText.Length)]);
+            }
+            var sw = Stopwatch.StartNew();
+            var affected = await command.ExecuteNonQueryAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            sw.Stop();
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("[DATA-SEED-INGESTION] Executed DbCommand ({ElapsedMs}ms) — {RowsAffected} rows affected, transaction committed.",
+                    sw.ElapsedMilliseconds, affected);
+            }
         }
         catch
         {
