@@ -6,24 +6,6 @@ public static class PostgresWaitUtilities
 {
     public static Task<List<Dictionary<string, object?>>> WaitForRowsAsync(
         string connectionString,
-        string tableName,
-        string orderBy,
-        int expectedCount,
-        TimeSpan timeout,
-        TimeSpan pollInterval)
-    {
-        var sql = $"SELECT * FROM {tableName} WHERE loc_id > 100 ORDER BY {orderBy}";
-
-        return WaitForRowsAsync(
-            connectionString,
-            sql,
-            expectedCount,
-            timeout,
-            pollInterval);
-    }
-
-    public static Task<List<Dictionary<string, object?>>> WaitForRowsAsync(
-        string connectionString,
         string sql,
         int expectedCount,
         TimeSpan timeout,

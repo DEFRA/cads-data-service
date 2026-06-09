@@ -11,9 +11,8 @@ public static class BulkLoadTestHelpers
 {
     public static async Task AssertCsvRowsMatchDatabaseAsync(
         string connectionString,
-        string tableName,
-        IEnumerable<string> csvRows,
-        string orderBy)
+        string sql,
+        IEnumerable<string> csvRows)
     {
         var expected = csvRows
             .Select(row => LocationRecordUtilities.ParseLocationCsvRow(row))
@@ -21,8 +20,7 @@ public static class BulkLoadTestHelpers
 
         var actualRows = await PostgresWaitUtilities.WaitForRowsAsync(
             connectionString,
-            tableName,
-            orderBy,
+            sql,
             expectedCount: expected.Count,
             timeout: TimeSpan.FromSeconds(10),
             pollInterval: TimeSpan.FromMilliseconds(200));
