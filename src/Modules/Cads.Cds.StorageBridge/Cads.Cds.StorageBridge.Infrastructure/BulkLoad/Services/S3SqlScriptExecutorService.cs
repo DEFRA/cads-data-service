@@ -230,8 +230,8 @@ public class S3SqlScriptExecutorService(
             }
             var sw = Stopwatch.StartNew();
             var affected = await command.ExecuteNonQueryAsync(cancellationToken);
-            sw.Stop();
             await transaction.CommitAsync(cancellationToken);
+            sw.Stop();
             if (logger.IsEnabled(LogLevel.Information))
             {
                 logger.LogInformation("[DATA-SEED-INGESTION] Executed DbCommand ({ElapsedMs}ms) — {RowsAffected} rows affected, transaction committed.",
