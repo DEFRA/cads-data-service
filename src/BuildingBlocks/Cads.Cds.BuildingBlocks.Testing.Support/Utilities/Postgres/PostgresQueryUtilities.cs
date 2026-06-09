@@ -4,16 +4,6 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 
 public static class PostgresQueryUtilities
 {
-    public static async Task<List<Dictionary<string, object?>>> QueryTableAsync(
-        string connectionString,
-        string tableName,
-        string orderBy)
-    {
-        var sql = $"SELECT * FROM {tableName} ORDER BY {orderBy}";
-
-        return await QueryAsync(connectionString, sql);
-    }
-
     public static async Task<List<Dictionary<string, object?>>> QueryAsync(
        string connectionString,
        string query)
