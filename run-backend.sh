@@ -12,7 +12,7 @@ case "$COMMAND" in
   up)
     echo "[backend] Starting tools + backend..."
     cd "$PLATFORM_DIR"
-    ./platform/platform.sh backend
+    ./platform/platform.sh cds
     ;;
   down)
     echo "[backend] Stopping tools + backend..."
@@ -23,7 +23,7 @@ case "$COMMAND" in
     echo "[backend] Restarting tools + backend..."
     cd "$PLATFORM_DIR"
     ./platform/platform.sh down
-    ./platform/platform.sh backend
+    ./platform/platform.sh cds
     ;;
   *)
     echo "Usage:"
