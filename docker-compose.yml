@@ -1,7 +1,7 @@
 name: 'cads_cds'
 services:
   cads_cds:
-    container_name: "cads_cds"
+    container_name: "cads-cds"
     platform: linux
     image: cads_cds
     build: ./
@@ -25,7 +25,7 @@ services:
       PORT: 5555
       LOCALSTACK_ENDPOINT: http://cads-localstack:4566
     networks:
-      - cads-tools
+      - cads-network
 
   liquibase:
     build:
@@ -39,8 +39,8 @@ services:
       - ./changelog:/liquibase/changelog
     command: sh -c "liquibase --url=jdbc:postgresql://cads-postgres:5432/${POSTGRES_DB:-cads_data_service} --username=${POSTGRES_USER:-postgres} --password=${POSTGRES_PASSWORD:-postgres} --searchPath=/liquibase/changelog --changelog-file=db.changelog.xml --liquibaseSchemaName=public --contexts=${ENV:-none}$( [ "$ENV" = "local" ] && echo ",integration" ) update && tail -f /dev/null"
     networks:
-      - cads-tools
+      - cads-network
 
 networks:
-  cads-tools:
+  cads-network:
     external: true
