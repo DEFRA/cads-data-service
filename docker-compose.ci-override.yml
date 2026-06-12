@@ -33,7 +33,7 @@ services:
       - ./compose/postgres.env
       - ./compose/aws.env
     networks:
-      - cads-tools
+      - cads-network
 
   reference-postgres:
     image: postgres:16.6
@@ -53,7 +53,7 @@ services:
         -c hba_file=/etc/postgres-config/pg_hba.conf
         -c listen_addresses='*'
     networks:
-      - cads-tools
+      - cads-network
 
   pgadmin:
     image: dpage/pgadmin4:7.8
@@ -66,13 +66,13 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     networks:
-      - cads-tools
+      - cads-network
 
   liquibase:
     command: sh -c "liquibase --url=jdbc:postgresql://cads-postgres:5432/${POSTGRES_DB:-cads_data_service} --username=${POSTGRES_USER:-postgres} --password=${POSTGRES_PASSWORD:-postgres} --searchPath=/liquibase/changelog --changelog-file=db.changelog.xml --liquibaseSchemaName=public --contexts=local,integration update && tail -f /dev/null"
 
 networks:
-  cads-tools:
+  cads-network:
     external: true
   
 volumes:

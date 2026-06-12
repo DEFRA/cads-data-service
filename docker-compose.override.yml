@@ -34,7 +34,7 @@ services:
       - ./compose/postgres.env
       - ./compose/aws.env
     networks:
-      - cads-tools
+      - cads-network
 
   reference-postgres:
     image: postgres:16.6
@@ -54,7 +54,7 @@ services:
         -c hba_file=/etc/postgres-config/pg_hba.conf
         -c listen_addresses='*'
     networks:
-      - cads-tools
+      - cads-network
 
   pgadmin:
     image: dpage/pgadmin4:7.8
@@ -69,10 +69,10 @@ services:
       - pgadmin-data:/var/lib/pgadmin
     entrypoint: ["/host/init.sh"]
     networks:
-      - cads-tools
+      - cads-network
 
 networks:
-  cads-tools:
+  cads-network:
     external: true
   
 volumes:
