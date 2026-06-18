@@ -14,7 +14,8 @@ fi
 # ------------------------------------------------------------
 # Resolve other repo paths relative to cads-tools
 # ------------------------------------------------------------
-BACKEND_DIR="$ROOT_DIR/../cads-data-service"
+CDS_DIR="$ROOT_DIR/../cads-data-service"
+CADS_BRIDGE_DIR="$ROOT_DIR/../cads-bridge"
 TOOLS_DIR="$ROOT_DIR"
 UI_DIR="$ROOT_DIR/../cads-mis"
 
@@ -34,9 +35,9 @@ for arg in "${@:2}"; do
 done
 
 ensure_network() {
-  if ! docker network inspect cads-tools >/dev/null 2>&1; then
-    echo "[platform] Creating cads-tools network..."
-    docker network create cads-tools
+  if ! docker network inspect cads-network >/dev/null 2>&1; then
+    echo "[platform] Creating cads-network network..."
+    docker network create cads-network
   fi
   return $?
 }
@@ -70,14 +71,14 @@ stop_tools() {
   return $?
 }
 
-start_backend() {
-  echo "[platform] Starting backend..."
-  cd "$BACKEND_DIR"
+start_cds() {
+  echo "[platform] Starting cds..."
+  cd "$CDS_DIR"
 
   OVERRIDE_FILE=$(compose_override)
-  echo "[platform] Using backend override: $OVERRIDE_FILE"
+  echo "[platform] Using cds override: $OVERRIDE_FILE"
 
-  docker compose -p cads-tools \
+  docker compose -p cads \
     -f docker-compose.yml \
     -f "$OVERRIDE_FILE" \
     up --build -d
@@ -85,24 +86,46 @@ start_backend() {
   return $?
 }
 
-stop_backend() {
-  echo "[platform] Stopping backend..."
-  cd "$BACKEND_DIR"
-  docker compose -p cads-tools down || true
+stop_cds() {
+  echo "[platform] Stopping cds..."
+  cd "$CDS_DIR"
+  docker compose -p cads down || true
   return $?
 }
 
 start_ui() {
   echo "[platform] Starting UI..."
   cd "$UI_DIR"
-  docker compose -p cads-tools -f docker-compose.yml up --build -d
+  docker compose -p cads -f docker-compose.yml up --build -d
   return $?
 }
 
 stop_ui() {
   echo "[platform] Stopping UI..."
   cd "$UI_DIR"
-  docker compose -p cads-tools -f docker-compose.yml down || true
+  docker compose -p cads -f docker-compose.yml down || true
+  return $?
+}
+
+start_bridge() {
+  echo "[platform] starting bridge..."
+
+  cd "$CADS_BRIDGE_DIR"
+  OVERRIDE_FILE=$(compose_override)
+  echo "[platform] Using bridge override: $OVERRIDE_FILE"
+
+  docker compose -p cads \
+    -f docker-compose.yml \
+    -f "$OVERRIDE_FILE" \
+    up --build -d
+
+  return $?
+}
+
+stop_bridge() {
+  echo "[platform] Stopping bridge..."
+  cd "$CADS_BRIDGE_DIR"
+  docker compose -p cads -f docker-compose.yml down || true
   return $?
 }
 
@@ -110,9 +133,13 @@ case "$COMMAND" in
   tools)
     start_tools
     ;;
-  backend)
+  cds)
     start_tools
-    start_backend
+    start_cds
+    ;;
+  bridge)
+    start_tools
+    start_bridge
     ;;
   ui)
     start_tools
@@ -120,20 +147,23 @@ case "$COMMAND" in
     ;;
   all)
     start_tools
-    start_backend
+    start_cds
+    start_bridge
     start_ui
     ;;
   down)
     stop_ui
-    stop_backend
+    stop_bridge
+    stop_cds
     stop_tools
     ;;
   *)
     echo "Usage:"
     echo "  ./platform.sh tools                # Start shared infra only"
-    echo "  ./platform.sh backend [override]   # Start backend + tools"
+    echo "  ./platform.sh cds [override]       # Start cds + tools"
+    echo "  ./platform.sh bridge [override]    # Start bridge + tools"
     echo "  ./platform.sh ui                   # Start UI + tools"
-    echo "  ./platform.sh all [override]       # Start UI + backend + tools"
+    echo "  ./platform.sh all [override]       # Start UI + cds + tools"
     echo "  ./platform.sh down                 # Stop everything"
     echo ""
     echo "Overrides:"
@@ -144,9 +174,9 @@ case "$COMMAND" in
     echo "  --sync-data-seed  Pass --sync-data-seed to the harness on start"
     echo ""
     echo "Examples:"
-    echo "  ./platform.sh backend"
-    echo "  ./platform.sh backend --mac-intel"
+    echo "  ./platform.sh cds"
+    echo "  ./platform.sh cds --mac-intel"
     echo "  ./platform.sh all --mac-arm"
-    echo "  ./platform.sh backend --mac-arm --sync-data-seed"
+    echo "  ./platform.sh cds --mac-arm --sync-data-seed"
     ;;
 esac
