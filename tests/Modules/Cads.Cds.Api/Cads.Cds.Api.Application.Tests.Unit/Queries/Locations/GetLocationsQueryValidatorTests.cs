@@ -23,9 +23,11 @@ public class GetLocationsQueryValidatorTests
     public static TheoryData<string?, DateOnly?, bool> TestLocationQueryCases =>
         new()
         {
-            { null!, null!, false },
-            { "12/345/6789", null!, true },
-            { null!, DateOnly.FromDateTime(DateTime.Now.AddMonths(-1)), true },
-            { "12/345/6789", DateOnly.FromDateTime(DateTime.Now.AddMonths(-1)), true }
+            { null, null, false },
+            { "12/345/6789", null, false },
+            { "AH-12/345/6789", null, true },
+            { "az-12/345/6789", null, false },
+            { null, DateOnly.FromDateTime(DateTime.Now.AddMonths(-1)), true },
+            { "AB-12/345/6789", DateOnly.FromDateTime(DateTime.Now.AddMonths(-1)), true }
         };
 }
