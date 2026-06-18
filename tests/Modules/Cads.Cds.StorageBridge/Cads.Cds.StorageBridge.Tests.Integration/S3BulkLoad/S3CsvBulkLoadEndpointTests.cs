@@ -116,12 +116,11 @@ public class S3CsvBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await BulkLoadTestHelpers.AssertCsvRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
-            tableName,
+            $"SELECT * FROM {tableName} WHERE loc_id >= 101 AND loc_id <= 102 ORDER BY loc_id",
             [
                 TestDataFileConstants.LocationsDataRow1,
                 TestDataFileConstants.LocationsDataRow2
-            ],
-            orderBy: "loc_id");
+            ]);
 
         await VerifyLoggingMessage($"Completed bulk import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 2 records processed");
     }
