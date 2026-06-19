@@ -157,7 +157,7 @@ public class PostgresFixture : IAsyncLifetime
 
         cmd.ExecuteNonQuery();
     }
-    
+
     private static void GrantReadOnlySchemaPermissions(NpgsqlConnection connection)
     {
         string[] schemas = ["public", "cads", "cts", "cts_audit", "cts_transactions"];
