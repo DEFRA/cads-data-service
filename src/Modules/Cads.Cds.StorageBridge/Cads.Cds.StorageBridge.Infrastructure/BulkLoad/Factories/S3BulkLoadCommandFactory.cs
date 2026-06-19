@@ -157,7 +157,15 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
 
-        return s_commandBuilder.QuoteIdentifier(isTemp ? $"temp_{tableName}" : tableName);
+        // Temp tables live in the session-local pg_temp schema, so they must not be schema-qualified.
+        if (isTemp)
+            return s_commandBuilder.QuoteIdentifier($"temp_{tableName}");
+
+        var schema = bulkImportType.GetTableSchema();
+
+        return string.IsNullOrWhiteSpace(schema)
+            ? s_commandBuilder.QuoteIdentifier(tableName)
+            : $"{s_commandBuilder.QuoteIdentifier(schema)}.{s_commandBuilder.QuoteIdentifier(tableName)}";
     }
 
     /// <summary>
@@ -173,16 +181,20 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
 
+        var schema = bulkImportType.GetTableSchema();
+
         var columnNames = new List<string>();
 
-        const string query = @"
+        var query = @"
             SELECT column_name 
             FROM information_schema.columns
             WHERE table_name = @tableName
+              AND (@schema IS NULL OR table_schema = @schema)
             ORDER BY ordinal_position";
 
         await using var command = new NpgsqlCommand(query, _connection);
         command.Parameters.AddWithValue("tableName", tableName);
+        command.Parameters.AddWithValue("schema", (object?)schema ?? DBNull.Value);
 
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 

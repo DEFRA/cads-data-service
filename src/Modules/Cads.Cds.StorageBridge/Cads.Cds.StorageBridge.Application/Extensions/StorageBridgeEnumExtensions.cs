@@ -29,4 +29,9 @@ public static class StorageBridgeEnumExtensions
     {
         return value.GetAttribute<TableNameAttribute>()?.Key;
     }
+
+    public static string? GetTableSchema(this Enum value)
+    {
+        return value.GetAttribute<TableNameAttribute>()?.Schema;
+    }
 }
