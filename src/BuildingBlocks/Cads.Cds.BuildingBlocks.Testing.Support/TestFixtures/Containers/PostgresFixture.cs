@@ -86,6 +86,20 @@ public class PostgresFixture : IAsyncLifetime
 
         // 3. Run Liquibase migrations (creates tables + views)
         await ApplyDatabaseMigrations();
+
+        // 4. Grant read-only access to the schemas created by Liquibase.
+        //    These schemas (e.g. cads, cts) do not exist until migrations run,
+        //    so their grants must be applied after the migration step.
+        using (var connection = new NpgsqlConnection(
+                   $"Host=127.0.0.1;Port={Container!.GetMappedPublicPort(5432)};" +
+                   $"Database={TestDatabaseConstants.TestCadsDatabaseName};" +
+                   $"Username={TestDatabaseConstants.PostgresUserName};" +
+                   $"Password={TestDatabaseConstants.PostgresPassword}"))
+        {
+            connection.Open();
+            GrantReadOnlySchemaPermissions(connection);
+            connection.Close();
+        }
     }
 
     private static void CreateDatabase(NpgsqlConnection connection)
@@ -142,6 +156,27 @@ public class PostgresFixture : IAsyncLifetime
         ", connection);
 
         cmd.ExecuteNonQuery();
+    }
+    
+    private static void GrantReadOnlySchemaPermissions(NpgsqlConnection connection)
+    {
+        string[] schemas = ["public", "cads", "cts", "cts_audit", "cts_transactions"];
+
+        foreach (var schema in schemas)
+        {
+            using var cmd = new NpgsqlCommand($@"
+                GRANT USAGE ON SCHEMA ""{schema}""
+                    TO ""{TestDatabaseConstants.PostgresReadUser}"";
+
+                GRANT SELECT ON ALL TABLES IN SCHEMA ""{schema}""
+                    TO ""{TestDatabaseConstants.PostgresReadUser}"";
+
+                ALTER DEFAULT PRIVILEGES IN SCHEMA ""{schema}""
+                    GRANT SELECT ON TABLES TO ""{TestDatabaseConstants.PostgresReadUser}"";
+            ", connection);
+
+            cmd.ExecuteNonQuery();
+        }
     }
 
     private static async Task ApplyDatabaseMigrations()

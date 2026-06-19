@@ -81,7 +81,7 @@ public static class TestDataFileConstants
     public static string LocationsSqlInsertStatement => DictionaryToSqlInsert(LocationsSqlInsertDataDictionary);
 
     public static string InvalidLocationsSqlInsertStatement =>
-       "INSERT INTO _ct_locations (";
+       "INSERT INTO cts.ct_locations (";
 
     public static GetObjectResponse FakeFileContent(string content)
     {
@@ -91,7 +91,7 @@ public static class TestDataFileConstants
         };
     }
 
-    public static string DictionaryToSqlInsert(Dictionary<string, object?> data, string tableName = "_ct_locations")
+    public static string DictionaryToSqlInsert(Dictionary<string, object?> data, string tableName = "cts.ct_locations")
     {
         if (data == null || data.Count == 0)
             throw new ArgumentException("Data dictionary must contain at least one column.", nameof(data));
