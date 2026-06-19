@@ -31,15 +31,15 @@ BEGIN
     END;
 
     EXECUTE format(
-        'INSERT INTO %s (audit_action,audit_trans_id,audited_at, %s)
-         SELECT $1, $2, clock_timestamp(), %s
-         FROM jsonb_populate_record(NULL::%s, $3)',
+        'INSERT INTO %s (audit_action,audit_trans_id,audited_at, %s) ' ||
+        'SELECT $1, $2, clock_timestamp(), %s ' ||
+        'FROM jsonb_populate_record(NULL::%s, $3)',
         audit_table,
         source_columns,
         source_columns,
         TG_RELID::regclass
-    )
-    USING TG_OP, audit_trans_id, to_jsonb(OLD);
+            )
+        USING TG_OP, audit_trans_id, to_jsonb(OLD);
 
     IF TG_OP = 'DELETE' THEN
         RETURN OLD;
