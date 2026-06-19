@@ -13,8 +13,9 @@ public class StorageBridgeEnumExtensionsTests
         var attr = BulkLoadDataType.Locations.GetAttribute<TableNameAttribute>();
 
         attr.Should().NotBeNull();
-        attr!.Name.Should().Be("_ct_locations");
+        attr!.Name.Should().Be("ct_locations");
         attr.Key.Should().Be("loc_id");
+        attr.Schema.Should().Be("cts");
     }
 
     [Fact]
@@ -30,7 +31,7 @@ public class StorageBridgeEnumExtensionsTests
     {
         var name = BulkLoadDataType.Locations.GetTableName();
 
-        name.Should().Be("_ct_locations");
+        name.Should().Be("ct_locations");
     }
 
     [Fact]
@@ -39,6 +40,22 @@ public class StorageBridgeEnumExtensionsTests
         var key = BulkLoadDataType.Locations.GetTableKey();
 
         key.Should().Be("loc_id");
+    }
+
+    [Fact]
+    public void GetTableSchema_ShouldReturnCorrectSchema()
+    {
+        var schema = BulkLoadDataType.Locations.GetTableSchema();
+
+        schema.Should().Be("cts");
+    }
+
+    [Fact]
+    public void GetTableSchema_ShouldReturnNull_WhenNoAttribute()
+    {
+        var schema = BulkLoadDataType.None.GetTableSchema();
+
+        schema.Should().BeNull();
     }
 
     [Fact]
