@@ -12,25 +12,13 @@ public static class ClaimsPrincipalExtensions
 
     public static string? GetEmail(this ClaimsPrincipal user)
     {
-        // Email (standard users)
-        var email =
-            user.FindFirst(ClaimTypes.Email)?.Value ??
-            user.FindFirst("email")?.Value ??
-            user.FindFirst("preferred_username")?.Value;
-
+        // 1. Real user email claims
+        var email = GetEmailLikeClaim(user);
         if (!string.IsNullOrWhiteSpace(email))
             return email;
 
-        // Service accounts + fallback identifiers
-        var uniqueName = user.FindFirst("unique_name")?.Value;
-        if (!string.IsNullOrWhiteSpace(uniqueName))
-            return uniqueName;
-
-        var upn = user.FindFirst("upn")?.Value;
-        if (!string.IsNullOrWhiteSpace(upn))
-            return upn;
-
-        return null;
+        // 2. Service account identifiers
+        return GetServiceAccountIdentifier(user);
     }
 
     public static string? GetDisplayName(this ClaimsPrincipal user) =>
@@ -45,26 +33,26 @@ public static class ClaimsPrincipalExtensions
 
     public static string? GetUserIdentifier(this ClaimsPrincipal user)
     {
-        // Email (standard users)
-        var email =
-            user.FindFirst(ClaimTypes.Email)?.Value ??
-            user.FindFirst("email")?.Value ??
-            user.FindFirst("preferred_username")?.Value;
-
+        // 1. Real user email claims
+        var email = GetEmailLikeClaim(user);
         if (!string.IsNullOrWhiteSpace(email))
             return email;
 
-        // unique_name (standard users + service accounts)
-        var uniqueName = user.FindFirst("unique_name")?.Value;
-        if (!string.IsNullOrWhiteSpace(uniqueName))
-            return uniqueName;
+        // 2. Service account identifiers
+        var svc = GetServiceAccountIdentifier(user);
+        if (!string.IsNullOrWhiteSpace(svc))
+            return svc;
 
-        // upn (fallback for service accounts)
-        var upn = user.FindFirst("upn")?.Value;
-        if (!string.IsNullOrWhiteSpace(upn))
-            return upn;
-
-        // Final fallback to OID or sub
+        // 3. Final fallback
         return user.GetOid();
     }
+
+    private static string? GetEmailLikeClaim(ClaimsPrincipal user) =>
+        user.FindFirst(ClaimTypes.Email)?.Value ??
+        user.FindFirst("email")?.Value ??
+        user.FindFirst("preferred_username")?.Value;
+
+    private static string? GetServiceAccountIdentifier(ClaimsPrincipal user) =>
+        user.FindFirst("unique_name")?.Value ??
+        user.FindFirst("upn")?.Value;
 }
