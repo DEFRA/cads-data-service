@@ -11,6 +11,21 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Identity;
 public class UserContextTests
 {
     [Fact]
+    public void UserContext_ServiceAccountToken_UsesUniqueName()
+    {
+        var ctx = UserContextUtilities.CreateUserContext(
+            new Claim("name", "SA-O365-CADS-MIP-DEV-dev"),
+            new Claim("unique_name", "SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com"),
+            new Claim("upn", "SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com"),
+            new Claim(CustomClaimTypes.Oid, "902bcd89-6f88-475f-ae6c-64dccd12061d")
+        );
+
+        ctx.Email.Should().Be("SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com");
+        ctx.UserIdentifier.Should().Be("SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com");
+        ctx.DisplayName.Should().Be("SA-O365-CADS-MIP-DEV-dev");
+    }
+
+    [Fact]
     public void UserContext_UsesOidClaim_WhenPresent()
     {
         var ctx = UserContextUtilities.CreateUserContext(new Claim(CustomClaimTypes.Oid, "aad-oid"));
@@ -43,11 +58,27 @@ public class UserContextTests
     }
 
     [Fact]
+    public void UserContext_EmailFallsBackToUniqueName_WhenEmailMissing()
+    {
+        var ctx = UserContextUtilities.CreateUserContext(new Claim("unique_name", "svc-account@domain.com"));
+
+        ctx.Email.Should().Be("svc-account@domain.com");
+    }
+
+    [Fact]
     public void UserContext_FallsBackToPreferredUsername_WhenEmailMissing()
     {
         var ctx = UserContextUtilities.CreateUserContext(new Claim("preferred_username", "user@domain.com"));
 
         ctx.Email.Should().Be("user@domain.com");
+    }
+
+    [Fact]
+    public void UserContext_EmailFallsBackToUpn_WhenEmailAndUniqueNameMissing()
+    {
+        var ctx = UserContextUtilities.CreateUserContext(new Claim("upn", "svc-upn@domain.com"));
+
+        ctx.Email.Should().Be("svc-upn@domain.com");
     }
 
     [Fact]
@@ -72,6 +103,14 @@ public class UserContextTests
         var ctx = UserContextUtilities.CreateUserContext(new Claim(CustomClaimTypes.Oid, "oid-123"));
 
         ctx.DisplayName.Should().Be("oid-123");
+    }
+
+    [Fact]
+    public void UserContext_DisplayNameFallsBackToUniqueName()
+    {
+        var ctx = UserContextUtilities.CreateUserContext(new Claim("unique_name", "svc-unique@domain.com"));
+
+        ctx.DisplayName.Should().Be("svc-unique@domain.com");
     }
 
     [Fact]
