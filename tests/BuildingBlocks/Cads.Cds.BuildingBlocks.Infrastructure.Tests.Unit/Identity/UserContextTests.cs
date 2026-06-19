@@ -20,9 +20,9 @@ public class UserContextTests
             new Claim(CustomClaimTypes.Oid, "902bcd89-6f88-475f-ae6c-64dccd12061d")
         );
 
+        ctx.DisplayName.Should().Be("SA-O365-CADS-MIP-DEV-dev");
         ctx.Email.Should().Be("SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com");
         ctx.UserIdentifier.Should().Be("SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com");
-        ctx.DisplayName.Should().Be("SA-O365-CADS-MIP-DEV-dev");
     }
 
     [Fact]
