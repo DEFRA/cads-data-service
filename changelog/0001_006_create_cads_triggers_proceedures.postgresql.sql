@@ -427,8 +427,7 @@ BEGIN
                 v_error_context = PG_EXCEPTION_CONTEXT;
 
             v_processing_ended_at := clock_timestamp();
-            v_full_error_message := concat_ws(E'
-',
+            v_full_error_message := concat_ws(E'',
                 v_error_message,
                 NULLIF('DETAIL: ' || COALESCE(v_error_detail, ''), 'DETAIL: '),
                 NULLIF('HINT: ' || COALESCE(v_error_hint, ''), 'HINT: '),

@@ -31,7 +31,7 @@ BEGIN
     END;
 
     EXECUTE format(
-        'INSERT INTO %s (audit_action, audit_trans_id, audited_at, %s)
+        'INSERT INTO %s (audit_action,audit_trans_id,audited_at, %s)
          SELECT $1, $2, clock_timestamp(), %s
          FROM jsonb_populate_record(NULL::%s, $3)',
         audit_table,
