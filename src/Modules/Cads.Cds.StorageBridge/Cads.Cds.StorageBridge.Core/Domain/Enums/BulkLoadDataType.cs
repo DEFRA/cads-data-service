@@ -5,24 +5,24 @@ namespace Cads.Cds.StorageBridge.Core.Domain.Enums;
 public enum BulkLoadDataType
 {
     None,
-    [TableName("_ct_animal_relationships", "aar_id")]
+    [TableName("ct_animal_relationships", "aar_id", "cts")]
     AnimalRelationships,
-    [TableName("_ct_animal_statuses", "ast_id")]
+    [TableName("ct_animal_statuses", "ast_id", "cts")]
     AnimalStatuses,
-    [TableName("_ct_condition_markers", "com_id")]
+    [TableName("ct_condition_markers", "com_id", "cts")]
     ConditionMarkers,
-    [TableName("_ct_eartags", "etg_id")]
+    [TableName("ct_eartags", "etg_id", "cts")]
     EarTags,
-    [TableName("_ct_issued_documents", "ido_id")]
+    [TableName("ct_issued_documents", "ido_id", "cts")]
     IssuedDocuments,
-    [TableName("_ct_parties", "par_id")]
+    [TableName("ct_parties", "par_id", "cts")]
     Parties,
-    [TableName("_ct_registered_animals", "ran_id")]
+    [TableName("ct_registered_animals", "ran_id", "cts")]
     RegisteredAnimals,
-    [TableName("_ct_registered_movements", "mov_id")]
+    [TableName("ct_registered_movements", "mov_id", "cts")]
     RegisteredMovements,
-    [TableName("_ct_valid_applications", "vap_id")]
+    [TableName("ct_valid_applications", "vap_id", "cts")]
     ValidApplications,
-    [TableName("_ct_locations", "loc_id")]
+    [TableName("ct_locations", "loc_id", "cts")]
     Locations
 }
