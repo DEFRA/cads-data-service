@@ -34,7 +34,7 @@
   <!-- Your existing includes -->
   <include file="0000_000_create_schemas.postgresql.sql"/>
   <include file="0000_001_drop_all_tables.postgresql.sql"/>
-  <include file="0000_002_create_cleanup_functions.postgresql.sql"/>
+  <include file="0000_001_create_cleanup_functions.postgresql.sql"/>
   <include file="0001_000_create_cads_tables.postgresql.sql"/>
   <include file="0001_001_create_cts_tables.postgresql.sql"/>
   <include file="0001_002_create_cts_transaction_tables.postgresql.sql"/>
