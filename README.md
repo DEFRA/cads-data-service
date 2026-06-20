@@ -104,6 +104,12 @@ Objectives:
       /Cads.Cds.StorageBridge.Infrastructure
       /Cads.Cds.StorageBridge (Host-facing worker surface)
 
+    /Cads.Cds.SystemAdmin
+      /Cads.Cds.SystemAdmin.Core
+      /Cads.Cds.SystemAdmin.Application
+      /Cads.Cds.SystemAdmin.Infrastructure
+      /Cads.Cds.SystemAdmin (Host-facing worker surface)
+
   /Database
     /Liquibase
     /Scripts
@@ -124,6 +130,7 @@ Objectives:
       Cads.Cds.Api.Core.Tests.Unit
       Cads.Cds.Api.Application.Tests.Unit
       Cads.Cds.Api.Infrastructure.Tests.Unit
+      Cads.Cds.Api.Testing.Support
 
     /Ingester
       Cads.Cds.Ingester.Tests.Component
@@ -131,6 +138,7 @@ Objectives:
       Cads.Cds.Ingester.Core.Tests.Unit
       Cads.Cds.Ingester.Application.Tests.Unit
       Cads.Cds.Ingester.Infrastructure.Tests.Unit
+      Cads.Cds.Ingester.Testing.Support
 
     /MiBff
       Cads.Cds.MiBff.Tests.Component
@@ -138,6 +146,7 @@ Objectives:
       Cads.Cds.MiBff.Core.Tests.Unit
       Cads.Cds.MiBff.Application.Tests.Unit
       Cads.Cds.MiBff.Infrastructure.Tests.Unit
+      Cads.Cds.MiBff.Testing.Support
 
     /StorageBridge
       Cads.Cds.StorageBridge.Tests.Component
@@ -145,6 +154,15 @@ Objectives:
       Cads.Cds.StorageBridge.Core.Tests.Unit
       Cads.Cds.StorageBridge.Application.Tests.Unit
       Cads.Cds.StorageBridge.Infrastructure.Tests.Unit
+      Cads.Cds.StorageBridge.Testing.Support
+
+    /SystemAdmin
+      Cads.Cds.SystemAdmin.Tests.Component
+      Cads.Cds.SystemAdmin.Tests.Integration
+      Cads.Cds.SystemAdmin.Core.Tests.Unit
+      Cads.Cds.SystemAdmin.Application.Tests.Unit
+      Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit
+      Cads.Cds.SystemAdmin.Testing.Support
 ```
 
 ### Project Dependency Flow
