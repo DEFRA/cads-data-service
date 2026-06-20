@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\BuildingBlocks\Cads.Cds.BuildingBlocks.Testing.Support\Cads.Cds.BuildingBlocks.Testing.Support.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.Infrastructure\Cads.Cds.StorageBridge.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.SystemAdmin\Cads.Cds.SystemAdmin.Infrastructure\Cads.Cds.SystemAdmin.Infrastructure.csproj" />
   </ItemGroup>
-  
+
 </Project>

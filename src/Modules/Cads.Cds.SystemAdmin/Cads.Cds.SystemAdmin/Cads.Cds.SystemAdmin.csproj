@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cads.Cds.StorageBridge.Infrastructure\Cads.Cds.StorageBridge.Infrastructure.csproj" />
+    <ProjectReference Include="..\Cads.Cds.SystemAdmin.Infrastructure\Cads.Cds.SystemAdmin.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

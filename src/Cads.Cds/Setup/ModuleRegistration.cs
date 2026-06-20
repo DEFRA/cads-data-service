@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Setup;
 using Cads.Cds.Ingester.Setup;
 using Cads.Cds.MiBff.Setup;
 using Cads.Cds.StorageBridge.Setup;
+using Cads.Cds.SystemAdmin.Setup;
 
 namespace Cads.Cds.Setup;
 
@@ -16,6 +17,7 @@ public static class ModuleRegistration
         services.AddIngesterModule(config);
         services.AddMiBffModule(config);
         services.AddStorageBridgeModule(config);
+        services.AddSystemAdminModule(config);
 
         return services;
     }

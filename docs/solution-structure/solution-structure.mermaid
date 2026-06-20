@@ -56,11 +56,21 @@ subgraph SB[StorageBridge Module]
     SB_Surface --> SB_Infra --> SB_App --> SB_Core
 end
 
+%% SystemAdmin Module
+subgraph SA[SystemAdmin Module]
+    SA_Core["SystemAdmin.Core"]
+    SA_App["SystemAdmin.Application"]
+    SA_Infra["SystemAdmin.Infrastructure"]
+    SA_Surface["SystemAdmin (API/Worker Surface)"]
+    SA_Surface --> SA_Infra --> SA_App --> SA_Core
+end
+
 %% Host depends on module surfaces and ApiSurface
 HOST_Program --> API_Surface
 HOST_Program --> ING_Surface
 HOST_Program --> BFF_Surface
 HOST_Program --> SB_Surface
+HOST_Program --> SA_Surface
 HOST_Program --> APISURFACE
 
 %% Modules depend on ApiSurface
@@ -75,6 +85,9 @@ BFF_Infra --> APISURFACE
 
 SB_App --> APISURFACE
 SB_Infra --> APISURFACE
+
+SA_App --> APISURFACE
+SA_Infra --> APISURFACE
 
 %% Modules depend inward on BuildingBlocks
 API_Core --> BB_Core
@@ -92,3 +105,7 @@ BFF_Infra --> BB_Infra
 SB_Core --> BB_Core
 SB_App --> BB_App
 SB_Infra --> BB_Infra
+
+SA_Core --> BB_Core
+SA_App --> BB_App
+SA_Infra --> BB_Infra
