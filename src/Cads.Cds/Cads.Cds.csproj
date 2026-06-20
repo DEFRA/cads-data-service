@@ -29,6 +29,7 @@
     <ProjectReference Include="..\Modules\Cads.Cds.Ingester\Cads.Cds.Ingester\Cads.Cds.Ingester.csproj" />
     <ProjectReference Include="..\Modules\Cads.Cds.MiBff\Cads.Cds.MiBff\Cads.Cds.MiBff.csproj" />
     <ProjectReference Include="..\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.csproj" />
+    <ProjectReference Include="..\Modules\Cads.Cds.SystemAdmin\Cads.Cds.SystemAdmin\Cads.Cds.SystemAdmin.csproj" />
   </ItemGroup>
 
 </Project>
