@@ -1,12 +1,12 @@
 -- liquibase formatted sql
 
 -- changeset mark-gent:0001_018 endDelimiter://
-DROP FUNCTION IF EXISTS public.get_locations(
+DROP FUNCTION IF EXISTS cads.get_locations(
     cph varchar(17),
     lastModifiedDate date
 );
 
-CREATE OR REPLACE FUNCTION public.get_locations(
+CREATE OR REPLACE FUNCTION cads.get_locations(
     cph varchar(17),
     lastModifiedDate date
 )
