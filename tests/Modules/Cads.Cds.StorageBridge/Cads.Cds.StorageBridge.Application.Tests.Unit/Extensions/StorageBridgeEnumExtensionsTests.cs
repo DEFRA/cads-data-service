@@ -57,7 +57,7 @@ public class StorageBridgeEnumExtensionsTests
     {
         var schema = BulkLoadDataType.None.GetTableSchema();
 
-        schema.Should().Be(SchemaName.Public);
+        schema.Should().BeNull();
     }
 
     [Fact]
