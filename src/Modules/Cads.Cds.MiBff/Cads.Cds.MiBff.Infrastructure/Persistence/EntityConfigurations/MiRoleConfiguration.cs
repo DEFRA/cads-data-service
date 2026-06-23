@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class MiRoleConfiguration : IEntityTypeConfiguration<MiRole>
 {
     public void Configure(EntityTypeBuilder<MiRole> builder)
     {
-        builder.ToTable("mi_role");
+        builder.ToTable("mi_role", SchemaName.Cads.GetDescription());
 
         builder.HasKey(x => x.RoleId).HasName("mi_role_pkey");
 

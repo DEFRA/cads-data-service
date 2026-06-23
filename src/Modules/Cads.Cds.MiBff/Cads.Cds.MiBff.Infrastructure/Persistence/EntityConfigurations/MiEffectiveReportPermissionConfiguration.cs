@@ -8,7 +8,6 @@ public class MiEffectiveReportPermissionConfiguration : IEntityTypeConfiguration
 {
     public void Configure(EntityTypeBuilder<MiEffectiveReportPermission> builder)
     {
-        builder.ToView("mi_effective_report_permission");
         builder.HasKey(x => new { x.ExternalSubject, x.ReportKey });
 
         builder.Property(x => x.ReportId).HasColumnName("report_id");

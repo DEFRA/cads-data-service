@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class MiReportGroupMapConfiguration : IEntityTypeConfiguration<MiReportGr
 {
     public void Configure(EntityTypeBuilder<MiReportGroupMap> builder)
     {
-        builder.ToTable("mi_report_group_map");
+        builder.ToTable("mi_report_group_map", SchemaName.Cads.GetDescription());
 
         builder.HasKey(x => new { x.GroupId, x.ReportId })
             .HasName("mi_report_group_map_pkey");
