@@ -21,8 +21,6 @@
   <property name="mhEmail" value="matthew.hodgson@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="msName" value="Mark Stocker" context="dev,test,ext-test,perf-test"/>
   <property name="msEmail" value="mark.stocker@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="thName" value="Tom Harrison" context="dev,test,ext-test,perf-test"/>
-  <property name="thEmail" value="tom.harrison@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="vsName" value="Verrol Skerritt" context="dev,test,ext-test,perf-test"/>
   <property name="vsEmail" value="verrol.skerritt@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="jtDevName" value="SA-O365-CADS-MIP-DEV" context="dev"/>
