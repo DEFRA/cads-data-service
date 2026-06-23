@@ -1,4 +1,6 @@
 using Cads.Cds.Api.Core.Domain.Entities;
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
@@ -29,7 +31,7 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : DbCo
         modelBuilder.HasDbFunction(
             typeof(ApiReadDbContext).GetMethod(nameof(GetLocationsSummary))!)
             .HasName("get_locations")
-            .HasSchema("public");
+            .HasSchema(SchemaName.Cads.GetDescription());
 
         base.OnModelCreating(modelBuilder);
     }

@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Core.Attributes;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
@@ -15,7 +17,7 @@ public class StorageBridgeEnumExtensionsTests
         attr.Should().NotBeNull();
         attr!.Name.Should().Be("ct_locations");
         attr.Key.Should().Be("loc_id");
-        attr.Schema.Should().Be("cts");
+        attr.Schema.Should().Be(SchemaName.Cts);
     }
 
     [Fact]
@@ -47,7 +49,7 @@ public class StorageBridgeEnumExtensionsTests
     {
         var schema = BulkLoadDataType.Locations.GetTableSchema();
 
-        schema.Should().Be("cts");
+        schema.Should().Be(SchemaName.Cts);
     }
 
     [Fact]
@@ -55,7 +57,7 @@ public class StorageBridgeEnumExtensionsTests
     {
         var schema = BulkLoadDataType.None.GetTableSchema();
 
-        schema.Should().BeNull();
+        schema.Should().Be(SchemaName.Public);
     }
 
     [Fact]

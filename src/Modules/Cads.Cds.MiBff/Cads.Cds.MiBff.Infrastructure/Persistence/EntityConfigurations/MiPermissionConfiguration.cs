@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class MiPermissionConfiguration : IEntityTypeConfiguration<MiPermission>
 {
     public void Configure(EntityTypeBuilder<MiPermission> builder)
     {
-        builder.ToTable("mi_permission");
+        builder.ToTable("mi_permission", SchemaName.Cads.GetDescription());
 
         builder.HasKey(x => x.PermissionId).HasName("mi_permission_pkey");
 
@@ -18,7 +20,7 @@ public class MiPermissionConfiguration : IEntityTypeConfiguration<MiPermission>
             .IsRequired();
 
         builder.Property(x => x.PermissionKey)
-            .HasColumnName("permission_key")
+            .HasColumnName("permission_key")        
             .HasColumnType("text")
             .IsRequired();
 
