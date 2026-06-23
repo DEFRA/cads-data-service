@@ -1,12 +1,12 @@
 -- liquibase formatted sql
 
 -- changeset david:0001_014 endDelimiter://
-DROP FUNCTION IF EXISTS public.get_deaths_summary(
+DROP FUNCTION IF EXISTS cads.get_deaths_summary(
     p_death_date_from DATE,
     p_death_date_to   DATE
 );
 
-CREATE OR REPLACE FUNCTION public.get_deaths_summary(
+CREATE OR REPLACE FUNCTION cads.get_deaths_summary(
     p_death_date_from date,
     p_death_date_to date
 )
