@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class MiReportGroupConfiguration : IEntityTypeConfiguration<MiReportGroup
 {
     public void Configure(EntityTypeBuilder<MiReportGroup> builder)
     {
-        builder.ToTable("mi_report_group");
+        builder.ToTable("mi_report_group", SchemaName.Cads.GetDescription());
 
         builder.HasKey(x => x.GroupId).HasName("mi_report_group_pkey");
 

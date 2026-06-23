@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class MiUserReportPermissionConfiguration : IEntityTypeConfiguration<MiUs
 {
     public void Configure(EntityTypeBuilder<MiUserReportPermission> builder)
     {
-        builder.ToTable("mi_user_report_permission");
+        builder.ToTable("mi_user_report_permission", SchemaName.Cads.GetDescription());
 
         builder.HasKey(x => new { x.UserId, x.ReportId, x.PermissionId })
             .HasName("mi_user_report_permission_pkey");
