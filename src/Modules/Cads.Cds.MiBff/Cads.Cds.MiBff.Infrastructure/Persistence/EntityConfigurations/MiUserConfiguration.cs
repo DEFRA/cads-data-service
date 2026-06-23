@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class MiUserConfiguration : IEntityTypeConfiguration<MiUser>
 {
     public void Configure(EntityTypeBuilder<MiUser> builder)
     {
-        builder.ToTable("mi_user");
+        builder.ToTable("mi_user", SchemaName.Cads.GetDescription());
 
         builder.HasKey(x => x.UserId)
             .HasName("mi_user_pkey");
