@@ -1,11 +1,11 @@
 -- liquibase formatted sql
 -- changeset andy:0004_031 endDelimiter://
-DROP FUNCTION IF EXISTS public.get_births_summary(
+DROP FUNCTION IF EXISTS cads.get_births_summary(
     p_birth_date_from DATE,
     p_birth_date_to   DATE
 );
 
-CREATE OR REPLACE FUNCTION public.get_births_summary(
+CREATE OR REPLACE FUNCTION cads.get_births_summary(
     p_birth_date_from date,
     p_birth_date_to date
 )

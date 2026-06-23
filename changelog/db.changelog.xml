@@ -5,18 +5,24 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
   <!-- Define constants here -->
-  <property name="gfName" value="Gary Fletcher" context="dev,test,ext-test,perf-test"/>
-  <property name="gfEmail" value="gary.fletcher@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="mgName" value="Mark Gent" context="dev,test,ext-test,perf-test"/>
-  <property name="mgEmail" value="mark.gent@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="anName" value="Andy Norman" context="dev,test,ext-test,perf-test"/>
+  <property name="anEmail" value="andrew.norman@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="arName" value="Andy Rose" context="dev,test,ext-test,perf-test"/>
+  <property name="arEmail" value="andy.rose@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="cjName" value="Craig John" context="dev,test,ext-test,perf-test"/>
   <property name="cjEmail" value="craig.john@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="dbName" value="David Baillie" context="dev,test,ext-test,perf-test"/>
   <property name="dbEmail" value="david.baillie@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="arName" value="Andy Rose" context="dev,test,ext-test,perf-test"/>
-  <property name="arEmail" value="andy.rose@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="thName" value="Tom Harrison" context="dev,test,ext-test,perf-test"/>
-  <property name="thEmail" value="tom.harrison@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="gfName" value="Gary Fletcher" context="dev,test,ext-test,perf-test"/>
+  <property name="gfEmail" value="gary.fletcher@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="mgName" value="Mark Gent" context="dev,test,ext-test,perf-test"/>
+  <property name="mgEmail" value="mark.gent@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="mhName" value="Matthew Hodgson" context="dev,test,ext-test,perf-test"/>
+  <property name="mhEmail" value="matthew.hodgson@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="msName" value="Mark Stocker" context="dev,test,ext-test,perf-test"/>
+  <property name="msEmail" value="mark.stocker@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="vsName" value="Verrol Skerritt" context="dev,test,ext-test,perf-test"/>
+  <property name="vsEmail" value="verrol.skerritt@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="jtDevName" value="SA-O365-CADS-MIP-DEV" context="dev"/>
   <property name="jtDevEmail" value="SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com" context="dev"/>
   <property name="jtTestName" value="SA-O365-CADS-MIP-TEST" context="test"/>
@@ -25,12 +31,6 @@
   <property name="jtExtTestEmail" value="SA-O365-CADS-MIP-EXT-TEST-tst@defradev.onmicrosoft.com" context="ext-test"/>
   <property name="jtPerfTestNam" value="SA-O365-CADS-MIP-PERF-TEST" context="perf-test"/>
   <property name="jtPerfTestEmail" value="SA-O365-CADS-MIP-PERF-TEST-tst@defradev.onmicrosoft.com" context="perf-test"/>
-  <property name="mhName" value="Matthew Hodgson" context="dev,test,ext-test,perf-test"/>
-  <property name="mhEmail" value="matthew.hodgson@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="msName" value="Mark Stocker" context="dev,test,ext-test,perf-test"/>
-  <property name="msEmail" value="mark.stocker@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="vsName" value="Verrol Skerritt" context="dev,test,ext-test,perf-test"/>
-  <property name="vsEmail" value="verrol.skerritt@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <!-- Your existing includes -->
   <include file="0000_000_create_schemas.postgresql.sql"/>
   <include file="0000_001_drop_all_tables.postgresql.sql"/>
@@ -53,6 +53,7 @@
   <include file="0001_015_get_imports_summary_create_function.postgresql.sql"/>
   <include file="0001_016_create_data_seed_injestion_history_table.postgresql.sql"/>
   <include file="0001_017_get_locations_create_function.postgresql.sql"/>
+  <include file="0001_018_cads_reference_state_seed_data.postgresql.sql"/>
   <include file="0002_000_mi_seed.postgresql.sql"/>
   <include file="0002_001_mi_cattle_import_report_seed.postgresql.sql"/>
   <include file="0002_002_mi_report_groups_seed.postgresql.sql"/>

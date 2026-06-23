@@ -1,11 +1,9 @@
-DROP VIEW IF EXISTS cads.mi_effective_report_permission;
-
-DROP FUNCTION IF EXISTS public.get_mi_effective_report_permission(
+DROP FUNCTION IF EXISTS cads.get_mi_effective_report_permission(
     p_external_subject TEXT,
     p_report_key   TEXT
 );
 
-CREATE OR REPLACE FUNCTION public.get_mi_effective_report_permission(
+CREATE OR REPLACE FUNCTION cads.get_mi_effective_report_permission(
     p_external_subject TEXT,
     p_report_key   TEXT
 )
