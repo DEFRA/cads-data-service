@@ -53,6 +53,7 @@
   <include file="0001_015_get_imports_summary_create_function.postgresql.sql"/>
   <include file="0001_016_create_data_seed_injestion_history_table.postgresql.sql"/>
   <include file="0001_017_get_locations_create_function.postgresql.sql"/>
+  <include file="0001_018_cads_reference_state_seed_data.postgresql.sql"/>
   <include file="0002_000_mi_seed.postgresql.sql"/>
   <include file="0002_001_mi_cattle_import_report_seed.postgresql.sql"/>
   <include file="0002_002_mi_report_groups_seed.postgresql.sql"/>
