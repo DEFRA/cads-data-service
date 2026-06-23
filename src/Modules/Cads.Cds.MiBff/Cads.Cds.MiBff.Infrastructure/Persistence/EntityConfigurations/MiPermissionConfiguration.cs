@@ -20,7 +20,7 @@ public class MiPermissionConfiguration : IEntityTypeConfiguration<MiPermission>
             .IsRequired();
 
         builder.Property(x => x.PermissionKey)
-            .HasColumnName("permission_key")        
+            .HasColumnName("permission_key")
             .HasColumnType("text")
             .IsRequired();
 
