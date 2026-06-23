@@ -1,12 +1,12 @@
 -- liquibase formatted sql
 
 -- changeset david:0001_015 endDelimiter://
-DROP FUNCTION IF EXISTS public.get_imports_summary(
+DROP FUNCTION IF EXISTS cads.get_imports_summary(
     p_import_date_from DATE,
     p_import_date_to   DATE
 );
 
-CREATE OR REPLACE FUNCTION public.get_imports_summary(
+CREATE OR REPLACE FUNCTION cads.get_imports_summary(
     p_import_date_from date,
     p_import_date_to date
 )
