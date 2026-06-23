@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Npgsql;
@@ -161,7 +162,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         if (isTemp)
             return s_commandBuilder.QuoteIdentifier($"temp_{tableName}");
 
-        var schema = bulkImportType.GetTableSchema();
+        var schema = bulkImportType.GetTableSchema()?.GetDescription();
 
         return string.IsNullOrWhiteSpace(schema)
             ? s_commandBuilder.QuoteIdentifier(tableName)
@@ -181,7 +182,7 @@ public class S3BulkLoadCommandFactory(NpgsqlConnection connection) : IS3BulkLoad
         var tableName = bulkImportType.GetTableName()
             ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
 
-        var schema = bulkImportType.GetTableSchema();
+        var schema = bulkImportType.GetTableSchema()?.GetDescription();
 
         var columnNames = new List<string>();
 
