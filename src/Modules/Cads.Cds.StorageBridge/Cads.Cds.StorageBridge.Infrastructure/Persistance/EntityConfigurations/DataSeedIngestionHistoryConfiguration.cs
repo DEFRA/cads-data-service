@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.StorageBridge.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class DataSeedIngestionHistoryConfiguration : IEntityTypeConfiguration<Da
 {
     public void Configure(EntityTypeBuilder<DataSeedIngestionHistory> builder)
     {
-        builder.ToTable("data_seed_ingestion_history");
+        builder.ToTable("data_seed_ingestion_history", SchemaName.Public.GetDescription());
 
         builder.HasKey(x => x.Id).HasName("data_seed_ingestion_history_pkey");
 

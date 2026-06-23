@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class MiUserRoleConfiguration : IEntityTypeConfiguration<MiUserRole>
 {
     public void Configure(EntityTypeBuilder<MiUserRole> builder)
     {
-        builder.ToTable("mi_user_role");
+        builder.ToTable("mi_user_role", SchemaName.Cads.GetDescription());
 
         builder.HasKey(x => new { x.UserId, x.RoleId })
             .HasName("mi_user_role_pkey");

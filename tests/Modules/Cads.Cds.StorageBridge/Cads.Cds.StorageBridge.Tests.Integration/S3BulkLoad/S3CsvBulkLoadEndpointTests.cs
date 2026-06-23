@@ -1,8 +1,8 @@
 using Amazon.S3.Model;
+using Cads.Cds.BuildingBlocks.Application.Extensions;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
-using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Controllers.Requests;
 using Cads.Cds.StorageBridge.Controllers.Responses;
 using Cads.Cds.StorageBridge.Core.Attributes;
@@ -113,9 +113,10 @@ public class S3CsvBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
         var attribute = BulkLoadDataType.Locations.GetAttribute<TableNameAttribute>()!;
-        var tableName = string.IsNullOrWhiteSpace(attribute.Schema)
+        var schemaName = attribute.Schema.GetDescription();
+        var tableName = string.IsNullOrWhiteSpace(schemaName)
             ? attribute.Name
-            : $"{attribute.Schema}.{attribute.Name}";
+            : $"{schemaName}.{attribute.Name}";
 
         await BulkLoadTestHelpers.AssertCsvRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,

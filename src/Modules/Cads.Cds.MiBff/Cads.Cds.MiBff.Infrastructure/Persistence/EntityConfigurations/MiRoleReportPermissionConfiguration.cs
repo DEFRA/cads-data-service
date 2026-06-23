@@ -1,3 +1,5 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +10,7 @@ public class MiRoleReportPermissionConfiguration : IEntityTypeConfiguration<MiRo
 {
     public void Configure(EntityTypeBuilder<MiRoleReportPermission> builder)
     {
-        builder.ToTable("mi_role_report_permission");
+        builder.ToTable("mi_role_report_permission", SchemaName.Cads.GetDescription());
 
         builder.HasKey(x => new { x.RoleId, x.ReportId, x.PermissionId })
             .HasName("mi_role_report_permission_pkey");
