@@ -32,9 +32,11 @@
   <property name="jtPerfTestNam" value="SA-O365-CADS-MIP-PERF-TEST" context="perf-test"/>
   <property name="jtPerfTestEmail" value="SA-O365-CADS-MIP-PERF-TEST-tst@defradev.onmicrosoft.com" context="perf-test"/>
   <!-- Your existing includes -->
-  <include file="0000_000_create_schemas.postgresql.sql"/>
-  <include file="0000_001_drop_all_tables.postgresql.sql"/>
-  <include file="0000_002_create_cleanup_functions.postgresql.sql"/>
+  <include file="0000_000_drop_legacy_schema_objects.postgresql.sql"/>
+  <include file="0000_001_create_schemas.postgresql.sql"/>
+  <include file="0000_002_create_schemas_permissions.postgresql.sql"/>
+  <include file="0000_003_drop_all_tables.postgresql.sql"/>
+  <include file="0000_004_create_cleanup_functions.postgresql.sql"/>
   <include file="0001_000_create_cads_tables.postgresql.sql"/>
   <include file="0001_001_create_cts_tables.postgresql.sql"/>
   <include file="0001_002_create_cts_transaction_tables.postgresql.sql"/>
