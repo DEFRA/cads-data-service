@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSystemAdminModule(this IServiceCollection services, IConfiguration config)
     {
-        services.AddSystemAdminInfrastructureLayer(config);
+        services.AddSystemAdminInfrastructureLayer();
 
         services.AddSystemAdminApplicationLayer();
 

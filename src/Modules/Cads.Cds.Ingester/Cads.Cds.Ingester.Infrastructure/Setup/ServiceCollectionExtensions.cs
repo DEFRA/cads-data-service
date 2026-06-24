@@ -1,4 +1,5 @@
 using Cads.Cds.Ingester.Infrastructure.Messaging.Setup;
+using Cads.Cds.Ingester.Infrastructure.Persistence.Setup;
 using Cads.Cds.Ingester.Infrastructure.Storage.Setup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +10,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddIngesterInfrastructureLayer(this IServiceCollection services, IConfiguration config)
     {
+        services.ConfigureIngesterPersistence();
+
         services.AddIngesterMessaging(config);
 
         services.AddIngesterStorage(config);
