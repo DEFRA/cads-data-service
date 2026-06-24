@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
         }
     }
 
-    private static IServiceCollection RegisterConnectionAuthentication(
+    private static void RegisterConnectionAuthentication(
         this IServiceCollection services,
         IConfiguration configuration,
         PostgresConfiguration postgresConfig)
@@ -66,17 +66,13 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton<IPostgresDataSourceFactory, PostgresDataSourceFactory>();
-
-        return services;
     }
 
-    private static IServiceCollection RegisterHealthChecks(this IServiceCollection services)
+    private static void RegisterHealthChecks(this IServiceCollection services)
     {
         services.AddPostgresDbContext<HealthCheckDbContext>();
         services.AddPostgresDbContext<HealthCheckReadOnlyDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
         services.AddScoped<PostgresHealthCheck>();
         services.AddScoped<IPostgresStatusService, PostgresStatusService>();
-
-        return services;
     }
 }
