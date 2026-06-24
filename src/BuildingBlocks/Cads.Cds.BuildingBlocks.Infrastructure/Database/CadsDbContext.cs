@@ -11,6 +11,9 @@ public abstract class CadsDbContext(DbContextOptions options) : DbContext(option
         base.OnModelCreating(modelBuilder);
     }
 
-    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         => await Database.BeginTransactionAsync(cancellationToken);
+
+    public virtual IExecutionStrategy CreateExecutionStrategy()
+        => Database.CreateExecutionStrategy();
 }
