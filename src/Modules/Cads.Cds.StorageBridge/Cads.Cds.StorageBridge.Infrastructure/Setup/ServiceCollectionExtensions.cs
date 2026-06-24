@@ -1,7 +1,5 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Setup;
-using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Setup;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Setup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,13 +15,13 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddStorageBridgeInfrastructureLayer(this IServiceCollection services, IConfiguration config)
     {
-        services.ConfigurePrometheusScraping(config);
-
-        services.AddPostgresDbContext<StorageBridgeWriteDbContext>();
-        services.AddPostgresDbContext<StorageBridgeReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.ConfigureStorageBridgePersistence();
 
         services.AddStorageBridgeStorage(config);
+
         services.ConfigureBulkLoadServices();
+
+        services.ConfigurePrometheusScraping(config);
 
         return services;
     }

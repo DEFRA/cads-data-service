@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
@@ -8,7 +9,7 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 public static class DbContextFactory
 {
     public static T CreateInMemoryDbContext<T>(string dbName)
-       where T : DbContext
+       where T : CadsDbContext
     {
         var options = new DbContextOptionsBuilder<T>()
             .UseInMemoryDatabase(databaseName: dbName) // Unique name per test to isolate data
@@ -27,7 +28,7 @@ public static class DbContextFactory
     }
 
     public static U CreateInMemoryTestDbContextFromDbContext<T, U>(string dbName)
-        where T : DbContext
+        where T : CadsDbContext
         where U : T
     {
         var options = new DbContextOptionsBuilder<T>()
@@ -49,8 +50,8 @@ public static class DbContextFactory
 [ExcludeFromCodeCoverage]
 public class DbContextFactory<TReadDbContext, TWriteDbContext>(IServiceProvider provider)
     : IDbContextFactory<TReadDbContext, TWriteDbContext>
-    where TReadDbContext : DbContext
-    where TWriteDbContext : DbContext
+    where TReadDbContext : CadsDbContext
+    where TWriteDbContext : CadsDbContext
 {
     public TReadDbContext CreateReadContext()
         => provider.GetRequiredService<TReadDbContext>();

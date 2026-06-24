@@ -1,17 +1,13 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
-using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
-using Microsoft.Extensions.Configuration;
+using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Setup;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddSystemAdminInfrastructureLayer(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddSystemAdminInfrastructureLayer(this IServiceCollection services)
     {
-        services.AddPostgresDbContext<SystemAdminWriteDbContext>();
-        services.AddPostgresDbContext<SystemAdminReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.ConfigureSystemAdminPersistence();
 
         return services;
     }

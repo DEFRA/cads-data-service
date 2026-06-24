@@ -1,9 +1,11 @@
 using Cads.Cds.Api.Core.Domain.Repositories;
+using Cads.Cds.Api.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 using Cads.Cds.Api.Infrastructure.Persistence.Repositories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.Api.Infrastructure.Persistence.Setup;
@@ -13,6 +15,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConfigureApiPersistence(this IServiceCollection services)
     {
         services.RegisterDbContexts();
+
+        services.RegisterBehaviours();
+
         services.RegisterFunctionRepositories();
 
         return services;
@@ -26,6 +31,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<
             IDbContextFactory<ApiReadDbContext, ApiWriteDbContext>,
             DbContextFactory<ApiReadDbContext, ApiWriteDbContext>>();
+    }
+
+    private static IServiceCollection RegisterBehaviours(this IServiceCollection services)
+    {
+        services.AddTransient(typeof(IPipelineBehavior<,>),
+            typeof(ApiTransactionBehaviour<,>));
+
+        return services;
     }
 
     private static void RegisterFunctionRepositories(this IServiceCollection services)

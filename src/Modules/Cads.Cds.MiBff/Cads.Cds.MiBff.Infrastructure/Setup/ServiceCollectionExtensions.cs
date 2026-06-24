@@ -9,6 +9,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMiBffInfrastructureLayer(this IServiceCollection services)
     {
         services.ConfigureMiBffPersistence();
+
         services.ConfigureMiAuthorisation();
 
         return services;

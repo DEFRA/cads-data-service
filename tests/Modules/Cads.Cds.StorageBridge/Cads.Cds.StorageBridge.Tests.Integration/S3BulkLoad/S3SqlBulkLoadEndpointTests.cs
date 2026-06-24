@@ -44,7 +44,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
+        await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
         await VerifyLoggingMessage($"SQL script file \"test.sql\" is empty — skipping.");
     }
@@ -65,7 +65,7 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
+        await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
         await VerifyLoggingMessage($"Failed to execute SQL script file \"test.sql\"");
     }
@@ -89,10 +89,9 @@ public class S3SqlBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
         var attribute = BulkLoadDataType.Locations.GetAttribute<TableNameAttribute>()!;
-        var schemaName = attribute.Schema.GetDescription();
-        var tableName = string.IsNullOrWhiteSpace(schemaName)
+        var tableName = string.IsNullOrWhiteSpace(attribute.Schema.GetDescription())
             ? attribute.Name
-            : $"{schemaName}.{attribute.Name}";
+            : $"{attribute.Schema}.{attribute.Name}";
 
         await BulkLoadTestHelpers.AssertRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
