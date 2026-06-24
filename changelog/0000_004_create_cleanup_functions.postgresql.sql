@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset schema:0000-001-create_cleanup_functions endDelimiter:// context:local,dev,ext-test,perf-test
+-- changeset schema:0000-004-create_cleanup_functions endDelimiter:// context:local,dev,ext-test,perf-test
 
 -- Function 1: Truncate tables in the specified or default schemas
 -- SELECT public.truncate_schema_tables();
