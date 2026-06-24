@@ -1,12 +1,14 @@
 using Cads.Cds.BuildingBlocks.Core.Persistence;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Repositories;
 
-public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbContext) : IReadOnlyRepository<TEntity>
+public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbContext)
+    : IReadOnlyRepository<TEntity>
     where TEntity : class
-    where TDbContext : DbContext
+    where TDbContext : CadsDbContext
 {
     protected TDbContext DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
@@ -28,7 +30,7 @@ public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbCon
 
         if (entity != null)
         {
-            dbContext.Entry(entity).State = EntityState.Detached;
+            DbContext.Entry(entity).State = EntityState.Detached;
         }
 
         return entity;
