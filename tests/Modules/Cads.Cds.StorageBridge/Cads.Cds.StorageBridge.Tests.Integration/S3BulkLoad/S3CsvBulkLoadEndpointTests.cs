@@ -113,10 +113,9 @@ public class S3CsvBulkLoadEndpointTests(ApiContainerFixture apiContainerFixture)
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
         var attribute = BulkLoadDataType.Locations.GetAttribute<TableNameAttribute>()!;
-        var schemaName = attribute.Schema.GetDescription();
-        var tableName = string.IsNullOrWhiteSpace(schemaName)
+        var tableName = string.IsNullOrWhiteSpace(attribute.Schema.GetDescription())
             ? attribute.Name
-            : $"{schemaName}.{attribute.Name}";
+            : $"{attribute.Schema}.{attribute.Name}";
 
         await BulkLoadTestHelpers.AssertCsvRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,

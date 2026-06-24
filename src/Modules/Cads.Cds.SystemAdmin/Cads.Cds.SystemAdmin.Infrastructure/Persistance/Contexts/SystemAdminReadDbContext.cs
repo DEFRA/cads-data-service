@@ -1,10 +1,11 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class SystemAdminReadDbContext(DbContextOptions<SystemAdminReadDbContext> options) : DbContext(options)
+public class SystemAdminReadDbContext(DbContextOptions<SystemAdminReadDbContext> options) : CadsDbContext(options)
 {
     // Shared canonical entities
 
