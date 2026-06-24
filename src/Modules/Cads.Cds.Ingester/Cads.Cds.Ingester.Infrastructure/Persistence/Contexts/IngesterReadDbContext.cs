@@ -1,10 +1,11 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.Ingester.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class IngesterReadDbContext(DbContextOptions<IngesterReadDbContext> options) : DbContext(options)
+public class IngesterReadDbContext(DbContextOptions<IngesterReadDbContext> options) : CadsDbContext(options)
 {
     // Shared canonical entities
 
