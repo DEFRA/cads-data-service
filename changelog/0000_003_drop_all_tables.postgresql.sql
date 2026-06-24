@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset schema:0000-001-drop-all-tables splitStatements:true
+-- changeset schema:0000-003-drop-all-tables splitStatements:true
 
 drop table if exists "data_seed_ingestion_history" cascade;
 drop table if exists cads.cts_file_imports_log cascade;

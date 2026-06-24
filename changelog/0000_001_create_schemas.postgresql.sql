@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset schema:0000-000-create-schemas splitStatements:true
+-- changeset schema:0000-001-create-schemas splitStatements:true
 
 CREATE SCHEMA IF NOT EXISTS cts;
 CREATE SCHEMA IF NOT EXISTS cts_audit;
