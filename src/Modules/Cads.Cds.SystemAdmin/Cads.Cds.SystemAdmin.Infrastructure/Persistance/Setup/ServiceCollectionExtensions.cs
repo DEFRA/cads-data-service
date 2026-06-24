@@ -29,11 +29,9 @@ public static class ServiceCollectionExtensions
             DbContextFactory<SystemAdminReadDbContext, SystemAdminWriteDbContext>>();
     }
 
-    private static IServiceCollection RegisterBehaviours(this IServiceCollection services)
+    private static void RegisterBehaviours(this IServiceCollection services)
     {
         services.AddTransient(typeof(IPipelineBehavior<,>),
             typeof(SystemAdminTransactionBehaviour<,>));
-
-        return services;
     }
 }

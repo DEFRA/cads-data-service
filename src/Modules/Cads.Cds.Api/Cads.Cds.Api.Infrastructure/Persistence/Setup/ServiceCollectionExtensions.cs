@@ -33,12 +33,10 @@ public static class ServiceCollectionExtensions
             DbContextFactory<ApiReadDbContext, ApiWriteDbContext>>();
     }
 
-    private static IServiceCollection RegisterBehaviours(this IServiceCollection services)
+    private static void RegisterBehaviours(this IServiceCollection services)
     {
         services.AddTransient(typeof(IPipelineBehavior<,>),
             typeof(ApiTransactionBehaviour<,>));
-
-        return services;
     }
 
     private static void RegisterFunctionRepositories(this IServiceCollection services)
