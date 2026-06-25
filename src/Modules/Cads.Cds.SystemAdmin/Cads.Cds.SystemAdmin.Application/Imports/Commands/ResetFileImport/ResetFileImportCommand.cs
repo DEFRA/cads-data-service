@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
 using MediatR;
 
-namespace Cads.Cds.SystemAdmin.Application.Imports.Commands;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
 
 public sealed record ResetFileImportCommand(long Id)
     : ICommand<Unit>, ITransactionalCommand, IHasId;
