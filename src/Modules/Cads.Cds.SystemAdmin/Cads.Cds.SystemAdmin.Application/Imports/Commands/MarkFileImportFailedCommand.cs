@@ -1,6 +1,7 @@
+using Cads.Cds.BuildingBlocks.Application.Commands;
+using MediatR;
+
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands;
 
-public class MarkFileImportFailedCommand
-{
-
-}
+public sealed record MarkFileImportFailedCommand(long Id)
+    : ICommand<Unit>, ITransactionalCommand;
