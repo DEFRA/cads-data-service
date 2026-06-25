@@ -7,6 +7,7 @@ public class ManualUnitOfWork<TDbContext>(TDbContext dbContext) : IManualUnitOfW
     where TDbContext : CadsDbContext
 {
     private readonly TDbContext _dbContext = dbContext;
+
     private IDbContextTransaction? _transaction;
 
     public bool IsInTransaction => _transaction != null;
