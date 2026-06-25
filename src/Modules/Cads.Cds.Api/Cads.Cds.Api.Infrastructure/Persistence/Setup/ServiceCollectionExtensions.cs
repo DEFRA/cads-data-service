@@ -5,6 +5,7 @@ using Cads.Cds.Api.Infrastructure.Persistence.Repositories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
+using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Uow;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,8 @@ public static class ServiceCollectionExtensions
         services.RegisterDbContexts();
 
         services.RegisterBehaviours();
+
+        services.RegisterManualUnitOfWork();
 
         services.RegisterFunctionRepositories();
 
@@ -37,6 +40,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient(typeof(IPipelineBehavior<,>),
             typeof(ApiTransactionBehaviour<,>));
+    }
+
+    private static void RegisterManualUnitOfWork(this IServiceCollection services)
+    {
+        services.AddScoped<IManualUnitOfWork, ManualUnitOfWork<ApiWriteDbContext>>();
     }
 
     private static void RegisterFunctionRepositories(this IServiceCollection services)
