@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
+using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Uow;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Behaviours;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
 using MediatR;
@@ -15,6 +16,8 @@ public static class ServiceCollectionExtensions
         services.RegisterDbContexts();
 
         services.RegisterBehaviours();
+
+        services.RegisterManualUnitOfWork();
 
         return services;
     }
@@ -33,5 +36,10 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient(typeof(IPipelineBehavior<,>),
             typeof(SystemAdminTransactionBehaviour<,>));
+    }
+
+    private static void RegisterManualUnitOfWork(this IServiceCollection services)
+    {
+        services.AddScoped<IManualUnitOfWork, ManualUnitOfWork<SystemAdminWriteDbContext>>();
     }
 }
