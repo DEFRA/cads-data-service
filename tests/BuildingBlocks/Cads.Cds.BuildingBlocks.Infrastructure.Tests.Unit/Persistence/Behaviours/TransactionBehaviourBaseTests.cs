@@ -3,7 +3,7 @@ using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Behaviours;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Contexts;
 using FluentAssertions;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Database.Behaviours;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Persistence.Behaviours;
 
 public class TransactionBehaviourBaseTests
 {

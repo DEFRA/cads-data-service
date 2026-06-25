@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Behaviours;
+using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Contexts;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Behaviours;

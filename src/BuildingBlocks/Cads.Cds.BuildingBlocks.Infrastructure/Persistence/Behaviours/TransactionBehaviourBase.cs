@@ -1,8 +1,9 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Behaviours;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Behaviours;
 
 public abstract class TransactionBehaviourBase<TRequest, TResponse, TDbContext>(TDbContext dbContext)
     : IPipelineBehavior<TRequest, TResponse>
