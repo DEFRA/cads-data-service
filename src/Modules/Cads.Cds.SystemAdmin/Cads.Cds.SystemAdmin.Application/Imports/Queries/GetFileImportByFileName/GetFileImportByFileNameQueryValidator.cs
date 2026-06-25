@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Cads.Cds.SystemAdmin.Application.Imports.Queries;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Queries.GetFileImportByFileName;
 
 public sealed class GetFileImportByFileNameQueryValidator : AbstractValidator<GetFileImportByFileNameQuery>
 {

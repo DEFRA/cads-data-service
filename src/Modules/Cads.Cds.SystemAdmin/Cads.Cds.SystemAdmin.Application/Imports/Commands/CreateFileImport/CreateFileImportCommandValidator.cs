@@ -1,4 +1,4 @@
-namespace Cads.Cds.SystemAdmin.Application.Imports.Commands;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
 
 using FluentValidation;
 
