@@ -2,22 +2,34 @@ using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 
 namespace Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 
-public class FileImportDto
+public class FileImportDto(
+    long id,
+    string destinationTableName,
+    string fileName,
+    long totalRowsToProcess,
+    long rowsFound,
+    FileImportStatus importStatus,
+    FileProcessingStatus processingStatus,
+    DateTimeOffset addedAt,
+    DateTimeOffset? importStartAt,
+    DateTimeOffset? importEndAt,
+    DateTimeOffset? processingStartAt,
+    DateTimeOffset? processingEndAt)
 {
-    public long Id { get; set; }
+    public long Id { get; set; } = id;
 
-    public string DestinationTableName { get; set; } = default!;
-    public string FileName { get; set; } = default!;
+    public string DestinationTableName { get; set; } = destinationTableName;
+    public string FileName { get; set; } = fileName;
 
-    public long TotalRowsToProcess { get; set; }
-    public long RowsFound { get; set; }
+    public long TotalRowsToProcess { get; set; } = totalRowsToProcess;
+    public long RowsFound { get; set; } = rowsFound;
 
-    public FileImportStatus ImportStatus { get; set; }
-    public FileProcessingStatus ProcessingStatus { get; set; }
+    public FileImportStatus ImportStatus { get; set; } = importStatus;
+    public FileProcessingStatus ProcessingStatus { get; set; } = processingStatus;
 
-    public DateTimeOffset AddedAt { get; set; }
-    public DateTimeOffset? ImportStartAt { get; set; }
-    public DateTimeOffset? ImportEndAt { get; set; }
-    public DateTimeOffset? ProcessingStartAt { get; set; }
-    public DateTimeOffset? ProcessingEndAt { get; set; }
+    public DateTimeOffset AddedAt { get; set; } = addedAt;
+    public DateTimeOffset? ImportStartAt { get; set; } = importStartAt;
+    public DateTimeOffset? ImportEndAt { get; set; } = importEndAt;
+    public DateTimeOffset? ProcessingStartAt { get; set; } = processingStartAt;
+    public DateTimeOffset? ProcessingEndAt { get; set; } = processingEndAt;
 }
