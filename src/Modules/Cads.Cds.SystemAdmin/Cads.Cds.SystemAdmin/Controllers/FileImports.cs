@@ -1,8 +1,8 @@
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportComplete;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportFailed;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImporting;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Queries.GetFileImportByFileName;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
@@ -67,6 +67,27 @@ public class FileImports(IRequestExecutor executor) : ControllerBase
     }
 
     /// <summary>
+    /// Marks the import workflow as importing.
+    /// Used when the file is being transferred, decrypted and chunked into S3.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("{id:long}/importing")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> MarkImporting(long id, CancellationToken cancellationToken)
+    {
+        await _executor.ExecuteCommand(new MarkFileImportingCommand(id), cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Marks the import workflow as complete.
     /// Used after a file (chunks) is successfully loaded into S3.
     /// </summary>
@@ -82,7 +103,7 @@ public class FileImports(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> MarkImportComplete(long id, CancellationToken cancellationToken)
     {
-        await _executor.ExecuteCommand(new MarkFileImportCompleteCommand(id), cancellationToken);
+        await _executor.ExecuteCommand(new MarkFileImportingCommand(id), cancellationToken);
 
         return NoContent();
     }
