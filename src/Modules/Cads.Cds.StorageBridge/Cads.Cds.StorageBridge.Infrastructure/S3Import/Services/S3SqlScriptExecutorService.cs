@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
-using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
+using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Entities;
 using Cads.Cds.StorageBridge.Core.Domain.Repositories;
 using Cads.Cds.StorageBridge.Core.DTOs;
