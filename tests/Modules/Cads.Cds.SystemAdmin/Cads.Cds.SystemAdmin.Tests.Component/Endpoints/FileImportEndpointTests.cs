@@ -1,4 +1,6 @@
-using Cads.Cds.SystemAdmin.Testing.Support.Constants;
+using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
+using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
+using Cads.Cds.SystemAdmin.Testing.Support.Factories;
 using Cads.Cds.SystemAdmin.Tests.Component.TestFixtures;
 using FluentAssertions;
 using System.Net;
@@ -14,9 +16,10 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     [Fact]
     public async Task GivenInvalidRequest_WhenGetByFileNameRequested_ShouldReturnBadRequest()
     {
-        var endpoint = string.Format(TestEndpointConstants.FileImportsGetByFileNameEndpoint, " ");
-
-        var response = await _testFixture.HttpClient.GetAsync(endpoint, TestContext.Current.CancellationToken);
+        var response = await FileImportTestClient.GetByFileNameAsync(
+            _testFixture.HttpClient,
+            fileName: null, 
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -24,13 +27,32 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     [Fact]
     public async Task GivenUnknownFileName_WhenGetByFileNameRequested_ShouldReturnNotFound()
     {
+        var response = await FileImportTestClient.GetByFileNameAsync(
+            _testFixture.HttpClient,
+            fileName: "unknownFileName",
+            TestContext.Current.CancellationToken);
 
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task GivenValidFileName_WhenGetByFileNameRequested_ShouldSucceed()
     {
+        var response = await FileImportTestClient.GetByFileNameAsync(
+            _testFixture.HttpClient,
+            fileName: FileImportDataFactory.FileName_Pending,
+            TestContext.Current.CancellationToken);
 
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await FileImportTestClient.ReadDtoAsync(
+            response,
+            TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto.FileName.Should().Be(FileImportDataFactory.FileName_Pending);
+
+        FileImportAssertions.ShouldBePending(dto);
     }
 
     // FileImports - Create
@@ -38,13 +60,37 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     [Fact]
     public async Task GivenInvalidRequest_WhenCreateRequested_ShouldReturnBadRequest()
     {
+        var response = await FileImportTestClient.CreateAsync(
+            _testFixture.HttpClient,
+            request: new CreateFileImportRequest(),
+            TestContext.Current.CancellationToken);
 
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async Task GivenValidRequest_WhenCreateRequested_ShouldSucceed()
     {
+        var request = new CreateFileImportRequest
+        {
+            FileName = "CTSM_UKV_PROD_BULK_######_CT_RECEIVED_MOVEMENTS_2026-02-22-074603",
+            TotalRowsToProcess = 100,
+            RowsFound = 0
+        };
 
+        var response = await FileImportTestClient.CreateAsync(
+            _testFixture.HttpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await FileImportTestClient.ReadDtoAsync(
+            response,
+            TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        FileImportAssertions.ShouldBePending(dto);
     }
 
     // FileImports - MarkImporting

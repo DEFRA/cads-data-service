@@ -26,13 +26,13 @@ public class FileImports(IRequestExecutor executor) : ControllerBase
     /// <param name="fileName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet("by-file-name/{fileName}")]
+    [HttpGet("by-file-name")]
     [ProducesResponseType(typeof(FileImportDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetByFileName(string fileName, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetByFileName([FromQuery] string fileName, CancellationToken cancellationToken)
     {
         var query = new GetFileImportByFileNameQuery(fileName);
 
@@ -56,14 +56,13 @@ public class FileImports(IRequestExecutor executor) : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateFileImportRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateFileImportCommand(
-            request.DestinationTableName,
             request.FileName,
             request.TotalRowsToProcess,
             request.RowsFound);
 
-        var id = await _executor.ExecuteCommand(command, cancellationToken);
+        var dto = await _executor.ExecuteCommand(command, cancellationToken);
 
-        return CreatedAtAction(nameof(GetByFileName), new { fileName = request.FileName }, new { id });
+        return CreatedAtAction(nameof(GetByFileName), new { fileName = request.FileName }, dto);
     }
 
     /// <summary>

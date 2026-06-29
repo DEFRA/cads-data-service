@@ -7,10 +7,6 @@ public sealed class CreateFileImportCommandValidator
 {
     public CreateFileImportCommandValidator()
     {
-        RuleFor(x => x.DestinationTableName)
-            .NotEmpty()
-            .WithMessage("Destination table name is required.");
-
         RuleFor(x => x.FileName)
             .NotEmpty()
             .WithMessage("File name is required.");
