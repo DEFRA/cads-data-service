@@ -1,14 +1,9 @@
-using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
-using Cads.Cds.SystemAdmin.Testing.Support.Contexts;
 using Cads.Cds.SystemAdmin.Testing.Support.Factories;
 using Cads.Cds.SystemAdmin.Testing.Support.Seeding;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Cads.Cds.SystemAdmin.Tests.Component.TestFixtures;
 
@@ -18,28 +13,26 @@ public class SystemAdminWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        base.ConfigureWebHost(builder);
-
-        builder.ConfigureTestServices(services =>
-        {
-        });
-    }
-
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        var fileImportData = new FileImportDataFactory().CreateMockData();
+        services.AddDbContext<SystemAdminReadDbContext>(o =>
+            o.UseInMemoryDatabase("SystemAdminReadDb_" + Guid.NewGuid()));
 
-        var systemAdminReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<SystemAdminReadDbContext, TestSystemAdminReadDbContext>(Guid.NewGuid().ToString());
-        TestSystemAdminDataSeeder.Seed(systemAdminReadDbContext, fileImportData);
-        TestSystemAdminDataSeeder.SeedSaveChanges(systemAdminReadDbContext);
+        services.AddDbContext<SystemAdminWriteDbContext>(o =>
+            o.UseInMemoryDatabase("SystemAdminWriteDb_" + Guid.NewGuid()));
 
-        var systemAdminWriteDbContext = DbContextFactory.CreateInMemoryDbContext<SystemAdminWriteDbContext>(Guid.NewGuid().ToString());
-        TestSystemAdminDataSeeder.Seed(systemAdminReadDbContext, fileImportData);
-        TestSystemAdminDataSeeder.SeedSaveChanges(systemAdminWriteDbContext);
+        var provider = services.BuildServiceProvider();
 
-        services.Replace(new ServiceDescriptor(typeof(SystemAdminReadDbContext), systemAdminReadDbContext));
-        services.Replace(new ServiceDescriptor(typeof(SystemAdminWriteDbContext), systemAdminWriteDbContext));
+        using var scope = provider.CreateScope();
+        var readDb = scope.ServiceProvider.GetRequiredService<SystemAdminReadDbContext>();
+        var writeDb = scope.ServiceProvider.GetRequiredService<SystemAdminWriteDbContext>();
+
+        var fileImportData = FileImportDataFactory.CreateMockData();
+
+        TestSystemAdminDataSeeder.Seed(readDb, fileImportData);
+        readDb.SaveChanges();
+
+        TestSystemAdminDataSeeder.Seed(writeDb, fileImportData);
+        writeDb.SaveChanges();
     }
 }
