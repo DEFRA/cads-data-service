@@ -47,7 +47,7 @@ public class StorageBridgeWebApplicationFactory(
 
     private void OverrideBulkLoadChannels(IServiceCollection services)
     {
-        services.RemoveAll<Channel<CreateS3BulkLoadJobDto>>();
+        services.RemoveAll<Channel<CreateS3ImportJobDto>>();
         services.RemoveAll<Channel<CreateS3SqlImportJobDto>>();
 
         services.AddSingleton(TestCsvBulkLoadJobChannel.Channel);
