@@ -29,10 +29,12 @@ public static class EnumAttributeExtensions
         var name = Enum.GetName(type, value);
         if (name == null) return null;
 
-        var field = typeof(T).GetField(name);
+        var field = type.GetField(name);
 
         // Get all attributes
-        return (T[])Attribute.GetCustomAttributes(field!, typeof(T));
+        var attributes = Attribute.GetCustomAttributes(field!, typeof(T));
+
+        return (T[])attributes;
     }
 
     public static string GetDescription(this Enum value)

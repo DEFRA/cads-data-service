@@ -88,11 +88,11 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        var attribute = ImportDataType.CtLocations.GetAttribute<TableInfoAttribute>()!;
-        var schemaName = attribute.Schema.GetDescription();
+        var attributes = ImportDataType.CtLocations.GetAttributes<TableInfoAttribute>()!;
+        var schemaName = attributes.First().Schema.GetDescription();
         var tableName = string.IsNullOrWhiteSpace(schemaName)
-            ? attribute.Name
-            : $"{schemaName}.{attribute.Name}";
+            ? attributes.First().Name
+            : $"{schemaName}.{attributes.First().Name}";
 
         await BulkLoadTestHelpers.AssertRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,

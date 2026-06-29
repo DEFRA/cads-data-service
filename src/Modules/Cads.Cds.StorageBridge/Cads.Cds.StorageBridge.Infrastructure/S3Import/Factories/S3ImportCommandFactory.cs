@@ -63,16 +63,6 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
                $"ON CONFLICT ({key}) DO UPDATE SET {string.Join(", ", columnNames.Select(c => $"{c} = EXCLUDED.{c}"))}";
     }
 
-    protected virtual async Task<string> GenerateDeleteSqlAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken)
-    {
-        var tableName = GetTableName(importDataType, schemaName);
-        var tempTableName = GetTableName(importDataType, schemaName, isTemp: true);
-        var columnNames = await GetColumnNamesAsync(importDataType, schemaName, cancellationToken);
-        var key = importDataType.GetTableKey(schemaName) ?? columnNames[0];
-
-        return $"DELETE FROM {tableName} WHERE {key} IN (SELECT {key} FROM {tempTableName})";
-    }
-
     protected virtual async Task<string> GenerateTempTableQuerySqlAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken)
     {
         var tempTableName = GetTableName(importDataType, schemaName, isTemp: true);
@@ -123,17 +113,6 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
     public async Task<DbCommand> CreateUpsertCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateUpsertSqlAsync(importDataType, schemaName, cancellationToken);
-
-        return new NpgsqlCommand
-        {
-            CommandText = sql,
-            Connection = _connection
-        };
-    }
-
-    public async Task<DbCommand> CreateDeleteCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default)
-    {
-        var sql = await GenerateDeleteSqlAsync(importDataType, schemaName, cancellationToken);
 
         return new NpgsqlCommand
         {

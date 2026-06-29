@@ -12,12 +12,12 @@ public class StorageBridgeEnumExtensionsTests
     [Fact]
     public void GetAttribute_ShouldReturnAttribute_WhenPresent()
     {
-        var attr = ImportDataType.CtLocations.GetAttribute<TableInfoAttribute>();
+        var attrs = ImportDataType.CtLocations.GetAttributes<TableInfoAttribute>()?.ToArray();
 
-        attr.Should().NotBeNull();
-        attr!.Name.Should().Be("ct_locations");
-        attr.PrimaryKey.Should().Be("loc_id");
-        attr.Schema.Should().Be(SchemaName.Cts);
+        attrs.Should().NotBeNull();
+        attrs[0]!.Name.Should().Be("ct_locations");
+        attrs[0].PrimaryKey.Should().Be("loc_id");
+        attrs[0].Schema.Should().Be(SchemaName.Cts);
     }
 
     [Fact]
