@@ -178,10 +178,10 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     [ExcludeFromCodeCoverage]
-    public virtual async Task<List<string>> GetColumnNamesAsync(ImportDataType bulkImportType, SchemaName schemaName,     CancellationToken cancellationToken = default)
+    public virtual async Task<List<string>> GetColumnNamesAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default)
     {
-        var tableName = bulkImportType.GetTableName(schemaName)
-            ?? throw new ArgumentException("Table name cannot be null", nameof(bulkImportType));
+        var tableName = importDataType.GetTableName(schemaName)
+            ?? throw new ArgumentException("Table name cannot be null", nameof(importDataType));
 
         var schema = schemaName.GetDescription();
 

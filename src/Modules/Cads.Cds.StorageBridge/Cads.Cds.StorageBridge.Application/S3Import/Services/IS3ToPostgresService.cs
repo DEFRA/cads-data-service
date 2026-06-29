@@ -1,6 +1,6 @@
 using Cads.Cds.StorageBridge.Core.DTOs;
 
-namespace Cads.Cds.StorageBridge.Application.BulkLoad.Services;
+namespace Cads.Cds.StorageBridge.Application.S3Import.Services;
 
 public interface IS3ToPostgresService<T>
     where T : CreateS3ImportJobDto
