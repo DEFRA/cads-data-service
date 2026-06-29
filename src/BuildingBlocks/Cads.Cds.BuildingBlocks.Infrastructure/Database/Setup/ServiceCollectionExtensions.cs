@@ -25,43 +25,54 @@ public static class ServiceCollectionExtensions
 
             services.AddSingleton(postgresConfig);
 
-            if (postgresConfig.UseIamAuthentication)
-            {
-                if (string.IsNullOrWhiteSpace(postgresConfig.DefaultHost) ||
-                    string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyHost) ||
-                    string.IsNullOrWhiteSpace(postgresConfig.Name) ||
-                    string.IsNullOrWhiteSpace(postgresConfig.User))
-                {
-                    throw new InvalidOperationException(
-                        "IAM authentication requires DefaultHost, ReadOnlyHost, Name, and User to be configured");
-                }
-
-                services.AddSingleton<IPostgresIamTokenGeneratorService>(sp =>
-                {
-                    var credentials = sp.GetService<AWSCredentials>()
-                                      ?? DefaultAWSCredentialsIdentityResolver.GetCredentials();
-                    var region = RegionEndpoint.GetBySystemName(
-                        configuration.GetValue<string>("AWS:Region") ?? "eu-west-2");
-                    return new PostgresIamTokenGeneratorService(credentials, region);
-                });
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection) || string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyConnection))
-                {
-                    var missingString = postgresConfig.DefaultConnection == string.Empty ? "DefaultConnection" : "ReadOnlyConnection";
-                    throw new InvalidOperationException(
-                        $"Connection string '{missingString}' not found or empty");
-                }
-            }
-
-            services.AddSingleton<IPostgresDataSourceFactory, PostgresDataSourceFactory>();
-            services.AddPostgresDbContext<HealthCheckDbContext>();
-            services.AddPostgresDbContext<HealthCheckReadOnlyDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
-            services.AddScoped<PostgresHealthCheck>();
-            services.AddScoped<IPostgresStatusService, PostgresStatusService>();
+            services.RegisterConnectionAuthentication(configuration, postgresConfig);
+            services.RegisterHealthChecks();
 
             return services;
         }
+    }
+
+    private static void RegisterConnectionAuthentication(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        PostgresConfiguration postgresConfig)
+    {
+        if (postgresConfig.UseIamAuthentication)
+        {
+            if (string.IsNullOrWhiteSpace(postgresConfig.DefaultHost) ||
+                string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyHost) ||
+                string.IsNullOrWhiteSpace(postgresConfig.Name) ||
+                string.IsNullOrWhiteSpace(postgresConfig.User))
+            {
+                throw new InvalidOperationException(
+                    "IAM authentication requires DefaultHost, ReadOnlyHost, Name, and User to be configured");
+            }
+
+            services.AddSingleton<IPostgresIamTokenGeneratorService>(sp =>
+            {
+                var credentials = sp.GetService<AWSCredentials>() ?? DefaultAWSCredentialsIdentityResolver.GetCredentials();
+                var region = RegionEndpoint.GetBySystemName(configuration.GetValue<string>("AWS:Region") ?? "eu-west-2");
+                return new PostgresIamTokenGeneratorService(credentials, region);
+            });
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection) || string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyConnection))
+            {
+                var missingString = postgresConfig.DefaultConnection == string.Empty ? "DefaultConnection" : "ReadOnlyConnection";
+                throw new InvalidOperationException(
+                    $"Connection string '{missingString}' not found or empty");
+            }
+        }
+
+        services.AddSingleton<IPostgresDataSourceFactory, PostgresDataSourceFactory>();
+    }
+
+    private static void RegisterHealthChecks(this IServiceCollection services)
+    {
+        services.AddPostgresDbContext<HealthCheckDbContext>();
+        services.AddPostgresDbContext<HealthCheckReadOnlyDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.AddScoped<PostgresHealthCheck>();
+        services.AddScoped<IPostgresStatusService, PostgresStatusService>();
     }
 }

@@ -17,13 +17,13 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddStorageBridgeInfrastructureLayer(this IServiceCollection services, IConfiguration config)
     {
-        services.ConfigurePrometheusScraping(config);
-
-        services.AddPostgresDbContext<StorageBridgeWriteDbContext>();
-        services.AddPostgresDbContext<StorageBridgeReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.ConfigureStorageBridgePersistence();
 
         services.AddStorageBridgeStorage(config);
+
         services.ConfigureBulkLoadServices();
+
+        services.ConfigurePrometheusScraping(config);
 
         return services;
     }

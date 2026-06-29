@@ -1,10 +1,11 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class ApiWriteDbContext(DbContextOptions<ApiWriteDbContext> options) : DbContext(options)
+public class ApiWriteDbContext(DbContextOptions<ApiWriteDbContext> options) : CadsDbContext(options)
 {
     // Shared canonical entities
 

@@ -1,13 +1,13 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
-using Cads.Cds.BuildingBlocks.Application.Extensions;
 
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : DbContext(options)
+public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : CadsDbContext(options)
 {
     // Tables
     public DbSet<MiPermission> Permissions => Set<MiPermission>();

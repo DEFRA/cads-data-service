@@ -44,7 +44,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
+        await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
         await VerifyLoggingMessage($"SQL script file \"test.sql\" is empty — skipping.");
     }
@@ -65,7 +65,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
+        await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
         await VerifyLoggingMessage($"Failed to execute SQL script file \"test.sql\"");
     }

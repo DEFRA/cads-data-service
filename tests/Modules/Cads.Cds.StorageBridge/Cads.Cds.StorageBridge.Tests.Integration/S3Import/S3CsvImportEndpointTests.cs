@@ -116,7 +116,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var schemaName = attribute.Schema.GetDescription();
         var tableName = string.IsNullOrWhiteSpace(schemaName)
             ? attribute.Name
-            : $"{schemaName}.{attribute.Name}";
+            : $"{attribute.Schema}.{attribute.Name}";
 
         await BulkLoadTestHelpers.AssertCsvRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
