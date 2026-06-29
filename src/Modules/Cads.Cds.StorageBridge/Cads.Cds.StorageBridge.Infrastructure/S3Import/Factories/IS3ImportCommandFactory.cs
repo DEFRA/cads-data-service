@@ -17,8 +17,6 @@ public interface IS3ImportCommandFactory
 
     Task<DbCommand> CreateUpsertCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default);
 
-    Task<DbCommand> CreateDeleteCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default);
-
     [ExcludeFromCodeCoverage]
     Task<DbCommand> CreateTempTableQueryCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default);
 

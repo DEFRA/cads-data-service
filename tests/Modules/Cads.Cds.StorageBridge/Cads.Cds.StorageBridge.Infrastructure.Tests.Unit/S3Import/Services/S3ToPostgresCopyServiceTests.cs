@@ -100,32 +100,13 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.Bulk,
-            ImportDataType = ImportDataType.CtLocations
-        };
-
-        var result = await InvokeGetCommandsAsync(job, _factory.Object);
-
-        result.Should().ContainSingle().Which.Should().Be(insertCmd);
-    }
-
-    [Fact]
-    public async Task GetCommandsAsync_ShouldReturnUpdateCommand()
-    {
-        var updateCmd = new Mock<DbCommand>().Object;
-
-        _factory.Setup(x => x.CreateUpdateCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(updateCmd);
-
-        var job = new CreateS3CsvImportJobDto
-        {
             ImportActionType = ImportActionType.Transactional,
             ImportDataType = ImportDataType.CtLocations
         };
 
         var result = await InvokeGetCommandsAsync(job, _factory.Object);
 
-        result.Should().ContainSingle().Which.Should().Be(updateCmd);
+        result.Should().ContainSingle().Which.Should().Be(insertCmd);
     }
 
     [Fact]
@@ -145,25 +126,6 @@ public class S3ToPostgresCopyServiceTests
         var result = await InvokeGetCommandsAsync(job, _factory.Object);
 
         result.Should().ContainSingle().Which.Should().Be(upsertCmd);
-    }
-
-    [Fact]
-    public async Task GetCommandsAsync_ShouldReturnDeleteCommand()
-    {
-        var deleteCmd = new Mock<DbCommand>().Object;
-
-        _factory.Setup(x => x.CreateDeleteCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(deleteCmd);
-
-        var job = new CreateS3CsvImportJobDto
-        {
-            ImportActionType = ImportActionType.Transactional,
-            ImportDataType = ImportDataType.CtLocations
-        };
-
-        var result = await InvokeGetCommandsAsync(job, _factory.Object);
-
-        result.Should().ContainSingle().Which.Should().Be(deleteCmd);
     }
 
     [Fact]
@@ -211,6 +173,7 @@ public class S3ToPostgresCopyServiceTests
         await (Task)method!.Invoke(service,
             [
             ImportDataType.CtLocations,
+            SchemaName.Cts,
             '|',
             TestFileName,
             _factory.Object,
@@ -254,6 +217,7 @@ public class S3ToPostgresCopyServiceTests
         await (Task)method!.Invoke(service,
             [
             ImportDataType.CtLocations,
+            SchemaName.Cts,
             '|',
             TestFileName,
             _factory.Object,

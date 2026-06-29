@@ -11,7 +11,7 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public void CreateTempTableCommand_ShouldGenerateCorrectSql()
     {
-        var sql = GetFactory().SqlForTempTable(ImportDataType.CtLocations, SchemaName.Public);
+        var sql = GetFactory().SqlForTempTable(ImportDataType.CtLocations, SchemaName.Cts);
 
         sql.Should().Be(
             "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING ALL) ON COMMIT DROP;");
@@ -52,15 +52,6 @@ public class S3ImportCommandFactoryTests
         sql.Should().Be(
             "INSERT INTO \"cts\".\"ct_locations\" (record_type,record_count,loc_id) SELECT record_type,record_count,loc_id FROM \"temp_ct_locations\" " +
             "ON CONFLICT (loc_id) DO UPDATE SET record_type = EXCLUDED.record_type, record_count = EXCLUDED.record_count, loc_id = EXCLUDED.loc_id");
-    }
-
-    [Fact]
-    public async Task CreateDeleteCommandAsync_ShouldGenerateCorrectSql()
-    {
-        var sql = await GetFactory().SqlForDelete(ImportDataType.CtLocations, SchemaName.Cts, TestContext.Current.CancellationToken);
-
-        sql.Should().Be(
-            "DELETE FROM \"cts\".\"ct_locations\" WHERE loc_id IN (SELECT loc_id FROM \"temp_ct_locations\")");
     }
 
     [Fact]

@@ -21,7 +21,7 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
     [Fact]
     public async Task GivenInvalidRequest_WhenS3BulkLoadRequested_ShouldReturnBadRequest()
     {
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3BulkLoadRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3ImportRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -35,11 +35,11 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenS3ImportRequested_ShouldSucceed()
     {
         SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
 
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3BulkLoadRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3ImportRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
@@ -49,7 +49,7 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         job.ImportDataType.Should().Be(ImportDataType.CtLocations);
     }
 
-    private static StringContent? InvalidS3BulkLoadRequest =>
+    private static StringContent? InvalidS3ImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = string.Empty,
@@ -57,7 +57,7 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
             ImportActionType = ImportActionType.None
         });
 
-    private static StringContent? ValidS3BulkLoadRequest =>
+    private static StringContent? ValidS3ImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = "LOCATIONS.part-0001.csv",

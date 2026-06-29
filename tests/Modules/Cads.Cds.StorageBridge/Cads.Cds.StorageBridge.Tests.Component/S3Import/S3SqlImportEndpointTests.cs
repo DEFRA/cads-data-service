@@ -18,9 +18,9 @@ public class S3SqlImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
     private const string Endpoint = TestEndpointConstants.StorageBridgeS3SqlBulkLoadRoot;
 
     [Fact]
-    public async Task GivenInvalidRequest_WhenS3BulkLoadRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidRequest_WhenS3ImportRequested_ShouldReturnBadRequest()
     {
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3SqlBulkLoadRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3SqlImportRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -32,11 +32,11 @@ public class S3SqlImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenS3ImportRequested_ShouldSucceed()
     {
         SetupS3MockForSqlFile(TestDataFileConstants.LocationsSqlInsertStatement);
 
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3SqlBulkLoadRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3SqlImportRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
@@ -45,13 +45,13 @@ public class S3SqlImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         job.SourceKey.Should().Be("test.sql");
     }
 
-    private static StringContent? InvalidS3SqlBulkLoadRequest =>
+    private static StringContent? InvalidS3SqlImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3SqlImportRequest
         {
             SourceKey = string.Empty,
         });
 
-    private static StringContent? ValidS3SqlBulkLoadRequest =>
+    private static StringContent? ValidS3SqlImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3SqlImportRequest
         {
             SourceKey = "test.sql",
