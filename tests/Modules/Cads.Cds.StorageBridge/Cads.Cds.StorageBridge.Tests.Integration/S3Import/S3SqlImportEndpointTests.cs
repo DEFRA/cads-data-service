@@ -88,7 +88,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        var attribute = ImportDataType.Locations.GetAttribute<TableInfoAttribute>()!;
+        var attribute = ImportDataType.CtLocations.GetAttribute<TableInfoAttribute>()!;
         var schemaName = attribute.Schema.GetDescription();
         var tableName = string.IsNullOrWhiteSpace(schemaName)
             ? attribute.Name

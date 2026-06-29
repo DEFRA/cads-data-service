@@ -12,7 +12,7 @@ public class StorageBridgeEnumExtensionsTests
     [Fact]
     public void GetAttribute_ShouldReturnAttribute_WhenPresent()
     {
-        var attr = ImportDataType.Locations.GetAttribute<TableInfoAttribute>();
+        var attr = ImportDataType.CtLocations.GetAttribute<TableInfoAttribute>();
 
         attr.Should().NotBeNull();
         attr!.Name.Should().Be("ct_locations");
@@ -31,7 +31,7 @@ public class StorageBridgeEnumExtensionsTests
     [Fact]
     public void GetTableName_ShouldReturnCorrectName()
     {
-        var name = ImportDataType.Locations.GetTableName(SchemaName.Cts);
+        var name = ImportDataType.CtLocations.GetTableName(SchemaName.Cts);
 
         name.Should().Be("ct_locations");
     }
@@ -39,7 +39,7 @@ public class StorageBridgeEnumExtensionsTests
     [Fact]
     public void GetTableKey_ShouldReturnCorrectKey()
     {
-        var key = ImportDataType.Locations.GetTableKey(SchemaName.Cts);
+        var key = ImportDataType.CtLocations.GetTableKey(SchemaName.Cts);
 
         key.Should().Be("loc_id");
     }

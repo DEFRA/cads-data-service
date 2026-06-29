@@ -46,7 +46,7 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
 
         var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
         job.SourceKey.Should().Be("LOCATIONS.part-0001.csv");
-        job.ImportDataType.Should().Be(ImportDataType.Locations);
+        job.ImportDataType.Should().Be(ImportDataType.CtLocations);
     }
 
     private static StringContent? InvalidS3BulkLoadRequest =>
@@ -61,7 +61,7 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = "LOCATIONS.part-0001.csv",
-            ImportDataType = ImportDataType.Locations,
+            ImportDataType = ImportDataType.CtLocations,
             ImportActionType = ImportActionType.Bulk
         });
 
@@ -69,7 +69,7 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = "LOCATIONS.part-0001.csv",
-            ImportDataType = ImportDataType.Locations,
+            ImportDataType = ImportDataType.CtLocations,
             ImportActionType = ImportActionType.Transactional
         });
 
