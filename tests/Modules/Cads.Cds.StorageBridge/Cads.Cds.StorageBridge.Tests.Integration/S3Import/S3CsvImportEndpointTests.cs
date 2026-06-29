@@ -112,7 +112,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        var attribute = ImportDataType.Locations.GetAttribute<TableInfoAttribute>()!;
+        var attribute = ImportDataType.CtLocations.GetAttribute<TableInfoAttribute>()!;
         var schemaName = attribute.Schema.GetDescription();
         var tableName = string.IsNullOrWhiteSpace(schemaName)
             ? attribute.Name
@@ -141,7 +141,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = "LOCATIONS.part-0001.csv",
-            ImportDataType = ImportDataType.Locations,
+            ImportDataType = ImportDataType.CtLocations,
             ImportActionType = ImportActionType.Bulk
         });
 

@@ -11,7 +11,7 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public void CreateTempTableCommand_ShouldGenerateCorrectSql()
     {
-        var sql = GetFactory().SqlForTempTable(ImportDataType.Locations, SchemaName.Public);
+        var sql = GetFactory().SqlForTempTable(ImportDataType.CtLocations, SchemaName.Public);
 
         sql.Should().Be(
             "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING ALL) ON COMMIT DROP;");
@@ -28,7 +28,7 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public async Task CreateInsertCommandAsync_ShouldGenerateCorrectSql()
     {
-        var sql = await GetFactory().SqlForInsert(ImportDataType.Locations, SchemaName.Cts, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForInsert(ImportDataType.CtLocations, SchemaName.Cts, TestContext.Current.CancellationToken);
 
         sql.Should().Be(
             "INSERT INTO \"cts\".\"ct_locations\" (record_type,record_count,loc_id) SELECT record_type,record_count,loc_id FROM \"temp_ct_locations\"");
@@ -37,7 +37,7 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public async Task CreateUpdateCommandAsync_ShouldGenerateCorrectSql()
     {
-        var sql = await GetFactory().SqlForUpdate(ImportDataType.Locations, SchemaName.Cts, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForUpdate(ImportDataType.CtLocations, SchemaName.Cts, TestContext.Current.CancellationToken);
 
         sql.Should().Be(
             "UPDATE \"cts\".\"ct_locations\" AS m SET m.record_type = t.record_type, m.record_count = t.record_count, m.loc_id = t.loc_id " +
@@ -47,7 +47,7 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public async Task CreateUpsertCommandAsync_ShouldGenerateCorrectSql()
     {
-        var sql = await GetFactory().SqlForUpsert(ImportDataType.Locations, SchemaName.Cts, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForUpsert(ImportDataType.CtLocations, SchemaName.Cts, TestContext.Current.CancellationToken);
 
         sql.Should().Be(
             "INSERT INTO \"cts\".\"ct_locations\" (record_type,record_count,loc_id) SELECT record_type,record_count,loc_id FROM \"temp_ct_locations\" " +
@@ -57,7 +57,7 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public async Task CreateDeleteCommandAsync_ShouldGenerateCorrectSql()
     {
-        var sql = await GetFactory().SqlForDelete(ImportDataType.Locations, SchemaName.Cts, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForDelete(ImportDataType.CtLocations, SchemaName.Cts, TestContext.Current.CancellationToken);
 
         sql.Should().Be(
             "DELETE FROM \"cts\".\"ct_locations\" WHERE loc_id IN (SELECT loc_id FROM \"temp_ct_locations\")");
@@ -67,7 +67,7 @@ public class S3ImportCommandFactoryTests
     public async Task FilterColumnsToTableAsync_ShouldReturnMatchingColumns()
     {
         var result = await GetFactory().FilterColumnsToTableAsync(
-            ImportDataType.Locations,
+            ImportDataType.CtLocations,
             SchemaName.Cts,
             ["record_type", "record_count", "LOC_ID", "dummy_id"],
             TestContext.Current.CancellationToken);
@@ -80,7 +80,7 @@ public class S3ImportCommandFactoryTests
     [InlineData(true, @"""temp_ct_locations""")]
     public void GivenValidBulkLoadDataType_WhenGetTableNameRequested_ShouldSucceed(bool isTemp, string expectedValue)
     {
-        var result = GetFactory().GetTableName(ImportDataType.Locations, SchemaName.Cts, isTemp);
+        var result = GetFactory().GetTableName(ImportDataType.CtLocations, SchemaName.Cts, isTemp);
 
         result.Should().Be(expectedValue);
     }
@@ -88,7 +88,7 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public async Task CreateTempTableQueryCommandAsync_ShouldGenerateCorrectSql()
     {
-        var sql = await GetFactory().SqlForQuery(ImportDataType.Locations, SchemaName.Cts, TestContext.Current.CancellationToken);
+        var sql = await GetFactory().SqlForQuery(ImportDataType.CtLocations, SchemaName.Cts, TestContext.Current.CancellationToken);
 
         sql.Should().Be(
             "SELECT record_type,record_count,loc_id FROM \"temp_ct_locations\"");
