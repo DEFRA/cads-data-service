@@ -8,7 +8,7 @@ public class S3CsvImportRequest
 
     public required ImportDataType ImportDataType { get; set; }
 
-    public ImportActionType ImportActionType { get; set; }
+    public required ImportActionType ImportActionType { get; set; }
 
     public char Delimiter { get; set; } = '|';
 }
