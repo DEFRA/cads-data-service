@@ -22,8 +22,8 @@ public class S3ImportController(IRequestExecutor executor) : ControllerBase
         {
             SourceKey = request.SourceKey,
             ImportDataType = request.ImportDataType,
+            ImportActionType = request.ImportActionType,
             Delimiter = request.Delimiter,
-            ImportActionType = request.ImportActionType
         };
 
         var jobId = await _executor.ExecuteCommand(command, cancellationToken);

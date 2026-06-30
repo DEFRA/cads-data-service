@@ -21,15 +21,15 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     private const int ProcessingTimeCircuitBreakerSeconds = 30;
 
     [Fact]
-    public async Task GivenInvalidRequest_WhenS3BulkLoadRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidRequest_WhenS3CsvImportRequested_ShouldReturnBadRequest()
     {
-        var response = await ExecuteTest(InvalidS3CsvBulkLoadRequest);
+        var response = await ExecuteTest(InvalidS3CsvImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task GivenHeadingRowMissing_WhenS3BulkLoadRequested_ShouldFail()
+    public async Task GivenHeadingRowMissing_WhenS3CsvImportRequested_ShouldFail()
     {
         var fileData = $"{TestDataFileConstants.LocationsDataRow1}\n" +
                        $"{TestDataFileConstants.LocationsDataRow2}";
@@ -41,7 +41,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvBulkLoadRequest);
+        var response = await ExecuteTest(ValidS3CsvImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -49,7 +49,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenNoDataRowsExist_WhenS3BulkLoadRequested_ShouldCreateNoRecords()
+    public async Task GivenNoDataRowsExist_WhenS3CsvImportRequested_ShouldCreateNoRecords()
     {
         var fileData = $"{TestDataFileConstants.LocationsHeader}";
 
@@ -60,7 +60,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvBulkLoadRequest);
+        var response = await ExecuteTest(ValidS3CsvImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -70,7 +70,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenInvalidDataRowsExist_WhenS3BulkLoadRequested_ShouldFail()
+    public async Task GivenInvalidDataRowsExist_WhenS3CsvImportRequested_ShouldFail()
     {
         var fileData = $"{TestDataFileConstants.LocationsHeader}\n" +
                        $"{TestDataFileConstants.LocationsDataRow1}\n" +
@@ -83,7 +83,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvBulkLoadRequest);
+        var response = await ExecuteTest(ValidS3CsvImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -93,7 +93,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenS3CsvImportRequested_ShouldSucceed()
     {
         var fileData = $"{TestDataFileConstants.LocationsHeader}\n" +
                        $"{TestDataFileConstants.LocationsDataRow1}\n" +
@@ -106,7 +106,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvBulkLoadRequest);
+        var response = await ExecuteTest(ValidS3CsvImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -129,7 +129,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
         await VerifyLoggingMessage($"Completed bulk import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 2 records processed");
     }
 
-    private static StringContent? InvalidS3CsvBulkLoadRequest =>
+    private static StringContent? InvalidS3CsvImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = string.Empty,
@@ -137,7 +137,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ImportActionType = ImportActionType.None
         });
 
-    private static StringContent? ValidS3CsvBulkLoadRequest =>
+    private static StringContent? ValidS3CsvImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = "LOCATIONS.part-0001.csv",
@@ -147,7 +147,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
     {
-        var endpoint = TestEndpointConstants.StorageBridgeS3CsvBulkLoadRoot;
+        var endpoint = TestEndpointConstants.StorageBridgeS3CsvImportRoot;
         var client = apiContainerFixture.CreateBasicClient();
 
         return await client.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);
