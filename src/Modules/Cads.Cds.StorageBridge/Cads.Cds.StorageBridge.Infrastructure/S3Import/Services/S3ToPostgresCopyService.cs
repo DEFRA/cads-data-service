@@ -37,7 +37,7 @@ public class S3ToPostgresCopyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Starting bulk import copy for job {JobId} with key SourceKey {SourceKey}",
+            logger.LogInformation("Starting CSV import copy for job {JobId} with key SourceKey {SourceKey}",
                 job.JobId, job.SourceKey);
         }
 
@@ -68,7 +68,7 @@ public class S3ToPostgresCopyService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Processing file {Key} for bulk import job {JobId}", key, job.JobId);
+                logger.LogInformation("Processing file {Key} for CSV import job {JobId}", key, job.JobId);
             }
 
             var fileSw = Stopwatch.StartNew();
@@ -89,7 +89,7 @@ public class S3ToPostgresCopyService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Completed processing for file {Key} for bulk import job {JobId}, {TotalRows} records processed in {TotalMilliseconds} ms",
+                logger.LogInformation("Completed processing for file {Key} for CSV import job {JobId}, {TotalRows} records processed in {TotalMilliseconds} ms",
                     key, job.JobId, rows, fileSw.Elapsed.TotalMilliseconds);
             }
         }
@@ -98,7 +98,7 @@ public class S3ToPostgresCopyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Completed bulk import copy for job {JobId} with key sourceKey {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
+            logger.LogInformation("Completed CSV import copy for job {JobId} with key sourceKey {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
                 job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
