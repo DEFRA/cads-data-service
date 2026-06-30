@@ -82,7 +82,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3SqlImportRequest    );
+        var response = await ExecuteTest(ValidS3SqlImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 

@@ -66,7 +66,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Completed bulk import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 0 records processed");
+        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 0 records processed");
     }
 
     [Fact]
@@ -112,11 +112,11 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        var attribute = ImportDataType.CtLocations.GetAttribute<TableInfoAttribute>()!;
-        var schemaName = attribute.Schema.GetDescription();
+        var attributes = ImportDataType.CtLocations.GetAttributes<TableInfoAttribute>()!;
+        var schemaName = attributes.First().Schema.GetDescription();
         var tableName = string.IsNullOrWhiteSpace(schemaName)
-            ? attribute.Name
-            : $"{attribute.Schema}.{attribute.Name}";
+            ? attributes.First().Name
+            : $"{attributes.First().Schema}.{attributes.First().Name}";
 
         await BulkLoadTestHelpers.AssertCsvRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
@@ -126,7 +126,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
                 TestDataFileConstants.LocationsDataRow2
             ]);
 
-        await VerifyLoggingMessage($"Completed bulk import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 2 records processed");
+        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 2 records processed");
     }
 
     private static StringContent? InvalidS3CsvImportRequest =>
