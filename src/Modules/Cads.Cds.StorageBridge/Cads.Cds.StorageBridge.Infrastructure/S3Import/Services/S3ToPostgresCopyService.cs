@@ -259,7 +259,7 @@ public class S3ToPostgresCopyService(
             commands.Add(await factory.CreateUpsertCommandAsync(job.ImportDataType, schemaName, cancellationToken));
         }
 
-        if(job.ImportActionType == ImportActionType.Transactional)
+        if (job.ImportActionType == ImportActionType.Transactional)
         {
             commands.Add(await factory.CreateInsertCommandAsync(job.ImportDataType, schemaName, cancellationToken));
         }
@@ -273,7 +273,7 @@ public class S3ToPostgresCopyService(
         {
             return SchemaName.Cts;
         }
-       
+
         if (importActionType == ImportActionType.Transactional)
         {
             return SchemaName.CtsTransactions;
