@@ -55,13 +55,6 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
                $"ON CONFLICT ({key}) DO UPDATE SET {string.Join(", ", columnNames.Select(c => $"{c} = EXCLUDED.{c}"))}";
     }
 
-    protected virtual async Task<string> GenerateTempTableQuerySqlAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken)
-    {
-        var tempTableName = GetTableName(importDataType, schemaName, isTemp: true);
-        var columnNames = string.Join(',', await GetColumnNamesAsync(importDataType, schemaName, cancellationToken));
-        return $"SELECT {columnNames} FROM {tempTableName}";
-    }
-
     public DbCommand CreateTempTableCommand(ImportDataType importDataType, SchemaName schemaName)
     {
         var sql = GenerateTempTableSql(importDataType, schemaName);
@@ -105,18 +98,6 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
     public async Task<DbCommand> CreateUpsertCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateUpsertSqlAsync(importDataType, schemaName, cancellationToken);
-
-        return new NpgsqlCommand
-        {
-            CommandText = sql,
-            Connection = _connection
-        };
-    }
-
-    [ExcludeFromCodeCoverage]
-    public async Task<DbCommand> CreateTempTableQueryCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default)
-    {
-        var sql = await GenerateTempTableQuerySqlAsync(importDataType, schemaName, cancellationToken);
 
         return new NpgsqlCommand
         {

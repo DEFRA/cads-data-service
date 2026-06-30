@@ -31,7 +31,4 @@ public class TestableS3BulkLoadCommandFactory(NpgsqlConnection connection,
 
     public Task<string> SqlForUpsert(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken)
         => GenerateUpsertSqlAsync(importDataType, schemaName, cancellationToken);
-
-    public Task<string> SqlForQuery(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken)
-        => GenerateTempTableQuerySqlAsync(importDataType, schemaName, cancellationToken);
 }

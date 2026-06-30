@@ -77,12 +77,12 @@ public class S3ImportCommandFactoryTests
     }
 
     [Fact]
-    public async Task CreateTempTableQueryCommandAsync_ShouldGenerateCorrectSql()
+    public async Task CreateTempTableCommand_ShouldCreateValidCommand()
     {
-        var sql = await GetFactory().SqlForQuery(ImportDataType.CtLocations, SchemaName.Cts, TestContext.Current.CancellationToken);
+        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.Cts);
 
-        sql.Should().Be(
-            "SELECT record_type,record_count,loc_id FROM \"temp_ct_locations\"");
+        cmd.CommandText.Should().Be(
+            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING ALL) ON COMMIT DROP;");
     }
 
     private static TestableS3BulkLoadCommandFactory GetFactory() =>
