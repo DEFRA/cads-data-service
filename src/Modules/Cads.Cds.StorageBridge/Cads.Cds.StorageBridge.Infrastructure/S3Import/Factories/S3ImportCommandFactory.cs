@@ -15,14 +15,6 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
 
     private static readonly NpgsqlCommandBuilder s_commandBuilder = new();
 
-    /// <summary>
-    /// Currently only "D" (Data) is used; no delete semantics yet.
-    /// </summary>
-    private static class RecordType
-    {
-        public const string Data = "D";
-    }
-
     protected virtual string GenerateTempTableSql(ImportDataType importDataType, SchemaName schemaName)
     {
         var tableName = GetTableName(importDataType, schemaName);
