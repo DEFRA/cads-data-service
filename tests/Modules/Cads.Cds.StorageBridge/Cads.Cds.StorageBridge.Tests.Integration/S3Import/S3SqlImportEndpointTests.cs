@@ -21,15 +21,15 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
     private const int ProcessingTimeCircuitBreakerSeconds = 30;
 
     [Fact]
-    public async Task GivenInvalidRequest_WhenS3BulkLoadRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidRequest_WhenS3SqlImportRequested_ShouldReturnBadRequest()
     {
-        var response = await ExecuteTest(InvalidS3SqlBulkLoadRequest);
+        var response = await ExecuteTest(InvalidS3SqlImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task GivenNoDataRowsExist_WhenS3BulkLoadRequested_ShouldCreateNoRecords()
+    public async Task GivenNoDataRowsExist_WhenS3SqlImportRequested_ShouldCreateNoRecords()
     {
         var fileData = " ";
 
@@ -40,7 +40,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3SqlBulkLoadRequest);
+        var response = await ExecuteTest(ValidS3SqlImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -50,7 +50,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenInvalidDataRowsExist_WhenS3BulkLoadRequested_ShouldFail()
+    public async Task GivenInvalidDataRowsExist_WhenS3ImportRequested_ShouldFail()
     {
         var fileData = TestDataFileConstants.InvalidLocationsSqlInsertStatement;
 
@@ -61,7 +61,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3SqlBulkLoadRequest);
+        var response = await ExecuteTest(ValidS3SqlImportRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -71,7 +71,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenS3BulkLoadRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenS3ImportRequested_ShouldSucceed()
     {
         var fileData = $"{TestDataFileConstants.LocationsSqlInsertStatement}";
 
@@ -82,7 +82,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3SqlBulkLoadRequest);
+        var response = await ExecuteTest(ValidS3SqlImportRequest    );
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -103,13 +103,13 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
         await VerifyLoggingMessage($"Completed SQL script execution for prefix \"test.sql\".");
     }
 
-    private static StringContent? InvalidS3SqlBulkLoadRequest =>
+    private static StringContent? InvalidS3SqlImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3SqlImportRequest
         {
             SourceKey = string.Empty
         });
 
-    private static StringContent? ValidS3SqlBulkLoadRequest =>
+    private static StringContent? ValidS3SqlImportRequest =>
        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3SqlImportRequest
        {
            SourceKey = "test.sql"
