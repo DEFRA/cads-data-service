@@ -15,7 +15,7 @@ public class S3SqlImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
 {
     private readonly StorageBridgeTestFixture _testFixture = testFixture;
 
-    private const string Endpoint = TestEndpointConstants.StorageBridgeS3SqlBulkLoadRoot;
+    private const string Endpoint = TestEndpointConstants.StorageBridgeS3SqlImportRoot;
 
     [Fact]
     public async Task GivenInvalidRequest_WhenS3ImportRequested_ShouldReturnBadRequest()

@@ -117,7 +117,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
     {
-        var endpoint = TestEndpointConstants.StorageBridgeS3SqlBulkLoadRoot;
+        var endpoint = TestEndpointConstants.StorageBridgeS3SqlImportRoot;
         var client = apiContainerFixture.CreateBasicClient();
 
         return await client.PostAsync(endpoint, payload, TestContext.Current.CancellationToken);

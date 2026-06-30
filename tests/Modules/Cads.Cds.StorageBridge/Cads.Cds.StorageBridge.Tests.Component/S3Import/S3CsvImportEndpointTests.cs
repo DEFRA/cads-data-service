@@ -16,10 +16,10 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
 {
     private readonly StorageBridgeTestFixture _testFixture = testFixture;
 
-    private const string Endpoint = TestEndpointConstants.StorageBridgeS3CsvBulkLoadRoot;
+    private const string Endpoint = TestEndpointConstants.StorageBridgeS3CsvImportRoot;
 
     [Fact]
-    public async Task GivenInvalidRequest_WhenS3BulkLoadRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidRequest_WhenS3CsvImportRequested_ShouldReturnBadRequest()
     {
         var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3ImportRequest, TestContext.Current.CancellationToken);
 
