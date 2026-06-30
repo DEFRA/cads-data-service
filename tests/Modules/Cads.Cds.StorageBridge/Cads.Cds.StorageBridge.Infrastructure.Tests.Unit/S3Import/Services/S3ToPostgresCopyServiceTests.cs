@@ -114,7 +114,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var upsertCmd = new Mock<DbCommand>().Object;
 
-        _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<  CancellationToken>()))
+        _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(upsertCmd);
 
         var job = new CreateS3CsvImportJobDto
