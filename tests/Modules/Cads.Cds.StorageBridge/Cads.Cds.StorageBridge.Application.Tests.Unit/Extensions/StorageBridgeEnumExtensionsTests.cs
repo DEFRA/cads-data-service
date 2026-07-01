@@ -12,18 +12,18 @@ public class StorageBridgeEnumExtensionsTests
     [Fact]
     public void GetAttribute_ShouldReturnAttribute_WhenPresent()
     {
-        var attr = BulkLoadDataType.Locations.GetAttribute<TableNameAttribute>();
+        var attrs = ImportDataType.CtLocations.GetAttributes<TableInfoAttribute>()?.ToArray();
 
-        attr.Should().NotBeNull();
-        attr!.Name.Should().Be("ct_locations");
-        attr.Key.Should().Be("loc_id");
-        attr.Schema.Should().Be(SchemaName.Cts);
+        attrs.Should().NotBeNull();
+        attrs[0]!.Name.Should().Be("ct_locations");
+        attrs[0].PrimaryKey.Should().Be("loc_id");
+        attrs[0].Schema.Should().Be(SchemaName.Cts);
     }
 
     [Fact]
     public void GetAttribute_ShouldReturnNull_WhenAttributeMissing()
     {
-        var attr = BulkLoadDataType.None.GetAttribute<TableNameAttribute>();
+        var attr = ImportDataType.None.GetAttribute<TableInfoAttribute>();
 
         attr.Should().BeNull();
     }
@@ -31,7 +31,7 @@ public class StorageBridgeEnumExtensionsTests
     [Fact]
     public void GetTableName_ShouldReturnCorrectName()
     {
-        var name = BulkLoadDataType.Locations.GetTableName();
+        var name = ImportDataType.CtLocations.GetTableName(SchemaName.Cts);
 
         name.Should().Be("ct_locations");
     }
@@ -39,31 +39,15 @@ public class StorageBridgeEnumExtensionsTests
     [Fact]
     public void GetTableKey_ShouldReturnCorrectKey()
     {
-        var key = BulkLoadDataType.Locations.GetTableKey();
+        var key = ImportDataType.CtLocations.GetTableKey(SchemaName.Cts);
 
         key.Should().Be("loc_id");
     }
 
     [Fact]
-    public void GetTableSchema_ShouldReturnCorrectSchema()
-    {
-        var schema = BulkLoadDataType.Locations.GetTableSchema();
-
-        schema.Should().Be(SchemaName.Cts);
-    }
-
-    [Fact]
-    public void GetTableSchema_ShouldReturnNull_WhenNoAttribute()
-    {
-        var schema = BulkLoadDataType.None.GetTableSchema();
-
-        schema.Should().BeNull();
-    }
-
-    [Fact]
     public void GetTableName_ShouldReturnNull_WhenNoAttribute()
     {
-        var name = BulkLoadDataType.None.GetTableName();
+        var name = ImportDataType.None.GetTableName(SchemaName.Cts);
 
         name.Should().BeNull();
     }
@@ -71,7 +55,7 @@ public class StorageBridgeEnumExtensionsTests
     [Fact]
     public void GetTableKey_ShouldReturnNull_WhenNoAttribute()
     {
-        var key = BulkLoadDataType.None.GetTableKey();
+        var key = ImportDataType.None.GetTableKey(SchemaName.Cts);
 
         key.Should().BeNull();
     }

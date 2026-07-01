@@ -6,18 +6,18 @@ namespace Cads.Cds.StorageBridge.Application.Extensions;
 
 public static class StorageBridgeEnumExtensions
 {
-    public static string? GetTableName(this Enum value)
+    public static TableInfoAttribute? GetTableInfoAttribute(this Enum value, SchemaName schemaName)
     {
-        return value.GetAttribute<TableNameAttribute>()?.Name;
+        return value.GetAttributes<TableInfoAttribute>()?.FirstOrDefault(t => t.Schema == schemaName);
     }
 
-    public static string? GetTableKey(this Enum value)
+    public static string? GetTableName(this Enum value, SchemaName schemaName)
     {
-        return value.GetAttribute<TableNameAttribute>()?.Key;
+        return value.GetTableInfoAttribute(schemaName)?.Name;
     }
 
-    public static SchemaName? GetTableSchema(this Enum value)
+    public static string? GetTableKey(this Enum value, SchemaName schemaName)
     {
-        return value.GetAttribute<TableNameAttribute>()?.Schema;
+        return value.GetTableInfoAttribute(schemaName)?.PrimaryKey;
     }
 }

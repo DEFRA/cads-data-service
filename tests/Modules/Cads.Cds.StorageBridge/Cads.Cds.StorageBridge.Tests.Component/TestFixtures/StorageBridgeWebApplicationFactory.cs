@@ -29,7 +29,7 @@ public class StorageBridgeWebApplicationFactory(
 
         builder.ConfigureTestServices(services =>
         {
-            OverrideBulkLoadChannels(services);
+            OverrideS3ImportChannels(services);
         });
     }
 
@@ -45,9 +45,9 @@ public class StorageBridgeWebApplicationFactory(
         services.Replace(new ServiceDescriptor(typeof(StorageBridgeWriteDbContext), storageBridgeWriteDbContext));
     }
 
-    private void OverrideBulkLoadChannels(IServiceCollection services)
+    private void OverrideS3ImportChannels(IServiceCollection services)
     {
-        services.RemoveAll<Channel<CreateS3BulkLoadJobDto>>();
+        services.RemoveAll<Channel<CreateS3ImportJobDto>>();
         services.RemoveAll<Channel<CreateS3SqlImportJobDto>>();
 
         services.AddSingleton(TestCsvBulkLoadJobChannel.Channel);
