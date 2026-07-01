@@ -1,7 +1,10 @@
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.Constants;
+using FluentAssertions;
+using System.Net;
 using System.Net.Http.Json;
 using System.Web;
 
@@ -69,6 +72,31 @@ public static class FileImportTestClient
         return await client.PostAsync(endpoint, null, cancellationToken);
     }
 
+    public static async Task<long> GetIdByFileNameAsync(
+        HttpClient client,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        var dto = await GetAndReadAsync(client, fileName, cancellationToken);
+        return dto.Id;
+    }
+
+    public static async Task<FileImportDto> GetAndReadAsync(
+        HttpClient client,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        var response = await GetByFileNameAsync(client, fileName, cancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue(
+            $"GET /file-imports?fileName={fileName} should return 200 OK");
+
+        var dto = await ReadDtoAsync(response, cancellationToken);
+        dto.Should().NotBeNull($"GET /file-imports returned no DTO for fileName={fileName}");
+
+        return dto;
+    }
+
     public static async Task<FileImportDto?> ReadDtoAsync(
         HttpResponseMessage response,
         CancellationToken cancellationToken)
@@ -76,5 +104,22 @@ public static class FileImportTestClient
         return await response.Content.ReadFromJsonAsync<FileImportDto>(
             JsonDefaults.DefaultOptionsWithStringEnumConversion,
             cancellationToken);
+    }
+
+    public static async Task<FileImportDto> VerifyFileImportAsync(
+        HttpClient client,
+        string fileName,
+        CancellationToken cancellationToken = default,
+        Action<FileImportDto>? assertions = null)
+    {
+        var response = await GetByFileNameAsync(client, fileName, cancellationToken);
+        var dto = await ReadDtoAsync(response, cancellationToken);
+
+        dto.Should().NotBeNull();
+        dto.FileName.Should().Be(fileName);
+
+        assertions?.Invoke(dto);
+
+        return dto;
     }
 }

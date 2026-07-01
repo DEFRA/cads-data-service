@@ -59,7 +59,7 @@ public class FileImport
     public void MarkImporting()
     {
         if (ImportStatus != FileImportStatus.Pending)
-            throw new DomainException("Importing can only start from Pending.");
+            throw new DomainException("Importing can only start from pending.");
 
         ImportStatus = FileImportStatus.Importing;
         ImportStartAt = DateTimeOffset.UtcNow;
@@ -68,7 +68,7 @@ public class FileImport
     public void MarkImportComplete()
     {
         if (ImportStatus != FileImportStatus.Importing)
-            throw new DomainException("Import must be in Importing state to complete.");
+            throw new DomainException("Import must be in importing state to complete.");
 
         ImportStatus = FileImportStatus.Complete;
         ImportEndAt = DateTimeOffset.UtcNow;
@@ -76,6 +76,9 @@ public class FileImport
 
     public void MarkImportFailed()
     {
+        if (ImportStatus != FileImportStatus.Importing)
+            throw new DomainException("Import must be in importing state to be marked as failed.");
+
         ImportStatus = FileImportStatus.Failed;
         ImportEndAt = DateTimeOffset.UtcNow;
     }
@@ -87,7 +90,7 @@ public class FileImport
     public void MarkProcessingStarted()
     {
         if (ProcessingStatus != FileProcessingStatus.Pending)
-            throw new DomainException("Processing can only start from Pending.");
+            throw new DomainException("Processing can only start from pending.");
 
         ProcessingStatus = FileProcessingStatus.Processing;
         ProcessingStartAt = DateTimeOffset.UtcNow;
@@ -104,6 +107,9 @@ public class FileImport
 
     public void MarkProcessingFailed()
     {
+        if (ProcessingStatus != FileProcessingStatus.Processing)
+            throw new DomainException("Processing must be in processing state to be marked as failed.");
+
         ProcessingStatus = FileProcessingStatus.Failed;
         ProcessingEndAt = DateTimeOffset.UtcNow;
     }

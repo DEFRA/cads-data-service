@@ -11,7 +11,7 @@ public sealed class CreateFileImportCommandHandler(
 {
     public async Task<FileImportDto> Handle(CreateFileImportCommand command, CancellationToken cancellationToken)
     {
-        var destinationTableName = "TODO - Function to derive this in future Story";
+        var destinationTableName = "TODO - Function to derive this in future Story LANI-167";
 
         var fileImport = FileImport.Create(
             destinationTableName,

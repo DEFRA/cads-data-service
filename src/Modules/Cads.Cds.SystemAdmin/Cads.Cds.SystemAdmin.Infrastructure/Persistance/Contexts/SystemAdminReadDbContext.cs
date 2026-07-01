@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class SystemAdminReadDbContext(DbContextOptions<SystemAdminReadDbContext> options) : CadsDbContext(options)
+public class SystemAdminReadDbContext(DbContextOptions options) : CadsDbContext(options)
 {
     // Shared canonical entities
     public DbSet<FileImport> FileImports => Set<FileImport>();

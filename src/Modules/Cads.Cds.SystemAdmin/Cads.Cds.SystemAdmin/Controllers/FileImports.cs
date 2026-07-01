@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportComplete;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportFailed;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImporting;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
@@ -102,7 +103,7 @@ public class FileImports(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> MarkImportComplete(long id, CancellationToken cancellationToken)
     {
-        await _executor.ExecuteCommand(new MarkFileImportingCommand(id), cancellationToken);
+        await _executor.ExecuteCommand(new MarkFileImportCompleteCommand(id), cancellationToken);
 
         return NoContent();
     }
