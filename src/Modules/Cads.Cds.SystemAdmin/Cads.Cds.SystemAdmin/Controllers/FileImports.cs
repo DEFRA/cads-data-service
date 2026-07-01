@@ -58,8 +58,8 @@ public class FileImports(IRequestExecutor executor) : ControllerBase
     {
         var command = new CreateFileImportCommand(
             request.FileName,
-            request.TotalRowsToProcess,
-            request.RowsFound);
+            request.TotalRowsToProcess ?? 0,
+            request.RowsFound ?? 0);
 
         var dto = await _executor.ExecuteCommand(command, cancellationToken);
 
