@@ -28,7 +28,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Modules\Cads.Cds.Api\Cads.Cds.Api.Infrastructure\Cads.Cds.Api.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Cads.Cds.Ingester\Cads.Cds.Ingester.Infrastructure\Cads.Cds.Ingester.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Cads.Cds.MiBff\Cads.Cds.MiBff.Application\Cads.Cds.MiBff.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Cads.Cds.StorageBridge\Cads.Cds.StorageBridge.Infrastructure\Cads.Cds.StorageBridge.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Cads.Cds.SystemAdmin\Cads.Cds.SystemAdmin.Infrastructure\Cads.Cds.SystemAdmin.Infrastructure.csproj" />
     <ProjectReference Include="..\Cads.Cds.BuildingBlocks.Infrastructure\Cads.Cds.BuildingBlocks.Infrastructure.csproj" />
   </ItemGroup>
 

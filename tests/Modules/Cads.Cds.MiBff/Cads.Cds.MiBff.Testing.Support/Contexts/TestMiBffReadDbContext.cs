@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.MiBff.Testing.Support.Contexts;
 
-public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options)
+public class TestMiBffReadDbContext(DbContextOptions<TestMiBffReadDbContext> options)
     : MiBffReadDbContext(options)
 {
     // Mi report permissions
@@ -32,7 +32,7 @@ public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options
         => ImportSummaries.Where(x => x.MonthYear >= from.ToDateTime(TimeOnly.MinValue) && x.MonthYear < to.ToDateTime(TimeOnly.MinValue));
 
     /// <summary>
-    /// Give fake keys so EF Core can track them
+    /// Give fake keys so EF Core can track them (after base.OnModelCreating)
     /// </summary>
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)

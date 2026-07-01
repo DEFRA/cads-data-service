@@ -1,13 +1,14 @@
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 using Cads.Cds.Api.Testing.Support.Contexts;
+using Cads.Cds.Api.Testing.Support.Fakes.Behaviours;
 using Cads.Cds.Api.Testing.Support.Seeding;
 using Cads.Cds.Api.Testing.Support.Specimens.Factories;
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
+using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Cads.Cds.Api.Tests.Component.TestFixtures;
 
@@ -17,27 +18,42 @@ public class ApiWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
+    private readonly string _dbName = $"ApiDb_{Guid.NewGuid()}";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
 
         builder.ConfigureTestServices(services =>
         {
+            ConfigurePersistence(services);
         });
     }
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        var locationSummaryData = new LocationSummaryDataFactory().CreateMockData();
+        services.AddDbContext<ApiReadDbContext, TestApiReadDbContext>(o =>
+            o.UseInMemoryDatabase(_dbName));
 
-        var apiReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<ApiReadDbContext, TestApiReadDbContext>(Guid.NewGuid().ToString());
-        TestApiDataSeeder.Seed(apiReadDbContext, locationSummaryData);
-        TestApiDataSeeder.SeedSaveChanges(apiReadDbContext);
+        services.AddDbContext<ApiWriteDbContext>(o =>
+            o.UseInMemoryDatabase(_dbName));
+    }
 
-        var apiWriteDbContext = DbContextFactory.CreateInMemoryDbContext<ApiWriteDbContext>(Guid.NewGuid().ToString());
-        TestApiDataSeeder.SeedSaveChanges(apiWriteDbContext);
+    private static void ConfigurePersistence(IServiceCollection services)
+    {
+        var provider = services.BuildServiceProvider();
 
-        services.Replace(new ServiceDescriptor(typeof(ApiReadDbContext), apiReadDbContext));
-        services.Replace(new ServiceDescriptor(typeof(ApiWriteDbContext), apiWriteDbContext));
+        using var scope = provider.CreateScope();
+
+        var readDb = scope.ServiceProvider.GetRequiredService<ApiReadDbContext>();
+
+        // Seeds
+        TestApiDataSeeder.Seed(readDb, new LocationSummaryDataFactory().CreateMockData());
+
+        readDb.SaveChanges();
+
+        // Real transactions are not suppoted by in memory db so use cut down version
+        services.AddTransient(typeof(IPipelineBehavior<,>),
+            typeof(TestApiCommitBehaviour<,>));
     }
 }

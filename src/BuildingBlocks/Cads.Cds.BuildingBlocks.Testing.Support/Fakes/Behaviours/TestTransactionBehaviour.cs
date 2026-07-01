@@ -5,7 +5,7 @@ using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Contexts;
 namespace Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Behaviours;
 
 public class TestTransactionBehaviour<TRequest, TResponse>(FakeWriteDbContext dbContext)
-: TransactionBehaviourBase<TRequest, TResponse, FakeWriteDbContext>(dbContext)
-where TRequest : ICommand<TResponse>
+    : TransactionBehaviourBase<TRequest, TResponse, FakeWriteDbContext>(dbContext)
+    where TRequest : ICommand<TResponse>
 {
 }
