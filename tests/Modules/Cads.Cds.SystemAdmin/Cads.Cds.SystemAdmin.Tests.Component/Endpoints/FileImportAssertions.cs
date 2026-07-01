@@ -10,24 +10,36 @@ public static class FileImportAssertions
     {
         dto.ImportStatus.Should().Be(FileImportStatus.Pending);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
+
+        dto.ImportStartAt.Should().BeNull();
+        dto.ImportEndAt.Should().BeNull();
     }
 
     public static void ShouldBeImporting(FileImportDto dto)
     {
         dto.ImportStatus.Should().Be(FileImportStatus.Importing);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
+
+        dto.ImportStartAt.Should().NotBeNull();
+        dto.ImportEndAt.Should().BeNull();
     }
 
     public static void ShouldBeComplete(FileImportDto dto)
     {
         dto.ImportStatus.Should().Be(FileImportStatus.Complete);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
+
+        dto.ImportStartAt.Should().NotBeNull();
+        dto.ImportEndAt.Should().NotBeNull();
     }
 
     public static void ShouldBeFailed(FileImportDto dto)
     {
         dto.ImportStatus.Should().Be(FileImportStatus.Failed);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
+
+        dto.ImportStartAt.Should().NotBeNull();
+        dto.ImportEndAt.Should().NotBeNull();
     }
 
     public static void ShouldBeReset(FileImportDto dto)

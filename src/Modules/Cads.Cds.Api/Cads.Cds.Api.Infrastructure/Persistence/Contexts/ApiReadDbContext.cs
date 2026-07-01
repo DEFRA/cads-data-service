@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : CadsDbContext(options)
+public class ApiReadDbContext(DbContextOptions options) : CadsDbContext(options)
 {
     // Shared canonical entities
 
@@ -29,7 +29,7 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : Cads
         );
 
         modelBuilder.HasDbFunction(
-            typeof(ApiReadDbContext).GetMethod(nameof(GetLocationsSummary))!)
+            GetType().GetMethod(nameof(GetLocationsSummary))!)
             .HasName("get_locations")
             .HasSchema(SchemaName.Cads.GetDescription());
 
