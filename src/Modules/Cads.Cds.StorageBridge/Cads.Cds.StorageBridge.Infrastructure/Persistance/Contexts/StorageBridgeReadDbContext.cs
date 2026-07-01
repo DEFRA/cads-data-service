@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class StorageBridgeReadDbContext(DbContextOptions<StorageBridgeReadDbContext> options) : CadsDbContext(options)
+public class StorageBridgeReadDbContext(DbContextOptions options) : CadsDbContext(options)
 {
     // Shared canonical entities
     public DbSet<FileImport> FileImports => Set<FileImport>();

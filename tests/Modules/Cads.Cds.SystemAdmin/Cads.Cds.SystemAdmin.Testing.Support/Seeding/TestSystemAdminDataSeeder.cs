@@ -13,9 +13,4 @@ public static class TestSystemAdminDataSeeder
     {
         context.AddRange(fileImports);
     }
-
-    public static void SeedSaveChanges(DbContext context)
-    {
-        context.SaveChanges();
-    }
 }

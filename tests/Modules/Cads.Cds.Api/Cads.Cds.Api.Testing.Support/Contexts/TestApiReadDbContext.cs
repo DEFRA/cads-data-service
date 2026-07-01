@@ -18,7 +18,7 @@ public class TestApiReadDbContext(DbContextOptions<TestApiReadDbContext> options
     }
 
     /// <summary>
-    /// Give fake keys so EF Core can track them
+    /// Give fake keys so EF Core can track them (after base.OnModelCreating)
     /// </summary>
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)

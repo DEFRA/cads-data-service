@@ -4,7 +4,7 @@ namespace Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 
 public class FileImport
 {
-    public long Id { get; private set; }
+    public long Id { get; }
 
     public string DestinationTableName { get; private set; } = default!;
     public string FileName { get; private set; } = default!;

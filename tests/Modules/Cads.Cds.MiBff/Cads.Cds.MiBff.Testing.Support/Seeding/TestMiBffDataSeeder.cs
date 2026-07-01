@@ -31,9 +31,4 @@ public static class TestMiBffDataSeeder
         context.AddRange(reportData.DeathSummaries);
         context.AddRange(reportData.ImportSummaries);
     }
-
-    public static void SeedSaveChanges(DbContext context)
-    {
-        context.SaveChanges();
-    }
 }

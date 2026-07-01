@@ -1,12 +1,13 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Contexts;
+using Cads.Cds.StorageBridge.Testing.Support.Fakes.Behaviours;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Channels;
-using Cads.Cds.StorageBridge.Testing.Support.Seeding;
+using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Threading.Channels;
@@ -19,6 +20,8 @@ public class StorageBridgeWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
+    private readonly string _dbName = $"StorageBridgeDb_{Guid.NewGuid()}";
+
     public TestCsvBulkLoadJobChannel TestCsvBulkLoadJobChannel { get; } = new();
 
     public TestSqlImportJobChannel TestSqlImportJobChannel { get; } = new();
@@ -29,20 +32,35 @@ public class StorageBridgeWebApplicationFactory(
 
         builder.ConfigureTestServices(services =>
         {
+            ConfigurePersistence(services);
             OverrideBulkLoadChannels(services);
         });
     }
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        var storageBridgeReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<StorageBridgeReadDbContext, TestStorageBridgeReadDbContext>(Guid.NewGuid().ToString());
-        TestStorageBridgeDataSeeder.SeedSaveChanges(storageBridgeReadDbContext);
+        services.AddDbContext<StorageBridgeReadDbContext, TestStorageBridgeReadDbContext>(o =>
+            o.UseInMemoryDatabase(_dbName));
 
-        var storageBridgeWriteDbContext = DbContextFactory.CreateInMemoryDbContext<StorageBridgeWriteDbContext>(Guid.NewGuid().ToString());
-        TestStorageBridgeDataSeeder.SeedSaveChanges(storageBridgeWriteDbContext);
+        services.AddDbContext<StorageBridgeWriteDbContext>(o =>
+            o.UseInMemoryDatabase(_dbName));
+    }
 
-        services.Replace(new ServiceDescriptor(typeof(StorageBridgeReadDbContext), storageBridgeReadDbContext));
-        services.Replace(new ServiceDescriptor(typeof(StorageBridgeWriteDbContext), storageBridgeWriteDbContext));
+    private static void ConfigurePersistence(IServiceCollection services)
+    {
+        var provider = services.BuildServiceProvider();
+
+        using var scope = provider.CreateScope();
+
+        var readDb = scope.ServiceProvider.GetRequiredService<StorageBridgeReadDbContext>();
+
+        // Seeds
+
+        readDb.SaveChanges();
+
+        // Real transactions are not suppoted by in memory db so use cut down version
+        services.AddTransient(typeof(IPipelineBehavior<,>),
+            typeof(TestStorageBridgeCommitBehaviour<,>));
     }
 
     private void OverrideBulkLoadChannels(IServiceCollection services)

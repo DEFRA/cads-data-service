@@ -1,4 +1,3 @@
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Testing.Support.Factories;
@@ -19,7 +18,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     {
         var response = await FileImportTestClient.GetByFileNameAsync(
             _testFixture.HttpClient,
-            fileName: null, 
+            fileName: null,
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -271,7 +270,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             _testFixture.HttpClient,
             FileImportDataFactory.Scenario_MarkImportFailed_FileName,
             TestContext.Current.CancellationToken);
-        
+
         var response = await FileImportTestClient.MarkImportFailedAsync(
             _testFixture.HttpClient,
             id,

@@ -2,7 +2,6 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using Cads.Cds.Api.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
@@ -12,14 +11,9 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
-using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Behaviours;
-using Cads.Cds.Ingester.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 using Cads.Cds.MiBff.Application.Reports.Authorisation;
-using Cads.Cds.StorageBridge.Infrastructure.Persistance.Behaviours;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
-using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Behaviours;
-using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -102,7 +96,7 @@ public abstract class WebAppFactoryBase<TStart>(
             services.RemoveAll<IPostgresStatusService>();
             services.AddScoped(x => mockService.Object);
 
-            services.AddTransient<IStartupFilter, TestEndpointStartupFilter>();            
+            services.AddTransient<IStartupFilter, TestEndpointStartupFilter>();
         });
     }
 
