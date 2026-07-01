@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cads.Cds.Ingester.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class IngesterReadDbContext(DbContextOptions<IngesterReadDbContext> options) : CadsDbContext(options)
+public class IngesterReadDbContext(DbContextOptions options) : CadsDbContext(options)
 {
     // Shared canonical entities
 

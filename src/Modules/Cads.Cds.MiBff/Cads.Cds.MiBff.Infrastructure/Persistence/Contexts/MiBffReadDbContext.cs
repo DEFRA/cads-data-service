@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : CadsDbContext(options)
+public class MiBffReadDbContext(DbContextOptions options) : CadsDbContext(options)
 {
     // Tables
     public DbSet<MiPermission> Permissions => Set<MiPermission>();

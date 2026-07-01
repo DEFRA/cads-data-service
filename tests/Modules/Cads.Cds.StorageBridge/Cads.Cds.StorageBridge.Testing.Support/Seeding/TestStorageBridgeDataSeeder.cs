@@ -12,9 +12,4 @@ public static class TestStorageBridgeDataSeeder
     {
 
     }
-
-    public static void SeedSaveChanges(DbContext context)
-    {
-        context.SaveChanges();
-    }
 }

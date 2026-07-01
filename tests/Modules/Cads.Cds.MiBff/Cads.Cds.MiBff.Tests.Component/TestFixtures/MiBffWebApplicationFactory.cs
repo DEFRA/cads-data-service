@@ -1,9 +1,13 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
+using Cads.Cds.MiBff.Application.Reports.Authorisation;
+using Cads.Cds.MiBff.Infrastructure.Authorisation.Reports;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Testing.Support.Contexts;
 using Cads.Cds.MiBff.Testing.Support.Factories;
 using Cads.Cds.MiBff.Testing.Support.Seeding;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -15,21 +19,45 @@ public class MiBffWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
+    private readonly string _dbName = $"MiBffDb_{Guid.NewGuid()}";
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+
+        builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<IReportAccessService>();
+            services.AddTransient<IReportAccessService, ReportAccessService>();
+
+            ConfigurePersistence(services);
+        });
+    }
+
     protected override void ConfigureDatabase(IServiceCollection services)
     {
+        services.AddDbContext<MiBffReadDbContext, TestMiBffReadDbContext>(o =>
+            o.UseInMemoryDatabase(_dbName));
+
+        services.AddDbContext<MiBffWriteDbContext>(o =>
+            o.UseInMemoryDatabase(_dbName));
+    }
+
+    private static void ConfigurePersistence(IServiceCollection services)
+    {
+        var provider = services.BuildServiceProvider();
+
+        using var scope = provider.CreateScope();
+
+        var readDb = scope.ServiceProvider.GetRequiredService<MiBffReadDbContext>();
+
+        // Seeds
         var reportPermissionsData = new ReportPermissionsDataFactory().CreateMockData();
         var reportsData = new GbCattleReportDataFactory().CreateMockData();
 
-        var miBffReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<MiBffReadDbContext, TestMiBffReadDbContext>(Guid.NewGuid().ToString());
-        TestMiBffDataSeeder.Seed(miBffReadDbContext, reportPermissionsData);
-        TestMiBffDataSeeder.Seed(miBffReadDbContext, reportsData);
-        TestMiBffDataSeeder.SeedSaveChanges(miBffReadDbContext);
+        TestMiBffDataSeeder.Seed(readDb, reportPermissionsData);
+        TestMiBffDataSeeder.Seed(readDb, reportsData);
 
-        var miBffWriteDbContext = DbContextFactory.CreateInMemoryDbContext<MiBffWriteDbContext>(Guid.NewGuid().ToString());
-        TestMiBffDataSeeder.Seed(miBffWriteDbContext, reportPermissionsData);
-        TestMiBffDataSeeder.SeedSaveChanges(miBffWriteDbContext);
-
-        services.Replace(new ServiceDescriptor(typeof(MiBffReadDbContext), miBffReadDbContext));
-        services.Replace(new ServiceDescriptor(typeof(MiBffWriteDbContext), miBffWriteDbContext));
+        readDb.SaveChanges();
     }
 }
