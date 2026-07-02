@@ -28,7 +28,7 @@ public class S3ClientFactoryTests
     [Fact]
     public void GivenClientIsRegistered_WhenCallingGetClient_ShouldReturnRegisteredClient()
     {
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
 
         var result = _clientFactory.GetClient<TestStorageClientA>();
 
@@ -46,7 +46,7 @@ public class S3ClientFactoryTests
     [Fact]
     public void GivenClientIsRegistered_WhenCallingGetClientByName_ShouldReturnRegisteredClient()
     {
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
 
         var result = _clientFactory.GetClient(typeof(TestStorageClientA).Name);
 
@@ -64,7 +64,7 @@ public class S3ClientFactoryTests
     [Fact]
     public void GivenClientIsRegistered_WhenCallingGetClientBucketName_ShouldReturnRegisteredClient()
     {
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
 
         var result = _clientFactory.GetClientBucketName<TestStorageClientA>();
 
@@ -82,7 +82,7 @@ public class S3ClientFactoryTests
     [Fact]
     public void GivenClientIsRegistered_WhenCallingGetClientBucketNameByName_ShouldReturnRegisteredClient()
     {
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
 
         var result = _clientFactory.GetClientBucketName(typeof(TestStorageClientA).Name);
 
@@ -101,8 +101,8 @@ public class S3ClientFactoryTests
     [Fact]
     public void GivenClientsAreRegistered_WhenCallingGetRegisteredClientNames_ShouldReturnPopulatedList()
     {
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
-        _clientFactory.AddClient<TestStorageClientB>(DefaultBucketName, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientB>(DefaultBucketName, true, _defaultAmazonS3Config);
 
         var result = _clientFactory.GetRegisteredClientNames();
 
@@ -115,7 +115,7 @@ public class S3ClientFactoryTests
     [InlineData("TestStorageClientB", false)]
     public void GivenInitialisedClients_WhenCallingHasStorageClient_ShouldReturnExpected(string testClientName, bool expectedResult)
     {
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
 
         var result = _clientFactory.HasStorageClient(testClientName);
 
@@ -125,7 +125,7 @@ public class S3ClientFactoryTests
     [Fact]
     public void WhenCallingAddClient_ShouldRegisterClient()
     {
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
 
         _clientFactory.HasStorageClient("TestStorageClientA").Should().Be(true);
         _clientFactory.GetRegisteredClientNames().Count().Should().Be(1);
@@ -135,8 +135,8 @@ public class S3ClientFactoryTests
     [Fact]
     public void GivenClientAlreadyRegistered_WhenCallingAddClient_ShouldNotDuplicate()
     {
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
-        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
+        _clientFactory.AddClient<TestStorageClientA>(DefaultBucketName, true, _defaultAmazonS3Config);
 
         _clientFactory.HasStorageClient("TestStorageClientA").Should().Be(true);
         _clientFactory.GetRegisteredClientNames().Count().Should().Be(1);
@@ -149,7 +149,7 @@ public class S3ClientFactoryTests
         Environment.SetEnvironmentVariable("TEST_ACCESS_KEY", "access");
         Environment.SetEnvironmentVariable("TEST_SECRET_KEY", "secret");
 
-        _clientFactory.AddClientWithCredentials<TestStorageClientA>(DefaultBucketName, "TEST_ACCESS_KEY", "TEST_SECRET_KEY", _defaultAmazonS3Config);
+        _clientFactory.AddClientWithCredentials<TestStorageClientA>(DefaultBucketName, true, "TEST_ACCESS_KEY", "TEST_SECRET_KEY", _defaultAmazonS3Config);
 
         _clientFactory.HasStorageClient("TestStorageClientA").Should().Be(true);
         _clientFactory.GetRegisteredClientNames().Count().Should().Be(1);
@@ -162,8 +162,8 @@ public class S3ClientFactoryTests
         Environment.SetEnvironmentVariable("TEST_ACCESS_KEY", "access");
         Environment.SetEnvironmentVariable("TEST_SECRET_KEY", "secret");
 
-        _clientFactory.AddClientWithCredentials<TestStorageClientA>(DefaultBucketName, "TEST_ACCESS_KEY", "TEST_SECRET_KEY", _defaultAmazonS3Config);
-        _clientFactory.AddClientWithCredentials<TestStorageClientA>(DefaultBucketName, "TEST_ACCESS_KEY", "TEST_SECRET_KEY", _defaultAmazonS3Config);
+        _clientFactory.AddClientWithCredentials<TestStorageClientA>(DefaultBucketName, true, "TEST_ACCESS_KEY", "TEST_SECRET_KEY", _defaultAmazonS3Config);
+        _clientFactory.AddClientWithCredentials<TestStorageClientA>(DefaultBucketName, true, "TEST_ACCESS_KEY", "TEST_SECRET_KEY", _defaultAmazonS3Config);
 
         _clientFactory.HasStorageClient("TestStorageClientA").Should().Be(true);
         _clientFactory.GetRegisteredClientNames().Count().Should().Be(1);
@@ -176,7 +176,7 @@ public class S3ClientFactoryTests
         Environment.SetEnvironmentVariable("TEST_ACCESS_KEY", null);
         Environment.SetEnvironmentVariable("TEST_SECRET_KEY", null);
 
-        Action act = () => _clientFactory.AddClientWithCredentials<TestStorageClientA>(DefaultBucketName, "TEST_ACCESS_KEY", "TEST_SECRET_KEY", _defaultAmazonS3Config);
+        Action act = () => _clientFactory.AddClientWithCredentials<TestStorageClientA>(DefaultBucketName, true, "TEST_ACCESS_KEY", "TEST_SECRET_KEY", _defaultAmazonS3Config);
 
         act.Should().Throw<InvalidOperationException>();
 
