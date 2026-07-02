@@ -107,8 +107,8 @@ public static class FileImportTestClient
     public static async Task<FileImportDto> VerifyFileImportAsync(
         HttpClient client,
         string fileName,
-        CancellationToken cancellationToken = default,
-        Action<FileImportDto>? assertions = null)
+        Action<FileImportDto>? assertions = null,
+        CancellationToken cancellationToken = default)
     {
         var response = await GetByFileNameAsync(client, fileName, cancellationToken);
         var dto = await ReadDtoAsync(response, cancellationToken);
