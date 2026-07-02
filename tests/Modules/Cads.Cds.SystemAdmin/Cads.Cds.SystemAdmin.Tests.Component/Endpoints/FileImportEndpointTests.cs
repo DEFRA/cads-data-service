@@ -152,11 +152,11 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
             fileName: FileImportDataFactory.Scenario_MarkImporting_FileName,
-            TestContext.Current.CancellationToken,
             dto =>
             {
                 FileImportAssertions.ShouldBeImporting(dto);
-            });
+            },
+            TestContext.Current.CancellationToken);
     }
 
     // FileImports - MarkImportComplete
@@ -217,11 +217,11 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
             fileName: FileImportDataFactory.Scenario_MarkImportComplete_FileName,
-            TestContext.Current.CancellationToken,
             dto =>
             {
                 FileImportAssertions.ShouldBeComplete(dto);
-            });
+            },
+            TestContext.Current.CancellationToken);
     }
 
     // FileImports - MarkImportFailed
@@ -281,12 +281,12 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.Scenario_MarkImportFailed_FileName,
-            TestContext.Current.CancellationToken,
+            fileName: FileImportDataFactory.Scenario_MarkImportFailed_FileName, TestContext.Current.CancellationToken
             dto =>
             {
                 FileImportAssertions.ShouldBeFailed(dto);
-            });
+            },
+            TestContext.Current.CancellationToken);
     }
 
     // FileImports - Reset
@@ -331,10 +331,10 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
             fileName: FileImportDataFactory.Scenario_Reset_FileName,
-            TestContext.Current.CancellationToken,
             dto =>
             {
                 FileImportAssertions.ShouldBeReset(dto);
-            });
+            },
+            TestContext.Current.CancellationToken);
     }
 }

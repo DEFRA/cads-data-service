@@ -33,6 +33,6 @@ public sealed class CreateFileImportCommandHandler(
                 fileImport.ImportStartAt,
                 fileImport.ImportEndAt,
                 fileImport.ProcessingStartAt,
-                fileImport.ProcessingEndAt); ;
+                fileImport.ProcessingEndAt);
     }
 }
