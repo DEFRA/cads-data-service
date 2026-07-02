@@ -17,10 +17,12 @@ public class StorageBridgeS3Configurator(StorageBridgeStorageConfiguration confi
 
         factory.AddClient<CadsInternalClient>(
             _config.CadsInternal.BucketName,
+            _config.CadsInternal.HealthcheckEnabled,
             amazonConfig);
 
         factory.AddClientWithCredentials<CadsExternalClient>(
             _config.CadsExternal.BucketName,
+            _config.CadsExternal.HealthcheckEnabled,
             _config.CadsExternal.AccessKeySecretName,
             _config.CadsExternal.SecretKeySecretName,
             amazonConfig);
