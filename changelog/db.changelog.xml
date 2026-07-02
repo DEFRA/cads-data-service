@@ -99,4 +99,5 @@
   <include file="0003_023_ct_breeds_seed_data.postgresql.sql"/>
   <include file="0003_024_ct_workgroups_seed_data_faker_data.postgresql.sql"/>
   <include file="0003_025_integration_ct_locations_seed_data.postgresql.sql"/>
+  <include file="0003_026_integration_cts_file_imports_seed_data.postgresql.sql"/>
 </databaseChangeLog>
