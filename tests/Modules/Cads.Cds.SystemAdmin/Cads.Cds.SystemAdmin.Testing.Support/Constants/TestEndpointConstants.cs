@@ -11,7 +11,7 @@ public class TestEndpointConstants
     public const string SystemAdminFileImportsRoot = SystemAdminRoot + "fileimports";
 
     // FileImports - GetByFileName
-    public const string FileImportsGetByFileNameEndpoint = SystemAdminFileImportsRoot + "/by-file-name";
+    public const string FileImportsGetByFileNameEndpoint = SystemAdminFileImportsRoot + "/search";
 
     // FileImports - Create
     public const string FileImportsCreateEndpoint = SystemAdminFileImportsRoot;

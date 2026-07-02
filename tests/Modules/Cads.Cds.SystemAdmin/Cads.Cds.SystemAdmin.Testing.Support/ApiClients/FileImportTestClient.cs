@@ -1,10 +1,13 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
+using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.Constants;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
 using System.Web;
+using Xunit;
 
 namespace Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 
@@ -100,6 +103,15 @@ public static class FileImportTestClient
         CancellationToken cancellationToken)
     {
         return await response.Content.ReadFromJsonAsync<FileImportDto>(
+            JsonDefaults.DefaultOptionsWithStringEnumConversion,
+            cancellationToken);
+    }
+
+    public static async Task<ProblemDetails?> ReadProblemDetailsAsync(
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
+        return await response.Content.ReadFromJsonAsync<ProblemDetails>(
             JsonDefaults.DefaultOptionsWithStringEnumConversion,
             cancellationToken);
     }

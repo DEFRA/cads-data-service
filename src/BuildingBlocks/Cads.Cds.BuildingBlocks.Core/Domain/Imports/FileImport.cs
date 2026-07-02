@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
+using Cads.Cds.BuildingBlocks.Core.Extensions;
 
 namespace Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 
@@ -30,7 +31,7 @@ public class FileImport
         long rowsFound)
     {
         DestinationTableName = destinationTableName;
-        FileName = fileName;
+        FileName = StringExtensions.NormalizeToUpper(fileName)!;
 
         TotalRowsToProcess = totalRowsToProcess;
         RowsFound = rowsFound;
