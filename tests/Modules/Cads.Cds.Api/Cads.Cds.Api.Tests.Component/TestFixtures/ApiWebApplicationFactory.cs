@@ -32,8 +32,11 @@ public class ApiWebApplicationFactory(
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        services.AddDbContext<ApiReadDbContext, TestApiReadDbContext>(o =>
-            o.UseInMemoryDatabase(_dbName));
+        services.AddScoped<ApiReadDbContext>(_ =>
+            new TestApiReadDbContext(
+                new DbContextOptionsBuilder<ApiReadDbContext>()
+                    .UseInMemoryDatabase(_dbName)
+                    .Options));
 
         services.AddDbContext<ApiWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));

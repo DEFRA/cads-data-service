@@ -30,8 +30,11 @@ public class IngesterWebApplicationFactory(
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        services.AddDbContext<IngesterReadDbContext, TestIngesterReadDbContext>(o =>
-            o.UseInMemoryDatabase(_dbName));
+        services.AddScoped<IngesterReadDbContext>(_ =>
+            new TestIngesterReadDbContext(
+                new DbContextOptionsBuilder<IngesterReadDbContext>()
+                    .UseInMemoryDatabase(_dbName)
+                    .Options));
 
         services.AddDbContext<IngesterWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));

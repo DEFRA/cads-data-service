@@ -39,8 +39,11 @@ public class StorageBridgeWebApplicationFactory(
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        services.AddDbContext<StorageBridgeReadDbContext, TestStorageBridgeReadDbContext>(o =>
-            o.UseInMemoryDatabase(_dbName));
+        services.AddScoped<StorageBridgeReadDbContext>(_ =>
+            new TestStorageBridgeReadDbContext(
+                new DbContextOptionsBuilder<StorageBridgeReadDbContext>()
+                    .UseInMemoryDatabase(_dbName)
+                    .Options));
 
         services.AddDbContext<StorageBridgeWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));

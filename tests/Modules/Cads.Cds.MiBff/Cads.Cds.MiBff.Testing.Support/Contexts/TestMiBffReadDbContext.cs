@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.MiBff.Testing.Support.Contexts;
 
-public class TestMiBffReadDbContext(DbContextOptions<TestMiBffReadDbContext> options)
+public class TestMiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options)
     : MiBffReadDbContext(options)
 {
     // Mi report permissions

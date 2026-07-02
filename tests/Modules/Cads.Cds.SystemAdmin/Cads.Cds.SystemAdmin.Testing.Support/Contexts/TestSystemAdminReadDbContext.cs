@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.SystemAdmin.Testing.Support.Contexts;
 
-public class TestSystemAdminReadDbContext(DbContextOptions<TestSystemAdminReadDbContext> options)
+public class TestSystemAdminReadDbContext(DbContextOptions<SystemAdminReadDbContext> options)
     : SystemAdminReadDbContext(options)
 {
     /// <summary>

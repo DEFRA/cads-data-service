@@ -36,8 +36,11 @@ public class MiBffWebApplicationFactory(
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        services.AddDbContext<MiBffReadDbContext, TestMiBffReadDbContext>(o =>
-            o.UseInMemoryDatabase(_dbName));
+        services.AddScoped<MiBffReadDbContext>(_ =>
+            new TestMiBffReadDbContext(
+                new DbContextOptionsBuilder<MiBffReadDbContext>()
+                    .UseInMemoryDatabase(_dbName)
+                    .Options));
 
         services.AddDbContext<MiBffWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));

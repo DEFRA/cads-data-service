@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.Api.Testing.Support.Contexts;
 
-public class TestApiReadDbContext(DbContextOptions<TestApiReadDbContext> options)
+public class TestApiReadDbContext(DbContextOptions<ApiReadDbContext> options)
     : ApiReadDbContext(options)
 {
     // Functions

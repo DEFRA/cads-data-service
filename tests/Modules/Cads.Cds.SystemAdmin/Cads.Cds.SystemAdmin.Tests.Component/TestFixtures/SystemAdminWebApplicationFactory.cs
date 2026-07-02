@@ -32,8 +32,11 @@ public class SystemAdminWebApplicationFactory(
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        services.AddDbContext<SystemAdminReadDbContext, TestSystemAdminReadDbContext>(o =>
-            o.UseInMemoryDatabase(_dbName));
+        services.AddScoped<SystemAdminReadDbContext>(_ =>
+            new TestSystemAdminReadDbContext(
+                new DbContextOptionsBuilder<SystemAdminReadDbContext>()
+                    .UseInMemoryDatabase(_dbName)
+                    .Options));
 
         services.AddDbContext<SystemAdminWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));
