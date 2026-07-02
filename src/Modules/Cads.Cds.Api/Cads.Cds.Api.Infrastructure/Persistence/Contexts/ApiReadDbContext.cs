@@ -29,7 +29,7 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : Cads
         );
 
         modelBuilder.HasDbFunction(
-            typeof(ApiReadDbContext).GetMethod(nameof(GetLocationsSummary))!)
+            GetType().GetMethod(nameof(GetLocationsSummary))!)
             .HasName("get_locations")
             .HasSchema(SchemaName.Cads.GetDescription());
 
