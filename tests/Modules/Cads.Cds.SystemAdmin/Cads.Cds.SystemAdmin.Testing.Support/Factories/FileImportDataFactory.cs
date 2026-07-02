@@ -5,17 +5,17 @@ namespace Cads.Cds.SystemAdmin.Testing.Support.Factories;
 public static class FileImportDataFactory
 {
     // Fixed scenarios
-    public const string Scenario_Pending_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part1";
-    public const string Scenario_Importing_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part2";
-    public const string Scenario_Complete_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part3";
-    public const string Scenario_Failed_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part4";
+    public const string Scenario_Pending_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART1";
+    public const string Scenario_Importing_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART2";
+    public const string Scenario_Complete_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART3";
+    public const string Scenario_Failed_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART4";
 
     // Mutable scenarios
-    public const string Scenario_Create_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part5";
-    public const string Scenario_MarkImporting_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part6";
-    public const string Scenario_MarkImportComplete_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part7";
-    public const string Scenario_MarkImportFailed_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part8";
-    public const string Scenario_Reset_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-part9";
+    public const string Scenario_Create_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART5";
+    public const string Scenario_MarkImporting_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART6";
+    public const string Scenario_MarkImportComplete_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART7";
+    public const string Scenario_MarkImportFailed_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART8";
+    public const string Scenario_Reset_FileName = "CTSM_CLA_PROD_BULK_ABC_CT_PARTIES_2026-01-01-012345-PART9";
 
     public static List<FileImport> CreateMockData()
     {

@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Testing.Support.Factories;
@@ -67,6 +68,31 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GivenFileNameAlreadyExists_WhenCreateRequested_ShouldReturnConflict()
+    {
+        var request = new CreateFileImportRequest
+        {
+            FileName = FileImportDataFactory.Scenario_Complete_FileName,
+            TotalRowsToProcess = 100,
+            RowsFound = 0
+        };
+
+        var response = await FileImportTestClient.CreateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        var problemDetails = await FileImportTestClient.ReadProblemDetailsAsync(
+            response,
+            TestContext.Current.CancellationToken);
+
+        problemDetails.Should().NotBeNull();
+        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name. ImportStatus: '{FileImportStatus.Complete}'. ProcessingStatus: '{FileProcessingStatus.Pending}'.");
     }
 
     [Fact]

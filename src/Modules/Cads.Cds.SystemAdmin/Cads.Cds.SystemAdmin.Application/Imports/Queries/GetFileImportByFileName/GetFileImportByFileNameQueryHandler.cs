@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Queries;
+using Cads.Cds.BuildingBlocks.Core.Extensions;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 
@@ -10,7 +11,8 @@ public sealed class GetFileImportByFileNameQueryHandler(
 {
     public async Task<FileImportDto?> Handle(GetFileImportByFileNameQuery query, CancellationToken cancellationToken)
     {
-        var fileImport = await fileImportRepository.GetByFileName(query.FileName, cancellationToken);
+        var fileName = StringExtensions.NormalizeToUpper(query.FileName)!;
+        var fileImport = await fileImportRepository.GetByFileName(fileName, cancellationToken);
 
         return fileImport is null
             ? null

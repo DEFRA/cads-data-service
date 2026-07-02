@@ -17,7 +17,7 @@ namespace Cads.Cds.SystemAdmin.Controllers;
 [ApiController]
 [Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
 [Route("api/v1/systemadmin/[controller]")]
-public class FileImports(IRequestExecutor executor) : ControllerBase
+public class FileImportsController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
 
@@ -27,7 +27,7 @@ public class FileImports(IRequestExecutor executor) : ControllerBase
     /// <param name="fileName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpGet("by-file-name")]
+    [HttpGet("search")]
     [ProducesResponseType(typeof(FileImportDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
