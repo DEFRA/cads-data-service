@@ -1,7 +1,5 @@
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.Domain.Repositories;
 using Cads.Cds.StorageBridge.Core.DTOs;
-using Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +9,7 @@ namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureBulkLoadServices(this IServiceCollection services)
+    public static IServiceCollection ConfigureS3ImportServices(this IServiceCollection services)
     {
         services.AddSingleton(Channel.CreateUnbounded<CreateS3CsvImportJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
         services.AddSingleton(Channel.CreateUnbounded<CreateS3SqlImportJobDto>(new UnboundedChannelOptions() { SingleReader = false }));
@@ -25,7 +23,6 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
         services.AddTransient<IS3SqlScriptExecutorService, S3SqlScriptExecutorService>();
 
-        services.AddScoped<IDataSeedIngestionHistoryRepository, DataSeedIngestionHistoryRepository>();
         services.AddScoped<IS3ImportCommandFactoryProvider, S3ImportCommandFactoryProvider>();
 
         return services;
