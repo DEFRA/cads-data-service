@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
 
         services.AddStorageBridgeStorage(config);
 
-        services.ConfigureBulkLoadServices();
+        services.ConfigureS3ImportServices();
 
         services.ConfigurePrometheusScraping(config);
 
