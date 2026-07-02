@@ -15,17 +15,19 @@ public interface IS3ClientFactory
 
     string GetClientBucketName(string clientName);
 
+    bool GetClientHealthCheckEnabled(string clientName);
+
     IEnumerable<string> GetRegisteredClientNames();
 
     bool HasStorageClient(string storageClientName);
 
-    void AddClient<T>(string defaultBucketName, AmazonS3Config amazonS3Config)
+    void AddClient<T>(string defaultBucketName, bool healthCheckEnabled, AmazonS3Config amazonS3Config)
         where T : IStorageClient, new();
 
-    void AddClientWithCredentials<T>(string defaultBucketName, string accessKeyRef, string secretKeyRef, AmazonS3Config amazonS3Config)
+    void AddClientWithCredentials<T>(string defaultBucketName, bool healthCheckEnabled, string accessKeyRef, string secretKeyRef, AmazonS3Config amazonS3Config)
         where T : IStorageClient, new();
 
-    void RegisterMockClient<T>(string bucketName, IAmazonS3 mockClient)
+    void RegisterMockClient<T>(string bucketName, bool healthCheckEnabled, IAmazonS3 mockClient)
         where T : IStorageClient, new();
 
     S3ClientFactory.ClientInfo GetClientInfo<T>() where T : IStorageClient, new();
