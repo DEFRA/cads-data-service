@@ -2,8 +2,10 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Uow;
+using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Behaviours;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Repositories;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +20,8 @@ public static class ServiceCollectionExtensions
         services.RegisterBehaviours();
 
         services.RegisterManualUnitOfWork();
+
+        services.RegisterRepositories();
 
         return services;
     }
@@ -41,5 +45,10 @@ public static class ServiceCollectionExtensions
     private static void RegisterManualUnitOfWork(this IServiceCollection services)
     {
         services.AddScoped<IManualUnitOfWork, ManualUnitOfWork<SystemAdminWriteDbContext>>();
+    }
+
+    private static void RegisterRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IFileImportRepository, FileImportRepository>();
     }
 }
