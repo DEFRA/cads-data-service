@@ -45,6 +45,9 @@ public class AwsS3HealthCheckTests
         _s3ClientFactoryMock.Setup(x => x.GetClientBucketName(It.IsAny<string>()))
             .Returns(DefaultBucketName);
 
+        _s3ClientFactoryMock.Setup(x => x.GetClientHealthCheckEnabled(It.IsAny<string>()))
+            .Returns(true);
+
         _sut = new AwsS3HealthCheck(_s3ClientFactoryMock.Object, new Mock<ILogger<AwsS3HealthCheck>>().Object);
     }
 
@@ -109,7 +112,7 @@ public class AwsS3HealthCheckTests
             });
 
         var factory = new S3ClientFactory();
-        factory.RegisterMockClient<TestStorageClientA>("test-bucket", mockS3.Object);
+        factory.RegisterMockClient<TestStorageClientA>("test-bucket", healthCheckEnabled: true, mockS3.Object);
 
         var logger = Mock.Of<ILogger<AwsS3HealthCheck>>();
         var healthCheck = new AwsS3HealthCheck(factory, logger);
