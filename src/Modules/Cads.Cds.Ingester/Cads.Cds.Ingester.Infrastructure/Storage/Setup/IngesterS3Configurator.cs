@@ -8,13 +8,16 @@ namespace Cads.Cds.Ingester.Infrastructure.Storage.Setup;
 
 public class IngesterS3Configurator(IngesterStorageConfiguration config) : IConfigureS3Clients
 {
+    private readonly IngesterStorageConfiguration _config = config;
+
     public void Configure(IServiceProvider sp)
     {
         var factory = sp.GetRequiredService<IS3ClientFactory>();
         var amazonConfig = sp.GetRequiredService<AmazonS3Config>();
 
         factory.AddClient<IngesterClient>(
-            config.CadsIngester.BucketName,
+            _config.CadsIngester.BucketName,
+            _config.CadsIngester.HealthcheckEnabled,
             amazonConfig);
     }
 }
