@@ -281,7 +281,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.Scenario_MarkImportFailed_FileName, TestContext.Current.CancellationToken
+            fileName: FileImportDataFactory.Scenario_MarkImportFailed_FileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeFailed(dto);
