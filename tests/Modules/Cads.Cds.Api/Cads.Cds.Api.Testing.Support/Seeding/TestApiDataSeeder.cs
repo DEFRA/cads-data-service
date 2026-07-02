@@ -13,9 +13,4 @@ public static class TestApiDataSeeder
     {
         context.AddRange(locationSummaries);
     }
-
-    public static void SeedSaveChanges(DbContext context)
-    {
-        context.SaveChanges();
-    }
 }

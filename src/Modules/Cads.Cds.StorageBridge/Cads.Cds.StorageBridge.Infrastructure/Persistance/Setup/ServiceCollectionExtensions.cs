@@ -2,8 +2,10 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Uow;
+using Cads.Cds.StorageBridge.Core.Domain.Repositories;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Behaviours;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +20,8 @@ public static class ServiceCollectionExtensions
         services.RegisterBehaviours();
 
         services.RegisterManualUnitOfWork();
+
+        services.RegisterRepositories();
 
         return services;
     }
@@ -41,5 +45,10 @@ public static class ServiceCollectionExtensions
     private static void RegisterManualUnitOfWork(this IServiceCollection services)
     {
         services.AddScoped<IManualUnitOfWork, ManualUnitOfWork<StorageBridgeWriteDbContext>>();
+    }
+
+    private static void RegisterRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IDataSeedIngestionHistoryRepository, DataSeedIngestionHistoryRepository>();
     }
 }
