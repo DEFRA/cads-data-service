@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class ApiReadDbContext(DbContextOptions options) : CadsDbContext(options)
+public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : CadsDbContext(options)
 {
     // Shared canonical entities
 

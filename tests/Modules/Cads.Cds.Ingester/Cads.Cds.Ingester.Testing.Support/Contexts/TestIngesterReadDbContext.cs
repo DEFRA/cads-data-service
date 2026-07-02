@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.Ingester.Testing.Support.Contexts;
 
-public class TestIngesterReadDbContext(DbContextOptions<TestIngesterReadDbContext> options)
+public class TestIngesterReadDbContext(DbContextOptions<IngesterReadDbContext> options)
     : IngesterReadDbContext(options)
 {
     /// <summary>

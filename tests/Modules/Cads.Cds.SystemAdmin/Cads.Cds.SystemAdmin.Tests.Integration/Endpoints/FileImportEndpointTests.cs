@@ -1,16 +1,17 @@
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Testing.Support.Factories;
-using Cads.Cds.SystemAdmin.Tests.Component.TestFixtures;
+using Cads.Cds.SystemAdmin.Tests.Component.Endpoints;
 using FluentAssertions;
 using System.Net;
 
-namespace Cads.Cds.SystemAdmin.Tests.Component.Endpoints;
+namespace Cads.Cds.SystemAdmin.Tests.Integration.Endpoints;
 
-public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClassFixture<SystemAdminTestFixture>
+[Collection("SystemAdminIntegration"), Trait("Dependence", "testcontainers")]
+public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 {
-    private readonly SystemAdminTestFixture _testFixture = testFixture;
-    private HttpClient _httpClient => _testFixture.HttpClient;
+    private HttpClient _httpClient => apiContainerFixture.CreateBasicClient();
 
     // FileImports - GetByFileName
 

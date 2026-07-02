@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.StorageBridge.Testing.Support.Contexts;
 
-public class TestStorageBridgeReadDbContext(DbContextOptions<TestStorageBridgeReadDbContext> options)
+public class TestStorageBridgeReadDbContext(DbContextOptions<StorageBridgeReadDbContext> options)
     : StorageBridgeReadDbContext(options)
 {
     /// <summary>
