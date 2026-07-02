@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConfigureS3Clients, StorageBridgeS3Configurator>();
 
         services.AddScoped<IFileChecksumService, S3FileChecksumService<CadsInternalClient>>();
+
         // Register module storage readers
         services.AddSingleton<IStorageReader<CadsInternalClient>, BulkImportStorageReader<CadsInternalClient>>();
 
@@ -33,7 +34,12 @@ public static class ServiceCollectionExtensions
 
         if (moduleConfig.CadsInternal.HealthcheckEnabled)
         {
-            services.AddSingleton<IEnableS3HealthCheck, CadsInternalHealthCheckMarker>();
+            services.AddSingleton<IEnableS3HealthCheck, StorageBridgeInternalHealthCheckMarker>();
+        }
+
+        if (moduleConfig.CadsExternal.HealthcheckEnabled)
+        {
+            services.AddSingleton<IEnableS3HealthCheck, StorageBridgeExternalHealthCheckMarker>();
         }
 
         return services;
