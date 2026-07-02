@@ -19,6 +19,9 @@ public class AwsS3HealthCheck(IS3ClientFactory s3ClientFactory, ILogger<AwsS3Hea
 
         foreach (var clientName in _s3ClientFactory.GetRegisteredClientNames())
         {
+            if (!_s3ClientFactory.GetClientHealthCheckEnabled(clientName))
+                continue;
+
             var client = _s3ClientFactory.GetClient(clientName);
             var bucketName = _s3ClientFactory.GetClientBucketName(clientName);
 
