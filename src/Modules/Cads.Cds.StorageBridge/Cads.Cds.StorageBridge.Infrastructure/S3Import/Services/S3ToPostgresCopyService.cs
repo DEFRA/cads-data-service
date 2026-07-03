@@ -269,7 +269,7 @@ public class S3ToPostgresCopyService(
         var commands = new List<DbCommand>();
         var schemaName = importActionType.GetSchemaName();
 
-        switch(importActionType)
+        switch (importActionType)
         {
             case ImportActionType.Bulk:
                 commands.Add(await factory.CreateUpsertCommandAsync(importDataType, schemaName, cancellationToken));
