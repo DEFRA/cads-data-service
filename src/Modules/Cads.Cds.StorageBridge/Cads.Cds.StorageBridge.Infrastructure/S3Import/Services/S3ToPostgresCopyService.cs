@@ -44,7 +44,7 @@ public class S3ToPostgresCopyService(
             throw new InvalidOperationException("Failed to parse S3 URL");
         }
 
-        if(string.IsNullOrWhiteSpace(fileName))
+        if (string.IsNullOrWhiteSpace(fileName))
         {
             logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", job.SourceKey);
             throw new InvalidOperationException("Failed to extract file name from S3 URL");
