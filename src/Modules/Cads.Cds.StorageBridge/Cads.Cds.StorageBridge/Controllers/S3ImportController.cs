@@ -21,8 +21,6 @@ public class S3ImportController(IRequestExecutor executor) : ControllerBase
         var command = new S3CsvImportCommand
         {
             SourceKey = request.SourceKey,
-            ImportDataType = request.ImportDataType,
-            ImportActionType = request.ImportActionType,
             Delimiter = request.Delimiter,
         };
 

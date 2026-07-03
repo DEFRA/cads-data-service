@@ -2,7 +2,6 @@ using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.StorageBridge.Controllers.Requests;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
 using Cads.Cds.StorageBridge.Tests.Component.TestFixtures;
 using FluentAssertions;
@@ -45,32 +44,25 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
-        job.SourceKey.Should().Be("LOCATIONS.part-0001.csv");
-        job.ImportDataType.Should().Be(ImportDataType.CtLocations);
+        job.SourceKey.Should().Be("CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv");
     }
 
     private static StringContent? InvalidS3ImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = string.Empty,
-            ImportDataType = ImportDataType.None,
-            ImportActionType = ImportActionType.None
+            SourceKey = string.Empty
         });
 
     private static StringContent? ValidS3ImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = "LOCATIONS.part-0001.csv",
-            ImportDataType = ImportDataType.CtLocations,
-            ImportActionType = ImportActionType.Bulk
+            SourceKey = "CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv"
         });
 
     private static StringContent? ValidS3TransactionalRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = "LOCATIONS.part-0001.csv",
-            ImportDataType = ImportDataType.CtLocations,
-            ImportActionType = ImportActionType.Transactional
+            SourceKey = "CTSM_CLA_ENV_DELTA_0001_CT_LOCATIONS.part-0001.csv"
         });
 
     private void SetupS3MockForLocations(string row1, string row2)

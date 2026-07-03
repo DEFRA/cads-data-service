@@ -30,7 +30,7 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IS3ImportCommandFactory> _factory = new();
     private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
 
-    private const string TestFileName = "LOCATIONS.part-0001.csv";
+    private const string TestFileName = "CTSM_CLA_ENV_DELTA_0001_CT_LOCATIONS.part-0001.csv";
 
     [Fact]
     public async Task ExecuteAsync_ShouldThrow_WhenImportTypeIsNone()
@@ -39,8 +39,7 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.None,
-            SourceKey = TestFileName
+            SourceKey = "CTSM_CLA_ENV_XXXX_0001_CT_LOCATIONS.part-0001.csv"
         };
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
@@ -53,7 +52,6 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.Bulk,
             SourceKey = ""
         };
 
@@ -70,9 +68,7 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.Transactional,
-            SourceKey = TestFileName,
-            ImportDataType = ImportDataType.CtLocations
+            SourceKey = "CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv"
         };
 
         var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
@@ -100,8 +96,7 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.Transactional,
-            ImportDataType = ImportDataType.CtLocations
+            SourceKey = "CTSM_CLA_ENV_DELTA_0001_CT_LOCATIONS.part-0001.csv"
         };
 
         var result = await InvokeGetCommandsAsync(job, _factory.Object);
@@ -119,8 +114,7 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.Bulk,
-            ImportDataType = ImportDataType.CtLocations
+            SourceKey = "CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv"
         };
 
         var result = await InvokeGetCommandsAsync(job, _factory.Object);
