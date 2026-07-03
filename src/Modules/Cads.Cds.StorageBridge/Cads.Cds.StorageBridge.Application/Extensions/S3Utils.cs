@@ -1,34 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Cads.Cds.StorageBridge.Application.Extensions;
 
-//static void Main()
-//{
-//    string[] testUrls =
-//    {
-//    "s3://my-bucket/path/to/file.txt",
-//    "https://my-bucket.s3.us-east-1.amazonaws.com/path/to/file.txt",
-//    "https://s3.us-east-1.amazonaws.com/my-bucket/path/to/file.txt"
-//};
-
-//    foreach (var url in testUrls)
-//    {
-//        if (TryParseS3Url(url, out var bucket, out var key, out var file))
-//        {
-//            Console.WriteLine($"URL: {url}");
-//            Console.WriteLine($"  Bucket: {bucket}");
-//            Console.WriteLine($"  Key: {key}");
-//            Console.WriteLine($"  File: {file}");
-//            Console.WriteLine();
-//        }
-//        else
-//        {
-//            Console.WriteLine($"Failed to parse: {url}");
-//        }
-//    }
-//}
 public class S3Utils
 {
     /// <summary>
