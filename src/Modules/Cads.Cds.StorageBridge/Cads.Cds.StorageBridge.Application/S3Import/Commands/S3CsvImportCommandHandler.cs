@@ -12,8 +12,6 @@ public class S3CsvImportCommandHandler(IS3ImportJobEnqueuer<CreateS3CsvImportJob
         var job = new CreateS3CsvImportJobDto
         {
             SourceKey = command.SourceKey,
-            ImportDataType = command.ImportDataType,
-            ImportActionType = command.ImportActionType,
             Delimiter = command.Delimiter
         };
 

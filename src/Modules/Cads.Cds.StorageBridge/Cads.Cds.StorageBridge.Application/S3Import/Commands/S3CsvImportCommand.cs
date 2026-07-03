@@ -7,9 +7,5 @@ public class S3CsvImportCommand : IStorageBridgeCommand<Guid>
 {
     public string SourceKey { get; set; } = string.Empty;
 
-    public ImportDataType ImportDataType { get; set; }
-
-    public ImportActionType ImportActionType { get; set; }
-
     public char Delimiter { get; set; }
 }

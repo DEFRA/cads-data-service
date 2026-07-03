@@ -132,17 +132,13 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     private static StringContent? InvalidS3CsvImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = string.Empty,
-            ImportDataType = ImportDataType.None,
-            ImportActionType = ImportActionType.None
+            SourceKey = string.Empty
         });
 
     private static StringContent? ValidS3CsvImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = "LOCATIONS.part-0001.csv",
-            ImportDataType = ImportDataType.CtLocations,
-            ImportActionType = ImportActionType.Bulk
+            SourceKey = "CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv"
         });
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)

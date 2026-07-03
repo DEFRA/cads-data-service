@@ -4,18 +4,20 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Database;
 
 public enum SchemaName
 {
+    NotDefined = 0,
+
     [Description("public")]
-    Public = 0,
+    Public = 12,
 
     [Description("cts")]
     Cts = 1,
 
     [Description("cts_audit")]
-    CtsAudit = 2,
+    CtsAudit = 3,
 
     [Description("cts_transactions")]
-    CtsTransactions = 3,
+    CtsTransactions = 4,
 
     [Description("cads")]
-    Cads = 4
+    Cads = 5
 }
