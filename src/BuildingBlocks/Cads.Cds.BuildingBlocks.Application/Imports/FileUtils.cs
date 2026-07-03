@@ -4,8 +4,8 @@ namespace Cads.Cds.BuildingBlocks.Application.Imports;
 
 public class FileUtils
 {
-   public static (string, string) GetImportParametersFromFileName(string fileName)
-   {
+    public static (string, string) GetImportParametersFromFileName(string fileName)
+    {
         if (string.IsNullOrEmpty(fileName))
         {
             throw new ArgumentException("Invalid file name.");
@@ -22,6 +22,6 @@ public class FileUtils
         }
 
         // The destination table name is the 5th part of the file name
-        return new (parts[4], parts[3]);
+        return new(parts[4], parts[3]);
     }
 }
