@@ -44,6 +44,12 @@ public class S3ToPostgresCopyService(
             throw new InvalidOperationException("Failed to parse S3 URL");
         }
 
+        if(string.IsNullOrWhiteSpace(fileName))
+        {
+            logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", job.SourceKey);
+            throw new InvalidOperationException("Failed to extract file name from S3 URL");
+        }
+
         var (importDataType, importActionType) = GetImportParameters(fileName);
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -296,7 +302,7 @@ public class S3ToPostgresCopyService(
         var schemaName = importActionTypeParsed.GetSchemaName();
 
         var importDataType = Enum.GetValues<ImportDataType>()
-                .FirstOrDefault(v => v.GetTableName(schemaName).Equals(destinationTableName, StringComparison.InvariantCultureIgnoreCase));
+                .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(destinationTableName, StringComparison.InvariantCultureIgnoreCase) == true);
 
         return (importDataType, importActionTypeParsed);
     }
