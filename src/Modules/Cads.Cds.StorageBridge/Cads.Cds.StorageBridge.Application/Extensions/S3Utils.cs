@@ -11,9 +11,11 @@ public class S3Utils
     /// <param name="objectKey">Output object key (path inside bucket).</param>
     /// <param name="fileName">Output file name (last segment of key).</param>
     /// <returns>True if parsing succeeded, false otherwise.</returns>
-    public static bool TryParseS3Url(string s3Url, out string bucketName, out string objectKey, out string fileName)
+    public static bool TryParseS3Url(string s3Url, out string bucketName, out string objectKey, out string? fileName)
     {
-        bucketName = objectKey = fileName = null;
+        // initialize non-nullable out params with non-null values
+        bucketName = objectKey = string.Empty;
+        fileName = null;
 
         if (string.IsNullOrWhiteSpace(s3Url))
             return false;
