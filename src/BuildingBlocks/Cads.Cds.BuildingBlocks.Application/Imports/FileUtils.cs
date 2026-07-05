@@ -11,17 +11,18 @@ public class FileUtils
             throw new ArgumentException("Invalid file name.");
         }
 
-        var normalisedFileName = StringExtensions.NormalizeToLower(fileName);
+        var normalisedFileName = StringExtensions.NormalizeToLower(StringExtensions.ParseUpToFirstOccurrence(fileName, "."));
 
         // Assuming the file name format is CTSM_CLA_<env>_<type>_<batchId>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
         var parts = normalisedFileName!.Split('_');
-
+        var destinationTableName = parts[5] + "_" + parts[6];
+        
         if (parts.Length < 6)
         {
             throw new ArgumentException("Invalid file name format.");
         }
 
         // The destination table name is the 5th part of the file name
-        return new(parts[4], parts[3]);
+        return new(destinationTableName, parts[3]);
     }
 }

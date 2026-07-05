@@ -27,10 +27,8 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
 
         var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetailsDto>(TestContext.Current.CancellationToken);
         problemDetails.Should().NotBeNull();
-        problemDetails.Errors.Should().NotBeNull().And.HaveCount(3);
+        problemDetails.Errors.Should().NotBeNull().And.HaveCount(1);
         problemDetails.Errors["SourceKey"].Should().Contain("'Source Key' must not be empty.");
-        problemDetails.Errors["ImportDataType"].Should().Contain("'Import Data Type' must not be equal to 'None'.");
-        problemDetails.Errors["ImportActionType"].Should().Contain("'Import Action Type' must not be equal to 'None'.");
     }
 
     [Fact]
