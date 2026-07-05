@@ -22,46 +22,51 @@ public class S3Utils
 
         try
         {
-            var uri = new Uri(s3Url);
-
-            if (uri.Scheme.Equals("s3", StringComparison.OrdinalIgnoreCase))
+            if (Uri.TryCreate(s3Url, UriKind.Absolute, out var uri) == true)
             {
-                // Format: s3://bucket-name/path/to/object.txt
-                bucketName = uri.Host;
-                objectKey = uri.AbsolutePath.TrimStart('/');
-            }
-            else if (uri.Scheme.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            {
-                // Handle virtual-hosted–style: https://bucket-name.s3.region.amazonaws.com/path/to/object.txt
-                // Or path-style: https://s3.region.amazonaws.com/bucket-name/path/to/object.txt
-                var hostParts = uri.Host.Split('.');
-
-                if (hostParts.Length >= 3 && hostParts[1].Equals("s3", StringComparison.OrdinalIgnoreCase))
+                if (uri.Scheme.Equals("s3", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Virtual-hosted–style
-                    bucketName = hostParts[0];
+                    // Format: s3://bucket-name/path/to/object.txt
+                    bucketName = uri.Host;
                     objectKey = uri.AbsolutePath.TrimStart('/');
+                }
+                else if (uri.Scheme.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Handle virtual-hosted–style: https://bucket-name.s3.region.amazonaws.com/path/to/object.txt
+                    // Or path-style: https://s3.region.amazonaws.com/bucket-name/path/to/object.txt
+                    var hostParts = uri.Host.Split('.');
+
+                    if (hostParts.Length >= 3 && hostParts[1].Equals("s3", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Virtual-hosted–style
+                        bucketName = hostParts[0];
+                        objectKey = uri.AbsolutePath.TrimStart('/');
+                    }
+                    else
+                    {
+                        // Path-style
+                        var segments = uri.AbsolutePath.TrimStart('/').Split('/', 2);
+                        if (segments.Length >= 1)
+                            bucketName = segments[0];
+                        if (segments.Length == 2)
+                            objectKey = segments[1];
+                    }
                 }
                 else
                 {
-                    // Path-style
-                    var segments = uri.AbsolutePath.TrimStart('/').Split('/', 2);
-                    if (segments.Length >= 1)
-                        bucketName = segments[0];
-                    if (segments.Length == 2)
-                        objectKey = segments[1];
+                    return false; // Unsupported scheme
                 }
             }
             else
             {
-                return false; // Unsupported scheme
+                objectKey = s3Url; // If URI creation fails, treat the entire string as the object key
             }
 
             // Extract filename from object key
             if (!string.IsNullOrEmpty(objectKey))
-                fileName = objectKey.Contains("/") ? objectKey.Substring(objectKey.LastIndexOf('/') + 1) : objectKey;
+                fileName = objectKey.Contains('/') ? objectKey.Substring(objectKey.LastIndexOf('/') + 1) : objectKey;
 
-            return !string.IsNullOrEmpty(bucketName) && !string.IsNullOrEmpty(objectKey);
+            return !string.IsNullOrEmpty(bucketName) || !string.IsNullOrEmpty(objectKey);
         }
         catch
         {

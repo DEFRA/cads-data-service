@@ -94,12 +94,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insertCmd);
 
-        var job = new CreateS3CsvImportJobDto
-        {
-            SourceKey = "CTSM_CLA_ENV_DELTA_0001_CT_LOCATIONS.part-0001.csv"
-        };
-
-        var result = await InvokeGetCommandsAsync(job, _factory.Object);
+        var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, ImportActionType.Delta, _factory.Object);
 
         result.Should().ContainSingle().Which.Should().Be(insertCmd);
     }
@@ -112,12 +107,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(upsertCmd);
 
-        var job = new CreateS3CsvImportJobDto
-        {
-            SourceKey = "CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv"
-        };
-
-        var result = await InvokeGetCommandsAsync(job, _factory.Object);
+        var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, ImportActionType.Bulk, _factory.Object);
 
         result.Should().ContainSingle().Which.Should().Be(upsertCmd);
     }
@@ -255,13 +245,13 @@ public class S3ToPostgresCopyServiceTests
         return (string?)method!.Invoke(null, [input]);
     }
 
-    private static async Task<List<DbCommand>> InvokeGetCommandsAsync(CreateS3ImportJobDto job, IS3ImportCommandFactory factory)
+    private static async Task<List<DbCommand>> InvokeGetCommandsAsync(ImportDataType importDataType, ImportActionType importActionType, IS3ImportCommandFactory factory)
     {
         var method = MethodInfoUtility.GetPrivateStatic<S3ToPostgresCopyService>("GetCommandsAsync");
 
         var task = (Task<List<DbCommand>>)method.Invoke(
             null,
-            [job, factory, CancellationToken.None])!;
+            [importDataType, importActionType, factory, CancellationToken.None])!;
 
         return await task;
     }
