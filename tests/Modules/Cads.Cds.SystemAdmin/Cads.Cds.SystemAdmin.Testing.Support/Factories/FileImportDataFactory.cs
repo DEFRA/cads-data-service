@@ -13,7 +13,9 @@ public static class FileImportDataFactory
     public const string Scenario_Failed_FileName = "CTSM_CADS_PROD_BULK_ABC_0004_CT_PARTIES_2026-01-01-012345";
 
     // Mutable scenarios
-    public const string Scenario_Create_FileName = "CTSM_CADS_PROD_BULK_ABC_0005_CT_PARTIES_2026-01-01-012345";
+    public const string Scenario_Create_Bulk_FileName = "CTSM_CADS_PROD_BULK_ABC_0005_CT_PARTIES_2026-01-01-012345";
+    public const string Scenario_Create_Delta_FileName = "CTSM_CADS_PROD_DELTA_ABC_0005_CT_PARTIES_2026-01-01-012345";
+
     public const string Scenario_MarkImporting_FileName = "CTSM_CADS_PROD_BULK_ABC_0006_CT_PARTIES_2026-01-01-012345";
     public const string Scenario_MarkImportComplete_FileName = "CTSM_CADS_PROD_BULK_ABC_0007_CT_PARTIES_2026-01-01-012345";
     public const string Scenario_MarkImportFailed_FileName = "CTSM_CADS_PROD_BULK_ABC_0008_CT_PARTIES_2026-01-01-012345";
