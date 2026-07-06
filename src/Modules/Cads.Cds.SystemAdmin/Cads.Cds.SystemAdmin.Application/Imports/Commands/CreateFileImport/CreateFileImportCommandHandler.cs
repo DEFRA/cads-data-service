@@ -55,7 +55,7 @@ public sealed class CreateFileImportCommandHandler(
         throw new DomainException($"A record exists with matching file name. ImportStatus: '{fileImport.ImportStatus}'. ProcessingStatus: '{fileImport.ProcessingStatus}'.");
     }
 
-    public static string GetDestinationTableName(string fileName)
+    private static string GetDestinationTableName(string fileName)
     {
         var (destinationTableName, importActionType) = FileUtils.GetImportParametersFromFileName(fileName);
 
