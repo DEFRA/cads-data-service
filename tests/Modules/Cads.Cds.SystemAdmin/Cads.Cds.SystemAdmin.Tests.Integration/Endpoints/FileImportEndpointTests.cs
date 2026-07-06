@@ -97,11 +97,36 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenCreateRequested_ShouldSucceed()
+    public async Task GivenValidBulkRequest_WhenCreateRequested_ShouldSucceed()
     {
         var request = new CreateFileImportRequest
         {
-            FileName = FileImportDataFactory.Scenario_Create_FileName,
+            FileName = FileImportDataFactory.Scenario_Create_Bulk_FileName,
+            TotalRowsToProcess = 100,
+            RowsFound = 0
+        };
+
+        var response = await FileImportTestClient.CreateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await FileImportTestClient.ReadDtoAsync(
+            response,
+            TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        FileImportAssertions.ShouldBePending(dto);
+    }
+
+    [Fact]
+    public async Task GivenValidDeltaRequest_WhenCreateRequested_ShouldSucceed()
+    {
+        var request = new CreateFileImportRequest
+        {
+            FileName = FileImportDataFactory.Scenario_Create_Delta_FileName,
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
