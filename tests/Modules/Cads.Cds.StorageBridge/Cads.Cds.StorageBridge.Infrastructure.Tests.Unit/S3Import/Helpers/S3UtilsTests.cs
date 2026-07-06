@@ -3,7 +3,7 @@ using FluentAssertions;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.S3Import.Helpers;
 
-public class GetLocationsQueryValidatorTests
+public class S3UtilsTests
 {
     [Fact]
     public async Task TryParseS3Url_ValidUri_ShouldReturnTrue()
@@ -31,6 +31,21 @@ public class GetLocationsQueryValidatorTests
         objectKey.Should().Be("path/to/object.txt");
         fileName.Should().Be("object.txt");
     }
+
+    [Fact]
+    public async Task TryParseS3Url_ValidNonUriPathInput_ShouldReturnTrue()
+    {
+        // HTTP style S3 URL
+        var s3Url = "https://s3.region.amazonaws.com/my-bucket/path/to/object.txt";
+
+        var result = S3Utils.TryParseS3Url(s3Url, out var bucketName, out var objectKey, out var fileName);
+
+        result.Should().BeTrue();
+        bucketName.Should().Be("my-bucket");
+        objectKey.Should().Be("path/to/object.txt");
+        fileName.Should().Be("object.txt");
+    }
+
 
     [Fact]
     public async Task TryParseS3Url_UriWithoutPrefix_ShouldReturnTrue()
