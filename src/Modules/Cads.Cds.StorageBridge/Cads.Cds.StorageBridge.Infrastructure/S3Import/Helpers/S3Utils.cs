@@ -22,7 +22,7 @@ public static class S3Utils
 
         try
         {
-            if (Uri.TryCreate(s3Url, UriKind.Absolute, out var uri) == true)
+            if (Uri.TryCreate(s3Url, UriKind.Absolute, out var uri))
             {
                 if (uri.Scheme.Equals("s3", StringComparison.OrdinalIgnoreCase))
                 {
