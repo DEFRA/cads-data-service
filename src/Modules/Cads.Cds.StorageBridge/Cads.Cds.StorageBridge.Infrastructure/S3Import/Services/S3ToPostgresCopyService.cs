@@ -53,6 +53,12 @@ public class S3ToPostgresCopyService(
 
         var (importDataType, importActionType) = GetImportParameters(fileName);
 
+        if (importDataType == ImportDataType.None)
+        {
+            logger.LogError("Failed to extract destination table from S3 URL: {SourceKey}", job.SourceKey);
+            throw new InvalidOperationException("Failed to extract destination table from S3 URL");
+        }
+
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation("Starting CSV import copy for job {JobId} with key SourceKey {SourceKey}",

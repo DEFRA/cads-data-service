@@ -9,6 +9,7 @@ using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
+using DocumentFormat.OpenXml.Wordprocessing;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,8 @@ public class S3ToPostgresCopyServiceTests
 
     // Filename template:CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
     private const string ValidTestFileName = "CTSM_CADS_ENV_DELTA_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
-    private const string InvalidTestFileName = "CTSM_CADS_ENV_XXXX_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
+    private const string InvalidTestFileName1 = "CTSM_CADS_ENV_XXXX_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
+    private const string InvalidTestFileName2 = "CTSM_CADS_ENV_BULK_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
 
     [Fact]
     public async Task ExecuteAsync_ShouldThrow_WhenImportTypeIsNone()
@@ -41,7 +43,20 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            SourceKey = InvalidTestFileName
+            SourceKey = InvalidTestFileName1
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ShouldReturn_EmptyDataType_WhenFileNameFormatIsInvalid()
+    {
+        var service = CreateService();
+
+        var job = new CreateS3CsvImportJobDto
+        {
+            SourceKey = InvalidTestFileName2
         };
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
