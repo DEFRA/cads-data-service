@@ -3,7 +3,6 @@ using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Testing.Support.Factories;
-using Cads.Cds.SystemAdmin.Tests.Component.Endpoints;
 using FluentAssertions;
 using System.Net;
 
