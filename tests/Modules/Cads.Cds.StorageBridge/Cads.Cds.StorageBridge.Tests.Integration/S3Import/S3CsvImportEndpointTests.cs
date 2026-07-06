@@ -19,6 +19,7 @@ namespace Cads.Cds.StorageBridge.Tests.Integration.S3Import;
 public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 {
     private const int ProcessingTimeCircuitBreakerSeconds = 30;
+    private const string TestKey = "CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv";
 
     [Fact]
     public async Task GivenInvalidRequest_WhenS3CsvImportRequested_ShouldReturnBadRequest()
@@ -37,7 +38,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "LOCATIONS.part-0001.csv",
+            Key = TestKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
@@ -45,7 +46,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        await VerifyLoggingMessage("File LOCATIONS.part-0001.csv does not contain a valid header row.");
+        await VerifyLoggingMessage($"File {TestKey} does not contain a valid header row.");
     }
 
     [Fact]
@@ -56,7 +57,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "LOCATIONS.part-0001.csv",
+            Key = TestKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
@@ -66,7 +67,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 0 records processed");
+        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key sourceKey \"{TestKey}\", 0 records processed");
     }
 
     [Fact]
@@ -79,7 +80,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "LOCATIONS.part-0001.csv",
+            Key = TestKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
@@ -102,7 +103,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "LOCATIONS.part-0001.csv",
+            Key = TestKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
@@ -126,7 +127,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
                 TestDataFileConstants.LocationsDataRow2
             ]);
 
-        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key sourceKey \"LOCATIONS.part-0001.csv\", 2 records processed");
+        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key sourceKey \"{TestKey}\", 2 records processed");
     }
 
     private static StringContent? InvalidS3CsvImportRequest =>
@@ -138,7 +139,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     private static StringContent? ValidS3CsvImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = "CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv"
+            SourceKey = TestKey
         });
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
