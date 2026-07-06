@@ -66,7 +66,7 @@ public static class S3Utils
             if (!string.IsNullOrEmpty(objectKey))
                 fileName = objectKey.Contains('/') ? objectKey.Substring(objectKey.LastIndexOf('/') + 1) : objectKey;
 
-            return !string.IsNullOrEmpty(bucketName) || !string.IsNullOrEmpty(objectKey);
+            return !string.IsNullOrEmpty(bucketName) || !string.IsNullOrEmpty(objectKey) || !string.IsNullOrEmpty(fileName);
         }
         catch
         {
