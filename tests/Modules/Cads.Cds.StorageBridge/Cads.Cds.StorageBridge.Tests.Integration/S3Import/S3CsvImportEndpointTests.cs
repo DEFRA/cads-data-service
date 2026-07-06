@@ -19,7 +19,9 @@ namespace Cads.Cds.StorageBridge.Tests.Integration.S3Import;
 public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 {
     private const int ProcessingTimeCircuitBreakerSeconds = 30;
-    private const string TestKey = "CTSM_CLA_ENV_BULK_0001_CT_LOCATIONS.part-0001.csv";
+
+    // Filename template:CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
+    private const string TestKey = "CTSM_CADS_ENV_BULK_0001_0001_CT_LOCATIONS_2023-01-01-012345.part-0001.csv";
 
     [Fact]
     public async Task GivenInvalidRequest_WhenS3CsvImportRequested_ShouldReturnBadRequest()
