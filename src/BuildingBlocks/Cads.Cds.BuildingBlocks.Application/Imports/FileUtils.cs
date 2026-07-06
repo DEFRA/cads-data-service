@@ -11,9 +11,8 @@ public class FileUtils
             throw new ArgumentException("Invalid file name.");
         }
 
-        var normalisedFileName = StringExtensions.NormalizeToLower(StringExtensions.ParseUpToFirstOccurrence(fileName, "."));
-
         // Assuming the file name format is CTSM_CLA_<env>_<type>_<batchId>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
+        var normalisedFileName = StringExtensions.NormalizeToLower(StringExtensions.ParseUpToFirstOccurrence(fileName, "."));
         var parts = normalisedFileName!.Split('_');
         var destinationTableName = parts[5] + "_" + parts[6];
         
