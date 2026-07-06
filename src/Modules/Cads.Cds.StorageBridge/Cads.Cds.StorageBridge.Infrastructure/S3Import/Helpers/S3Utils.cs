@@ -1,6 +1,6 @@
-namespace Cads.Cds.StorageBridge.Application.Extensions;
+namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Helpers;
 
-public class S3Utils
+public static class S3Utils
 {
     /// <summary>
     /// Parses an S3 URL into bucket name, object key, and filename.

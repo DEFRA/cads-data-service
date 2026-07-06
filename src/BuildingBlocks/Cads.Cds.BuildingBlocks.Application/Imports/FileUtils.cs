@@ -2,7 +2,7 @@ using Cads.Cds.BuildingBlocks.Core.Extensions;
 
 namespace Cads.Cds.BuildingBlocks.Application.Imports;
 
-public class FileUtils
+public static class FileUtils
 {
     public static (string, string) GetImportParametersFromFileName(string fileName)
     {
