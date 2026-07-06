@@ -15,11 +15,12 @@ public static class FileImportDataFactory
     // Mutable scenarios
     public const string Scenario_Create_Bulk_FileName = "CTSM_CADS_PROD_BULK_ABC_0005_CT_PARTIES_2026-01-01-012345";
     public const string Scenario_Create_Delta_FileName = "CTSM_CADS_PROD_DELTA_ABC_0005_CT_PARTIES_2026-01-01-012345";
-
     public const string Scenario_MarkImporting_FileName = "CTSM_CADS_PROD_BULK_ABC_0006_CT_PARTIES_2026-01-01-012345";
     public const string Scenario_MarkImportComplete_FileName = "CTSM_CADS_PROD_BULK_ABC_0007_CT_PARTIES_2026-01-01-012345";
     public const string Scenario_MarkImportFailed_FileName = "CTSM_CADS_PROD_BULK_ABC_0008_CT_PARTIES_2026-01-01-012345";
     public const string Scenario_Reset_FileName = "CTSM_CADS_PROD_BULK_ABC_0009_CT_PARTIES_2026-01-01-012345";
+
+    public const string Scenario_Create_Invalid_FileName = "CTSM_CADS_PROD_XXXX_ABC_CT_0001_PARTIES_2026-01-01-012345";
 
     public static List<FileImport> CreateMockData()
     {
