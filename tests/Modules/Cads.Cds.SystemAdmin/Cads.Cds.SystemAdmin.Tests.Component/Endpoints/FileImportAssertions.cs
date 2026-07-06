@@ -2,7 +2,7 @@ using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 using FluentAssertions;
 
-namespace Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
+namespace Cads.Cds.SystemAdmin.Tests.Component.Endpoints;
 
 public static class FileImportAssertions
 {

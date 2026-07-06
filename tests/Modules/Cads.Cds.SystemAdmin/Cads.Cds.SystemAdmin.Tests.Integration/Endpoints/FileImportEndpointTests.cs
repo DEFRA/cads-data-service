@@ -146,6 +146,24 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         FileImportAssertions.ShouldBePending(dto);
     }
 
+    [Fact]
+    public async Task GivenInvalidDeltaRequest_WhenCreateRequested_ShouldReturnUnprocessableEntity()
+    {
+        var request = new CreateFileImportRequest
+        {
+            FileName = FileImportDataFactory.Scenario_Create_Invalid_FileName,
+            TotalRowsToProcess = 100,
+            RowsFound = 0
+        };
+
+        var response = await FileImportTestClient.CreateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+    }
+
     // FileImports - MarkImporting
 
     [Fact]

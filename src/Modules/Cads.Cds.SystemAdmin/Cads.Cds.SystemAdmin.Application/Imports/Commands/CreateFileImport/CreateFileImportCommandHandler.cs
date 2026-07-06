@@ -68,7 +68,7 @@ public sealed class CreateFileImportCommandHandler(
 
         if (schemaName == SchemaName.NotDefined)
         {
-            throw new DomainException($"Invalid import action type '{importActionType}' derived from file name '{fileName}'.");
+            throw new UnprocessableException($"Invalid import action type '{importActionType}' derived from file name '{fileName}'.");
         }
 
         return $"{schemaName.GetDescription()}.{destinationTableName}";
