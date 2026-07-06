@@ -15,7 +15,7 @@ public class FileUtils
         var normalisedFileName = StringExtensions.NormalizeToLower(StringExtensions.ParseUpToFirstOccurrence(fileName, "."));
         var parts = normalisedFileName!.Split('_');
         var destinationTableName = parts[5] + "_" + parts[6];
-        
+
         if (parts.Length < 6)
         {
             throw new ArgumentException("Invalid file name format.");
