@@ -2,7 +2,6 @@ using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.StorageBridge.Controllers.Requests;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
 using Cads.Cds.StorageBridge.Tests.Component.TestFixtures;
 using FluentAssertions;
@@ -18,6 +17,10 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
 
     private const string Endpoint = TestEndpointConstants.StorageBridgeS3CsvImportRoot;
 
+    // Filename template:CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
+    private const string ValidBulkSourceKey = "CTSM_CADS_BULK_0001_0001_CT_LOCATIONS.part-0001.csv";
+    private const string ValidDeltaSourceKey = "CTSM_CADS_DELTA_0001_0001_CT_LOCATIONS.part-0001.csv";
+
     [Fact]
     public async Task GivenInvalidRequest_WhenS3CsvImportRequested_ShouldReturnBadRequest()
     {
@@ -28,49 +31,55 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
 
         var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetailsDto>(TestContext.Current.CancellationToken);
         problemDetails.Should().NotBeNull();
-        problemDetails.Errors.Should().NotBeNull().And.HaveCount(3);
+        problemDetails.Errors.Should().NotBeNull().And.HaveCount(1);
         problemDetails.Errors["SourceKey"].Should().Contain("'Source Key' must not be empty.");
-        problemDetails.Errors["ImportDataType"].Should().Contain("'Import Data Type' must not be equal to 'None'.");
-        problemDetails.Errors["ImportActionType"].Should().Contain("'Import Action Type' must not be equal to 'None'.");
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenS3ImportRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenS3BulkImportRequested_ShouldSucceed()
     {
         SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
 
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3ImportRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3BulkImportRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
-        job.SourceKey.Should().Be("LOCATIONS.part-0001.csv");
-        job.ImportDataType.Should().Be(ImportDataType.CtLocations);
+        job.SourceKey.Should().Be(ValidBulkSourceKey);
+    }
+
+
+    [Fact]
+    public async Task GivenValidRequest_WhenS3DeltaImportRequested_ShouldSucceed()
+    {
+        SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
+
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3DeltaRequest, TestContext.Current.CancellationToken);
+
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
+        job.SourceKey.Should().Be(ValidDeltaSourceKey);
     }
 
     private static StringContent? InvalidS3ImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = string.Empty,
-            ImportDataType = ImportDataType.None,
-            ImportActionType = ImportActionType.None
+            SourceKey = string.Empty
         });
 
-    private static StringContent? ValidS3ImportRequest =>
+    private static StringContent? ValidS3BulkImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = "LOCATIONS.part-0001.csv",
-            ImportDataType = ImportDataType.CtLocations,
-            ImportActionType = ImportActionType.Bulk
+            SourceKey = ValidBulkSourceKey
         });
 
-    private static StringContent? ValidS3TransactionalRequest =>
+    private static StringContent? ValidS3DeltaRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = "LOCATIONS.part-0001.csv",
-            ImportDataType = ImportDataType.CtLocations,
-            ImportActionType = ImportActionType.Transactional
+            SourceKey = ValidDeltaSourceKey
         });
 
     private void SetupS3MockForLocations(string row1, string row2)
