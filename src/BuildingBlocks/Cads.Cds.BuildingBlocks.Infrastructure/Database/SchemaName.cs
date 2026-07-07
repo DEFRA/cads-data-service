@@ -7,10 +7,10 @@ public enum SchemaName
     NotDefined = 0,
 
     [Description("public")]
-    Public = 12,
+    Public = 1,
 
     [Description("cts")]
-    Cts = 1,
+    Cts = 2,
 
     [Description("cts_audit")]
     CtsAudit = 3,
