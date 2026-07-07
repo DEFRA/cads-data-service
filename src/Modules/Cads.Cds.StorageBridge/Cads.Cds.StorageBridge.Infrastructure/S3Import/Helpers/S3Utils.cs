@@ -20,57 +20,50 @@ public static class S3Utils
         if (string.IsNullOrWhiteSpace(s3Url))
             return false;
 
-        try
+        if (Uri.TryCreate(s3Url, UriKind.Absolute, out var uri))
         {
-            if (Uri.TryCreate(s3Url, UriKind.Absolute, out var uri))
+            if (uri.Scheme.Equals("s3", StringComparison.OrdinalIgnoreCase))
             {
-                if (uri.Scheme.Equals("s3", StringComparison.OrdinalIgnoreCase))
-                {
-                    // Format: s3://bucket-name/path/to/object.txt
-                    bucketName = uri.Host;
-                    objectKey = uri.AbsolutePath.TrimStart('/');
-                }
-                else if (uri.Scheme.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-                {
-                    // Handle virtual-hosted–style: https://bucket-name.s3.region.amazonaws.com/path/to/object.txt
-                    // Or path-style: https://s3.region.amazonaws.com/bucket-name/path/to/object.txt
-                    var hostParts = uri.Host.Split('.');
+                // Format: s3://bucket-name/path/to/object.txt
+                bucketName = uri.Host;
+                objectKey = uri.AbsolutePath.TrimStart('/');
+            }
+            else if (uri.Scheme.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                // Handle virtual-hosted–style: https://bucket-name.s3.region.amazonaws.com/path/to/object.txt
+                // Or path-style: https://s3.region.amazonaws.com/bucket-name/path/to/object.txt
+                var hostParts = uri.Host.Split('.');
 
-                    if (hostParts.Length >= 3 && hostParts[1].Equals("s3", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Virtual-hosted–style
-                        bucketName = hostParts[0];
-                        objectKey = uri.AbsolutePath.TrimStart('/');
-                    }
-                    else
-                    {
-                        // Path-style
-                        var segments = uri.AbsolutePath.TrimStart('/').Split('/', 2);
-                        if (segments.Length >= 1)
-                            bucketName = segments[0];
-                        if (segments.Length == 2)
-                            objectKey = segments[1];
-                    }
+                if (hostParts.Length >= 3 && hostParts[1].Equals("s3", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Virtual-hosted–style
+                    bucketName = hostParts[0];
+                    objectKey = uri.AbsolutePath.TrimStart('/');
                 }
                 else
                 {
-                    return false; // Unsupported scheme
+                    // Path-style
+                    var segments = uri.AbsolutePath.TrimStart('/').Split('/', 2);
+                    if (segments.Length >= 1)
+                        bucketName = segments[0];
+                    if (segments.Length == 2)
+                        objectKey = segments[1];
                 }
             }
             else
             {
-                objectKey = s3Url; // If URI creation fails, treat the entire string as the object key
+                return false; // Unsupported scheme
             }
-
-            // Extract filename from object key
-            if (!string.IsNullOrEmpty(objectKey))
-                fileName = objectKey.Contains('/') ? objectKey.Substring(objectKey.LastIndexOf('/') + 1) : objectKey;
-
-            return !string.IsNullOrEmpty(bucketName) || !string.IsNullOrEmpty(objectKey) || !string.IsNullOrEmpty(fileName);
         }
-        catch
+        else
         {
-            return false;
+            objectKey = s3Url; // If URI creation fails, treat the entire string as the object key
         }
+
+        // Extract filename from object key
+        if (!string.IsNullOrEmpty(objectKey))
+            fileName = objectKey.Contains('/') ? objectKey.Substring(objectKey.LastIndexOf('/') + 1) : objectKey;
+
+        return !string.IsNullOrEmpty(bucketName) || !string.IsNullOrEmpty(objectKey) || !string.IsNullOrEmpty(fileName);
     }
 }

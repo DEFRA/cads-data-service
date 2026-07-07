@@ -11,7 +11,6 @@ public static class FileUtils
             throw new ArgumentException("Invalid file name.");
         }
 
-
         // Assuming the file name format is:
         // CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
         var normalisedFileName = StringExtensions.NormalizeToLower(StringExtensions.ParseUpToFirstOccurrence(fileName, "."));
