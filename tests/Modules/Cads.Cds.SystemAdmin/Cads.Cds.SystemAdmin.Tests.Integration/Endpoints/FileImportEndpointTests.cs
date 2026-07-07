@@ -3,7 +3,6 @@ using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Testing.Support.Factories;
-using Cads.Cds.SystemAdmin.Tests.Component.Endpoints;
 using FluentAssertions;
 using System.Net;
 
@@ -97,11 +96,11 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenCreateRequested_ShouldSucceed()
+    public async Task GivenValidBulkRequest_WhenCreateRequested_ShouldSucceed()
     {
         var request = new CreateFileImportRequest
         {
-            FileName = FileImportDataFactory.Scenario_Create_FileName,
+            FileName = FileImportDataFactory.Scenario_Create_Bulk_FileName,
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -119,6 +118,49 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         dto.Should().NotBeNull();
         FileImportAssertions.ShouldBePending(dto);
+    }
+
+    [Fact]
+    public async Task GivenValidDeltaRequest_WhenCreateRequested_ShouldSucceed()
+    {
+        var request = new CreateFileImportRequest
+        {
+            FileName = FileImportDataFactory.Scenario_Create_Delta_FileName,
+            TotalRowsToProcess = 100,
+            RowsFound = 0
+        };
+
+        var response = await FileImportTestClient.CreateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await FileImportTestClient.ReadDtoAsync(
+            response,
+            TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        FileImportAssertions.ShouldBePending(dto);
+    }
+
+    [Fact]
+    public async Task GivenInvalidDeltaRequest_WhenCreateRequested_ShouldReturnUnprocessableEntity()
+    {
+        var request = new CreateFileImportRequest
+        {
+            FileName = FileImportDataFactory.Scenario_Create_Invalid_FileName,
+            TotalRowsToProcess = 100,
+            RowsFound = 0
+        };
+
+        var response = await FileImportTestClient.CreateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
     // FileImports - MarkImporting

@@ -1,10 +1,14 @@
+using Cads.Cds.BuildingBlocks.Application.Imports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
+using Cads.Cds.StorageBridge.Core.Domain.Extensions;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Helpers;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +39,26 @@ public class S3ToPostgresCopyService(
     {
         ValidateJob(job);
 
+        if (!S3Utils.TryParseS3Url(job.SourceKey, out var bucketName, out var objectKey, out var fileName))
+        {
+            logger.LogError("Failed to parse S3 URL: {SourceKey}", job.SourceKey);
+            throw new InvalidOperationException("Failed to parse S3 URL");
+        }
+
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", job.SourceKey);
+            throw new InvalidOperationException("Failed to extract file name from S3 URL");
+        }
+
+        var (importDataType, importActionType) = GetImportParameters(fileName);
+
+        if (importDataType == ImportDataType.None)
+        {
+            logger.LogError("Failed to extract destination table from S3 URL: {SourceKey}", job.SourceKey);
+            throw new InvalidOperationException("Failed to extract destination table from S3 URL");
+        }
+
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation("Starting CSV import copy for job {JobId} with key SourceKey {SourceKey}",
@@ -54,8 +78,8 @@ public class S3ToPostgresCopyService(
         var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
 
         var factory = factoryProvider.Create((NpgsqlConnection)connection);
-        var createTempTableCommand = factory.CreateTempTableCommand(job.ImportDataType, MapSchemaFromImportActionType(job.ImportActionType));
-        var actionCommands = await GetCommandsAsync(job, factory, cancellationToken);
+        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
+        var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
 
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
@@ -75,7 +99,9 @@ public class S3ToPostgresCopyService(
 
             var rows = await ProcessFileAsync(
                 key,
-                job,
+                importDataType,
+                importActionType,
+                job.Delimiter,
                 factory,
                 connection,
                 createTempTableCommand,
@@ -109,7 +135,9 @@ public class S3ToPostgresCopyService(
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
     /// </summary>
     /// <param name="key"></param>
-    /// <param name="job"></param>
+    /// <param name="importDataType"></param>
+    /// <param name="importActionType"></param>
+    /// <param name="delimiter"></param>
     /// <param name="factory"></param>
     /// <param name="connection"></param>
     /// <param name="createTempTableCommand"></param>
@@ -119,7 +147,9 @@ public class S3ToPostgresCopyService(
     [ExcludeFromCodeCoverage]
     private async Task<int> ProcessFileAsync(
         string key,
-        CreateS3CsvImportJobDto job,
+        ImportDataType importDataType,
+        ImportActionType importActionType,
+        char delimiter,
         IS3ImportCommandFactory factory,
         DbConnection connection,
         DbCommand createTempTableCommand,
@@ -130,7 +160,7 @@ public class S3ToPostgresCopyService(
 
         await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
-        await CopyFileToStagingAsync(job.ImportDataType, MapSchemaFromImportActionType(job.ImportActionType), job.Delimiter, key, factory, cancellationToken);
+        await CopyFileToStagingAsync(importDataType, importActionType.GetSchemaName(), delimiter, key, factory, cancellationToken);
 
         var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
 
@@ -226,9 +256,6 @@ public class S3ToPostgresCopyService(
 
     private static void ValidateJob(CreateS3CsvImportJobDto job)
     {
-        if (job.ImportActionType == ImportActionType.None)
-            throw new InvalidOperationException("ImportType cannot be None.");
-
         if (string.IsNullOrWhiteSpace(job.SourceKey))
             throw new InvalidOperationException("SourceKey is required.");
     }
@@ -247,38 +274,43 @@ public class S3ToPostgresCopyService(
     }
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
-        CreateS3CsvImportJobDto job,
+        ImportDataType importDataType,
+        ImportActionType importActionType,
         IS3ImportCommandFactory factory,
         CancellationToken cancellationToken)
     {
         var commands = new List<DbCommand>();
-        var schemaName = MapSchemaFromImportActionType(job.ImportActionType);
+        var schemaName = importActionType.GetSchemaName();
 
-        if (job.ImportActionType == ImportActionType.Bulk)
+        switch (importActionType)
         {
-            commands.Add(await factory.CreateUpsertCommandAsync(job.ImportDataType, schemaName, cancellationToken));
-        }
-
-        if (job.ImportActionType == ImportActionType.Transactional)
-        {
-            commands.Add(await factory.CreateInsertCommandAsync(job.ImportDataType, schemaName, cancellationToken));
+            case ImportActionType.Bulk:
+                commands.Add(await factory.CreateUpsertCommandAsync(importDataType, schemaName, cancellationToken));
+                break;
+            case ImportActionType.Delta:
+                commands.Add(await factory.CreateInsertCommandAsync(importDataType, schemaName, cancellationToken));
+                break;
+            default:
+                throw new InvalidOperationException($"Unsupported ImportActionType '{importActionType}'.");
         }
 
         return commands;
     }
 
-    private static SchemaName MapSchemaFromImportActionType(ImportActionType importActionType)
+    private static (ImportDataType, ImportActionType) GetImportParameters(string filename)
     {
-        if (importActionType == ImportActionType.Bulk)
+        var (destinationTableName, importActionType) = FileUtils.GetImportParametersFromFileName(filename);
+
+        if (!Enum.TryParse<ImportActionType>(importActionType, true, out var importActionTypeParsed))
         {
-            return SchemaName.Cts;
+            throw new InvalidOperationException($"Invalid ImportActionType '{importActionType}' for file '{filename}'.");
         }
 
-        if (importActionType == ImportActionType.Transactional)
-        {
-            return SchemaName.CtsTransactions;
-        }
+        var schemaName = importActionTypeParsed.GetSchemaName();
 
-        return SchemaName.Public;
+        var importDataType = Enum.GetValues<ImportDataType>()
+                .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(destinationTableName, StringComparison.InvariantCultureIgnoreCase) == true);
+
+        return (importDataType, importActionTypeParsed);
     }
 }

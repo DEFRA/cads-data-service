@@ -9,6 +9,7 @@ using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
+using DocumentFormat.OpenXml.Wordprocessing;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,7 +31,10 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IS3ImportCommandFactory> _factory = new();
     private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
 
-    private const string TestFileName = "LOCATIONS.part-0001.csv";
+    // Filename template:CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
+    private const string ValidTestFileName = "CTSM_CADS_ENV_DELTA_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
+    private const string InvalidTestFileName1 = "CTSM_CADS_ENV_XXXX_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
+    private const string InvalidTestFileName2 = "CTSM_CADS_ENV_BULK_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
 
     [Fact]
     public async Task ExecuteAsync_ShouldThrow_WhenImportTypeIsNone()
@@ -39,8 +43,20 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.None,
-            SourceKey = TestFileName
+            SourceKey = InvalidTestFileName1
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ShouldReturn_EmptyDataType_WhenFileNameFormatIsInvalid()
+    {
+        var service = CreateService();
+
+        var job = new CreateS3CsvImportJobDto
+        {
+            SourceKey = InvalidTestFileName2
         };
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
@@ -53,7 +69,6 @@ public class S3ToPostgresCopyServiceTests
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.Bulk,
             SourceKey = ""
         };
 
@@ -65,14 +80,12 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        _storageService.Setup(x => x.ListKeysAsync(TestFileName, It.IsAny<CancellationToken>()))
+        _storageService.Setup(x => x.ListKeysAsync(ValidTestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var job = new CreateS3CsvImportJobDto
         {
-            ImportActionType = ImportActionType.Transactional,
-            SourceKey = TestFileName,
-            ImportDataType = ImportDataType.CtLocations
+            SourceKey = ValidTestFileName
         };
 
         var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
@@ -98,13 +111,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insertCmd);
 
-        var job = new CreateS3CsvImportJobDto
-        {
-            ImportActionType = ImportActionType.Transactional,
-            ImportDataType = ImportDataType.CtLocations
-        };
-
-        var result = await InvokeGetCommandsAsync(job, _factory.Object);
+        var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, ImportActionType.Delta, _factory.Object);
 
         result.Should().ContainSingle().Which.Should().Be(insertCmd);
     }
@@ -117,13 +124,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(upsertCmd);
 
-        var job = new CreateS3CsvImportJobDto
-        {
-            ImportActionType = ImportActionType.Bulk,
-            ImportDataType = ImportDataType.CtLocations
-        };
-
-        var result = await InvokeGetCommandsAsync(job, _factory.Object);
+        var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, ImportActionType.Bulk, _factory.Object);
 
         result.Should().ContainSingle().Which.Should().Be(upsertCmd);
     }
@@ -159,7 +160,7 @@ public class S3ToPostgresCopyServiceTests
         var writer = new NonDisposingStreamWriter(outputStream);
 
         _storageService
-            .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetObjectResponseAsync(ValidTestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GetObjectResponse());
 
         var method = typeof(S3ToPostgresCopyService)
@@ -175,7 +176,7 @@ public class S3ToPostgresCopyServiceTests
             ImportDataType.CtLocations,
             SchemaName.Cts,
             '|',
-            TestFileName,
+            ValidTestFileName,
             _factory.Object,
             CancellationToken.None
             ])!;
@@ -203,7 +204,7 @@ public class S3ToPostgresCopyServiceTests
             .Returns(writer);
 
         _storageService
-            .Setup(x => x.GetObjectResponseAsync(TestFileName, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetObjectResponseAsync(ValidTestFileName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var method = typeof(S3ToPostgresCopyService)
@@ -219,7 +220,7 @@ public class S3ToPostgresCopyServiceTests
             ImportDataType.CtLocations,
             SchemaName.Cts,
             '|',
-            TestFileName,
+            ValidTestFileName,
             _factory.Object,
             CancellationToken.None
             ])!;
@@ -261,13 +262,13 @@ public class S3ToPostgresCopyServiceTests
         return (string?)method!.Invoke(null, [input]);
     }
 
-    private static async Task<List<DbCommand>> InvokeGetCommandsAsync(CreateS3ImportJobDto job, IS3ImportCommandFactory factory)
+    private static async Task<List<DbCommand>> InvokeGetCommandsAsync(ImportDataType importDataType, ImportActionType importActionType, IS3ImportCommandFactory factory)
     {
         var method = MethodInfoUtility.GetPrivateStatic<S3ToPostgresCopyService>("GetCommandsAsync");
 
         var task = (Task<List<DbCommand>>)method.Invoke(
             null,
-            [job, factory, CancellationToken.None])!;
+            [importDataType, importActionType, factory, CancellationToken.None])!;
 
         return await task;
     }
