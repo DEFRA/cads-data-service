@@ -10,12 +10,6 @@ public class S3CsvImportCommandValidator : AbstractValidator<S3CsvImportCommand>
         RuleFor(x => x.SourceKey)
             .NotEmpty();
 
-        RuleFor(x => x.ImportDataType)
-            .NotEqual(ImportDataType.None);
-
-        RuleFor(x => x.ImportActionType)
-            .NotEqual(ImportActionType.None);
-
         RuleFor(x => x.Delimiter)
             .Must(d => !char.IsWhiteSpace(d));
     }
