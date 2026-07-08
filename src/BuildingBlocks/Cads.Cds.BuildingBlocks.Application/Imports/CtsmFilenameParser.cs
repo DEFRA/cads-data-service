@@ -1,3 +1,5 @@
+using DocumentFormat.OpenXml.InkML;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace Cads.Cds.BuildingBlocks.Application.Imports;
@@ -14,14 +16,15 @@ public record CtsmFilename(
 
 public class CtsmFilenameParser
 {
-    // Pattern 1: CTSM_<app>_<env>_<type>_<batchId>_<tablename>_<timestamp>.csv
+
+    // Pattern 1: CTSM_<app>_<env>_<type>_<batchId>_<partno>_<tablename>_<timestamp>.csv
     private static readonly Regex Pattern1 = new(
-        @"^CTSM_(?<app>[^_]+)_(?<env>[A-Za-z0-9]+)_(?<type>[A-Za-z0-9]+)_(?<batchId>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})\.csv$",
+        @"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<partno>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})\..*$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    // Pattern 2: CTSM_<app>_<env>_<type>_<batchId>_<partno>_<tablename>_<timestamp>.csv
+    // Pattern 2: CTSM_<app>_<env>_<type>_<batchId>_<tablename>_<timestamp>.csv
     private static readonly Regex Pattern2 = new(
-        @"^CTSM_(?<app>[^_]+)_(?<env>[A-Za-z0-9]+)_(?<type>[A-Za-z0-9]+)_(?<batchId>[A-Za-z0-9]+)_(?<partno>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})\.csv$",
+        @"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})\..*$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     public static bool TryParse(string filename, out CtsmFilename? result)
@@ -31,7 +34,7 @@ public class CtsmFilenameParser
         if (string.IsNullOrWhiteSpace(filename))
             return false;
 
-        // Try standard pattern
+        // Try new pattern with part number (for CADS)
         var m1 = Pattern1.Match(filename);
         if (m1.Success)
         {
@@ -40,14 +43,14 @@ public class CtsmFilenameParser
                 Env: m1.Groups["env"].Value,
                 Type: m1.Groups["type"].Value,
                 BatchId: m1.Groups["batchId"].Value,
-                PartNo: null,
+                PartNo: m1.Groups["partno"].Value,
                 TableName: m1.Groups["tablename"].Value,
                 Timestamp: m1.Groups["timestamp"].Value
             );
             return true;
         }
 
-        // Try pattern 2 with part number (for CADS)
+        // Try old pattern
         var m2 = Pattern2.Match(filename);
         if (m2.Success)
         {
@@ -56,7 +59,7 @@ public class CtsmFilenameParser
                 Env: m2.Groups["env"].Value,
                 Type: m2.Groups["type"].Value,
                 BatchId: m2.Groups["batchId"].Value,
-                PartNo: m2.Groups["partno"].Value,
+                PartNo: null,
                 TableName: m2.Groups["tablename"].Value,
                 Timestamp: m2.Groups["timestamp"].Value
             );
