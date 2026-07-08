@@ -7,7 +7,7 @@ public record CtsmFilename(
     string Env,
     string Type,
     string BatchId,
-    string PartNo,
+    string? PartNo,
     string TableName,
     string Timestamp
 );
@@ -24,7 +24,7 @@ public class CtsmFilenameParser
         @"^CTSM_(?<app>[^_]+)_(?<env>[A-Za-z0-9]+)_(?<type>[A-Za-z0-9]+)_(?<batchId>[A-Za-z0-9]+)_(?<partno>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})\.csv$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    public static bool TryParse(string filename, out CtsmFilename result)
+    public static bool TryParse(string filename, out CtsmFilename? result)
     {
         result = null;
 
@@ -66,7 +66,7 @@ public class CtsmFilenameParser
         return false;
     }
 
-    public static CtsmFilename Parse(string filename)
+    public static CtsmFilename? Parse(string filename)
     {
         if (!TryParse(filename, out var parsed))
             throw new FormatException($"Invalid CTSM filename format: {filename}");
@@ -81,7 +81,7 @@ public class CtsmFilenameParser
         string type,
         string batchId,
         string tableName,
-        string partNo = null)
+        string? partNo = null)
     {
         var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd-HHmmss");
 

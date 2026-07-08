@@ -301,15 +301,15 @@ public class S3ToPostgresCopyService(
     {
         var parsedFilename = CtsmFilenameParser.Parse(filename);
 
-        if (!Enum.TryParse<ImportActionType>(parsedFilename.Type, true, out var importActionTypeParsed))
+        if (!Enum.TryParse<ImportActionType>(parsedFilename?.Type, true, out var importActionTypeParsed))
         {
-            throw new InvalidOperationException($"Invalid ImportActionType '{parsedFilename.Type}' for file '{filename}'.");
+            throw new InvalidOperationException($"Invalid ImportActionType '{parsedFilename?.Type}' for file '{filename}'.");
         }
 
         var schemaName = importActionTypeParsed.GetSchemaName();
 
         var importDataType = Enum.GetValues<ImportDataType>()
-            .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(parsedFilename.TableName, StringComparison.InvariantCultureIgnoreCase) == true);
+            .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(parsedFilename?.TableName, StringComparison.InvariantCultureIgnoreCase) == true);
 
         return (importDataType, importActionTypeParsed);
     }

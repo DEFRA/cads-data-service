@@ -10,7 +10,7 @@ public static class SchemaHelper
     {
         var parsedFilename = CtsmFilenameParser.Parse(filename);
 
-        var schemaName = parsedFilename.Type.ToLower() switch
+        var schemaName = parsedFilename?.Type.ToLower() switch
         {
             "bulk" => SchemaName.Cts,
             "delta" => SchemaName.CtsTransactions,
@@ -19,9 +19,9 @@ public static class SchemaHelper
 
         if (schemaName == SchemaName.NotDefined)
         {
-            throw new UnprocessableException($"Invalid import action type '{parsedFilename.Type}' derived from file name '{parsedFilename.TableName}'.");
+            throw new UnprocessableException($"Invalid import action type '{parsedFilename?.Type}' derived from file name '{parsedFilename?.TableName}'.");
         }
 
-        return $"{schemaName.GetDescription()}.{parsedFilename.TableName}";
+        return $"{schemaName.GetDescription()}.{parsedFilename?.TableName}";
     }
 }
