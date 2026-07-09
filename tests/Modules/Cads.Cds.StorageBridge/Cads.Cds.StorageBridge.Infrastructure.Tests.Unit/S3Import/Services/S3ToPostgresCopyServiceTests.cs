@@ -61,7 +61,7 @@ public class S3ToPostgresCopyServiceTests
             SourceKey = InvalidTestFileName2
         };
 
-        await Assert.ThrowsAsync<FormatException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
     }
 
     [Fact]
