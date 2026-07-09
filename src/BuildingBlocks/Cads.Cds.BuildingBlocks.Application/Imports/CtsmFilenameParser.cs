@@ -12,18 +12,15 @@ public record CtsmFilename(
     string Timestamp
 );
 
-public static class CtsmFilenameParser
+public static partial class CtsmFilenameParser
 {
-
     // Pattern 1: CTSM_<app>_<env>_<type>_<batchId>_<partno>_<tablename>_<timestamp>.csv
-    private static readonly Regex Pattern1 = new(
-        @"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<partno>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    [GeneratedRegex(@"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<partno>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+    private static partial Regex Pattern1();
 
     // Pattern 2: CTSM_<app>_<env>_<type>_<batchId>_<tablename>_<timestamp>.csv
-    private static readonly Regex Pattern2 = new(
-        @"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    [GeneratedRegex(@"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+    private static partial Regex Pattern2();
 
     public static bool TryParse(string filename, out CtsmFilename? result)
     {
@@ -33,7 +30,7 @@ public static class CtsmFilenameParser
             return false;
 
         // Try new pattern with part number (for CADS)
-        var m1 = Pattern1.Match(filename);
+        var m1 = Pattern1().Match(filename);
         if (m1.Success)
         {
             result = new CtsmFilename(
@@ -49,7 +46,7 @@ public static class CtsmFilenameParser
         }
 
         // Try old pattern
-        var m2 = Pattern2.Match(filename);
+        var m2 = Pattern2().Match(filename);
         if (m2.Success)
         {
             result = new CtsmFilename(
@@ -74,4 +71,6 @@ public static class CtsmFilenameParser
 
         return parsed;
     }
+
+
 }
