@@ -76,23 +76,4 @@ public class CtsmFilenameParser
 
         return parsed;
     }
-
-    // Factory method to generate filenames
-    public static string Create(
-        string app,
-        string env,
-        string type,
-        string batchId,
-        string tableName,
-        string? partNo = null)
-    {
-        var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd-HHmmss");
-
-        if (partNo != null)
-        {
-            return $"CTSM_{app}_{env}_{type}_{batchId}_{partNo}_{tableName}_{timestamp}.csv";
-        }
-
-        return $"CTSM_{app}_{env}_{type}_{batchId}_{tableName}_{timestamp}.csv";
-    }
 }
