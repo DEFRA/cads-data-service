@@ -14,7 +14,7 @@ public record CtsmFilename(
     string Timestamp
 );
 
-public class CtsmFilenameParser
+public static class CtsmFilenameParser
 {
 
     // Pattern 1: CTSM_<app>_<env>_<type>_<batchId>_<partno>_<tablename>_<timestamp>.csv
