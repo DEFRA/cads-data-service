@@ -19,12 +19,12 @@ public class CtsmFilenameParser
 
     // Pattern 1: CTSM_<app>_<env>_<type>_<batchId>_<partno>_<tablename>_<timestamp>.csv
     private static readonly Regex Pattern1 = new(
-        @"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<partno>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})\..*$",
+        @"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<partno>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     // Pattern 2: CTSM_<app>_<env>_<type>_<batchId>_<tablename>_<timestamp>.csv
     private static readonly Regex Pattern2 = new(
-        @"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})\..*$",
+        @"^CTSM_(?<app>[A-Za-z]+)_(?<env>[A-Za-z]+)_(?<type>[A-Za-z]+)_(?<batchId>[A-Za-z0-9]+)_(?<tablename>[A-Za-z0-9_]+)_(?<timestamp>\d{4}-\d{2}-\d{2}-\d{6})",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     public static bool TryParse(string filename, out CtsmFilename? result)
