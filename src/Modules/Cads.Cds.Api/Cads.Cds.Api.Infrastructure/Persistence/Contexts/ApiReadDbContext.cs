@@ -1,5 +1,6 @@
 using Cads.Cds.Api.Core.Domain.Entities;
 using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;

@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Imports;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
