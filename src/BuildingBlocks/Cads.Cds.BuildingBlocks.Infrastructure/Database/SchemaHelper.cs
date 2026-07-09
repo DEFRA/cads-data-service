@@ -19,7 +19,7 @@ public static class SchemaHelper
 
         if (schemaName == SchemaName.NotDefined)
         {
-            throw new UnprocessableException($"Invalid import action type '{parsedFilename!.Type}' derived from file name '{parsedFilename?.TableName}'.");
+            throw new UnprocessableException($"Invalid import action type '{parsedFilename!.Type}' derived from file name '{parsedFilename!.TableName}'.");
         }
 
         return $"{schemaName.GetDescription()}.{parsedFilename!.TableName}";
