@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

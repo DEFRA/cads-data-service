@@ -1,8 +1,8 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.BuildingBlocks.Core.Extensions;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 

@@ -2,7 +2,7 @@ using Cads.Cds.BuildingBlocks.Application.Extensions;
 using Cads.Cds.BuildingBlocks.Application.Imports;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Database;
+namespace Cads.Cds.BuildingBlocks.Application.Schema;
 
 public static class SchemaHelper
 {
