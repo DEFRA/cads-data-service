@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Database;
+namespace Cads.Cds.BuildingBlocks.Application.Schema;
 
 public enum SchemaName
 {

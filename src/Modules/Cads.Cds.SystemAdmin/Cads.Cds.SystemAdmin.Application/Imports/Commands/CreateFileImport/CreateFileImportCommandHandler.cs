@@ -1,10 +1,8 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.BuildingBlocks.Application.Extensions;
-using Cads.Cds.BuildingBlocks.Application.Imports;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.BuildingBlocks.Core.Extensions;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 
@@ -18,7 +16,7 @@ public sealed class CreateFileImportCommandHandler(
     {
         await CheckFileNameAlreadyExistsRule(command.FileName, cancellationToken);
 
-        var destinationTableNameWithSchema = GetDestinationTableName(command.FileName);
+        var destinationTableNameWithSchema = SchemaHelper.GetDestinationTableNameFromFilename(command.FileName);
 
         var fileImport = FileImport.Create(
             destinationTableNameWithSchema,
@@ -53,24 +51,5 @@ public sealed class CreateFileImportCommandHandler(
             return;
 
         throw new DomainException($"A record exists with matching file name. ImportStatus: '{fileImport.ImportStatus}'. ProcessingStatus: '{fileImport.ProcessingStatus}'.");
-    }
-
-    private static string GetDestinationTableName(string fileName)
-    {
-        var (destinationTableName, importActionType) = FileUtils.GetImportParametersFromFileName(fileName);
-
-        var schemaName = importActionType.ToLower() switch
-        {
-            "bulk" => SchemaName.Cts,
-            "delta" => SchemaName.CtsTransactions,
-            _ => SchemaName.NotDefined
-        };
-
-        if (schemaName == SchemaName.NotDefined)
-        {
-            throw new UnprocessableException($"Invalid import action type '{importActionType}' derived from file name '{fileName}'.");
-        }
-
-        return $"{schemaName.GetDescription()}.{destinationTableName}";
     }
 }

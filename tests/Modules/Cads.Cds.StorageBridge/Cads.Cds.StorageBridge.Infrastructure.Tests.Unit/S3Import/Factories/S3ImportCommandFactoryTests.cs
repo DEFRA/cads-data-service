@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Factories;
 using FluentAssertions;
