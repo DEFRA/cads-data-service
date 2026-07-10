@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Extensions;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.StorageBridge.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

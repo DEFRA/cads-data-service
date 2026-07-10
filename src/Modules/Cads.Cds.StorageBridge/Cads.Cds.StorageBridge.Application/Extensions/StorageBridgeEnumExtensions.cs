@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Extensions;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.StorageBridge.Core.Attributes;
 
 namespace Cads.Cds.StorageBridge.Application.Extensions;

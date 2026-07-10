@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Imports;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
@@ -299,17 +299,17 @@ public class S3ToPostgresCopyService(
 
     private static (ImportDataType, ImportActionType) GetImportParameters(string filename)
     {
-        var (destinationTableName, importActionType) = FileUtils.GetImportParametersFromFileName(filename);
+        var parsedFilename = CtsmFilenameParser.Parse(filename);
 
-        if (!Enum.TryParse<ImportActionType>(importActionType, true, out var importActionTypeParsed))
+        if (!Enum.TryParse<ImportActionType>(parsedFilename?.Type, true, out var importActionTypeParsed))
         {
-            throw new InvalidOperationException($"Invalid ImportActionType '{importActionType}' for file '{filename}'.");
+            throw new InvalidOperationException($"Invalid ImportActionType '{parsedFilename?.Type}' for file '{filename}'.");
         }
 
         var schemaName = importActionTypeParsed.GetSchemaName();
 
         var importDataType = Enum.GetValues<ImportDataType>()
-                .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(destinationTableName, StringComparison.InvariantCultureIgnoreCase) == true);
+            .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(parsedFilename?.TableName, StringComparison.InvariantCultureIgnoreCase) == true);
 
         return (importDataType, importActionTypeParsed);
     }
