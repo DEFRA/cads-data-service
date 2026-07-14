@@ -163,6 +163,41 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
     }
 
+    // FileImports - Update
+
+    [Fact]
+    public async Task GivenInvalidRequest_WhenUpdateRequested_ShouldReturnBadRequest()
+    {
+        var response = await FileImportTestClient.UpdateAsync(
+            _httpClient,
+            id: 0,
+            request: new UpdateFileImportRequest(),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GivenUnknownRecord_WhenUpdateRequested_ShouldReturnNotFound()
+    {
+        var request = new UpdateFileImportRequest
+        {
+            TotalRowsToProcess = 100,
+            RowsFound = 0,
+            ImportStatus = FileImportStatus.Importing
+        };
+
+        var response = await FileImportTestClient.UpdateAsync(
+            _httpClient,
+            id: 99,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+
+
     // FileImports - MarkImporting
 
     [Fact]
