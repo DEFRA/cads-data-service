@@ -55,39 +55,31 @@ public class FileImport
 
     public void SetTotalRowsToProcess(long total)
     {
-        if (TotalRowsToProcess != total)
-        {
-            TotalRowsToProcess = total;
-        }
+        if (TotalRowsToProcess == total) return;
+
+        TotalRowsToProcess = total;
     }
 
     public void SetRowsFound(long total)
     {
-        if (RowsFound != total)
-        {
-            RowsFound = total;
-        }
+        if (RowsFound == total) return;
+
+        RowsFound = total;
     }
 
     public void SetImportStatus(FileImportStatus status)
     {
-        if (ImportStatus != status)
+        if (ImportStatus == status) return;
+
+        ImportStatus = status;
+
+        (status switch
         {
-            switch (status)
-            {
-                case FileImportStatus.Importing:
-                    MarkImporting();
-                    break;
-                case FileImportStatus.Complete:
-                    MarkImportComplete();
-                    break;
-                case FileImportStatus.Failed:
-                    MarkImportFailed();
-                    break;
-                default:
-                    break;
-            }
-        }
+            FileImportStatus.Importing => (Action)MarkImporting,
+            FileImportStatus.Complete => MarkImportComplete,
+            FileImportStatus.Failed => MarkImportFailed,
+            _ => null
+        })?.Invoke();
     }
 
     // -----------------------------

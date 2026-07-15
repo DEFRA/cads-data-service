@@ -121,31 +121,6 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidBulkRequest_OldFilename_WhenCreateRequested_ShouldSucceed()
-    {
-        var request = new CreateFileImportRequest
-        {
-            FileName = FileImportDataFactory.Old_Scenario_Create_Bulk_FileName,
-            TotalRowsToProcess = 100,
-            RowsFound = 0
-        };
-
-        var response = await FileImportTestClient.CreateAsync(
-            _httpClient,
-            request,
-            TestContext.Current.CancellationToken);
-
-        response.IsSuccessStatusCode.Should().BeTrue();
-
-        var dto = await FileImportTestClient.ReadDtoAsync(
-            response,
-            TestContext.Current.CancellationToken);
-
-        dto.Should().NotBeNull();
-        FileImportAssertions.ShouldBePending(dto);
-    }
-
-    [Fact]
     public async Task GivenValidDeltaRequest_WhenCreateRequested_ShouldSucceed()
     {
         var request = new CreateFileImportRequest
@@ -171,36 +146,11 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidDeltaRequest_OldFilename_WhenCreateRequested_ShouldSucceed()
-    {
-        var request = new CreateFileImportRequest
-        {
-            FileName = FileImportDataFactory.Old_Scenario_Create_Delta_FileName,
-            TotalRowsToProcess = 100,
-            RowsFound = 0
-        };
-
-        var response = await FileImportTestClient.CreateAsync(
-            _httpClient,
-            request,
-            TestContext.Current.CancellationToken);
-
-        response.IsSuccessStatusCode.Should().BeTrue();
-
-        var dto = await FileImportTestClient.ReadDtoAsync(
-            response,
-            TestContext.Current.CancellationToken);
-
-        dto.Should().NotBeNull();
-        FileImportAssertions.ShouldBePending(dto);
-    }
-
-    [Fact]
     public async Task GivenInvalidDeltaRequest_WhenCreateRequested_ShouldReturnUnprocessableEntity()
     {
         var request = new CreateFileImportRequest
         {
-            FileName = FileImportDataFactory.Old_Scenario_Create_Invalid_FileName,
+            FileName = FileImportDataFactory.New_Scenario_Create_Invalid_FileName,
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -211,6 +161,98 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+    }
+
+    // FileImports - Update
+
+    [Fact]
+    public async Task GivenInvalidRequest_WhenUpdateRequested_ShouldReturnBadRequest()
+    {
+        var response = await FileImportTestClient.UpdateAsync(
+            _httpClient,
+            id: 0,
+            request: new UpdateFileImportRequest(),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GivenUnknownRecord_WhenUpdateRequested_ShouldReturnNotFound()
+    {
+        var request = new UpdateFileImportRequest
+        {
+            TotalRowsToProcess = 100,
+            RowsFound = 0,
+            ImportStatus = FileImportStatus.Importing
+        };
+
+        var response = await FileImportTestClient.UpdateAsync(
+            _httpClient,
+            id: 99,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GivenRecordHasInvalidState_WhenUpdateRequested_ShouldReturnConflict()
+    {
+        var id = await FileImportTestClient.GetIdByFileNameAsync(
+            _httpClient,
+            FileImportDataFactory.New_Scenario_Complete_FileName,
+            TestContext.Current.CancellationToken);
+
+        var request = new UpdateFileImportRequest
+        {
+            TotalRowsToProcess = 100,
+            RowsFound = 100,
+            ImportStatus = FileImportStatus.Importing
+        };
+
+        var response = await FileImportTestClient.UpdateAsync(
+            _httpClient,
+            id,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+
+    [Fact]
+    public async Task GivenValidRequest_WhenUpdateRequested_ShouldSucceed()
+    {
+        var id = await FileImportTestClient.GetIdByFileNameAsync(
+            _httpClient,
+            FileImportDataFactory.New_Scenario_MarkImporting_FileName,
+            TestContext.Current.CancellationToken);
+
+        var request = new UpdateFileImportRequest
+        {
+            TotalRowsToProcess = 220,
+            RowsFound = 210,
+            ImportStatus = FileImportStatus.Importing
+        };
+
+        var response = await FileImportTestClient.UpdateAsync(
+            _httpClient,
+            id,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        await FileImportTestClient.VerifyFileImportAsync(
+            _httpClient,
+            fileName: FileImportDataFactory.New_Scenario_MarkImporting_FileName,
+            dto =>
+            {
+                FileImportAssertions.ShouldBeImporting(dto);
+                FileImportAssertions.ShouldBeTotalRowsToProcess(dto, 220);
+                FileImportAssertions.ShouldBeRowsFound(dto, 210);
+            },
+            TestContext.Current.CancellationToken);
     }
 
     // FileImports - MarkImporting
