@@ -6,6 +6,16 @@ namespace Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 
 public static class FileImportAssertions
 {
+    public static void ShouldBeTotalRowsToProcess(FileImportDto dto, long expected)
+    {
+        dto.TotalRowsToProcess.Should().Be(expected);
+    }
+
+    public static void ShouldBeRowsFound(FileImportDto dto, long expected)
+    {
+        dto.RowsFound.Should().Be(expected);
+    }
+
     public static void ShouldBePending(FileImportDto dto)
     {
         dto.ImportStatus.Should().Be(FileImportStatus.Pending);

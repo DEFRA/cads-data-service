@@ -9,7 +9,7 @@ using Xunit;
 using IContainer = DotNet.Testcontainers.Containers.IContainer;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class OidcMockFixture : IAsyncLifetime
+public class OidcMockFixture(string networkName) : IAsyncLifetime
 {
     public IContainer OidcContainer { get; private set; } = null!;
     public int OidcPort => OidcContainer.GetMappedPublicPort(80);
@@ -21,7 +21,7 @@ public class OidcMockFixture : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
+        DockerNetworkHelper.EnsureNetworkExists(networkName);
 
         OidcContainer = new ContainerBuilder("ghcr.io/soluto/oidc-server-mock:0.6.0")
             .WithName($"cads-oidc-mock-{Guid.NewGuid()}")
@@ -125,7 +125,7 @@ public class OidcMockFixture : IAsyncLifetime
             ]
             """)
             .WithEnvironment("ISSUER", "http://cads-oidc-mock")
-            .WithNetwork(TestContainerConstants.NetworkName)
+            .WithNetwork(networkName)
             .WithNetworkAliases("cads-oidc-mock")
             .WithWaitStrategy(Wait.ForUnixContainer()
                 .UntilHttpRequestIsSucceeded(req => req.ForPort(80).ForPath("/.well-known/openid-configuration"), o => o.WithTimeout(TimeSpan.FromSeconds(25)))

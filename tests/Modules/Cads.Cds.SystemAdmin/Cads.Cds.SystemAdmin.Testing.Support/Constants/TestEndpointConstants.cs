@@ -16,6 +16,9 @@ public class TestEndpointConstants
     // FileImports - Create
     public const string FileImportsCreateEndpoint = SystemAdminFileImportsRoot;
 
+    // FileImports - Update
+    public const string FileImportsUpdateEndpoint = SystemAdminFileImportsRoot + "/{0}";
+
     // FileImports - MarkImporting
     public const string FileImportsImportingEndpoint = SystemAdminFileImportsRoot + "/{0}/importing";
 
