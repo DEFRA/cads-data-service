@@ -1,10 +1,12 @@
 using Cads.Cds.BuildingBlocks.Application;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportComplete;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportFailed;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImporting;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.UpdateFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Queries.GetFileImportByFileName;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
@@ -64,6 +66,32 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
         var dto = await _executor.ExecuteCommand(command, cancellationToken);
 
         return CreatedAtAction(nameof(GetByFileName), new { fileName = request.FileName }, dto);
+    }
+
+    /// <summary>
+    /// Updates a new FileImport record
+    /// Used to update the total row values.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPut("{id:long}")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Update([FromRoute] long id, [FromBody] UpdateFileImportRequest request, CancellationToken cancellationToken)
+    {
+        var command = new UpdateFileImportCommand(
+            id,
+            request.TotalRowsToProcess ?? 0,
+            request.RowsFound ?? 0,
+            request.ImportStatus ?? FileImportStatus.Pending);
+
+        await _executor.ExecuteCommand(command, cancellationToken);
+
+        return NoContent();
     }
 
     /// <summary>
