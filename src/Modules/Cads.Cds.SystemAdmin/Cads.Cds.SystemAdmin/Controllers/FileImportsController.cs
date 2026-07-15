@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportComplete;
@@ -84,9 +85,9 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     {
         var command = new UpdateFileImportCommand(
             id,
-            request.TotalRowsToProcess,
-            request.RowsFound,
-            request.ImportStatus);
+            request.TotalRowsToProcess ?? 0,
+            request.RowsFound ?? 0,
+            request.ImportStatus ?? FileImportStatus.Pending);
 
         await _executor.ExecuteCommand(command, cancellationToken);
 
