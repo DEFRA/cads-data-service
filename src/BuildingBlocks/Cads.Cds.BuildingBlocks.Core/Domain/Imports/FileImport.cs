@@ -53,6 +53,35 @@ public class FileImport
             totalRowsToProcess,
             rowsFound);
 
+    public void SetTotalRowsToProcess(long total)
+    {
+        if (TotalRowsToProcess == total) return;
+
+        TotalRowsToProcess = total;
+    }
+
+    public void SetRowsFound(long total)
+    {
+        if (RowsFound == total) return;
+
+        RowsFound = total;
+    }
+
+    public void SetImportStatus(FileImportStatus status)
+    {
+        if (ImportStatus == status) return;
+
+        ImportStatus = status;
+
+        (status switch
+        {
+            FileImportStatus.Importing => (Action)MarkImporting,
+            FileImportStatus.Complete => MarkImportComplete,
+            FileImportStatus.Failed => MarkImportFailed,
+            _ => null
+        })?.Invoke();
+    }
+
     // -----------------------------
     // Importing workflow
     // -----------------------------
