@@ -9,16 +9,16 @@ using Xunit;
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class LocalStackFixture : IAsyncLifetime
+public class LocalStackFixture(string networkName) : IAsyncLifetime
 {
-    public static LocalStackContainer? LocalStackContainer { get; private set; }
+    public LocalStackContainer? LocalStackContainer { get; private set; }
 
     public IAmazonSQS SqsClient { get; private set; } = null!;
     public IAmazonS3 S3Client { get; private set; } = null!;
 
     public string? SqsEndpoint { get; private set; }
 
-    public static string ServiceUrl => $"http://localhost:{LocalStackContainer!.GetMappedPublicPort(TestContainerConstants.LocalStackPort)}";
+    public string ServiceUrl => $"http://localhost:{LocalStackContainer!.GetMappedPublicPort(TestContainerConstants.LocalStackPort)}";
     public static string NetworkServiceUrl => $"http://{TestContainerConstants.NetworkAlias}:{TestContainerConstants.LocalStackPort}";
     public static string CadsQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{TestContainerConstants.LocalStackPort}/000000000000/{TestSqsConstants.CadsQueueName}";
     public static string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{TestContainerConstants.LocalStackPort}/000000000000/{TestSqsConstants.CadsDeadLetterQueueName}";
@@ -33,7 +33,7 @@ public class LocalStackFixture : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
+        DockerNetworkHelper.EnsureNetworkExists(networkName);
 
         LocalStackContainer = new LocalStackBuilder("localstack/localstack:3.0.2")
             .WithEnvironment("SERVICES", "s3,sqs")
@@ -41,7 +41,7 @@ public class LocalStackFixture : IAsyncLifetime
             .WithEnvironment("AWS_DEFAULT_REGION", AuthenticationRegion)
             .WithEnvironment("AWS_ACCESS_KEY_ID", AwsAccessKeyId)
             .WithEnvironment("AWS_SECRET_ACCESS_KEY", AwsSecretAccessKey)
-            .WithNetwork(TestContainerConstants.NetworkName)
+            .WithNetwork(networkName)
             .WithNetworkAliases(TestContainerConstants.NetworkAlias)
             .Build();
 
