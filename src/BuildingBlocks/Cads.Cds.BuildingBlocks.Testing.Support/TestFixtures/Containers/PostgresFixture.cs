@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
-public class PostgresFixture : IAsyncLifetime
+public class PostgresFixture(string networkName) : IAsyncLifetime
 {
     public PostgreSqlContainer? Container { get; private set; }
 
@@ -27,14 +27,14 @@ public class PostgresFixture : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
+        DockerNetworkHelper.EnsureNetworkExists(networkName);
 
         Container = new PostgreSqlBuilder("postgres:16.6")
             .WithEnvironment("POSTGRES_USER", TestDatabaseConstants.PostgresUserName)
             .WithEnvironment("POSTGRES_PASSWORD", TestDatabaseConstants.PostgresPassword)
-            .WithNetwork(TestContainerConstants.NetworkName)
+            .WithNetwork(networkName)
             .WithNetworkAliases("postgres")
-            .WithPortBinding(5432, 5432)
+            .WithPortBinding(5432, true)
             .Build();
 
         await Container.StartAsync();
@@ -179,7 +179,7 @@ public class PostgresFixture : IAsyncLifetime
         }
     }
 
-    private static async Task ApplyDatabaseMigrations()
+    private async Task ApplyDatabaseMigrations()
     {
         // Path to your Liquibase changelog folder
         var changelogPath = FindChangelogFolder();
@@ -201,14 +201,20 @@ public class PostgresFixture : IAsyncLifetime
             $"--liquibaseSchemaName=public " +
             $"--contexts=local,integration update"
             ])
-            .WithNetwork(TestContainerConstants.NetworkName)
+            .WithNetwork(networkName)
             .Build();
 
-        await liquibaseContainer.StartAsync();
-
-        var exitCode = await liquibaseContainer.GetExitCodeAsync();
-        if (exitCode != 0)
-            throw new InvalidOperationException($"Liquibase migrations failed with exit code {exitCode}");
+        try
+        {
+            await liquibaseContainer.StartAsync();
+            var exitCode = await liquibaseContainer.GetExitCodeAsync();
+            if (exitCode != 0)
+                throw new InvalidOperationException($"Liquibase migrations failed with exit code {exitCode}");
+        }
+        finally
+        {
+            await liquibaseContainer.DisposeAsync();
+        }
     }
 
     private static string FindChangelogFolder()

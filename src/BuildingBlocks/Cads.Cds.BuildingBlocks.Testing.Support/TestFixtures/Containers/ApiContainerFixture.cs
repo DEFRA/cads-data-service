@@ -14,12 +14,21 @@ using IContainer = DotNet.Testcontainers.Containers.IContainer;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class ApiContainerFixture : IAsyncLifetime
 {
+    private readonly string _networkName = $"integration-test-network-{Guid.NewGuid():N}";
+
     public IContainer ApiContainer { get; private set; } = null!;
     private HttpClient HttpClient { get; set; } = null!;
-    public PostgresFixture PostgresFixture { get; } = new();
-    public LocalStackFixture LocalStackFixture { get; } = new();
-    public OidcMockFixture OidcMockFixture { get; } = new();
+    public PostgresFixture PostgresFixture { get; }
+    public LocalStackFixture LocalStackFixture { get; }
+    public OidcMockFixture OidcMockFixture { get; }
     public TestAzureAdConfiguration? AzureAdConfig { get; set; }
+
+    public ApiContainerFixture()
+    {
+        PostgresFixture = new PostgresFixture(_networkName);
+        LocalStackFixture = new LocalStackFixture(_networkName);
+        OidcMockFixture = new OidcMockFixture(_networkName);
+    }
 
     public async ValueTask InitializeAsync()
     {
@@ -28,8 +37,6 @@ public class ApiContainerFixture : IAsyncLifetime
         await OidcMockFixture.InitializeAsync();
 
         AzureAdConfig = new TestAzureAdConfiguration(OidcMockFixture);
-
-        DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
         var certPath = Path.Combine(AppContext.BaseDirectory, "certs");
 
@@ -69,7 +76,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
           .WithEnvironment("AWS_SECRET_ACCESS_KEY", LocalStackFixture.AwsSecretAccessKey)
           .WithEnvironment("DOTNET_SYSTEM_NET_SOCKETS_HTTP_USEIPV6", "false")
-          .WithNetwork(TestContainerConstants.NetworkName)
+          .WithNetwork(_networkName)
           .WithNetworkAliases("cads_cds")
           .WithWaitStrategy(Wait.ForUnixContainer()
               .UntilHttpRequestIsSucceeded(req => req.ForPort(5555).ForPath("/health"), o => o.WithTimeout(TimeSpan.FromSeconds(25))))
