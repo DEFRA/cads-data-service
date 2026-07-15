@@ -1,5 +1,4 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
-using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.Constants;
@@ -7,7 +6,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
 using System.Web;
-using Xunit;
 
 namespace Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 
@@ -35,6 +33,16 @@ public static class FileImportTestClient
     {
         var endpoint = TestEndpointConstants.FileImportsCreateEndpoint;
         return await client.PostAsJsonAsync(endpoint, request, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> UpdateAsync(
+        HttpClient client,
+        long id,
+        UpdateFileImportRequest? request,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.FileImportsUpdateEndpoint, id);
+        return await client.PutAsJsonAsync(endpoint, request, cancellationToken);
     }
 
     public static async Task<HttpResponseMessage> MarkImportingAsync(
