@@ -225,7 +225,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_MarkImporting_FileName,
+            FileImportDataFactory.New_Scenario_Importing_FileName,
             TestContext.Current.CancellationToken);
 
         var request = new UpdateFileImportRequest
@@ -245,7 +245,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_MarkImporting_FileName,
+            fileName: FileImportDataFactory.New_Scenario_Importing_FileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeImporting(dto);
