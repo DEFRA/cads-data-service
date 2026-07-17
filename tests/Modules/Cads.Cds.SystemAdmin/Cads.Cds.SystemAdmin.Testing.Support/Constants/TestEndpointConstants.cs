@@ -21,7 +21,7 @@ public class TestEndpointConstants
 
     // FileImports - MarkTransferred
     public const string FileImportsTransferredEndpoint = SystemAdminFileImportsRoot + "/{0}/transferred";
-    
+
     // FileImports - MarkSplit
     public const string FileImportsSplitEndpoint = SystemAdminFileImportsRoot + "/{0}/split";
 
