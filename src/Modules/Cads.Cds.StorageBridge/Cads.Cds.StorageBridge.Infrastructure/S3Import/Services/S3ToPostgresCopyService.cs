@@ -41,22 +41,22 @@ public class S3ToPostgresCopyService(
 
         if (!S3Utils.TryParseS3Url(job.SourceKey, out var bucketName, out var objectKey, out var fileName))
         {
-            logger.LogError("Failed to parse S3 URL: {SourceKey}", job.SourceKey);
-            throw new InvalidOperationException("Failed to parse S3 URL");
+            logger.LogError("Error to parse S3 URL: {SourceKey}", job.SourceKey);
+            throw new InvalidOperationException("Error to parse S3 URL");
         }
 
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", job.SourceKey);
-            throw new InvalidOperationException("Failed to extract file name from S3 URL");
+            logger.LogError("Error to extract file name from S3 URL: {SourceKey}", job.SourceKey);
+            throw new InvalidOperationException("Error to extract file name from S3 URL");
         }
 
         var (importDataType, importActionType) = GetImportParameters(fileName);
 
         if (importDataType == ImportDataType.None)
         {
-            logger.LogError("Failed to extract destination table from S3 URL: {SourceKey}", job.SourceKey);
-            throw new InvalidOperationException("Failed to extract destination table from S3 URL");
+            logger.LogError("Error to extract destination table from S3 URL: {SourceKey}", job.SourceKey);
+            throw new InvalidOperationException("Error to extract destination table from S3 URL");
         }
 
         if (logger.IsEnabled(LogLevel.Information))
