@@ -184,7 +184,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         {
             TotalRowsToProcess = 100,
             RowsFound = 0,
-            ImportStatus = FileImportStatus.Importing
+            ImportStatus = FileImportStatus.Transferred
         };
 
         var response = await FileImportTestClient.UpdateAsync(
@@ -208,7 +208,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         {
             TotalRowsToProcess = 100,
             RowsFound = 100,
-            ImportStatus = FileImportStatus.Importing
+            ImportStatus = FileImportStatus.Transferred
         };
 
         var response = await FileImportTestClient.UpdateAsync(
@@ -225,14 +225,14 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Importing_FileName,
+            FileImportDataFactory.New_Scenario_Transferred_FileName,
             TestContext.Current.CancellationToken);
 
         var request = new UpdateFileImportRequest
         {
             TotalRowsToProcess = 220,
             RowsFound = 210,
-            ImportStatus = FileImportStatus.Importing
+            ImportStatus = FileImportStatus.Transferred
         };
 
         var response = await FileImportTestClient.UpdateAsync(
@@ -245,22 +245,22 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_Importing_FileName,
+            fileName: FileImportDataFactory.New_Scenario_Transferred_FileName,
             dto =>
             {
-                FileImportAssertions.ShouldBeImporting(dto);
+                FileImportAssertions.ShouldBeTransferred(dto);
                 FileImportAssertions.ShouldBeTotalRowsToProcess(dto, 220);
                 FileImportAssertions.ShouldBeRowsFound(dto, 210);
             },
             TestContext.Current.CancellationToken);
     }
 
-    // FileImports - MarkImporting
+    // FileImports - MarkTransferred
 
     [Fact]
     public async Task GivenInvalidRequest_WhenMarkImportingRequested_ShouldReturnBadRequest()
     {
-        var response = await FileImportTestClient.MarkImportingAsync(
+        var response = await FileImportTestClient.MarkTransferredAsync(
             _httpClient,
             id: 0,
             TestContext.Current.CancellationToken);
@@ -271,7 +271,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     [Fact]
     public async Task GivenUnknownRecord_WhenMarkImportingRequested_ShouldReturnNotFound()
     {
-        var response = await FileImportTestClient.MarkImportingAsync(
+        var response = await FileImportTestClient.MarkTransferredAsync(
             _httpClient,
             id: 99,
             TestContext.Current.CancellationToken);
@@ -287,7 +287,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             FileImportDataFactory.New_Scenario_Complete_FileName,
             TestContext.Current.CancellationToken);
 
-        var response = await FileImportTestClient.MarkImportingAsync(
+        var response = await FileImportTestClient.MarkTransferredAsync(
             _httpClient,
             id,
             TestContext.Current.CancellationToken);
@@ -300,10 +300,10 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_MarkImporting_FileName,
+            FileImportDataFactory.New_Scenario_MarkTransferred_FileName,
             TestContext.Current.CancellationToken);
 
-        var response = await FileImportTestClient.MarkImportingAsync(
+        var response = await FileImportTestClient.MarkTransferredAsync(
             _httpClient,
             id,
             TestContext.Current.CancellationToken);
@@ -312,10 +312,10 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_MarkImporting_FileName,
+            fileName: FileImportDataFactory.New_Scenario_MarkTransferred_FileName,
             dto =>
             {
-                FileImportAssertions.ShouldBeImporting(dto);
+                FileImportAssertions.ShouldBeTransferred(dto);
             },
             TestContext.Current.CancellationToken);
     }
@@ -378,10 +378,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
             fileName: FileImportDataFactory.New_Scenario_MarkImportComplete_FileName,
-            dto =>
-            {
-                FileImportAssertions.ShouldBeComplete(dto);
-            },
+            dto => { FileImportAssertions.ShouldBeComplete(dto); },
             TestContext.Current.CancellationToken);
     }
 
@@ -414,7 +411,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Pending_FileName,
+            FileImportDataFactory.New_Scenario_Complete_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkImportFailedAsync(
