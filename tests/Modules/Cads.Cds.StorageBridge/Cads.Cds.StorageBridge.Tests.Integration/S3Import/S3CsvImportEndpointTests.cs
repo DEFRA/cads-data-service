@@ -92,7 +92,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Failed to process bulk load job {job!.JobId}");
+        await VerifyLoggingMessage($"Error to process bulk load job {job!.JobId}");
     }
 
     [Fact]
