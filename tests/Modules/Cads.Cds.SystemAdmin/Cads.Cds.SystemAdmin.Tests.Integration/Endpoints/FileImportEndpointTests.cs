@@ -417,12 +417,11 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             FileImportDataFactory.New_Scenario_Complete_FileName,
             TestContext.Current.CancellationToken);
 
-        
         var response = await FileImportTestClient.MarkImportFailedAsync(
             _httpClient,
             id,
             TestContext.Current.CancellationToken);
-        
+
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
