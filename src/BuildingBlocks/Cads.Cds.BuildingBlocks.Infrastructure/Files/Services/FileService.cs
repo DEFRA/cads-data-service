@@ -22,7 +22,7 @@ public class FileService(IFileSystem fileSystem) : IFileService
         }
         catch (Exception ex)
         {
-            throw new IOException($"Failed to read file '{filePath}'.", ex);
+            throw new IOException($"Error to read file '{filePath}'.", ex);
         }
 
         try
@@ -34,7 +34,7 @@ public class FileService(IFileSystem fileSystem) : IFileService
         }
         catch (Exception ex)
         {
-            throw new FileLoadException($"Failed to deserialize JSON from '{filePath}'.", ex);
+            throw new FileLoadException($"Error to deserialize JSON from '{filePath}'.", ex);
         }
     }
 }

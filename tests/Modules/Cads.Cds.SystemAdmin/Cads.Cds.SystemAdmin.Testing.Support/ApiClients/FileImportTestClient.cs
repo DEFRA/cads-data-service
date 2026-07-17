@@ -45,12 +45,12 @@ public static class FileImportTestClient
         return await client.PutAsJsonAsync(endpoint, request, cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> MarkImportingAsync(
+    public static async Task<HttpResponseMessage> MarkTransferredAsync(
         HttpClient client,
         long id,
         CancellationToken cancellationToken)
     {
-        var endpoint = string.Format(TestEndpointConstants.FileImportsImportingEndpoint, id);
+        var endpoint = string.Format(TestEndpointConstants.FileImportsTransferredEndpoint, id);
         return await client.PostAsync(endpoint, null, cancellationToken);
     }
 

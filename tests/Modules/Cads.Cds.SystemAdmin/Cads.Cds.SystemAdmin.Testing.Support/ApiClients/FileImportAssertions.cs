@@ -25,9 +25,9 @@ public static class FileImportAssertions
         dto.ImportEndAt.Should().BeNull();
     }
 
-    public static void ShouldBeImporting(FileImportDto dto)
+    public static void ShouldBeTransferred(FileImportDto dto)
     {
-        dto.ImportStatus.Should().Be(FileImportStatus.Importing);
+        dto.ImportStatus.Should().Be(FileImportStatus.Transferred);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
 
         dto.ImportStartAt.Should().NotBeNull();
@@ -45,7 +45,7 @@ public static class FileImportAssertions
 
     public static void ShouldBeFailed(FileImportDto dto)
     {
-        dto.ImportStatus.Should().Be(FileImportStatus.Failed);
+        dto.ImportStatus.Should().Be(FileImportStatus.Error);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
 
         dto.ImportStartAt.Should().NotBeNull();

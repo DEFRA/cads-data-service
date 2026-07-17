@@ -40,7 +40,7 @@ public class FileServiceTests
         Func<Task> act = () => _sut.ReadJsonFromFileAndReturnAsModelAsync<TestModel>(TestFilePath, TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<IOException>()
-            .WithMessage($"Failed to read file '{TestFilePath}'.*");
+            .WithMessage($"Error to read file '{TestFilePath}'.*");
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class FileServiceTests
         Func<Task> act = () => _sut.ReadJsonFromFileAndReturnAsModelAsync<TestModel>(TestFilePath, TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<FileLoadException>()
-            .WithMessage($"Failed to deserialize JSON from '{TestFilePath}'.*");
+            .WithMessage($"Error to deserialize JSON from '{TestFilePath}'.*");
     }
 
     [Fact]
