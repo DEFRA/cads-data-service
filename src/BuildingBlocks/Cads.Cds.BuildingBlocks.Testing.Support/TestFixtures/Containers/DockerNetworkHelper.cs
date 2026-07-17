@@ -42,7 +42,7 @@ public static class DockerNetworkHelper
             if (createProcess.ExitCode != 0)
             {
                 throw new InvalidOperationException(
-                    $"Failed to create Docker network '{networkName}'. Error: {createProcess.StandardError.ReadToEnd()}");
+                    $"Error to create Docker network '{networkName}'. Error: {createProcess.StandardError.ReadToEnd()}");
             }
         }
     }
