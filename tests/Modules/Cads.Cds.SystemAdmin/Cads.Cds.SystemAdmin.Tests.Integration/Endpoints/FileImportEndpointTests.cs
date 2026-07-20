@@ -92,7 +92,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             TestContext.Current.CancellationToken);
 
         problemDetails.Should().NotBeNull();
-        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name. ImportStatus: '{FileImportStatus.Complete}'. ProcessingStatus: '{FileProcessingStatus.Pending}'.");
+        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name. ImportStatus: '{FileImportStatus.Completed}'. ProcessingStatus: '{FileProcessingStatus.Pending}'.");
     }
 
     [Fact]
@@ -388,9 +388,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     // FileImports - MarkCompleted
 
     [Fact]
-    public async Task GivenInvalidRequest_WhenMarkImportCompleteRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidRequest_WhenMarkCompletedRequested_ShouldReturnBadRequest()
     {
-        var response = await FileImportTestClient.MarkImportCompleteAsync(
+        var response = await FileImportTestClient.MarkCompletedAsync(
             _httpClient,
             id: 0,
             TestContext.Current.CancellationToken);
@@ -399,9 +399,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenUnknownRecord_WhenMarkImportCompleteRequested_ShouldReturnNotFound()
+    public async Task GivenUnknownRecord_WhenMarkCompletedRequested_ShouldReturnNotFound()
     {
-        var response = await FileImportTestClient.MarkImportCompleteAsync(
+        var response = await FileImportTestClient.MarkCompletedAsync(
             _httpClient,
             id: 99,
             TestContext.Current.CancellationToken);
@@ -410,14 +410,14 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenRecordHasInvalidState_WhenMarkImportCompleteRequested_ShouldReturnConflict()
+    public async Task GivenRecordHasInvalidState_WhenMarkCompletedRequested_ShouldReturnConflict()
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
             FileImportDataFactory.New_Scenario_Pending_FileName,
             TestContext.Current.CancellationToken);
 
-        var response = await FileImportTestClient.MarkImportCompleteAsync(
+        var response = await FileImportTestClient.MarkCompletedAsync(
             _httpClient,
             id,
             TestContext.Current.CancellationToken);
@@ -426,14 +426,14 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenMarkImportCompleteRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenMarkCompletedRequested_ShouldSucceed()
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
             FileImportDataFactory.New_Scenario_MarkImportComplete_FileName,
             TestContext.Current.CancellationToken);
 
-        var response = await FileImportTestClient.MarkImportCompleteAsync(
+        var response = await FileImportTestClient.MarkCompletedAsync(
             _httpClient,
             id,
             TestContext.Current.CancellationToken);
@@ -445,7 +445,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             fileName: FileImportDataFactory.New_Scenario_MarkImportComplete_FileName,
             dto =>
             {
-                FileImportAssertions.ShouldBeComplete(dto);
+                FileImportAssertions.ShouldBeCompleted(dto);
             },
             TestContext.Current.CancellationToken);
     }
@@ -453,9 +453,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     // FileImports - MarkFailed
 
     [Fact]
-    public async Task GivenInvalidRequest_WhenMarkImportFailedRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidRequest_WhenMarkFailedRequested_ShouldReturnBadRequest()
     {
-        var response = await FileImportTestClient.MarkImportFailedAsync(
+        var response = await FileImportTestClient.MarkFailedAsync(
             _httpClient,
             id: 0,
             TestContext.Current.CancellationToken);
@@ -464,9 +464,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenUnknownRecord_WhenMarkImportFailedRequested_ShouldReturnNotFound()
+    public async Task GivenUnknownRecord_WhenMarkFailedRequested_ShouldReturnNotFound()
     {
-        var response = await FileImportTestClient.MarkImportFailedAsync(
+        var response = await FileImportTestClient.MarkFailedAsync(
             _httpClient,
             id: 99,
             TestContext.Current.CancellationToken);
@@ -475,14 +475,14 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenRecordHasCompleteState_WhenMarkImportFailedRequested_ShouldReturnConflict()
+    public async Task GivenRecordHasCompleteState_WhenMarkFailedRequested_ShouldReturnConflict()
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
             FileImportDataFactory.New_Scenario_Complete_FileName,
             TestContext.Current.CancellationToken);
 
-        var response = await FileImportTestClient.MarkImportFailedAsync(
+        var response = await FileImportTestClient.MarkFailedAsync(
             _httpClient,
             id,
             TestContext.Current.CancellationToken);
@@ -491,14 +491,14 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenMarkImportFailedRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenMarkFailedRequested_ShouldSucceed()
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
             FileImportDataFactory.New_Scenario_MarkImportFailed_FileName,
             TestContext.Current.CancellationToken);
 
-        var response = await FileImportTestClient.MarkImportFailedAsync(
+        var response = await FileImportTestClient.MarkFailedAsync(
             _httpClient,
             id,
             TestContext.Current.CancellationToken);
