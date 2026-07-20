@@ -25,11 +25,11 @@ public class TestEndpointConstants
     // FileImports - MarkSplit
     public const string FileImportsSplitEndpoint = SystemAdminFileImportsRoot + "/{0}/split";
 
-    // FileImports - MarkImportComplete
-    public const string FileImportsCompleteEndpoint = SystemAdminFileImportsRoot + "/{0}/complete";
+    // FileImports - MarkCompleted
+    public const string FileImportsCompleteEndpoint = SystemAdminFileImportsRoot + "/{0}/completed";
 
-    // FileImports - MarkImportFailed
-    public const string FileImportsFailedEndpoint = SystemAdminFileImportsRoot + "/{0}/fail";
+    // FileImports - MarkFailed
+    public const string FileImportsFailedEndpoint = SystemAdminFileImportsRoot + "/{0}/failed";
 
     // FileImports - Reset
     public const string FileImportsResetEndpoint = SystemAdminFileImportsRoot + "/{0}/reset";

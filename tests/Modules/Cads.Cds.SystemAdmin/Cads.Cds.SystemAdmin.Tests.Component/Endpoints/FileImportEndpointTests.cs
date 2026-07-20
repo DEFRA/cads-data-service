@@ -387,7 +387,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             TestContext.Current.CancellationToken);
     }
 
-    // FileImports - MarkImportComplete
+    // FileImports - MarkCompleted
 
     [Fact]
     public async Task GivenInvalidRequest_WhenMarkImportCompleteRequested_ShouldReturnBadRequest()
@@ -449,7 +449,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             TestContext.Current.CancellationToken);
     }
 
-    // FileImports - MarkImportFailed
+    // FileImports - MarkFailed
 
     [Fact]
     public async Task GivenInvalidRequest_WhenMarkImportFailedRequested_ShouldReturnBadRequest()
