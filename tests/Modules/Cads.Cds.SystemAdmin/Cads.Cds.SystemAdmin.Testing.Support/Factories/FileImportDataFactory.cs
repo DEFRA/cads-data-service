@@ -9,7 +9,9 @@ public static class FileImportDataFactory
 
     // New Fixed scenarios
     public const string New_Scenario_Pending_FileName = "CTSM_CADS_PROD_BULK_ABC_0001_CT_PARTIES_2026-01-01-012345";
+    public const string New_Scenario_Pending_FileName_2 = "CTSM_CADS_PROD_BULK_ABC_1001_CT_PARTIES_2026-01-01-012345";
     public const string New_Scenario_Transferred_FileName = "CTSM_CADS_PROD_BULK_ABC_0002_CT_PARTIES_2026-01-01-012345";
+    public const string New_Scenario_Transferred_FileName_2 = "CTSM_CADS_PROD_BULK_ABC_1002_CT_PARTIES_2026-01-01-012345";
     public const string New_Scenario_Split_FileName = "CTSM_CADS_PROD_BULK_ABC_0003_CT_PARTIES_2026-01-01-012345";
     public const string New_Scenario_Complete_FileName = "CTSM_CADS_PROD_BULK_ABC_0004_CT_PARTIES_2026-01-01-012345";
     public const string New_Scenario_Failed_FileName = "CTSM_CADS_PROD_BULK_ABC_0005_CT_PARTIES_2026-01-01-012345";
@@ -30,7 +32,12 @@ public static class FileImportDataFactory
         return [
             // Fixed scenarios
             Build(New_Scenario_Pending_FileName),
+            Build(New_Scenario_Pending_FileName_2),
             Build(New_Scenario_Transferred_FileName, fi =>
+            {
+                fi.MarkTransferred();
+            }),
+            Build(New_Scenario_Transferred_FileName_2, fi =>
             {
                 fi.MarkTransferred();
             }),
