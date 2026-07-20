@@ -76,7 +76,7 @@ public class FileImport
             FileImportStatus.Transferred => (Action)MarkTransferred,
             FileImportStatus.Split => MarkSplit,
             FileImportStatus.Complete => MarkImportComplete,
-            FileImportStatus.Error => MarkImportFailed,
+            FileImportStatus.Failed => MarkImportFailed,
             _ => null
         })?.Invoke();
     }
@@ -116,7 +116,7 @@ public class FileImport
         if (ImportStatus == FileImportStatus.Complete)
             throw new DomainException("Import must be in pending, transferred, or split state to be marked as failed.");
 
-        ImportStatus = FileImportStatus.Error;
+        ImportStatus = FileImportStatus.Failed;
         ImportEndAt = DateTimeOffset.UtcNow;
     }
 

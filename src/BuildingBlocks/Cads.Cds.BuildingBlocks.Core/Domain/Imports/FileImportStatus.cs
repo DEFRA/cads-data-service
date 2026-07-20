@@ -6,5 +6,5 @@ public enum FileImportStatus : short
     Transferred = 2,
     Split = 3,
     Complete = 4,
-    Error = 5
+    Failed = 5
 }
