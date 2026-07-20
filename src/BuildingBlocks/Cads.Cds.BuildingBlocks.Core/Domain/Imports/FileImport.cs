@@ -71,13 +71,12 @@ public class FileImport
     {
         if (ImportStatus == status) return;
 
-        ImportStatus = status;
-
         (status switch
         {
-            FileImportStatus.Importing => (Action)MarkImporting,
-            FileImportStatus.Complete => MarkImportComplete,
-            FileImportStatus.Failed => MarkImportFailed,
+            FileImportStatus.Transferred => (Action)MarkTransferred,
+            FileImportStatus.Split => MarkSplit,
+            FileImportStatus.Completed => MarkCompleted,
+            FileImportStatus.Failed => MarkFailed,
             _ => null
         })?.Invoke();
     }
@@ -86,28 +85,36 @@ public class FileImport
     // Importing workflow
     // -----------------------------
 
-    public void MarkImporting()
+    public void MarkTransferred()
     {
         if (ImportStatus != FileImportStatus.Pending)
-            throw new DomainException("Importing can only start from pending.");
+            throw new DomainException("Transferred can only start from pending.");
 
-        ImportStatus = FileImportStatus.Importing;
+        ImportStatus = FileImportStatus.Transferred;
         ImportStartAt = DateTimeOffset.UtcNow;
     }
 
-    public void MarkImportComplete()
+    public void MarkSplit()
     {
-        if (ImportStatus != FileImportStatus.Importing)
-            throw new DomainException("Import must be in importing state to complete.");
+        if (ImportStatus != FileImportStatus.Transferred)
+            throw new DomainException("Split can only start from transferred.");
 
-        ImportStatus = FileImportStatus.Complete;
+        ImportStatus = FileImportStatus.Split;
+    }
+
+    public void MarkCompleted()
+    {
+        if (ImportStatus != FileImportStatus.Split)
+            throw new DomainException("Import must be in split state to complete.");
+
+        ImportStatus = FileImportStatus.Completed;
         ImportEndAt = DateTimeOffset.UtcNow;
     }
 
-    public void MarkImportFailed()
+    public void MarkFailed()
     {
-        if (ImportStatus != FileImportStatus.Importing)
-            throw new DomainException("Import must be in importing state to be marked as failed.");
+        if (ImportStatus == FileImportStatus.Completed)
+            throw new DomainException("Import must be in pending, transferred, or split state to be marked as failed.");
 
         ImportStatus = FileImportStatus.Failed;
         ImportEndAt = DateTimeOffset.UtcNow;

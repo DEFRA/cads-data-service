@@ -2,9 +2,11 @@ using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportComplete;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportFailed;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImporting;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkCompleted;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFailed;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImportCompleted;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkSplit;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkTransferred;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.UpdateFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Queries.GetFileImportByFileName;
@@ -21,8 +23,6 @@ namespace Cads.Cds.SystemAdmin.Controllers;
 [Route("api/v1/systemadmin/[controller]")]
 public class FileImportsController(IRequestExecutor executor) : ControllerBase
 {
-    private readonly IRequestExecutor _executor = executor;
-
     /// <summary>
     /// Used to check if a file has already been seen.
     /// </summary>
@@ -39,7 +39,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     {
         var query = new GetFileImportByFileNameQuery(fileName);
 
-        var result = await _executor.ExecuteQuery(query, cancellationToken);
+        var result = await executor.ExecuteQuery(query, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }
@@ -63,7 +63,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
             request.TotalRowsToProcess ?? 0,
             request.RowsFound ?? 0);
 
-        var dto = await _executor.ExecuteCommand(command, cancellationToken);
+        var dto = await executor.ExecuteCommand(command, cancellationToken);
 
         return CreatedAtAction(nameof(GetByFileName), new { fileName = request.FileName }, dto);
     }
@@ -89,31 +89,53 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
             request.RowsFound ?? 0,
             request.ImportStatus ?? FileImportStatus.Pending);
 
-        await _executor.ExecuteCommand(command, cancellationToken);
+        await executor.ExecuteCommand(command, cancellationToken);
 
         return NoContent();
     }
 
     /// <summary>
-    /// Marks the import workflow as importing.
-    /// Used when the file is being transferred, decrypted and chunked into S3.
+    /// Marks the import workflow as transferred.
+    /// Used when the file has been transferred and decrypted into S3.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("{id:long}/importing")]
+    [HttpPost("{id:long}/transferred")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkImporting(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> MarkTransferred(long id, CancellationToken cancellationToken)
     {
-        await _executor.ExecuteCommand(new MarkFileImportingCommand(id), cancellationToken);
+        await executor.ExecuteCommand(new MarkFileTransferredCommand(id), cancellationToken);
 
         return NoContent();
     }
+
+    /// <summary>
+    /// Marks the import workflow as split.
+    /// Used when the file has been split into chunks in the internal S3 bucket.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost("{id:long}/split")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> MarkSplit(long id, CancellationToken cancellationToken)
+    {
+        await executor.ExecuteCommand(new MarkFileSplitCommand(id), cancellationToken);
+
+        return NoContent();
+    }
+
 
     /// <summary>
     /// Marks the import workflow as complete.
@@ -122,16 +144,16 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("{id:long}/complete")]
+    [HttpPost("{id:long}/completed")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkImportComplete(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> MarkCompleted(long id, CancellationToken cancellationToken)
     {
-        await _executor.ExecuteCommand(new MarkFileImportCompleteCommand(id), cancellationToken);
+        await executor.ExecuteCommand(new MarkCompletedCommand(id), cancellationToken);
 
         return NoContent();
     }
@@ -143,16 +165,16 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("{id:long}/fail")]
+    [HttpPost("{id:long}/failed")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkImportFailed(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> MarkFailed(long id, CancellationToken cancellationToken)
     {
-        await _executor.ExecuteCommand(new MarkFileImportFailedCommand(id), cancellationToken);
+        await executor.ExecuteCommand(new MarkFailedCommand(id), cancellationToken);
 
         return NoContent();
     }
@@ -173,7 +195,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Reset(long id, CancellationToken cancellationToken)
     {
-        await _executor.ExecuteCommand(new ResetFileImportCommand(id), cancellationToken);
+        await executor.ExecuteCommand(new ResetFileImportCommand(id), cancellationToken);
 
         return NoContent();
     }
