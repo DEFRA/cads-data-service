@@ -54,6 +54,15 @@ public static class FileImportTestClient
         return await client.PostAsync(endpoint, null, cancellationToken);
     }
 
+    public static async Task<HttpResponseMessage> MarkSplitAsync(
+        HttpClient client,
+        long id,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.FileImportsSplitEndpoint, id);
+        return await client.PostAsync(endpoint, null, cancellationToken);
+    }
+
     public static async Task<HttpResponseMessage> MarkImportCompleteAsync(
         HttpClient client,
         long id,
