@@ -15,7 +15,7 @@ public sealed class MarkCompletedCommandHandler(
         var fileImport = await fileImportRepository.GetById(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(FileImport), command.Id);
 
-        fileImport.MarkImportComplete();
+        fileImport.MarkCompleted();
 
         return Unit.Value;
     }

@@ -63,7 +63,7 @@ public static class FileImportTestClient
         return await client.PostAsync(endpoint, null, cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> MarkImportCompleteAsync(
+    public static async Task<HttpResponseMessage> MarkCompletedAsync(
         HttpClient client,
         long id,
         CancellationToken cancellationToken)
@@ -72,7 +72,7 @@ public static class FileImportTestClient
         return await client.PostAsync(endpoint, null, cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> MarkImportFailedAsync(
+    public static async Task<HttpResponseMessage> MarkFailedAsync(
         HttpClient client,
         long id,
         CancellationToken cancellationToken)

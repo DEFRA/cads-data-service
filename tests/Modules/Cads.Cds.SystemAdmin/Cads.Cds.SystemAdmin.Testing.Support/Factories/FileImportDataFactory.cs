@@ -50,12 +50,12 @@ public static class FileImportDataFactory
             {
                 fi.MarkTransferred();
                 fi.MarkSplit();
-                fi.MarkImportComplete();
+                fi.MarkCompleted();
             }),
             Build(New_Scenario_Failed_FileName, fi =>
             {
                 fi.MarkTransferred();
-                fi.MarkImportFailed();
+                fi.MarkFailed();
             }),
 
             // Mutable scenarios
@@ -75,7 +75,7 @@ public static class FileImportDataFactory
             }),
             Build(New_Scenario_Reset_FileName, fi =>
             {
-                fi.MarkImportFailed();
+                fi.MarkFailed();
             })
         ];
     }
