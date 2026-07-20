@@ -67,7 +67,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Error to execute SQL script file \"test.sql\"");
+        await VerifyLoggingMessage($"Failed to execute SQL script file \"test.sql\"");
     }
 
     [Fact]
