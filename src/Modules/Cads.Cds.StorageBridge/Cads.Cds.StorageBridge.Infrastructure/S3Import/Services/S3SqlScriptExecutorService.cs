@@ -127,7 +127,7 @@ public class S3SqlScriptExecutorService(
         {
             if (logger.IsEnabled(LogLevel.Error))
             {
-                logger.LogError(ex, "Error to execute SQL script file {Key}: {Reason}", key, ex.Message);
+                logger.LogError(ex, "Failed to execute SQL script file {Key}: {Reason}", key, ex.Message);
             }
             return false;
         }
