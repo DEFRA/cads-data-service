@@ -53,9 +53,9 @@ public static class FileImportAssertions
     }
 
 
-    public static void ShouldBeComplete(FileImportDto dto)
+    public static void ShouldBeCompleted(FileImportDto dto)
     {
-        dto.ImportStatus.Should().Be(FileImportStatus.Complete);
+        dto.ImportStatus.Should().Be(FileImportStatus.Completed);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
 
         dto.ImportStartAt.Should().NotBeNull();
