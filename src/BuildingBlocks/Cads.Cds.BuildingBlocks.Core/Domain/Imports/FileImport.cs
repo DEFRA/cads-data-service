@@ -71,8 +71,6 @@ public class FileImport
     {
         if (ImportStatus == status) return;
 
-        ImportStatus = status;
-
         (status switch
         {
             FileImportStatus.Transferred => (Action)MarkTransferred,

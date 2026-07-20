@@ -220,19 +220,21 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
-    [Fact]
-    public async Task GivenValidRequest_WhenUpdateRequested_ShouldSucceed()
+    [Theory]
+    [InlineData(FileImportDataFactory.New_Scenario_Pending_FileName_2, FileImportStatus.Transferred)]
+    [InlineData(FileImportDataFactory.New_Scenario_Transferred_FileName_2, FileImportStatus.Split)]
+    public async Task GivenValidRequest_WhenUpdateRequested_ShouldSucceed(string fileName, FileImportStatus importStatus)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Transferred_FileName,
+            fileName,
             TestContext.Current.CancellationToken);
 
         var request = new UpdateFileImportRequest
         {
             TotalRowsToProcess = 220,
             RowsFound = 210,
-            ImportStatus = FileImportStatus.Transferred
+            ImportStatus = importStatus
         };
 
         var response = await FileImportTestClient.UpdateAsync(
@@ -245,10 +247,10 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_Transferred_FileName,
+            fileName: fileName,
             dto =>
             {
-                FileImportAssertions.ShouldBeTransferred(dto);
+                FileImportAssertions.ShouldBeUpdated(dto, importStatus);
                 FileImportAssertions.ShouldBeTotalRowsToProcess(dto, 220);
                 FileImportAssertions.ShouldBeRowsFound(dto, 210);
             },
