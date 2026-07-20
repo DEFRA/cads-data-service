@@ -100,7 +100,6 @@ public class FileImport
             throw new DomainException("Split can only start from transferred.");
 
         ImportStatus = FileImportStatus.Split;
-        ImportStartAt = DateTimeOffset.UtcNow;
     }
 
     public void MarkImportComplete()
