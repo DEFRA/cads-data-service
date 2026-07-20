@@ -2,8 +2,9 @@ using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportComplete;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportFailed;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkCompleted;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFailed;
+using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImportCompleted;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkSplit;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkTransferred;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
@@ -143,16 +144,16 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("{id:long}/complete")]
+    [HttpPost("{id:long}/completed")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkImportComplete(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> MarkCompleted(long id, CancellationToken cancellationToken)
     {
-        await executor.ExecuteCommand(new MarkFileImportCompleteCommand(id), cancellationToken);
+        await executor.ExecuteCommand(new MarkCompletedCommand(id), cancellationToken);
 
         return NoContent();
     }
@@ -164,16 +165,16 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    [HttpPost("{id:long}/fail")]
+    [HttpPost("{id:long}/failed")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkImportFailed(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> MarkFailed(long id, CancellationToken cancellationToken)
     {
-        await executor.ExecuteCommand(new MarkFileImportFailedCommand(id), cancellationToken);
+        await executor.ExecuteCommand(new MarkFailedCommand(id), cancellationToken);
 
         return NoContent();
     }
