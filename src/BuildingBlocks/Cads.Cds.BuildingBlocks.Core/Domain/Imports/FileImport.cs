@@ -75,8 +75,8 @@ public class FileImport
         {
             FileImportStatus.Transferred => (Action)MarkTransferred,
             FileImportStatus.Split => MarkSplit,
-            FileImportStatus.Complete => MarkImportComplete,
-            FileImportStatus.Failed => MarkImportFailed,
+            FileImportStatus.Completed => MarkCompleted,
+            FileImportStatus.Failed => MarkFailed,
             _ => null
         })?.Invoke();
     }
@@ -102,18 +102,18 @@ public class FileImport
         ImportStatus = FileImportStatus.Split;
     }
 
-    public void MarkImportComplete()
+    public void MarkCompleted()
     {
         if (ImportStatus != FileImportStatus.Split)
             throw new DomainException("Import must be in split state to complete.");
 
-        ImportStatus = FileImportStatus.Complete;
+        ImportStatus = FileImportStatus.Completed;
         ImportEndAt = DateTimeOffset.UtcNow;
     }
 
-    public void MarkImportFailed()
+    public void MarkFailed()
     {
-        if (ImportStatus == FileImportStatus.Complete)
+        if (ImportStatus == FileImportStatus.Completed)
             throw new DomainException("Import must be in pending, transferred, or split state to be marked as failed.");
 
         ImportStatus = FileImportStatus.Failed;
