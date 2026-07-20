@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
 using MediatR;
 
-namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImporting;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkCompleted;
 
-public sealed record MarkFileImportingCommand(long Id)
+public sealed record MarkCompletedCommand(long Id)
     : ISystemAdminCommand<Unit>, ITransactionalCommand, IHasId;
