@@ -64,7 +64,7 @@ public static class FileImportAssertions
 
     public static void ShouldBeFailed(FileImportDto dto)
     {
-        dto.ImportStatus.Should().Be(FileImportStatus.Error);
+        dto.ImportStatus.Should().Be(FileImportStatus.Failed);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
 
         dto.ImportStartAt.Should().NotBeNull();
