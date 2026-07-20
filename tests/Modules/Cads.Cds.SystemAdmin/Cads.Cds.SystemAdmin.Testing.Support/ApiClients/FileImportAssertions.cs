@@ -25,18 +25,37 @@ public static class FileImportAssertions
         dto.ImportEndAt.Should().BeNull();
     }
 
-    public static void ShouldBeImporting(FileImportDto dto)
+    public static void ShouldBeTransferred(FileImportDto dto)
     {
-        dto.ImportStatus.Should().Be(FileImportStatus.Importing);
+        dto.ImportStatus.Should().Be(FileImportStatus.Transferred);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
 
         dto.ImportStartAt.Should().NotBeNull();
         dto.ImportEndAt.Should().BeNull();
     }
 
-    public static void ShouldBeComplete(FileImportDto dto)
+    public static void ShouldBeSplit(FileImportDto dto)
     {
-        dto.ImportStatus.Should().Be(FileImportStatus.Complete);
+        dto.ImportStatus.Should().Be(FileImportStatus.Split);
+        dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
+
+        dto.ImportStartAt.Should().NotBeNull();
+        dto.ImportEndAt.Should().BeNull();
+    }
+
+    public static void ShouldBeUpdated(FileImportDto dto, FileImportStatus fileImportStatus)
+    {
+        dto.ImportStatus.Should().Be(fileImportStatus);
+        dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
+
+        dto.ImportStartAt.Should().NotBeNull();
+        dto.ImportEndAt.Should().BeNull();
+    }
+
+
+    public static void ShouldBeCompleted(FileImportDto dto)
+    {
+        dto.ImportStatus.Should().Be(FileImportStatus.Completed);
         dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
 
         dto.ImportStartAt.Should().NotBeNull();

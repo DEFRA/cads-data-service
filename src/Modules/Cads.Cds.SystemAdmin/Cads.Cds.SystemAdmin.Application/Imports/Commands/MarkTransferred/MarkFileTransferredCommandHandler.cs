@@ -4,18 +4,18 @@ using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using MediatR;
 
-namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImporting;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkTransferred;
 
-public sealed class MarkFileImportingCommandHandler(
+public sealed class MarkFileTransferredCommandHandler(
     IFileImportRepository fileImportRepository)
-    : ICommandHandler<MarkFileImportingCommand, Unit>
+    : ICommandHandler<MarkFileTransferredCommand, Unit>
 {
-    public async Task<Unit> Handle(MarkFileImportingCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(MarkFileTransferredCommand command, CancellationToken cancellationToken)
     {
         var fileImport = await fileImportRepository.GetById(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(FileImport), command.Id);
 
-        fileImport.MarkImporting();
+        fileImport.MarkTransferred();
 
         return Unit.Value;
     }
