@@ -260,7 +260,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     // FileImports - MarkTransferred
 
     [Fact]
-    public async Task GivenInvalidRequest_WhenMarkImportingRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidRequest_WhenMarkTransferredRequested_ShouldReturnBadRequest()
     {
         var response = await FileImportTestClient.MarkTransferredAsync(
             _httpClient,
@@ -271,7 +271,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     }
 
     [Fact]
-    public async Task GivenUnknownRecord_WhenMarkImportingRequested_ShouldReturnNotFound()
+    public async Task GivenUnknownRecord_WhenMarkTransferredRequested_ShouldReturnNotFound()
     {
         var response = await FileImportTestClient.MarkTransferredAsync(
             _httpClient,
@@ -282,7 +282,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     }
 
     [Fact]
-    public async Task GivenRecordHasInvalidState_WhenMarkImportingRequested_ShouldReturnConflict()
+    public async Task GivenRecordHasInvalidState_WhenMarkTransferredRequested_ShouldReturnConflict()
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
@@ -298,7 +298,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenMarkImportingRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenMarkTransferredRequested_ShouldSucceed()
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
@@ -318,6 +318,71 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             dto =>
             {
                 FileImportAssertions.ShouldBeTransferred(dto);
+            },
+            TestContext.Current.CancellationToken);
+    }
+
+    // FileImports - MarkSplit
+
+    [Fact]
+    public async Task GivenInvalidRequest_WhenMarkSplitRequested_ShouldReturnBadRequest()
+    {
+        var response = await FileImportTestClient.MarkSplitAsync(
+            _httpClient,
+            id: 0,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GivenUnknownRecord_WhenMarkSplitRequested_ShouldReturnNotFound()
+    {
+        var response = await FileImportTestClient.MarkSplitAsync(
+            _httpClient,
+            id: 99,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GivenRecordHasInvalidState_WhenMarkSplitRequested_ShouldReturnConflict()
+    {
+        var id = await FileImportTestClient.GetIdByFileNameAsync(
+            _httpClient,
+            FileImportDataFactory.New_Scenario_Complete_FileName,
+            TestContext.Current.CancellationToken);
+
+        var response = await FileImportTestClient.MarkSplitAsync(
+            _httpClient,
+            id,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+
+    [Fact]
+    public async Task GivenValidRequest_WhenMarkSplitRequested_ShouldSucceed()
+    {
+        var id = await FileImportTestClient.GetIdByFileNameAsync(
+            _httpClient,
+            FileImportDataFactory.New_Scenario_MarkSplit_FileName,
+            TestContext.Current.CancellationToken);
+
+        var response = await FileImportTestClient.MarkSplitAsync(
+            _httpClient,
+            id,
+            TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        await FileImportTestClient.VerifyFileImportAsync(
+            _httpClient,
+            fileName: FileImportDataFactory.New_Scenario_MarkSplit_FileName,
+            dto =>
+            {
+                FileImportAssertions.ShouldBeSplit(dto);
             },
             TestContext.Current.CancellationToken);
     }
