@@ -45,16 +45,25 @@ public static class FileImportTestClient
         return await client.PutAsJsonAsync(endpoint, request, cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> MarkImportingAsync(
+    public static async Task<HttpResponseMessage> MarkTransferredAsync(
         HttpClient client,
         long id,
         CancellationToken cancellationToken)
     {
-        var endpoint = string.Format(TestEndpointConstants.FileImportsImportingEndpoint, id);
+        var endpoint = string.Format(TestEndpointConstants.FileImportsTransferredEndpoint, id);
         return await client.PostAsync(endpoint, null, cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> MarkImportCompleteAsync(
+    public static async Task<HttpResponseMessage> MarkSplitAsync(
+        HttpClient client,
+        long id,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.FileImportsSplitEndpoint, id);
+        return await client.PostAsync(endpoint, null, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> MarkCompletedAsync(
         HttpClient client,
         long id,
         CancellationToken cancellationToken)
@@ -63,7 +72,7 @@ public static class FileImportTestClient
         return await client.PostAsync(endpoint, null, cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> MarkImportFailedAsync(
+    public static async Task<HttpResponseMessage> MarkFailedAsync(
         HttpClient client,
         long id,
         CancellationToken cancellationToken)
