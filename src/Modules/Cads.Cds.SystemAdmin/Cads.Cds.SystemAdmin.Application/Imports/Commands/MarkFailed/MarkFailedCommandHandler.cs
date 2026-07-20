@@ -4,18 +4,18 @@ using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using MediatR;
 
-namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFileImportComplete;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFailed;
 
-public sealed class MarkFileImportCompleteCommandHandler(
+public sealed class MarkFailedCommandHandler(
     IFileImportRepository fileImportRepository)
-    : ICommandHandler<MarkFileImportCompleteCommand, Unit>
+    : ICommandHandler<MarkFailedCommand, Unit>
 {
-    public async Task<Unit> Handle(MarkFileImportCompleteCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(MarkFailedCommand command, CancellationToken cancellationToken)
     {
         var fileImport = await fileImportRepository.GetById(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(FileImport), command.Id);
 
-        fileImport.MarkImportComplete();
+        fileImport.MarkImportFailed();
 
         return Unit.Value;
     }
