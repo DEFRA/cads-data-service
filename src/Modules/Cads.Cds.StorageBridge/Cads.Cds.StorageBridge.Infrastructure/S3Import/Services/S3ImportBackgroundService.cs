@@ -40,7 +40,7 @@ public abstract class S3ImportBackgroundService<T>(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error to process bulk load job {JobId}", request.JobId);
+            logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
         }
         finally
         {
