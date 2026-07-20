@@ -34,6 +34,15 @@ public static class FileImportAssertions
         dto.ImportEndAt.Should().BeNull();
     }
 
+    public static void ShouldBeSplit(FileImportDto dto)
+    {
+        dto.ImportStatus.Should().Be(FileImportStatus.Split);
+        dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
+
+        dto.ImportStartAt.Should().NotBeNull();
+        dto.ImportEndAt.Should().BeNull();
+    }
+
     public static void ShouldBeUpdated(FileImportDto dto, FileImportStatus fileImportStatus)
     {
         dto.ImportStatus.Should().Be(fileImportStatus);
