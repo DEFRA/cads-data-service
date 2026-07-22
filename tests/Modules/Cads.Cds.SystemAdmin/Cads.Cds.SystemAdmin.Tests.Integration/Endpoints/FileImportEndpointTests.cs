@@ -92,7 +92,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             TestContext.Current.CancellationToken);
 
         problemDetails.Should().NotBeNull();
-        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name. ImportStatus: '{FileImportStatus.Failed}'. ProcessingStatus: '{FileProcessingStatus.Pending}'.");
+        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name. ImportStatus: '{FileImportStatus.Completed}'. ProcessingStatus: '{FileProcessingStatus.Pending}'.");
     }
 
     [Fact]
