@@ -1,5 +1,6 @@
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;

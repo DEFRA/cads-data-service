@@ -1,9 +1,8 @@
-using Cads.Cds.BuildingBlocks.Application.Schema;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 
-namespace Cads.Cds.StorageBridge.Core.Domain.Extensions;
+namespace Cads.Cds.BuildingBlocks.Application.Schema;
 
-public static class DomainExtensions
+public static class EnumExtensions
 {
     public static SchemaName GetSchemaName(this ImportActionType importActionType)
     {

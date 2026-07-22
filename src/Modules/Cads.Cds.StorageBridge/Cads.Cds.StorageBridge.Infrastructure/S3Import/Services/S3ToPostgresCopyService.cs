@@ -1,9 +1,9 @@
 using Cads.Cds.BuildingBlocks.Application.Imports;
 using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
-using Cads.Cds.StorageBridge.Core.Domain.Extensions;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
@@ -39,7 +39,7 @@ public class S3ToPostgresCopyService(
     {
         ValidateJob(job);
 
-        if (!S3Utils.TryParseS3Url(job.SourceKey, out var bucketName, out var objectKey, out var fileName))
+        if (!S3Utils.TryParseS3Url(job.SourceKey, out var _, out var _, out var fileName))
         {
             logger.LogError("Failed to parse S3 URL: {SourceKey}", job.SourceKey);
             throw new InvalidOperationException("Failed to parse S3 URL");
