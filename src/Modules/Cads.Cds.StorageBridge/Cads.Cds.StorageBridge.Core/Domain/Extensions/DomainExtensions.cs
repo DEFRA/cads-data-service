@@ -7,12 +7,13 @@ public static class DomainExtensions
 {
     public static SchemaName GetSchemaName(this ImportActionType importActionType)
     {
+        // Map ImportActionType to SchemaName
+        // Fix to always return CtsTransactions for both Bulk and Delta
         return importActionType switch
         {
-            ImportActionType.Bulk => SchemaName.Cts,
+            ImportActionType.Bulk => SchemaName.CtsTransactions,
             ImportActionType.Delta => SchemaName.CtsTransactions,
             _ => SchemaName.NotDefined
         };
     }
-
 }
