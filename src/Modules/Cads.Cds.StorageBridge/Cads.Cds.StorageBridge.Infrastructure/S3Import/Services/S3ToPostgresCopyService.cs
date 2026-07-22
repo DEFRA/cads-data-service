@@ -124,7 +124,7 @@ public class S3ToPostgresCopyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Completed CSV import copy for job {JobId} with key sourceKey {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
+            logger.LogInformation("Completed CSV import copy for job {JobId} with key {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
                 job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
