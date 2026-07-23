@@ -107,7 +107,7 @@ public class S3ToPostgresCopyServiceTests
     }
 
     [Fact]
-    public async Task GetCommandsAsync_ShouldReturnInsertCommand()
+    public async Task GetCommandsAsync_ShouldReturnInsertCommand_WhenDelta()
     {
         var insertCmd = new Mock<DbCommand>().Object;
 
@@ -120,16 +120,16 @@ public class S3ToPostgresCopyServiceTests
     }
 
     [Fact]
-    public async Task GetCommandsAsync_ShouldReturnUpsertCommand_WhenInsertAndUpdate()
+    public async Task GetCommandsAsync_ShouldReturnInsertCommand_WhenBulk()
     {
-        var upsertCmd = new Mock<DbCommand>().Object;
+        var insertCmd = new Mock<DbCommand>().Object;
 
-        _factory.Setup(x => x.CreateUpsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(upsertCmd);
+        _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(insertCmd);
 
         var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, ImportActionType.Bulk, _factory.Object);
 
-        result.Should().ContainSingle().Which.Should().Be(upsertCmd);
+        result.Should().ContainSingle().Which.Should().Be(insertCmd);
     }
 
     [Fact]
