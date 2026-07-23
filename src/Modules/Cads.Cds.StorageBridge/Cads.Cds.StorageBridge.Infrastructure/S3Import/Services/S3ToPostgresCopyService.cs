@@ -284,9 +284,9 @@ public class S3ToPostgresCopyService(
 
         switch (importActionType)
         {
+            // Both Bulk and Delta will be inserting into cts-transactions
             case ImportActionType.Bulk:
-                commands.Add(await factory.CreateUpsertCommandAsync(importDataType, schemaName, cancellationToken));
-                break;
+
             case ImportActionType.Delta:
                 commands.Add(await factory.CreateInsertCommandAsync(importDataType, schemaName, cancellationToken));
                 break;
