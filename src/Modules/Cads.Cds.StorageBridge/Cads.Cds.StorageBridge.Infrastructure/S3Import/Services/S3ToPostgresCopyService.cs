@@ -1,9 +1,9 @@
 using Cads.Cds.BuildingBlocks.Application.Imports;
 using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
-using Cads.Cds.StorageBridge.Core.Domain.Extensions;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
@@ -39,7 +39,7 @@ public class S3ToPostgresCopyService(
     {
         ValidateJob(job);
 
-        if (!S3Utils.TryParseS3Url(job.SourceKey, out var bucketName, out var objectKey, out var fileName))
+        if (!S3Utils.TryParseS3Url(job.SourceKey, out var _, out var _, out var fileName))
         {
             logger.LogError("Failed to parse S3 URL: {SourceKey}", job.SourceKey);
             throw new InvalidOperationException("Failed to parse S3 URL");
@@ -124,7 +124,7 @@ public class S3ToPostgresCopyService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Completed CSV import copy for job {JobId} with key sourceKey {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
+            logger.LogInformation("Completed CSV import copy for job {JobId} with key {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
                 job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
@@ -284,9 +284,9 @@ public class S3ToPostgresCopyService(
 
         switch (importActionType)
         {
+            // Both Bulk and Delta will be inserting into cts-transactions
             case ImportActionType.Bulk:
-                commands.Add(await factory.CreateUpsertCommandAsync(importDataType, schemaName, cancellationToken));
-                break;
+
             case ImportActionType.Delta:
                 commands.Add(await factory.CreateInsertCommandAsync(importDataType, schemaName, cancellationToken));
                 break;

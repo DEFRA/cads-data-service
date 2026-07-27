@@ -80,6 +80,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update([FromRoute] long id, [FromBody] UpdateFileImportRequest request, CancellationToken cancellationToken)
     {
@@ -107,6 +108,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> MarkTransferred(long id, CancellationToken cancellationToken)
     {
@@ -128,6 +130,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> MarkSplit(long id, CancellationToken cancellationToken)
     {
@@ -135,7 +138,6 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
 
         return NoContent();
     }
-
 
     /// <summary>
     /// Marks the import workflow as complete.
@@ -150,6 +152,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> MarkCompleted(long id, CancellationToken cancellationToken)
     {
@@ -171,6 +174,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> MarkFailed(long id, CancellationToken cancellationToken)
     {
@@ -192,6 +196,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Reset(long id, CancellationToken cancellationToken)
     {

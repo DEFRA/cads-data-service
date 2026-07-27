@@ -1,12 +1,12 @@
 using Amazon.S3.Model;
-using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
 using Cads.Cds.StorageBridge.Controllers.Requests;
 using Cads.Cds.StorageBridge.Controllers.Responses;
-using Cads.Cds.StorageBridge.Core.Attributes;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Utilities;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
 using FluentAssertions;
@@ -69,7 +69,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key sourceKey \"{TestKey}\", 0 records processed");
+        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key \"{TestKey}\", 0 records processed");
     }
 
     [Fact]
@@ -115,11 +115,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        var attributes = ImportDataType.CtLocations.GetAttributes<TableInfoAttribute>()!;
-        var schemaName = attributes.First().Schema.GetDescription();
-        var tableName = string.IsNullOrWhiteSpace(schemaName)
-            ? attributes.First().Name
-            : $"{attributes.First().Schema}.{attributes.First().Name}";
+        var tableName = S3ImportCommandFactory.GetTableName(ImportDataType.CtLocations, SchemaName.CtsTransactions);
 
         await BulkLoadTestHelpers.AssertCsvRowsMatchDatabaseAsync(
             apiContainerFixture.PostgresFixture.HostConnectionString,
@@ -129,7 +125,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
                 TestDataFileConstants.LocationsDataRow2
             ]);
 
-        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key sourceKey \"{TestKey}\", 2 records processed");
+        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key \"{TestKey}\", 2 records processed");
     }
 
     private static StringContent? InvalidS3CsvImportRequest =>
