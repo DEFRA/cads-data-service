@@ -16,8 +16,6 @@ public interface IS3ImportCommandFactory
 
     Task<DbCommand> CreateUpsertCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default);
 
-    string GetTableName(ImportDataType importDataType, SchemaName schemaName, bool isTemp = false);
-
     Task<List<string>> FilterColumnsToTableAsync(ImportDataType importDataType, SchemaName schemaName, IEnumerable<string> fileColumns, CancellationToken cancellationToken = default);
 
     Task<List<string>> GetColumnNamesAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default);
