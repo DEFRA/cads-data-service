@@ -10,7 +10,6 @@ using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
-using DocumentFormat.OpenXml.Wordprocessing;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
