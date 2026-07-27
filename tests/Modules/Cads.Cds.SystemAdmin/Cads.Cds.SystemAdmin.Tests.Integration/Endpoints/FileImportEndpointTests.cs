@@ -117,6 +117,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             TestContext.Current.CancellationToken);
 
         dto.Should().NotBeNull();
+        dto.Id.Should().BeGreaterThan(0);
         FileImportAssertions.ShouldBePending(dto);
     }
 
@@ -142,6 +143,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             TestContext.Current.CancellationToken);
 
         dto.Should().NotBeNull();
+        dto.Id.Should().BeGreaterThan(0);
         FileImportAssertions.ShouldBePending(dto);
     }
 
