@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Factories;
 using FluentAssertions;
 using Npgsql;
@@ -14,13 +15,13 @@ public class S3ImportCommandFactoryTests
         var sql = GetFactory().SqlForTempTable(ImportDataType.CtLocations, SchemaName.Cts);
 
         sql.Should().Be(
-            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING ALL) ON COMMIT DROP;");
+            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" EXCLUDING CONSTRAINTS) ON COMMIT DROP;");
     }
 
     [Fact]
     public void GivenInvalidBulkLoadDataType_WhenGetTableNameRequested_ShouldThrow()
     {
-        Action act = () => GetFactory().GetTableName(ImportDataType.None, SchemaName.Public);
+        Action act = () => S3ImportCommandFactory.GetTableName(ImportDataType.None, SchemaName.Public);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -71,18 +72,28 @@ public class S3ImportCommandFactoryTests
     [InlineData(true, @"""temp_ct_locations""")]
     public void GivenValidBulkLoadDataType_WhenGetTableNameRequested_ShouldSucceed(bool isTemp, string expectedValue)
     {
-        var result = GetFactory().GetTableName(ImportDataType.CtLocations, SchemaName.Cts, isTemp);
+        var result = S3ImportCommandFactory.GetTableName(ImportDataType.CtLocations, SchemaName.Cts, isTemp);
 
         result.Should().Be(expectedValue);
     }
 
     [Fact]
-    public async Task CreateTempTableCommand_ShouldCreateValidCommand()
+    public async Task CreateTempTableCommand_WithCtsSchema_ShouldCreateValidCommand()
     {
         var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.Cts);
 
         cmd.CommandText.Should().Be(
-            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING ALL) ON COMMIT DROP;");
+            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" EXCLUDING CONSTRAINTS) ON COMMIT DROP;");
+    }
+
+    [Fact]
+    public async Task CreateTempTableCommand_WithCtsTransactionsSchema_ShouldCreateValidCommand()
+    {
+        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.CtsTransactions);
+
+        cmd.CommandText.Should().Be(
+            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts_transactions\".\"ct_locations\" EXCLUDING CONSTRAINTS) ON COMMIT DROP;" +
+            "ALTER TABLE \"temp_ct_locations\" DROP COLUMN trans_id, ALTER COLUMN trans_type SET DEFAULT 'B', ALTER COLUMN fake_data SET DEFAULT '0'");
     }
 
     private static TestableS3BulkLoadCommandFactory GetFactory() =>
