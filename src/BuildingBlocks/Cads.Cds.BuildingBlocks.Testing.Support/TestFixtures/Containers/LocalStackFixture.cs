@@ -17,11 +17,11 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
     public IAmazonS3 S3Client { get; private set; } = null!;
 
     public string? SqsEndpoint { get; private set; }
+    public string? CadsFifoQueueUrl { get; private set; }
+    public string? CadsFifoDeadLetterQueueUrl { get; private set; }
 
     public string ServiceUrl => $"http://localhost:{LocalStackContainer!.GetMappedPublicPort(TestContainerConstants.LocalStackPort)}";
     public static string NetworkServiceUrl => $"http://{TestContainerConstants.NetworkAlias}:{TestContainerConstants.LocalStackPort}";
-    public static string CadsQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{TestContainerConstants.LocalStackPort}/000000000000/{TestSqsConstants.CadsQueueName}";
-    public static string CadsDeadLetterQueueUrl => $"http://sqs.eu-west-2.localhost.localstack.cloud:{TestContainerConstants.LocalStackPort}/000000000000/{TestSqsConstants.CadsDeadLetterQueueName}";
 
     public const string AwsAccessKeyId = "test";
     public const string AwsSecretAccessKey = "test";
@@ -103,24 +103,36 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
         await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsInternalBucketName });
         await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsExternalBucketName });
 
-        var intakeDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = TestSqsConstants.CadsDeadLetterQueueName });
-        var intakeDlqAttr = await SqsClient.GetQueueAttributesAsync(new GetQueueAttributesRequest
+        var cadsFifoDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest
         {
-            QueueUrl = intakeDlqCreated.QueueUrl,
+            QueueName = TestSqsConstants.CadsFifoDeadLetterQueueName,
+            Attributes = new Dictionary<string, string>
+            {
+                { QueueAttributeName.FifoQueue, "true" }
+            }
+        });
+        var cadsFifoDlqAttr = await SqsClient.GetQueueAttributesAsync(new GetQueueAttributesRequest
+        {
+            QueueUrl = cadsFifoDlqCreated.QueueUrl,
             AttributeNames = ["QueueArn"]
         });
 
-        var intakeQueueCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest { QueueName = TestSqsConstants.CadsQueueName });
-
-        if (CadsDeadLetterQueueUrl != intakeDlqCreated.QueueUrl || CadsQueueUrl != intakeQueueCreated.QueueUrl)
+        var cadsFifoQueueCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest
         {
-            throw new ApplicationException("Localstack queues have unexpected urls");
-        }
+            QueueName = TestSqsConstants.CadsFifoQueueName,
+            Attributes = new Dictionary<string, string>
+            {
+                { QueueAttributeName.FifoQueue, "true" }
+            }
+        });
 
-        var redrivePolicy = $"{{\"deadLetterTargetArn\":\"{intakeDlqAttr.QueueARN}\",\"maxReceiveCount\":\"3\"}}";
+        CadsFifoQueueUrl = cadsFifoQueueCreated.QueueUrl;
+        CadsFifoDeadLetterQueueUrl = cadsFifoDlqCreated.QueueUrl;
+
+        var redrivePolicy = $"{{\"deadLetterTargetArn\":\"{cadsFifoDlqAttr.QueueARN}\",\"maxReceiveCount\":\"3\"}}";
         await SqsClient.SetQueueAttributesAsync(new SetQueueAttributesRequest
         {
-            QueueUrl = CadsQueueUrl,
+            QueueUrl = CadsFifoQueueUrl,
             Attributes = new Dictionary<string, string>
             {
                 { "RedrivePolicy", redrivePolicy }
@@ -135,7 +147,7 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
             BucketName = CadsInternalBucketName
         });
 
-        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsDeadLetterQueueName, ["All"], CancellationToken.None);
-        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsFifoDeadLetterQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsFifoQueueName, ["All"], CancellationToken.None);
     }
 }
