@@ -4,7 +4,6 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkCompleted;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFailed;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkImportCompleted;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkSplit;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkTransferred;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
