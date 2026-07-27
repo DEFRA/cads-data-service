@@ -56,8 +56,8 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("IMB_S3_ACCESS_KEY", "test")
           .WithEnvironment("IMB_S3_SECRET_KEY", "test")
           .WithEnvironment("Modules__Ingester__Storage__CadsIngester__BucketName", LocalStackFixture.CadsInternalBucketName)
-          .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsQueueUrl)
-          .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
+          .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsFifoQueueUrl)
+          .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsFifoDeadLetterQueueUrl)
           .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ReadConnectionString)
@@ -139,6 +139,7 @@ public class ApiContainerFixture : IAsyncLifetime
         catch (Exception ex) { error ??= ex; }
 
         await Safe(() => ApiContainer.DisposeAsync());
+        await Safe(() => DockerNetworkHelper.DeleteNetwork(_networkName));
 
         GC.SuppressFinalize(this);
 
