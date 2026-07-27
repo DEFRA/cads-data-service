@@ -23,6 +23,6 @@ public static class SchemaHelper
             throw new UnprocessableException($"Invalid import action type '{parsedFilename!.Type}' derived from file name '{filename}'.");
         }
 
-        return $"{schemaName.GetDescription()}.{parsedFilename!.TableName}";
+        return $"{schemaName.GetDescription()}.{parsedFilename!.TableName.ToLower()}";
     }
 }
