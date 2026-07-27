@@ -9,17 +9,30 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 
-public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportCommandFactory
+public class S3ImportCommandFactory : IS3ImportCommandFactory
 {
-    private readonly NpgsqlConnection _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-
+    private readonly NpgsqlConnection _connection;
     private static readonly NpgsqlCommandBuilder s_commandBuilder = new();
+
+    public S3ImportCommandFactory(NpgsqlConnection connection)
+    {
+        ArgumentNullException.ThrowIfNull(connection, nameof(connection));
+        _connection = connection;
+    }
 
     protected virtual string GenerateTempTableSql(ImportDataType importDataType, SchemaName schemaName)
     {
         var tableName = GetTableName(importDataType, schemaName);
         var tempTableName = GetTableName(importDataType, schemaName, isTemp: true);
-        return $"CREATE TEMP TABLE {tempTableName} (LIKE {tableName} INCLUDING ALL) ON COMMIT DROP;";
+        var commandText = $"CREATE TEMP TABLE {tempTableName} (LIKE {tableName} EXCLUDING CONSTRAINTS) ON COMMIT DROP;";
+
+        if (schemaName == SchemaName.CtsTransactions)
+            commandText += $"ALTER TABLE {tempTableName} " +
+                "DROP COLUMN trans_id, " +
+                "ALTER COLUMN trans_type SET DEFAULT 'B', " +
+                "ALTER COLUMN fake_data SET DEFAULT '0'";
+
+        return commandText;
     }
 
     protected virtual async Task<string> GenerateInsertSqlAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken)
@@ -27,8 +40,9 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
         var tableName = GetTableName(importDataType, schemaName);
         var tempTableName = GetTableName(importDataType, schemaName, isTemp: true);
         var columnNames = await GetColumnNamesAsync(importDataType, schemaName, cancellationToken);
+        var insertColumns = string.Join(",", columnNames);
 
-        return $"INSERT INTO {tableName} ({string.Join(",", columnNames)}) " +
+        return $"INSERT INTO {tableName} ({insertColumns}) " +
                $"SELECT {string.Join(",", columnNames)} FROM {tempTableName}";
     }
 
@@ -106,7 +120,7 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
         };
     }
 
-    public string GetTableName(ImportDataType importDataType, SchemaName schemaName, bool isTemp = false)
+    public static string GetTableName(ImportDataType importDataType, SchemaName schemaName, bool isTemp = false)
     {
         var tableName = importDataType.GetTableName(schemaName)
             ?? throw new ArgumentException("Table name cannot be null", nameof(importDataType));
@@ -139,16 +153,22 @@ public class S3ImportCommandFactory(NpgsqlConnection connection) : IS3ImportComm
 
         var columnNames = new List<string>();
 
+        var primaryKey = importDataType.GetTableInfoAttribute(schemaName)?.PrimaryKey
+            ?? throw new ArgumentException("Primarykey cannot be null", nameof(importDataType));
+
         var query = @"
             SELECT column_name 
             FROM information_schema.columns
             WHERE table_name = @tableName
-              AND (@schema IS NULL OR table_schema = @schema)
+            AND column_name != @primaryKey
+            AND (@schema IS NULL OR table_schema = @schema)
+            AND is_generated = 'NEVER'
             ORDER BY ordinal_position";
 
         await using var command = new NpgsqlCommand(query, _connection);
         command.Parameters.AddWithValue("tableName", tableName);
         command.Parameters.AddWithValue("schema", (object?)schema ?? DBNull.Value);
+        command.Parameters.AddWithValue("primaryKey", primaryKey);
 
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
