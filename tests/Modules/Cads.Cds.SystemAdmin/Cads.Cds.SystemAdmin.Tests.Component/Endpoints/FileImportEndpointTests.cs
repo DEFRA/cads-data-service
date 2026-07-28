@@ -221,8 +221,9 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
     }
 
     [Theory]
-    [InlineData(FileImportDataFactory.New_Scenario_Pending_FileName_2, FileImportStatus.Transferred)]
-    [InlineData(FileImportDataFactory.New_Scenario_Transferred_FileName_2, FileImportStatus.Split)]
+    [InlineData(FileImportDataFactory.New_Scenario_Pending_Update_Transferred_FileName, FileImportStatus.Transferred)]
+    [InlineData(FileImportDataFactory.New_Scenario_Transferred_Update_Split_FileName, FileImportStatus.Split)]
+    [InlineData(FileImportDataFactory.New_Scenario_Transferred_Update_Failed_FileName, FileImportStatus.Failed)]
     public async Task GivenValidRequest_WhenUpdateRequested_ShouldSucceed(string fileName, FileImportStatus importStatus)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
@@ -250,9 +251,16 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             fileName: fileName,
             dto =>
             {
-                FileImportAssertions.ShouldBeUpdated(dto, importStatus);
-                FileImportAssertions.ShouldBeTotalRowsToProcess(dto, 220);
-                FileImportAssertions.ShouldBeRowsFound(dto, 210);
+                if (importStatus == FileImportStatus.Failed)
+                {
+                    FileImportAssertions.ShouldBeFailed(dto);
+                }
+                else
+                {
+                    FileImportAssertions.ShouldBeUpdated(dto, importStatus);
+                    FileImportAssertions.ShouldBeTotalRowsToProcess(dto, 220);
+                    FileImportAssertions.ShouldBeRowsFound(dto, 210);
+                }
             },
             TestContext.Current.CancellationToken);
     }
