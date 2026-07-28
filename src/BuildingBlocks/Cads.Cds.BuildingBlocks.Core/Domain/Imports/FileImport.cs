@@ -80,7 +80,7 @@ public class FileImport
             MarkFailed("Import failed.");
             return;
         }
-        
+
         (status switch
         {
             FileImportStatus.Transferred => (Action)MarkTransferred,
