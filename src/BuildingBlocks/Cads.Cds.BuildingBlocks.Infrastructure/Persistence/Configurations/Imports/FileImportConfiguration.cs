@@ -87,5 +87,13 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
         builder.Property(x => x.ProcessingEndAt)
             .HasColumnName("processing_end_at")
             .HasColumnType("timestamptz");
+
+        builder.Property(x => x.FailedAttempts)
+            .HasColumnName("failed_attempts")
+            .HasColumnType("smallint");
+
+        builder.Property(x => x.LastErrorReason)
+            .HasColumnName("last_error_reason")
+            .HasColumnType("text");
     }
 }
