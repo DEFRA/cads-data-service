@@ -75,10 +75,11 @@ public static class FileImportTestClient
     public static async Task<HttpResponseMessage> MarkFailedAsync(
         HttpClient client,
         long id,
+        string reason,
         CancellationToken cancellationToken)
     {
         var endpoint = string.Format(TestEndpointConstants.FileImportsFailedEndpoint, id);
-        return await client.PostAsync(endpoint, null, cancellationToken);
+        return await client.PostAsJsonAsync(endpoint, reason, cancellationToken);
     }
 
     public static async Task<HttpResponseMessage> ResetAsync(
@@ -140,6 +141,7 @@ public static class FileImportTestClient
         CancellationToken cancellationToken = default)
     {
         var response = await GetByFileNameAsync(client, fileName, cancellationToken);
+        var content = await response.Content.ReadAsStringAsync();
         var dto = await ReadDtoAsync(response, cancellationToken);
 
         dto.Should().NotBeNull();

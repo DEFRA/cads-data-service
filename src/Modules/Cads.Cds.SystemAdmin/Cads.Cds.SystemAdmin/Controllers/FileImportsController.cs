@@ -76,7 +76,9 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
             fileImport.ImportStartAt,
             fileImport.ImportEndAt,
             fileImport.ProcessingStartAt,
-            fileImport.ProcessingEndAt);
+            fileImport.ProcessingEndAt,
+            fileImport.FailedAttempts,
+            fileImport.LastErrorReason);
 
         return CreatedAtAction(nameof(GetByFileName), new { fileName = request.FileName }, dto);
     }
@@ -175,10 +177,11 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     }
 
     /// <summary>
-    /// Marks the import workflow as failed.
+    /// Marks the import workflow as failed with the reason provided.
     /// Used if the S3 ingest (or splitting) fails.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="reason"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost("{id:long}/failed")]
@@ -189,10 +192,9 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkFailed(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> MarkFailed(long id, [FromBody] string reason, CancellationToken cancellationToken)
     {
-        await executor.ExecuteCommand(new MarkFailedCommand(id), cancellationToken);
-
+        await executor.ExecuteCommand(new MarkFailedCommand(id, reason), cancellationToken);
         return NoContent();
     }
 
