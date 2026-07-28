@@ -457,6 +457,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var response = await FileImportTestClient.MarkFailedAsync(
             _httpClient,
             id: 0,
+            reason:"this is a bad request",
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -468,6 +469,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var response = await FileImportTestClient.MarkFailedAsync(
             _httpClient,
             id: 99,
+            reason: "not found",
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -484,6 +486,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var response = await FileImportTestClient.MarkFailedAsync(
             _httpClient,
             id,
+            reason: "this is a conflict",
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -500,6 +503,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var response = await FileImportTestClient.MarkFailedAsync(
             _httpClient,
             id,
+            reason: "error during file import",
             TestContext.Current.CancellationToken);
 
         response.IsSuccessStatusCode.Should().BeTrue();
