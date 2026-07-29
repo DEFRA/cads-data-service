@@ -10,8 +10,6 @@ namespace Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 [ExcludeFromCodeCoverage]
 public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : CadsDbContext(options)
 {
-    // Shared canonical entities
-
     // Module-specific entities
 
     // Tables
@@ -22,8 +20,6 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : Cads
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Import shared canonical entities (from BuildingBlocks)
-
         // Import module-specific entities
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ApiReadDbContext).Assembly

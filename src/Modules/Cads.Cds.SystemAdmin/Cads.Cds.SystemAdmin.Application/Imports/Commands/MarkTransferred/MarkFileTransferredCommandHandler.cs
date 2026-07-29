@@ -7,7 +7,7 @@ using MediatR;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkTransferred;
 
 public sealed class MarkFileTransferredCommandHandler(
-    IFileImportRepository fileImportRepository)
+    ISystemAdminFileImportRepository fileImportRepository)
     : ICommandHandler<MarkFileTransferredCommand, Unit>
 {
     public async Task<Unit> Handle(MarkFileTransferredCommand command, CancellationToken cancellationToken)

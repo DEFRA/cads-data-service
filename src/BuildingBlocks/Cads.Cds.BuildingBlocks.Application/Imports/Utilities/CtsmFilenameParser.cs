@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Cads.Cds.BuildingBlocks.Application.Imports;
+namespace Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 
 public record CtsmFilename(
     string App,
