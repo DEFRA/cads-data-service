@@ -1,8 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Imports;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
@@ -84,6 +82,11 @@ public class S3ToPostgresCopyService(
         var sw = Stopwatch.StartNew();
         var totalRows = 0;
 
+        var connection = (NpgsqlConnection)await GetConnectionAsync(dbContext, cancellationToken);
+        var factory = factoryProvider.Create(connection);
+        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
+        var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
+
         foreach (var key in keys)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -100,8 +103,10 @@ public class S3ToPostgresCopyService(
                 importDataType,
                 importActionType,
                 job.Delimiter,
-                factoryProvider,
+                factory,
                 dbContext,
+                createTempTableCommand,
+                actionCommands,
                 MaxRetryAttempts,
                 cancellationToken);
 
@@ -146,8 +151,10 @@ public class S3ToPostgresCopyService(
         ImportDataType importDataType,
         ImportActionType importActionType,
         char delimiter,
-        IS3ImportCommandFactoryProvider factoryProvider,
+        IS3ImportCommandFactory factory,
         StorageBridgeWriteDbContext dbContext,
+        DbCommand createTempTableCommand,
+        List<DbCommand> actionCommands,
         int maxRetryAttempts = 3,
         CancellationToken cancellationToken = default)
     {
@@ -207,17 +214,22 @@ public class S3ToPostgresCopyService(
 
             try
             {
-                var factory = factoryProvider.Create(connection, transaction);
-                var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
-                var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
-
                 // Create temp table (with retries for transient DB issues)
+                createTempTableCommand.Connection = connection;
+                createTempTableCommand.Transaction = transaction;
+
                 await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
                 // Copy file to staging (may involve network IO; add retry)
                 await CopyFileToStagingAsync(importDataType, importActionType.GetSchemaName(), delimiter, key, factory, cancellationToken);
 
                 // Execute action commands (retry the whole command set if transient)
+                foreach (var command in actionCommands)
+                {
+                    command.Connection = connection;
+                    command.Transaction = transaction;
+                }
+
                 var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
 
                 // Commit once everything succeeds
