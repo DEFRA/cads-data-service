@@ -7,7 +7,7 @@ using MediatR;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.UpdateFileImport;
 
 public class UpdateFileImportCommandHandler(
-    IFileImportRepository fileImportRepository)
+    ISystemAdminFileImportRepository fileImportRepository)
     : ICommandHandler<UpdateFileImportCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateFileImportCommand command, CancellationToken cancellationToken)

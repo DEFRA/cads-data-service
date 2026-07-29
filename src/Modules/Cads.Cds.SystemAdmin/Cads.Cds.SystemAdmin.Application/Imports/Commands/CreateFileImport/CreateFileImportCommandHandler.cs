@@ -8,7 +8,7 @@ using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
 
 public sealed class CreateFileImportCommandHandler(
-    IFileImportRepository fileImportRepository)
+    ISystemAdminFileImportRepository fileImportRepository)
     : ICommandHandler<CreateFileImportCommand, FileImport>
 {
     public async Task<FileImport> Handle(CreateFileImportCommand command, CancellationToken cancellationToken)

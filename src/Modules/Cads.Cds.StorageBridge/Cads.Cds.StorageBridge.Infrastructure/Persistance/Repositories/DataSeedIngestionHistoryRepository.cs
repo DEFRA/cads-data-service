@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Repositories;
+using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Core.Domain.Entities;
-using Cads.Cds.StorageBridge.Core.Domain.Repositories;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
 

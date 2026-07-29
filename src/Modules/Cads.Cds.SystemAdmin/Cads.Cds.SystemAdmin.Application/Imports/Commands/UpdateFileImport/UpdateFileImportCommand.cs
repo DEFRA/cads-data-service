@@ -1,5 +1,5 @@
+using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using MediatR;
 
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.UpdateFileImport;

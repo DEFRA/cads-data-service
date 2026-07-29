@@ -7,7 +7,7 @@ using MediatR;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
 
 public sealed class ResetFileImportCommandHandler(
-    IFileImportRepository fileImportRepository)
+    ISystemAdminFileImportRepository fileImportRepository)
     : ICommandHandler<ResetFileImportCommand, Unit>
 {
     public async Task<Unit> Handle(ResetFileImportCommand command, CancellationToken cancellationToken)
