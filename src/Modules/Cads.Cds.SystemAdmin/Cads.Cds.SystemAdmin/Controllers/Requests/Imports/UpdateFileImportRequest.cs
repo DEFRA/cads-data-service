@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.ApiSurface.Dtos.Imports;
 
 namespace Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 

@@ -1,6 +1,4 @@
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
-
-namespace Cads.Cds.SystemAdmin.Core.DTOs.Imports;
+namespace Cads.Cds.ApiSurface.Dtos.Imports;
 
 public class FileImportDto(
     long id,
