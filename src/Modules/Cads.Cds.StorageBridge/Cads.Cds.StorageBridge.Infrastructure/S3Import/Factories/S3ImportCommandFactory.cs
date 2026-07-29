@@ -12,12 +12,20 @@ namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 public class S3ImportCommandFactory : IS3ImportCommandFactory
 {
     private readonly NpgsqlConnection _connection;
+    private readonly NpgsqlTransaction? _transaction;
+
     private static readonly NpgsqlCommandBuilder s_commandBuilder = new();
 
-    public S3ImportCommandFactory(NpgsqlConnection connection)
+    public S3ImportCommandFactory(NpgsqlConnection connection) : this(connection, null)
+    {
+    }
+
+    public S3ImportCommandFactory(NpgsqlConnection connection, NpgsqlTransaction? transaction)
     {
         ArgumentNullException.ThrowIfNull(connection, nameof(connection));
+
         _connection = connection;
+        _transaction = transaction;
     }
 
     protected virtual string GenerateTempTableSql(ImportDataType importDataType, SchemaName schemaName)
@@ -76,7 +84,8 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return new NpgsqlCommand
         {
             CommandText = sql,
-            Connection = _connection
+            Connection = _connection,
+            Transaction = _transaction
         };
     }
 
@@ -94,7 +103,8 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return new NpgsqlCommand
         {
             CommandText = sql,
-            Connection = _connection
+            Connection = _connection,
+            Transaction = _transaction
         };
     }
 
@@ -105,7 +115,8 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return new NpgsqlCommand
         {
             CommandText = sql,
-            Connection = _connection
+            Connection = _connection,
+            Transaction = _transaction
         };
     }
 
@@ -116,7 +127,8 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return new NpgsqlCommand
         {
             CommandText = sql,
-            Connection = _connection
+            Connection = _connection,
+            Transaction = _transaction
         };
     }
 

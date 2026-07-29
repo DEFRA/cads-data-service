@@ -83,6 +83,9 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
                 Port = config.Port,
                 Database = config.Name,
                 Username = config.User,
+                CommandTimeout = 60,
+                TcpKeepAlive = true,
+                TcpKeepAliveTime = 30,
                 SslMode = SslMode.Require // AWS RDS requires SSL
              }
         };
