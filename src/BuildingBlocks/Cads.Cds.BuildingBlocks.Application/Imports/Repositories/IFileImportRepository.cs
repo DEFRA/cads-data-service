@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 
-namespace Cads.Cds.SystemAdmin.Application.Imports.Repositories;
+namespace Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 
 public interface IFileImportRepository
 {
