@@ -1,6 +1,8 @@
 using Cads.Cds.BuildingBlocks.Application.Imports;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
@@ -75,13 +77,7 @@ public class S3ToPostgresCopyService(
         if (!keys.Any()) return 0;
 
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-        var connection = await OpenConnectionAsync(dbContext, cancellationToken);
-
         var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
-
-        var factory = factoryProvider.Create((NpgsqlConnection)connection);
-        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
-        var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
 
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
@@ -104,10 +100,8 @@ public class S3ToPostgresCopyService(
                 importDataType,
                 importActionType,
                 job.Delimiter,
-                factory,
-                connection,
-                createTempTableCommand,
-                actionCommands,
+                factoryProvider,
+                dbContext,
                 MaxRetryAttempts,
                 cancellationToken);
 
@@ -141,10 +135,8 @@ public class S3ToPostgresCopyService(
     /// <param name="importDataType"></param>
     /// <param name="importActionType"></param>
     /// <param name="delimiter"></param>
-    /// <param name="factory"></param>
-    /// <param name="connection"></param>
-    /// <param name="createTempTableCommand"></param>
-    /// <param name="actionCommands"></param>
+    /// <param name="factoryProvider"></param>
+    /// <param name="dbContext"></param>
     /// <param name="maxRetryAttempts"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
@@ -154,10 +146,8 @@ public class S3ToPostgresCopyService(
         ImportDataType importDataType,
         ImportActionType importActionType,
         char delimiter,
-        IS3ImportCommandFactory factory,
-        DbConnection connection,
-        DbCommand createTempTableCommand,
-        List<DbCommand> actionCommands,
+        IS3ImportCommandFactoryProvider factoryProvider,
+        StorageBridgeWriteDbContext dbContext,
         int maxRetryAttempts = 3,
         CancellationToken cancellationToken = default)
     {
@@ -210,18 +200,16 @@ public class S3ToPostgresCopyService(
 
         var rows = await RetryAsync(async () =>
         {
+            var connection = (NpgsqlConnection)await GetConnectionAsync(dbContext, cancellationToken);
+
             // Begin transaction and ensure proper rollback on error
             await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
             try
             {
-                // Ensure commands use the transaction so the work is atomic
-                createTempTableCommand.Transaction = transaction;
-
-                foreach (var cmd in actionCommands)
-                {
-                    cmd?.Transaction = transaction;
-                }
+                var factory = factoryProvider.Create(connection, transaction);
+                var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
+                var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
 
                 // Create temp table (with retries for transient DB issues)
                 await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
@@ -250,6 +238,27 @@ public class S3ToPostgresCopyService(
 
                 throw;
             }
+            catch (NpgsqlException ex)
+            {
+                // Attempt rollback, but do not swallow original exception
+                try
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                }
+                catch (Exception rbEx)
+                {
+                    // avoid evaluating rbEx.Message unnecessarily; exception is logged already
+                    logger.LogError(rbEx, "Rollback failed for key {Key}", key);
+                }
+
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("NpgsqlException details: {Message}, SQLState: {SQLState}, ErrorCode: {ErrorCode}, ConnectionState: {connectionState}",
+                        ex.Message, ex.SqlState, ex.ErrorCode, connection.State.ToString());
+                }
+
+                throw;
+            }
             catch (Exception ex)
             {
                 // Attempt rollback, but do not swallow original exception
@@ -259,7 +268,8 @@ public class S3ToPostgresCopyService(
                 }
                 catch (Exception rbEx)
                 {
-                    logger.LogError(rbEx, "Rollback failed for key {Key} after exception: {Message}", key, rbEx.Message);
+                    // avoid evaluating rbEx.Message unnecessarily; exception is logged already
+                    logger.LogError(rbEx, "Rollback failed for key {Key}", key);
                 }
 
                 logger.LogError(ex, "Failed to process file {Key}", key);
@@ -363,7 +373,7 @@ public class S3ToPostgresCopyService(
     }
 
     [ExcludeFromCodeCoverage]
-    private static async Task<DbConnection> OpenConnectionAsync(
+    private static async Task<DbConnection> GetConnectionAsync(
         StorageBridgeWriteDbContext dbContext,
         CancellationToken cancellationToken)
     {
@@ -373,6 +383,22 @@ public class S3ToPostgresCopyService(
             await connection.OpenAsync(cancellationToken);
 
         return connection;
+    }
+
+    private TDbContext CreateDbContext<TDbContext>()
+    where TDbContext : DbContext
+    {
+        using var scope = serviceScopeFactory.CreateScope();
+
+        var dataSourceFactory = scope.ServiceProvider.GetRequiredService<IPostgresDataSourceFactory>();
+        var dataSource = dataSourceFactory.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier);
+
+        var options = new DbContextOptionsBuilder<TDbContext>()
+            .UseNpgsql(dataSource.ConnectionString)
+            .Options;
+
+        return Activator.CreateInstance(typeof(TDbContext), options) as TDbContext
+            ?? throw new InvalidOperationException($"Unable to create {typeof(TDbContext).Name}");
     }
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
