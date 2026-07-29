@@ -208,74 +208,67 @@ public class S3ToPostgresCopyService(
             }
         }
 
-        var schemaNamew = importActionType.GetSchemaName();
-
-        // Begin transaction and ensure proper rollback on error
-        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
-
-        try
+        var rows = await RetryAsync(async () =>
         {
-            // Ensure commands use the transaction so the work is atomic
-            createTempTableCommand.Transaction = transaction;
+            // Begin transaction and ensure proper rollback on error
+            await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
-            foreach (var cmd in actionCommands)
+            try
             {
-                cmd?.Transaction = transaction;
-            }
+                // Ensure commands use the transaction so the work is atomic
+                createTempTableCommand.Transaction = transaction;
 
-            // Create temp table (with retries for transient DB issues)
-            await RetryAsync(async () =>
-            {
+                foreach (var cmd in actionCommands)
+                {
+                    cmd?.Transaction = transaction;
+                }
+
+                // Create temp table (with retries for transient DB issues)
                 await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
-                return true;
-            }, nameof(createTempTableCommand), maxRetryAttempts);
 
-            // Copy file to staging (may involve network IO; add retry)
-            await RetryAsync(async () =>
-            {
-                await CopyFileToStagingAsync(importDataType, schemaNamew, delimiter, key, factory, cancellationToken);
-                return true;
-            }, nameof(CopyFileToStagingAsync), maxRetryAttempts);
+                // Copy file to staging (may involve network IO; add retry)
+                await CopyFileToStagingAsync(importDataType, importActionType.GetSchemaName(), delimiter, key, factory, cancellationToken);
 
-            // Execute action commands (retry the whole command set if transient)
-            var rows = await RetryAsync(async () =>
-            {
-                return await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
-            }, nameof(ExecuteActionCommandsAsync), maxRetryAttempts);
+                // Execute action commands (retry the whole command set if transient)
+                var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
 
-            // Commit once everything succeeds
-            await transaction.CommitAsync(cancellationToken);
+                // Commit once everything succeeds
+                await transaction.CommitAsync(cancellationToken);
 
-            return rows;
-        }
-        catch (OperationCanceledException)
-        {
-            try
-            {
-                await transaction.RollbackAsync(CancellationToken.None);
+                return rows;
             }
-            catch (Exception rbEx)
+            catch (OperationCanceledException)
             {
-                logger.LogWarning(rbEx, "Rollback after cancellation failed for key {Key}", key);
-            }
+                try
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                }
+                catch (Exception rbEx)
+                {
+                    logger.LogWarning(rbEx, "Rollback after cancellation failed for key {Key}", key);
+                }
 
-            throw;
-        }
-        catch (Exception ex)
-        {
-            // Attempt rollback, but do not swallow original exception
-            try
-            {
-                await transaction.RollbackAsync(CancellationToken.None);
+                throw;
             }
-            catch (Exception rbEx)
+            catch (Exception ex)
             {
-                logger.LogError(rbEx, "Rollback failed for key {Key} after exception: {Message}", key, rbEx.Message);
+                // Attempt rollback, but do not swallow original exception
+                try
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                }
+                catch (Exception rbEx)
+                {
+                    logger.LogError(rbEx, "Rollback failed for key {Key} after exception: {Message}", key, rbEx.Message);
+                }
+
+                logger.LogError(ex, "Failed to process file {Key}", key);
+                throw;
             }
 
-            logger.LogError(ex, "Failed to process file {Key}", key);
-            throw;
-        }
+        }, nameof(ProcessFileAsync), maxRetryAttempts);
+
+        return rows;
     }
 
     private async Task<int> ExecuteActionCommandsAsync(
