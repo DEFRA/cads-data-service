@@ -385,22 +385,6 @@ public class S3ToPostgresCopyService(
         return connection;
     }
 
-    private TDbContext CreateDbContext<TDbContext>()
-    where TDbContext : DbContext
-    {
-        using var scope = serviceScopeFactory.CreateScope();
-
-        var dataSourceFactory = scope.ServiceProvider.GetRequiredService<IPostgresDataSourceFactory>();
-        var dataSource = dataSourceFactory.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier);
-
-        var options = new DbContextOptionsBuilder<TDbContext>()
-            .UseNpgsql(dataSource.ConnectionString)
-            .Options;
-
-        return Activator.CreateInstance(typeof(TDbContext), options) as TDbContext
-            ?? throw new InvalidOperationException($"Unable to create {typeof(TDbContext).Name}");
-    }
-
     private static async Task<List<DbCommand>> GetCommandsAsync(
         ImportDataType importDataType,
         ImportActionType importActionType,
