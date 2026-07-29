@@ -28,6 +28,8 @@ public sealed class GetFileImportByFileNameQueryHandler(
                 fileImport.ImportStartAt,
                 fileImport.ImportEndAt,
                 fileImport.ProcessingStartAt,
-                fileImport.ProcessingEndAt);
+                fileImport.ProcessingEndAt,
+                fileImport.FailedAttempts,
+                fileImport.LastErrorReason);
     }
 }
