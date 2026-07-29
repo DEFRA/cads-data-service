@@ -15,7 +15,7 @@ public sealed class MarkFailedCommandHandler(
         var fileImport = await fileImportRepository.GetById(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(FileImport), command.Id);
 
-        fileImport.MarkFailed();
+        fileImport.MarkFailed(command.Reason);
 
         return Unit.Value;
     }

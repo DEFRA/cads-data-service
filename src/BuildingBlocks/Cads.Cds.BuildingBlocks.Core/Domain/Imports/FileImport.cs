@@ -22,6 +22,8 @@ public class FileImport
     public DateTimeOffset? ImportEndAt { get; private set; }
     public DateTimeOffset? ProcessingStartAt { get; private set; }
     public DateTimeOffset? ProcessingEndAt { get; private set; }
+    public int FailedAttempts { get; private set; }
+    public string? LastErrorReason { get; private set; }
 
     private FileImport() { }
 
@@ -41,6 +43,8 @@ public class FileImport
         ProcessingStatus = FileProcessingStatus.Pending;
 
         AddedAt = DateTimeOffset.UtcNow;
+
+        FailedAttempts = 0;
     }
 
     public static FileImport Create(
@@ -72,12 +76,17 @@ public class FileImport
     {
         if (ImportStatus == status) return;
 
+        if (status == FileImportStatus.Failed)
+        {
+            MarkFailed("Import failed.");
+            return;
+        }
+
         (status switch
         {
             FileImportStatus.Transferred => (Action)MarkTransferred,
             FileImportStatus.Split => MarkSplit,
             FileImportStatus.Completed => MarkCompleted,
-            FileImportStatus.Failed => MarkFailed,
             _ => null
         })?.Invoke();
     }
@@ -112,13 +121,16 @@ public class FileImport
         ImportEndAt = DateTimeOffset.UtcNow;
     }
 
-    public void MarkFailed()
+    public void MarkFailed(string reason)
     {
         if (ImportStatus == FileImportStatus.Completed)
             throw new DomainException("Import must be in pending, transferred, or split state to be marked as failed.");
 
         ImportStatus = FileImportStatus.Failed;
         ImportEndAt = DateTimeOffset.UtcNow;
+
+        LastErrorReason = reason;
+        FailedAttempts++;
     }
 
     // -----------------------------
@@ -167,5 +179,8 @@ public class FileImport
         ImportEndAt = null;
         ProcessingStartAt = null;
         ProcessingEndAt = null;
+
+        FailedAttempts = 0;
+        LastErrorReason = string.Empty;
     }
 }

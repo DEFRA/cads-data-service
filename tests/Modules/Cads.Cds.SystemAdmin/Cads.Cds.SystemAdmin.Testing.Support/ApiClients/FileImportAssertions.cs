@@ -68,6 +68,8 @@ public static class FileImportAssertions
 
         dto.ImportStartAt.Should().NotBeNull();
         dto.ImportEndAt.Should().NotBeNull();
+        dto.FailedAttempts.Should().BeGreaterThan(0);
+        dto.LastErrorReason.Should().NotBeNull();
     }
 
     public static void ShouldBeReset(FileImportDto dto)
