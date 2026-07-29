@@ -7,7 +7,7 @@ using MediatR;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkSplit;
 
 public sealed class MarkFileSplitCommandHandler(
-    IFileImportRepository fileImportRepository)
+    ISystemAdminFileImportRepository fileImportRepository)
     : ICommandHandler<MarkFileSplitCommand, Unit>
 {
     public async Task<Unit> Handle(MarkFileSplitCommand command, CancellationToken cancellationToken)

@@ -1,6 +1,6 @@
+using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
-using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.Constants;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
