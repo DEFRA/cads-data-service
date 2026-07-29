@@ -49,6 +49,6 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IFileImportRepository, FileImportRepository>();
+        services.AddScoped<ISystemAdminFileImportRepository, SystemAdminFileImportRepository>();
     }
 }

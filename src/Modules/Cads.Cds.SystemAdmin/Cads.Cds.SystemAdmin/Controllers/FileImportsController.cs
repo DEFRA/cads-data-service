@@ -1,5 +1,5 @@
+using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application;
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkCompleted;
@@ -10,7 +10,6 @@ using Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.UpdateFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Queries.GetFileImportByFileName;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
-using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

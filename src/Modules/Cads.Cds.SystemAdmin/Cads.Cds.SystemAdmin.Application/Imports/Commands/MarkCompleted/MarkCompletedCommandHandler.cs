@@ -7,7 +7,7 @@ using MediatR;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkCompleted;
 
 public sealed class MarkCompletedCommandHandler(
-    IFileImportRepository fileImportRepository)
+    ISystemAdminFileImportRepository fileImportRepository)
     : ICommandHandler<MarkCompletedCommand, Unit>
 {
     public async Task<Unit> Handle(MarkCompletedCommand command, CancellationToken cancellationToken)
