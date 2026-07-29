@@ -7,7 +7,7 @@ using MediatR;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFailed;
 
 public sealed class MarkFailedCommandHandler(
-    IFileImportRepository fileImportRepository)
+    ISystemAdminFileImportRepository fileImportRepository)
     : ICommandHandler<MarkFailedCommand, Unit>
 {
     public async Task<Unit> Handle(MarkFailedCommand command, CancellationToken cancellationToken)
