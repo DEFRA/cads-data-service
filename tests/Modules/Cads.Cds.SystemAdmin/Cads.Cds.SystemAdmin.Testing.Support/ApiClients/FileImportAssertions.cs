@@ -1,5 +1,4 @@
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
-using Cads.Cds.SystemAdmin.Core.DTOs.Imports;
+using Cads.Cds.ApiSurface.Dtos.Imports;
 using FluentAssertions;
 
 namespace Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
