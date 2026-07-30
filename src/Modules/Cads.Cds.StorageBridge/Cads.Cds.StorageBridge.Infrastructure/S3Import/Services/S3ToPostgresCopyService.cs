@@ -37,6 +37,8 @@ public class S3ToPostgresCopyService(
     [ExcludeFromCodeCoverage]
     public async Task<int> ExecuteAsync(CreateS3CsvImportJobDto job, CancellationToken cancellationToken = default)
     {
+        const int MaxRetryAttempts = 3;
+
         ValidateJob(job);
 
         if (!S3Utils.TryParseS3Url(job.SourceKey, out var _, out var _, out var fileName))
@@ -76,7 +78,6 @@ public class S3ToPostgresCopyService(
         var connection = await OpenConnectionAsync(dbContext, cancellationToken);
 
         var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
-
         var factory = factoryProvider.Create((NpgsqlConnection)connection);
         var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
         var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
@@ -103,9 +104,10 @@ public class S3ToPostgresCopyService(
                 importActionType,
                 job.Delimiter,
                 factory,
-                connection,
+                dbContext,
                 createTempTableCommand,
                 actionCommands,
+                MaxRetryAttempts,
                 cancellationToken);
 
             totalRows += rows;
@@ -138,10 +140,9 @@ public class S3ToPostgresCopyService(
     /// <param name="importDataType"></param>
     /// <param name="importActionType"></param>
     /// <param name="delimiter"></param>
-    /// <param name="factory"></param>
-    /// <param name="connection"></param>
-    /// <param name="createTempTableCommand"></param>
-    /// <param name="actionCommands"></param>
+    /// <param name="factoryProvider"></param>
+    /// <param name="dbContext"></param>
+    /// <param name="maxRetryAttempts"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
@@ -151,20 +152,143 @@ public class S3ToPostgresCopyService(
         ImportActionType importActionType,
         char delimiter,
         IS3ImportCommandFactory factory,
-        DbConnection connection,
+        StorageBridgeWriteDbContext dbContext,
         DbCommand createTempTableCommand,
         List<DbCommand> actionCommands,
-        CancellationToken cancellationToken)
+        int maxRetryAttempts = 3,
+        CancellationToken cancellationToken = default)
     {
-        using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+        static TimeSpan BackoffDelay(int attempt) => TimeSpan.FromSeconds(Math.Pow(2, attempt)); // 2s, 4s, 8s
 
-        await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
+        // Generic retry helper for transient failures
+        async Task<T> RetryAsync<T>(Func<Task<T>> operation, string operationName, int maxAttempts)
+        {
+            var attempt = 0;
 
-        await CopyFileToStagingAsync(importDataType, importActionType.GetSchemaName(), delimiter, key, factory, cancellationToken);
+            while (true)
+            {
+                try
+                {
+                    return await operation();
+                }
+                catch (OperationCanceledException)
+                {
+                    // Cancellation should propagate immediately
+                    throw;
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    attempt++;
 
-        var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
+                    // Consider DbException, IO and timeout-like exceptions as transient
+                    var isTransient = ex is DbException
+                                  || ex is IOException
+                                  || ex is TimeoutException
+                                  || ex is NpgsqlException;
 
-        await transaction.CommitAsync(cancellationToken);
+                    if (attempt >= maxAttempts || !isTransient)
+                    {
+                        logger.LogError(ex, "Operation {Operation} for key {Key} failed permanently after {Attempt} attempts", operationName, key, attempt);
+                        throw;
+                    }
+
+                    var delay = BackoffDelay(attempt);
+                    logger.LogWarning(ex, "Transient failure on operation {Operation} for key {Key}. Retrying {Attempt}/{MaxAttempts} after {Delay}ms",
+                        operationName, key, attempt, maxAttempts, delay.TotalMilliseconds);
+
+                    try
+                    {
+                        await Task.Delay(delay, cancellationToken);
+                    }
+                    catch (OperationCanceledException) { throw; }
+                }
+            }
+        }
+
+        var rows = await RetryAsync(async () =>
+        {
+            var connection = (NpgsqlConnection)await OpenConnectionAsync(dbContext, cancellationToken);
+
+            // Begin transaction and ensure proper rollback on error
+            await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                // Create temp table (with retries for transient DB issues)
+                createTempTableCommand.Connection = connection;
+                createTempTableCommand.Transaction = transaction;
+
+                await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
+
+                // Copy file to staging (may involve network IO; add retry)
+                await CopyFileToStagingAsync(importDataType, importActionType.GetSchemaName(), delimiter, key, factory, cancellationToken);
+
+                // Execute action commands (retry the whole command set if transient)
+                foreach (var command in actionCommands)
+                {
+                    command.Connection = connection;
+                    command.Transaction = transaction;
+                }
+
+                var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
+
+                // Commit once everything succeeds
+                await transaction.CommitAsync(cancellationToken);
+
+                return rows;
+            }
+            catch (OperationCanceledException)
+            {
+                try
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                }
+                catch (Exception rbEx)
+                {
+                    logger.LogWarning(rbEx, "Rollback after cancellation failed for key {Key}", key);
+                }
+
+                throw;
+            }
+            catch (NpgsqlException ex)
+            {
+                // Attempt rollback, but do not swallow original exception
+                try
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                }
+                catch (Exception rbEx)
+                {
+                    // avoid evaluating rbEx.Message unnecessarily; exception is logged already
+                    logger.LogError(rbEx, "Rollback failed for key {Key}", key);
+                }
+
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("NpgsqlException details: {Message}, SQLState: {SQLState}, ErrorCode: {ErrorCode}, ConnectionState: {connectionState}",
+                        ex.Message, ex.SqlState, ex.ErrorCode, connection.State.ToString());
+                }
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // Attempt rollback, but do not swallow original exception
+                try
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                }
+                catch (Exception rbEx)
+                {
+                    // avoid evaluating rbEx.Message unnecessarily; exception is logged already
+                    logger.LogError(rbEx, "Rollback failed for key {Key}", key);
+                }
+
+                logger.LogError(ex, "Failed to process file {Key}", key);
+                throw;
+            }
+
+        }, nameof(ProcessFileAsync), maxRetryAttempts);
 
         return rows;
     }
@@ -179,7 +303,7 @@ public class S3ToPostgresCopyService(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (command == null) continue;
+            if (command is null) continue;
 
             if (logger.IsEnabled(LogLevel.Information))
             {
@@ -202,7 +326,7 @@ public class S3ToPostgresCopyService(
     {
         using var response = await _storageService.GetObjectResponseAsync(key, cancellationToken);
 
-        if (response?.ResponseStream == null)
+        if (response?.ResponseStream is null)
         {
             logger.LogWarning("Null stream for key {Key}", key);
             return;
