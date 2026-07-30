@@ -14,7 +14,7 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
 {
     private readonly NpgsqlConnection _connection;
     private readonly NpgsqlTransaction? _transaction;
-    private readonly NpgsqlCommand _getSchemaColumnsCommand = CreateGetSchemaColumnsCommand(new NpgsqlConnection());
+    private NpgsqlCommand? _getSchemaColumnsCommand;
     private static readonly NpgsqlCommandBuilder s_commandBuilder = new();
 
     public S3ImportCommandFactory(NpgsqlConnection connection) : this(connection, null)
@@ -169,10 +169,14 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         var primaryKey = importDataType.GetTableInfoAttribute(schemaName)?.PrimaryKey
             ?? throw new ArgumentException("Primarykey cannot be null", nameof(importDataType));
 
+        if (_getSchemaColumnsCommand == null)
+        {
+            _getSchemaColumnsCommand = CreateGetSchemaColumnsCommand(_connection);
+        }
+
         _getSchemaColumnsCommand.Parameters["tableName"].Value = tableName;
         _getSchemaColumnsCommand.Parameters["schema"].Value = (object?)schema ?? DBNull.Value;
         _getSchemaColumnsCommand.Parameters["primaryKey"].Value = primaryKey;
-        _getSchemaColumnsCommand.Prepare();
 
         await using var reader = await _getSchemaColumnsCommand.ExecuteReaderAsync(cancellationToken);
 
@@ -208,6 +212,7 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         command.Parameters.AddWithValue("tableName", NpgsqlDbType.Varchar, DBNull.Value);
         command.Parameters.AddWithValue("schema", NpgsqlDbType.Varchar, DBNull.Value);
         command.Parameters.AddWithValue("primaryKey", NpgsqlDbType.Varchar, DBNull.Value);
+        command.Prepare();
 
         return command;
     }

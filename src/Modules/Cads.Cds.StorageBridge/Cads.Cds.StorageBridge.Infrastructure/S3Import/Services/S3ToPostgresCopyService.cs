@@ -75,17 +75,17 @@ public class S3ToPostgresCopyService(
         if (!keys.Any()) return 0;
 
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
+        var connection = await OpenConnectionAsync(dbContext, cancellationToken);
+
         var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
+        var factory = factoryProvider.Create((NpgsqlConnection)connection);
+        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
+        var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
 
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
         var sw = Stopwatch.StartNew();
         var totalRows = 0;
-
-        var connection = (NpgsqlConnection)await GetConnectionAsync(dbContext, cancellationToken);
-        var factory = factoryProvider.Create(connection);
-        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
-        var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
 
         foreach (var key in keys)
         {
@@ -207,7 +207,7 @@ public class S3ToPostgresCopyService(
 
         var rows = await RetryAsync(async () =>
         {
-            var connection = (NpgsqlConnection)await GetConnectionAsync(dbContext, cancellationToken);
+            var connection = (NpgsqlConnection)await OpenConnectionAsync(dbContext, cancellationToken);
 
             // Begin transaction and ensure proper rollback on error
             await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
@@ -385,7 +385,7 @@ public class S3ToPostgresCopyService(
     }
 
     [ExcludeFromCodeCoverage]
-    private static async Task<DbConnection> GetConnectionAsync(
+    private static async Task<DbConnection> OpenConnectionAsync(
         StorageBridgeWriteDbContext dbContext,
         CancellationToken cancellationToken)
     {
