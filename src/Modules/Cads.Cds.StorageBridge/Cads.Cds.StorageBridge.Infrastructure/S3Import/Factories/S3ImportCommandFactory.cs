@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Npgsql;
+using NpgsqlTypes;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
@@ -171,6 +172,7 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         _getSchemaColumnsCommand.Parameters["tableName"].Value = tableName;
         _getSchemaColumnsCommand.Parameters["schema"].Value = (object?)schema ?? DBNull.Value;
         _getSchemaColumnsCommand.Parameters["primaryKey"].Value = primaryKey;
+        _getSchemaColumnsCommand.Prepare();
 
         await using var reader = await _getSchemaColumnsCommand.ExecuteReaderAsync(cancellationToken);
 
@@ -203,11 +205,10 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
             ORDER BY ordinal_position";
 
         var command = new NpgsqlCommand(query, connection);
-        command.Parameters.Add("tableName");
-        command.Parameters.Add("schema");
-        command.Parameters.Add("primaryKey");
-        command.Prepare();
-
+        command.Parameters.AddWithValue("tableName", NpgsqlDbType.Varchar, DBNull.Value);
+        command.Parameters.AddWithValue("schema", NpgsqlDbType.Varchar, DBNull.Value);
+        command.Parameters.AddWithValue("primaryKey", NpgsqlDbType.Varchar, DBNull.Value);
+        
         return command;
     }
 }
