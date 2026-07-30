@@ -20,4 +20,8 @@
     <PackageReference Include="MediatR" Version="12.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\ApiSurface\Cads.Cds.ApiSurface\Cads.Cds.ApiSurface.csproj" />
+  </ItemGroup>
+
 </Project>

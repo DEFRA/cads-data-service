@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Testing.Support.Factories;

@@ -1,4 +1,4 @@
-namespace Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+namespace Cads.Cds.ApiSurface.Dtos.Imports;
 
 public enum FileProcessingStatus : short
 {
