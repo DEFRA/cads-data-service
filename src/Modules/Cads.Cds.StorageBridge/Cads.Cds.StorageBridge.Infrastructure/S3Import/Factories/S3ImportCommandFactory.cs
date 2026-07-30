@@ -208,7 +208,7 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         command.Parameters.AddWithValue("tableName", NpgsqlDbType.Varchar, DBNull.Value);
         command.Parameters.AddWithValue("schema", NpgsqlDbType.Varchar, DBNull.Value);
         command.Parameters.AddWithValue("primaryKey", NpgsqlDbType.Varchar, DBNull.Value);
-        
+
         return command;
     }
 }
