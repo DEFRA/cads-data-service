@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.StorageBridge.Application.Extensions;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Npgsql;
+using NpgsqlTypes;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
@@ -12,12 +13,20 @@ namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 public class S3ImportCommandFactory : IS3ImportCommandFactory
 {
     private readonly NpgsqlConnection _connection;
+    private readonly NpgsqlTransaction? _transaction;
+    private NpgsqlCommand? _getSchemaColumnsCommand;
     private static readonly NpgsqlCommandBuilder s_commandBuilder = new();
 
-    public S3ImportCommandFactory(NpgsqlConnection connection)
+    public S3ImportCommandFactory(NpgsqlConnection connection) : this(connection, null)
+    {
+    }
+
+    public S3ImportCommandFactory(NpgsqlConnection connection, NpgsqlTransaction? transaction)
     {
         ArgumentNullException.ThrowIfNull(connection, nameof(connection));
+
         _connection = connection;
+        _transaction = transaction;
     }
 
     protected virtual string GenerateTempTableSql(ImportDataType importDataType, SchemaName schemaName)
@@ -76,7 +85,8 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return new NpgsqlCommand
         {
             CommandText = sql,
-            Connection = _connection
+            Connection = _connection,
+            Transaction = _transaction
         };
     }
 
@@ -94,7 +104,8 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return new NpgsqlCommand
         {
             CommandText = sql,
-            Connection = _connection
+            Connection = _connection,
+            Transaction = _transaction
         };
     }
 
@@ -105,7 +116,8 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return new NpgsqlCommand
         {
             CommandText = sql,
-            Connection = _connection
+            Connection = _connection,
+            Transaction = _transaction
         };
     }
 
@@ -116,7 +128,8 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return new NpgsqlCommand
         {
             CommandText = sql,
-            Connection = _connection
+            Connection = _connection,
+            Transaction = _transaction
         };
     }
 
@@ -156,21 +169,16 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         var primaryKey = importDataType.GetTableInfoAttribute(schemaName)?.PrimaryKey
             ?? throw new ArgumentException("Primarykey cannot be null", nameof(importDataType));
 
-        var query = @"
-            SELECT column_name 
-            FROM information_schema.columns
-            WHERE table_name = @tableName
-            AND column_name != @primaryKey
-            AND (@schema IS NULL OR table_schema = @schema)
-            AND is_generated = 'NEVER'
-            ORDER BY ordinal_position";
+        if (_getSchemaColumnsCommand == null)
+        {
+            _getSchemaColumnsCommand = CreateGetSchemaColumnsCommand(_connection);
+        }
 
-        await using var command = new NpgsqlCommand(query, _connection);
-        command.Parameters.AddWithValue("tableName", tableName);
-        command.Parameters.AddWithValue("schema", (object?)schema ?? DBNull.Value);
-        command.Parameters.AddWithValue("primaryKey", primaryKey);
+        _getSchemaColumnsCommand.Parameters["tableName"].Value = tableName;
+        _getSchemaColumnsCommand.Parameters["schema"].Value = (object?)schema ?? DBNull.Value;
+        _getSchemaColumnsCommand.Parameters["primaryKey"].Value = primaryKey;
 
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        await using var reader = await _getSchemaColumnsCommand.ExecuteReaderAsync(cancellationToken);
 
         while (await reader.ReadAsync(cancellationToken))
             columnNames.Add(reader.GetString(0));
@@ -187,5 +195,25 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         var dbColumns = await GetColumnNamesAsync(importDataType, schemaName, cancellationToken);
 
         return [.. fileColumns.Where(c => dbColumns.Contains(c, StringComparer.OrdinalIgnoreCase))];
+    }
+
+    private static NpgsqlCommand CreateGetSchemaColumnsCommand(NpgsqlConnection connection)
+    {
+        var query = @"
+            SELECT column_name 
+            FROM information_schema.columns
+            WHERE table_name = @tableName
+            AND column_name != @primaryKey
+            AND (@schema IS NULL OR table_schema = @schema)
+            AND is_generated = 'NEVER'
+            ORDER BY ordinal_position";
+
+        var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("tableName", NpgsqlDbType.Varchar, DBNull.Value);
+        command.Parameters.AddWithValue("schema", NpgsqlDbType.Varchar, DBNull.Value);
+        command.Parameters.AddWithValue("primaryKey", NpgsqlDbType.Varchar, DBNull.Value);
+        command.Prepare();
+
+        return command;
     }
 }
