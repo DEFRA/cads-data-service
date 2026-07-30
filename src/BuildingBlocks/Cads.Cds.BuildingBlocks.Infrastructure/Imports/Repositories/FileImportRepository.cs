@@ -1,15 +1,17 @@
+using Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
-using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
-using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cads.Cds.SystemAdmin.Infrastructure.Persistance.Repositories;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Imports.Repositories;
 
-public class FileImportRepository(SystemAdminWriteDbContext writeDbContext, SystemAdminReadDbContext readDbContext)
+public class FileImportRepository<TReadContext, TWriteContext>(TReadContext readDbContext, TWriteContext writeDbContext)
     : IFileImportRepository
+    where TReadContext : CadsDbContext
+    where TWriteContext : CadsDbContext
 {
-    private readonly SystemAdminWriteDbContext _writeDbContext = writeDbContext;
-    private readonly SystemAdminReadDbContext _readDbContext = readDbContext;
+    private readonly TReadContext _readDbContext = readDbContext;
+    private readonly TWriteContext _writeDbContext = writeDbContext;
 
     private IQueryable<FileImport> QueryRead()
         => _readDbContext.FileImports.AsNoTracking();
