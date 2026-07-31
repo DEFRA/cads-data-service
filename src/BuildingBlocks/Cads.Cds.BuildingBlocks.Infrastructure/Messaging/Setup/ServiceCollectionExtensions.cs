@@ -1,4 +1,8 @@
 using Amazon.SQS;
+using Cads.Cds.BuildingBlocks.Application.Messaging.Messages;
+using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Factories;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Observers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,6 +12,9 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAmazonSQSCore(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddTransient<IQueuePollerObserver<MessageType>, NullQueuePollerObserver<MessageType>>();
+        services.AddTransient<IMessageFactory, MessageFactory>();
+
         if (configuration["LOCALSTACK_ENDPOINT"] != null)
         {
             services.AddSingleton<IAmazonSQS>(sp =>
