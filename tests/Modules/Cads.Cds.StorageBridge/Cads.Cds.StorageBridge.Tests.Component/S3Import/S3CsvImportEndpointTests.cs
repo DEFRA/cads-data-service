@@ -4,6 +4,7 @@ using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.StorageBridge.Controllers.Requests;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
 using Cads.Cds.StorageBridge.Tests.Component.TestFixtures;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using FluentAssertions;
 using Moq;
 using System.Net;
@@ -32,54 +33,106 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetailsDto>(TestContext.Current.CancellationToken);
         problemDetails.Should().NotBeNull();
         problemDetails.Errors.Should().NotBeNull().And.HaveCount(1);
-        problemDetails.Errors["SourceKey"].Should().Contain("'Source Key' must not be empty.");
+        problemDetails.Errors["FileImportId"].Should().Contain("'File Import Id' must not be null or greater than zero.");
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenS3BulkImportRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenS3BulkImportWithFileImportIdRequested_ShouldSucceed()
     {
         SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
 
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3BulkImportRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3BulkImportWithFileImportIdRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
-        job.SourceKey.Should().Be(ValidBulkSourceKey);
+        job.FileImportId.Should().Be(1234);
+    }
+
+    [Fact]
+    public async Task GivenValidRequest_WhenS3BulkImportWithSourceKeyRequested_ShouldSucceed()
+    {
+        SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
+
+        _testFixture.Factory.FileImportRepository.Setup(x => x.GetByFileNameAsync(ValidBulkSourceKey, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(() =>
+        {
+            return new FileImport { Id = 1234 };
+        });
+
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3BulkImportWithSourceKeyRequest, TestContext.Current.CancellationToken);
+     
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
+        job.FileImportId.Should().Be(1234);
     }
 
 
     [Fact]
-    public async Task GivenValidRequest_WhenS3DeltaImportRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenS3DeltaImportWithFileImportIdRequested_ShouldSucceed()
     {
         SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
 
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3DeltaRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3DeltaWithFileImportIdRequest, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
-        job.SourceKey.Should().Be(ValidDeltaSourceKey);
+        job.FileImportId.Should().Be(5678);
+    }
+
+    [Fact]
+    public async Task GivenValidRequest_WhenS3DeltaImportWithSourceKeyRequested_ShouldSucceed()
+    {
+        SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
+
+        _testFixture.Factory.FileImportRepository.Setup(x => x.GetByFileNameAsync(ValidDeltaSourceKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                return new FileImport { Id = 5678 };
+            });
+
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3DeltaWithSourceKeyRequest, TestContext.Current.CancellationToken);
+
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
+        job.FileImportId.Should().Be(5678);
     }
 
     private static StringContent? InvalidS3ImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = string.Empty
+            FileImportId = 0
         });
 
-    private static StringContent? ValidS3BulkImportRequest =>
+    private static StringContent? ValidS3BulkImportWithFileImportIdRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = ValidBulkSourceKey
+            FileImportId = 1234
         });
 
-    private static StringContent? ValidS3DeltaRequest =>
+    private static StringContent? ValidS3BulkImportWithSourceKeyRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = ValidDeltaSourceKey
+            SourceKey = ValidBulkSourceKey,
+        });
+
+    private static StringContent? ValidS3DeltaWithFileImportIdRequest =>
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
+        {
+            FileImportId = 5678
+        });
+
+    private static StringContent? ValidS3DeltaWithSourceKeyRequest =>
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
+        {
+            SourceKey = ValidDeltaSourceKey,
         });
 
     private void SetupS3MockForLocations(string row1, string row2)

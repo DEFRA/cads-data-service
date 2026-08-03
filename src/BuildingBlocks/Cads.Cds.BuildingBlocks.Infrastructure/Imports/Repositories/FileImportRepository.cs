@@ -16,10 +16,10 @@ public class FileImportRepository<TReadContext, TWriteContext>(TReadContext read
     private IQueryable<FileImport> QueryRead()
         => _readDbContext.FileImports.AsNoTracking();
 
-    public async Task<FileImport?> GetById(long id, CancellationToken cancellationToken)
+    public async Task<FileImport?> GetByIdAsync(long id, CancellationToken cancellationToken)
         => await _writeDbContext.FileImports.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task<FileImport?> GetByFileName(string fileName, CancellationToken cancellationToken)
+    public async Task<FileImport?> GetByFileNameAsync(string fileName, CancellationToken cancellationToken)
         => await QueryRead().FirstOrDefaultAsync(x => x.FileName == fileName, cancellationToken);
 
     public async Task Add(FileImport entity, CancellationToken cancellationToken)

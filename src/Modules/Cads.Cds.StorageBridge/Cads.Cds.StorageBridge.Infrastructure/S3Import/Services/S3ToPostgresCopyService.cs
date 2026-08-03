@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
@@ -27,6 +28,7 @@ public class S3ToPostgresCopyService(
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
     private IStorageService<CadsInternalClient> _storageService = null!;
+    private IFileImportRepository _fileImportRepository = null!;
 
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
@@ -39,17 +41,30 @@ public class S3ToPostgresCopyService(
     {
         const int MaxRetryAttempts = 3;
 
-        ValidateJob(job);
+        await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-        if (!S3Utils.TryParseS3Url(job.SourceKey, out var _, out var _, out var fileName))
+        _fileImportRepository = scope.ServiceProvider.GetRequiredService<IFileImportRepository>();
+
+        var fileImport = await _fileImportRepository.GetByIdAsync(job.FileImportId, cancellationToken);
+
+        if (fileImport == null)
         {
-            logger.LogError("Failed to parse S3 URL: {SourceKey}", job.SourceKey);
+            logger.LogError("FileImport with ID {FileImportId} not found.", job.FileImportId);
+            throw new InvalidOperationException($"FileImport with ID {job.FileImportId} not found.");
+        }
+
+        var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileImport.FileName);
+        var filePath = $"import/{fileNameWithoutExtension}";
+
+        if (!S3Utils.TryParseS3Url(filePath, out var _, out var _, out var fileName))
+        {
+            logger.LogError("Failed to parse S3 URL: {SourceKey}", fileImport.FileName);
             throw new InvalidOperationException("Failed to parse S3 URL");
         }
 
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", job.SourceKey);
+            logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", fileImport.FileName);
             throw new InvalidOperationException("Failed to extract file name from S3 URL");
         }
 
@@ -57,21 +72,19 @@ public class S3ToPostgresCopyService(
 
         if (importDataType == ImportDataType.None)
         {
-            logger.LogError("Failed to extract destination table from S3 URL: {SourceKey}", job.SourceKey);
+            logger.LogError("Failed to extract destination table from S3 URL: {SourceKey}", fileImport.FileName);
             throw new InvalidOperationException("Failed to extract destination table from S3 URL");
         }
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Starting CSV import copy for job {JobId} with key SourceKey {SourceKey}",
-                job.JobId, job.SourceKey);
+            logger.LogInformation("Starting CSV import copy for job {JobId} with key {filePath}",
+                job.JobId, filePath);
         }
-
-        await using var scope = serviceScopeFactory.CreateAsyncScope();
-
+                                                                                
         _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
 
-        var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken);
+        var keys = await _storageService.ListKeysAsync(filePath, cancellationToken);
         if (!keys.Any()) return 0;
 
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
@@ -127,7 +140,7 @@ public class S3ToPostgresCopyService(
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation("Completed CSV import copy for job {JobId} with key {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
-                job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
+                job.JobId, filePath, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
         return totalRows;
@@ -140,7 +153,7 @@ public class S3ToPostgresCopyService(
     /// <param name="importDataType"></param>
     /// <param name="importActionType"></param>
     /// <param name="delimiter"></param>
-    /// <param name="factoryProvider"></param>
+    /// <param name="factory"></param>
     /// <param name="dbContext"></param>
     /// <param name="maxRetryAttempts"></param>
     /// <param name="cancellationToken"></param>
@@ -376,12 +389,6 @@ public class S3ToPostgresCopyService(
             TimeSpan.FromMilliseconds(50));
 
         return sanitisedResult;
-    }
-
-    private static void ValidateJob(CreateS3CsvImportJobDto job)
-    {
-        if (string.IsNullOrWhiteSpace(job.SourceKey))
-            throw new InvalidOperationException("SourceKey is required.");
     }
 
     [ExcludeFromCodeCoverage]

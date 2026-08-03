@@ -32,7 +32,7 @@ public sealed class CreateFileImportCommandHandler(
     {
         var normalisedFileName = StringExtensions.NormalizeToUpper(fileName)!;
 
-        var fileImport = await fileImportRepository.GetByFileName(normalisedFileName, cancellationToken);
+        var fileImport = await fileImportRepository.GetByFileNameAsync(normalisedFileName, cancellationToken);
 
         if (fileImport == null)
             return;

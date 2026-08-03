@@ -12,11 +12,11 @@ public class SystemAdminFileImportRepository(
 {
     private readonly FileImportRepository<SystemAdminReadDbContext, SystemAdminWriteDbContext> _inner = new(readDbContext, writeDbContext);
 
-    public async Task<FileImport?> GetById(long id, CancellationToken cancellationToken)
-        => await _inner.GetById(id, cancellationToken);
+    public async Task<FileImport?> GetByIdAsync(long id, CancellationToken cancellationToken)
+        => await _inner.GetByIdAsync(id, cancellationToken);
 
-    public async Task<FileImport?> GetByFileName(string fileName, CancellationToken cancellationToken)
-        => await _inner.GetByFileName(fileName, cancellationToken);
+    public async Task<FileImport?> GetByFileNameAsync(string fileName, CancellationToken cancellationToken)
+        => await _inner.GetByFileNameAsync(fileName, cancellationToken);
 
     public async Task Add(FileImport entity, CancellationToken cancellationToken)
         => await _inner.Add(entity, cancellationToken);

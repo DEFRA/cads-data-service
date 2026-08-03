@@ -14,7 +14,7 @@ public abstract class S3ImportBackgroundService<T>(
     where T : CreateS3ImportJobDto
 {
     private readonly int _maxParallelImports = 5;
-
+    
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var semaphore = new SemaphoreSlim(_maxParallelImports);
@@ -29,7 +29,7 @@ public abstract class S3ImportBackgroundService<T>(
         await Task.WhenAll(tasks);
     }
 
-    private async Task ProcessJobAsync(
+    protected virtual async Task ProcessJobAsync(
         T request,
         SemaphoreSlim semaphore,
         CancellationToken cancellationToken)
@@ -40,7 +40,10 @@ public abstract class S3ImportBackgroundService<T>(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
+            if (logger.IsEnabled(LogLevel.Error))
+            {
+                logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
+            }
         }
         finally
         {

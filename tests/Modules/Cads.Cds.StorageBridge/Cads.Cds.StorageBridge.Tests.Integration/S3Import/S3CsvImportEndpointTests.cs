@@ -44,7 +44,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvImportRequest);
+        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -63,7 +63,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvImportRequest);
+        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -86,7 +86,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvImportRequest);
+        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -109,7 +109,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvImportRequest);
+        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest);
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -134,11 +134,17 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
             SourceKey = string.Empty
         });
 
-    private static StringContent? ValidS3CsvImportRequest =>
+    private static StringContent? ValidS3CsvImportWithSourceKeyRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = TestKey
         });
+
+    private static StringContent? ValidS3CsvImportWithFileImportIdRequest =>
+       HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
+       {
+           FileImportId = 1234
+       });
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
     {
