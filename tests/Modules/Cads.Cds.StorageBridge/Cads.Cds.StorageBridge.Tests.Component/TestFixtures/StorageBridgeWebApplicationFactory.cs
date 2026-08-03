@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Application.Messaging.Messages;
+using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Observers;

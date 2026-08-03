@@ -1,5 +1,5 @@
 using Amazon.SQS;
-using Cads.Cds.BuildingBlocks.Application.Messaging.Messages;
+using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Configuration;

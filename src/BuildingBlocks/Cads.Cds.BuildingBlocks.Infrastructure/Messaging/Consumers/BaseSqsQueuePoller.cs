@@ -1,7 +1,7 @@
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Clients;
-using Cads.Cds.BuildingBlocks.Application.Messaging.Messages;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
 using Cads.Cds.BuildingBlocks.Core.Correlation;

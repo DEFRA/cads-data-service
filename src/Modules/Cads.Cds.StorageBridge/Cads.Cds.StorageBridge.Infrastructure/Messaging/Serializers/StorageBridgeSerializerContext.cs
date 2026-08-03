@@ -1,4 +1,4 @@
-using Cads.Cds.StorageBridge.Application.Messaging.Messages;
+using Cads.Cds.ApiSurface.Messages.Imports;
 using System.Text.Json.Serialization;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Messaging.Serializers;

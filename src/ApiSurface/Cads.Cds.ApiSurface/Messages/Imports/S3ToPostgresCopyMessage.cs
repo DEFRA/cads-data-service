@@ -1,6 +1,4 @@
-using Cads.Cds.BuildingBlocks.Application.Messaging.Messages;
-
-namespace Cads.Cds.StorageBridge.Application.Messaging.Messages;
+namespace Cads.Cds.ApiSurface.Messages.Imports;
 
 public class S3ToPostgresCopyMessage : MessageType
 {
