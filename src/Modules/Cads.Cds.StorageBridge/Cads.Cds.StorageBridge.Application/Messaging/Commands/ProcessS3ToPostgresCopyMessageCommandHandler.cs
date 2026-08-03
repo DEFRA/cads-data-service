@@ -1,8 +1,8 @@
+using Cads.Cds.ApiSurface.Messages;
+using Cads.Cds.ApiSurface.Messages.Imports;
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.BuildingBlocks.Application.Messaging.Messages;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Serializers;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
-using Cads.Cds.StorageBridge.Application.Messaging.Messages;
 
 namespace Cads.Cds.StorageBridge.Application.Messaging.Commands;
 

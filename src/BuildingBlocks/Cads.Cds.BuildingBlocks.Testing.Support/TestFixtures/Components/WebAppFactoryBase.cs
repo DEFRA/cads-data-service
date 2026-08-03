@@ -179,7 +179,8 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__BucketName", TestS3Constants.TestCadsExternalBucketName);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__AccessKeySecretName", "IMB_S3_ACCESS_KEY");
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__SecretKeySecretName", "IMB_S3_SECRET_KEY");
-        
+        Environment.SetEnvironmentVariable("Modules__SystemAdmin__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
+
         Environment.SetEnvironmentVariable("IMB_S3_ACCESS_KEY", "test");
         Environment.SetEnvironmentVariable("IMB_S3_SECRET_KEY", "test");
 
