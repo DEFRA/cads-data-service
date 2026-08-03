@@ -1,6 +1,8 @@
 using Amazon.S3.Model;
+using Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
@@ -30,6 +32,7 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IS3ImportCommandFactoryProvider> _factoryProvider = new();
     private readonly Mock<IS3ImportCommandFactory> _factory = new();
     private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
+    private readonly Mock<IFileImportRepository> _fileImportRepository = new();
 
     // Filename template:CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
     private const string ValidTestFileName1 = "CTSM_CADS_ENV_DELTA_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
@@ -43,9 +46,14 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
+        var fileImport = FileImport.Create("", InvalidTestFileName1, 100, 100);
+
+        _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(fileImport);
+
         var job = new CreateS3CsvImportJobDto
         {
-            SourceKey = InvalidTestFileName1
+            FileImportId = 1
         };
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
@@ -56,9 +64,14 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
+        var fileImport = FileImport.Create("", InvalidTestFileName1,100,100);
+
+        _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+           .ReturnsAsync(fileImport);
+
         var job = new CreateS3CsvImportJobDto
         {
-            SourceKey = InvalidTestFileName2
+            FileImportId = 1
         };
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
@@ -69,9 +82,12 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
+        _fileImportRepository.Setup(x => x.GetByFileNameAsync("", It.IsAny<CancellationToken>()))
+           .ReturnsAsync((FileImport?)null);
+
         var job = new CreateS3CsvImportJobDto
         {
-            SourceKey = ""
+            FileImportId = 1
         };
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ExecuteAsync(job, TestContext.Current.CancellationToken));
@@ -81,13 +97,17 @@ public class S3ToPostgresCopyServiceTests
     public async Task ExecuteAsync_ShouldReturnZero_WhenNoKeysFound()
     {
         var service = CreateService();
+        var fileImport = FileImport.Create("", ValidTestFileName1, 100, 100);
 
         _storageService.Setup(x => x.ListKeysAsync(ValidTestFileName1, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fileImport);
+
         var job = new CreateS3CsvImportJobDto
         {
-            SourceKey = ValidTestFileName1
+            FileImportId = 1,
         };
 
         var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
@@ -247,6 +267,9 @@ public class S3ToPostgresCopyServiceTests
 
         _provider.Setup(x => x.GetService(typeof(IS3ImportCommandFactoryProvider)))
            .Returns(_factoryProvider.Object);
+
+        _provider.Setup(x => x.GetService(typeof(IFileImportRepository)))
+          .Returns(_fileImportRepository.Object);
 
         _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
 
