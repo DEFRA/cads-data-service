@@ -92,7 +92,7 @@ public class S3ToPostgresCopyService(
 
         var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
         var factory = factoryProvider.Create((NpgsqlConnection)connection);
-        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
+        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName(), fileImport.Id);
         var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
 
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
