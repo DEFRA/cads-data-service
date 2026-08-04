@@ -1,6 +1,6 @@
 namespace Cads.Cds.SystemAdmin.Core.Configuration;
 
-public class ModuleConfigurationSection
+public static class ModuleConfigurationSection
 {
     public const string ModuleSectionName = "Modules:SystemAdmin";
 

@@ -29,5 +29,10 @@ public class StorageBridgeFifoQueueListener(
         {
             // Swallow expected cancellation
         }
+        catch (ObjectDisposedException)
+        {
+            // Swallow: poller was already disposed (e.g. by the DI container) before
+            // the hosted-service stop sequence completed.
+        }
     }
 }
