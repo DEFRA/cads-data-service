@@ -105,9 +105,9 @@ public class RetryingMessagePublisherTests
         await act.Should().ThrowAsync<PublishFailedException>();
         attempts.Should().Be(3); // 1 initial attempt + 2 retries, all failing
     }
-}
 
-public class TestFifoQueueClient : IQueueClient
-{
-    public string ClientName => GetType().Name;
+    public class TestFifoQueueClient : IQueueClient
+    {
+        public string ClientName => GetType().Name;
+    }
 }
