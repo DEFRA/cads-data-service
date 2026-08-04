@@ -7,7 +7,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Repositories;
+using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
@@ -43,7 +43,7 @@ public abstract class WebAppFactoryBase<TStart>(
     public Mock<IAmazonSQS> AmazonSQSMock { get; private set; } = new();
     public Mock<IAmazonS3> AmazonS3Mock { get; private set; } = new();
 
-    public Mock<IFileImportRepository> FileImportRepository { get; private set; } = new();
+    public Mock<IStorageBridgeFileImportRepository> FileImportRepository { get; private set; } = new();
 
     private readonly List<Action<IServiceCollection>> _serviceOverrides = [];
     private readonly IDictionary<string, string?> _configOverrides = configOverrides ?? new Dictionary<string, string?>();

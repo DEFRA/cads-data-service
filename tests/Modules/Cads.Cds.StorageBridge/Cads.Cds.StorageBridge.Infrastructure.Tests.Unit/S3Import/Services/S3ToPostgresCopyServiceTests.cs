@@ -1,10 +1,9 @@
 using Amazon.S3.Model;
-using Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
+using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
@@ -32,7 +31,7 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IS3ImportCommandFactoryProvider> _factoryProvider = new();
     private readonly Mock<IS3ImportCommandFactory> _factory = new();
     private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
-    private readonly Mock<IFileImportRepository> _fileImportRepository = new();
+    private readonly Mock<IStorageBridgeFileImportRepository> _fileImportRepository = new();
 
     // Filename template:CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
     private const string ValidTestFileName1 = "CTSM_CADS_ENV_DELTA_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
@@ -268,7 +267,7 @@ public class S3ToPostgresCopyServiceTests
         _provider.Setup(x => x.GetService(typeof(IS3ImportCommandFactoryProvider)))
            .Returns(_factoryProvider.Object);
 
-        _provider.Setup(x => x.GetService(typeof(IFileImportRepository)))
+        _provider.Setup(x => x.GetService(typeof(IStorageBridgeFileImportRepository)))
           .Returns(_fileImportRepository.Object);
 
         _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);

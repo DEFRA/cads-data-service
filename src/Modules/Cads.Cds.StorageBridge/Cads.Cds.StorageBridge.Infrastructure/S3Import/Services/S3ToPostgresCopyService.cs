@@ -1,8 +1,8 @@
-using Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.StorageBridge.Application.Extensions;
+using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Core.DTOs;
@@ -28,7 +28,7 @@ public class S3ToPostgresCopyService(
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
     private IStorageService<CadsInternalClient> _storageService = null!;
-    private IFileImportRepository _fileImportRepository = null!;
+    private IStorageBridgeFileImportRepository _fileImportRepository = null!;
 
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
@@ -43,7 +43,7 @@ public class S3ToPostgresCopyService(
 
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-        _fileImportRepository = scope.ServiceProvider.GetRequiredService<IFileImportRepository>();
+        _fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
 
         var fileImport = await _fileImportRepository.GetByIdAsync(job.FileImportId, cancellationToken);
 
