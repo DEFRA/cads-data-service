@@ -41,96 +41,102 @@ public class S3ToPostgresCopyService(
 
         ValidateJob(job);
 
-        if (!S3Utils.TryParseS3Url(job.SourceKey, out var _, out var _, out var fileName))
+        using (logger.BeginScope(new Dictionary<string, object?>
         {
-            logger.LogError("Failed to parse S3 URL: {SourceKey}", job.SourceKey);
-            throw new InvalidOperationException("Failed to parse S3 URL");
-        }
-
-        if (string.IsNullOrWhiteSpace(fileName))
+            ["CorrelationId"] = job.CorrelationId
+        }))
         {
-            logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", job.SourceKey);
-            throw new InvalidOperationException("Failed to extract file name from S3 URL");
-        }
+            if (!S3Utils.TryParseS3Url(job.SourceKey, out var _, out var _, out var fileName))
+            {
+                logger.LogError("Failed to parse S3 URL: {SourceKey}", job.SourceKey);
+                throw new InvalidOperationException("Failed to parse S3 URL");
+            }
 
-        var (importDataType, importActionType) = GetImportParameters(fileName);
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", job.SourceKey);
+                throw new InvalidOperationException("Failed to extract file name from S3 URL");
+            }
 
-        if (importDataType == ImportDataType.None)
-        {
-            logger.LogError("Failed to extract destination table from S3 URL: {SourceKey}", job.SourceKey);
-            throw new InvalidOperationException("Failed to extract destination table from S3 URL");
-        }
+            var (importDataType, importActionType) = GetImportParameters(fileName);
 
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Starting CSV import copy for job {JobId} with key SourceKey {SourceKey}",
-                job.JobId, job.SourceKey);
-        }
-
-        await using var scope = serviceScopeFactory.CreateAsyncScope();
-
-        _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
-
-        var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken);
-        if (!keys.Any()) return 0;
-
-        var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-        var connection = await OpenConnectionAsync(dbContext, cancellationToken);
-
-        var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
-        var factory = factoryProvider.Create((NpgsqlConnection)connection);
-        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
-        var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
-
-        var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
-
-        var sw = Stopwatch.StartNew();
-        var totalRows = 0;
-
-        foreach (var key in keys)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
+            if (importDataType == ImportDataType.None)
+            {
+                logger.LogError("Failed to extract destination table from S3 URL: {SourceKey}", job.SourceKey);
+                throw new InvalidOperationException("Failed to extract destination table from S3 URL");
+            }
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Processing file {Key} for CSV import job {JobId}", key, job.JobId);
+                logger.LogInformation("Starting CSV import copy for job {JobId} with key SourceKey {SourceKey}",
+                    job.JobId, job.SourceKey);
             }
 
-            var fileSw = Stopwatch.StartNew();
+            await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-            var rows = await ProcessFileAsync(
-                key,
-                importDataType,
-                importActionType,
-                job.Delimiter,
-                factory,
-                dbContext,
-                createTempTableCommand,
-                actionCommands,
-                MaxRetryAttempts,
-                cancellationToken);
+            _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
 
-            totalRows += rows;
-            counter.Add(rows);
+            var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken);
+            if (!keys.Any()) return 0;
 
-            fileHistogram.Record(fileSw.Elapsed.TotalMilliseconds);
+            var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
+            var connection = await OpenConnectionAsync(dbContext, cancellationToken);
+
+            var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
+            var factory = factoryProvider.Create((NpgsqlConnection)connection);
+            var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName());
+            var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
+
+            var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
+
+            var sw = Stopwatch.StartNew();
+            var totalRows = 0;
+
+            foreach (var key in keys)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("Processing file {Key} for CSV import job {JobId}", key, job.JobId);
+                }
+
+                var fileSw = Stopwatch.StartNew();
+
+                var rows = await ProcessFileAsync(
+                    key,
+                    importDataType,
+                    importActionType,
+                    job.Delimiter,
+                    factory,
+                    dbContext,
+                    createTempTableCommand,
+                    actionCommands,
+                    MaxRetryAttempts,
+                    cancellationToken);
+
+                totalRows += rows;
+                counter.Add(rows);
+
+                fileHistogram.Record(fileSw.Elapsed.TotalMilliseconds);
+
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("Completed processing for file {Key} for CSV import job {JobId}, {TotalRows} records processed in {TotalMilliseconds} ms",
+                        key, job.JobId, rows, fileSw.Elapsed.TotalMilliseconds);
+                }
+            }
+
+            batchHistogram.Record(sw.Elapsed.TotalMilliseconds);
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Completed processing for file {Key} for CSV import job {JobId}, {TotalRows} records processed in {TotalMilliseconds} ms",
-                    key, job.JobId, rows, fileSw.Elapsed.TotalMilliseconds);
+                logger.LogInformation("Completed CSV import copy for job {JobId} with key {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
+                    job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
             }
+
+            return totalRows;
         }
-
-        batchHistogram.Record(sw.Elapsed.TotalMilliseconds);
-
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("Completed CSV import copy for job {JobId} with key {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
-                job.JobId, job.SourceKey, totalRows, sw.Elapsed.TotalMilliseconds);
-        }
-
-        return totalRows;
     }
 
     /// <summary>

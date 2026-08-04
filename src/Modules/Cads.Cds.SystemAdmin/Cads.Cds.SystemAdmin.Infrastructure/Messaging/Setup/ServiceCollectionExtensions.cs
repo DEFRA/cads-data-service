@@ -14,14 +14,20 @@ public static class ServiceCollectionExtensions
     {
         services.AddQueuePublishers(configuration.GetSection(ModuleConfigurationSection.QueuesSectionName));
 
+        services.AddQueueClients();
+
         services.AddMessagePublishers();
+    }
+
+    private static void AddQueueClients(this IServiceCollection services)
+    {
+        services.AddSingleton<SystemAdminFifoQueueClient>();
     }
 
     private static void AddMessagePublishers(this IServiceCollection services)
     {
         var retryPipeline = PublisherResiliencePipelines.CreateDefaultQueueRetryPipeline();
 
-        services.AddSingleton<SystemAdminFifoQueueClient>();
         services.AddSingleton<SystemAdminFifoQueuePublisher>();
 
         services.AddSingleton<IMessagePublisher<SystemAdminFifoQueueClient>>(sp =>

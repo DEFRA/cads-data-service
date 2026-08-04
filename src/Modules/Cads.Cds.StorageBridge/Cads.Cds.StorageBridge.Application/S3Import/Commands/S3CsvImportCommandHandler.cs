@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
+using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
 
@@ -12,7 +13,8 @@ public class S3CsvImportCommandHandler(IS3ImportJobEnqueuer<CreateS3CsvImportJob
         var job = new CreateS3CsvImportJobDto
         {
             SourceKey = command.SourceKey,
-            Delimiter = command.Delimiter
+            Delimiter = command.Delimiter,
+            CorrelationId = CorrelationIdContext.Value
         };
 
         return await s3ImportEnqueueService.EnqueueAsync(job, cancellationToken);

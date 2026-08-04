@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSystemAdminInfrastructureLayer(config);
 
-        services.AddSystemAdminApplicationLayer();
+        services.AddSystemAdminApplicationLayer(config);
 
         return services;
     }

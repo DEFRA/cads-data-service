@@ -20,11 +20,18 @@ public static class ServiceCollectionExtensions
     {
         services.AddQueueConsumers(configuration.GetSection(ModuleConfigurationSection.QueuesSectionName));
 
+        services.AddQueueClients();
+
         services.AddMessageHandlers();
 
         services.AddMessageSerializers();
 
         services.AddMessageConsumers();
+    }
+
+    private static void AddQueueClients(this IServiceCollection services)
+    {
+        services.AddSingleton<StorageBridgeFifoQueueClient>();
     }
 
     private static void AddMessageHandlers(this IServiceCollection services)
