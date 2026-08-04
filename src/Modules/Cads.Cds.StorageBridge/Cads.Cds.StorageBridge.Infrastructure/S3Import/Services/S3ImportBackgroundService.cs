@@ -34,17 +34,24 @@ public abstract class S3ImportBackgroundService<T>(
         SemaphoreSlim semaphore,
         CancellationToken cancellationToken)
     {
-        try
+        using (logger.BeginScope(new Dictionary<string, object?>
         {
-            await processor.ExecuteAsync(request, cancellationToken);
-        }
-        catch (Exception ex)
+            ["CorrelationId"] = request.CorrelationId
+        }))
         {
-            logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
-        }
-        finally
-        {
-            semaphore.Release();
+            try
+            {
+                await processor.ExecuteAsync(request, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to process bulk load JobId: {JobId}",
+                    request.JobId);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
     }
 }

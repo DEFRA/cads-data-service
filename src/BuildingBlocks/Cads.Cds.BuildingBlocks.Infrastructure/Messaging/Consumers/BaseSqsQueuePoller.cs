@@ -115,33 +115,41 @@ public abstract class BaseSqsQueuePoller<TClient>(
             ? Guid.NewGuid().ToString()
             : unwrapped.CorrelationId;
 
-        try
+        using (Logger.BeginScope(new Dictionary<string, object?>
         {
-            var result = await ProcessMessageAsync(unwrapped, cancellationToken).ConfigureAwait(false);
-
-            await Sqs.DeleteMessageAsync(QueueUrl, message.ReceiptHandle, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (Logger.IsEnabled(LogLevel.Information))
+            ["CorrelationId"] = CorrelationIdContext.Value,
+            ["GroupId"] = unwrapped.MessageGroupId,
+            ["DeduplicationId"] = unwrapped.MessageDeduplicationId
+        }))
+        {
+            try
             {
-                Logger.LogInformation(
-                    "Handled message with CorrelationId: {CorrelationId}, GroupId={GroupId}, DedupId={DedupId}",
-                    CorrelationIdContext.Value, unwrapped.MessageGroupId, unwrapped.MessageDeduplicationId);
-            }
+                var result = await ProcessMessageAsync(unwrapped, cancellationToken).ConfigureAwait(false);
 
-            Observer?.OnMessageHandled(message.MessageId, DateTime.UtcNow, result, message);
-        }
-        catch (RetryableException ex)
-        {
-            HandleRetryableException(message, unwrapped, ex);
-        }
-        catch (NonRetryableException ex)
-        {
-            await HandleNonRetryableException(message, unwrapped, ex, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            await HandleUnexpectedException(message, unwrapped, ex, cancellationToken);
+                await Sqs.DeleteMessageAsync(QueueUrl, message.ReceiptHandle, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (Logger.IsEnabled(LogLevel.Information))
+                {
+                    Logger.LogInformation(
+                        "Handled message with Subject: {Subject}, CorrelationId: {CorrelationId}",
+                        unwrapped.Subject, CorrelationIdContext.Value);
+                }
+
+                Observer?.OnMessageHandled(message.MessageId, DateTime.UtcNow, result, message);
+            }
+            catch (RetryableException ex)
+            {
+                HandleRetryableException(message, ex);
+            }
+            catch (NonRetryableException ex)
+            {
+                await HandleNonRetryableException(message, ex, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await HandleUnexpectedException(message, ex, cancellationToken);
+            }
         }
     }
 
@@ -149,18 +157,14 @@ public abstract class BaseSqsQueuePoller<TClient>(
 
     protected void HandleRetryableException(
         Message rawMessage,
-        UnwrappedMessage unwrapped,
         RetryableException ex)
     {
         var receiveCount = GetReceiveCount(rawMessage);
 
         Logger.LogWarning(
             ex,
-            "RetryableException in Queue={Queue}, CorrelationId={CorrelationId}, GroupId={GroupId}, DedupId={DedupId}, MessageId={MessageId}, ReceiveCount={ReceiveCount}",
+            "RetryableException in Queue={Queue}, MessageId={MessageId}, ReceiveCount={ReceiveCount}",
             QueueUrl,
-            CorrelationIdContext.Value,
-            unwrapped.MessageGroupId,
-            unwrapped.MessageDeduplicationId,
             rawMessage.MessageId,
             receiveCount);
 
@@ -169,17 +173,13 @@ public abstract class BaseSqsQueuePoller<TClient>(
 
     protected async Task HandleNonRetryableException(
         Message rawMessage,
-        UnwrappedMessage unwrapped,
         NonRetryableException ex,
         CancellationToken cancellationToken)
     {
         Logger.LogError(
             ex,
-            "NonRetryableException in Queue={Queue}, CorrelationId={CorrelationId}, GroupId={GroupId}, DedupId={DedupId}, MessageId={MessageId}",
+            "NonRetryableException in Queue={Queue}, MessageId={MessageId}",
             QueueUrl,
-            CorrelationIdContext.Value,
-            unwrapped.MessageGroupId,
-            unwrapped.MessageDeduplicationId,
             rawMessage.MessageId);
 
         await MoveToDlqAndNotifyObserver(rawMessage, ex, cancellationToken);
@@ -187,17 +187,13 @@ public abstract class BaseSqsQueuePoller<TClient>(
 
     protected async Task HandleUnexpectedException(
         Message rawMessage,
-        UnwrappedMessage unwrapped,
         Exception ex,
         CancellationToken cancellationToken)
     {
         Logger.LogError(
             ex,
-            "UnhandledException in Queue={Queue}, CorrelationId={CorrelationId}, GroupId={GroupId}, DedupId={DedupId}, MessageId={MessageId}",
+            "UnhandledException in Queue={Queue}, MessageId={MessageId}",
             QueueUrl,
-            CorrelationIdContext.Value,
-            unwrapped.MessageGroupId,
-            unwrapped.MessageDeduplicationId,
             rawMessage.MessageId);
 
         await MoveToDlqAndNotifyObserver(rawMessage, ex, cancellationToken);
