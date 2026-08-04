@@ -1,5 +1,6 @@
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
@@ -137,7 +138,7 @@ public class S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     private static StringContent? ValidS3CsvImportWithSourceKeyRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = TestKey
+            SourceKey = TestFileScenarioConstants.New_Scenario_Split_FileName
         });
 
     private static StringContent? ValidS3CsvImportWithFileImportIdRequest =>
