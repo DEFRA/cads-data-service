@@ -40,6 +40,12 @@ public abstract class BaseSqsQueuePoller<TClient>(
 
     public Task StartAsync(CancellationToken token)
     {
+        if (Logger.IsEnabled(LogLevel.Information))
+        {
+            Logger.LogInformation("BaseSqsQueuePoller TClient: {TClient} start requested.",
+                typeof(TClient).Name);
+        }
+
         _cts = CancellationTokenSource.CreateLinkedTokenSource(token);
 
         _pollingTask = Task.Factory.StartNew(
@@ -53,6 +59,12 @@ public abstract class BaseSqsQueuePoller<TClient>(
 
     public async Task StopAsync(CancellationToken token)
     {
+        if (Logger.IsEnabled(LogLevel.Information))
+        {
+            Logger.LogInformation("BaseSqsQueuePoller TClient: {TClient} stop requested.",
+                typeof(TClient).Name);
+        }
+
         await _cts.CancelAsync();
 
         if (_pollingTask is { IsCompletedSuccessfully: false })
