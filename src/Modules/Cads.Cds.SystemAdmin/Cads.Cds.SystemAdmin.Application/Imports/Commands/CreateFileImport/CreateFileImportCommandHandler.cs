@@ -23,7 +23,7 @@ public sealed class CreateFileImportCommandHandler(
             command.TotalRowsToProcess,
             command.RowsFound);
 
-        await fileImportRepository.Add(fileImport, cancellationToken);
+        await fileImportRepository.AddAsync(fileImport, cancellationToken);
 
         return fileImport;
     }

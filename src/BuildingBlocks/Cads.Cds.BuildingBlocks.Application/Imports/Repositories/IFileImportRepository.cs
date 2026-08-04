@@ -6,5 +6,5 @@ public interface IFileImportRepository
 {
     Task<FileImport?> GetByIdAsync(long id, CancellationToken cancellationToken);
     Task<FileImport?> GetByFileNameAsync(string fileName, CancellationToken cancellationToken);
-    Task Add(FileImport entity, CancellationToken cancellationToken);
+    Task AddAsync(FileImport entity, CancellationToken cancellationToken);
 }

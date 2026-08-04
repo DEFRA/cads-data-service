@@ -1,5 +1,5 @@
-using Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
@@ -86,7 +86,7 @@ public class S3CsvImportBackgroundServiceTests
         private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
         private readonly Mock<IServiceScope> _scope = new();
         private readonly Mock<IServiceProvider> _provider = new();
-        private readonly Mock<IFileImportRepository> _fileImportRepository = new();
+        private readonly Mock<IStorageBridgeFileImportRepository> _fileImportRepository = new();
 
         // DbContext is not exercised in unit tests, but is referenced
         private readonly StorageBridgeWriteDbContext _dbContext = new(new DbContextOptions<StorageBridgeWriteDbContext>());
@@ -109,7 +109,7 @@ public class S3CsvImportBackgroundServiceTests
                 .Returns(_provider.Object);
             _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
                 .Returns(_dbContext);
-            _provider.Setup(x => x.GetService(typeof(IFileImportRepository)))
+            _provider.Setup(x => x.GetService(typeof(IStorageBridgeFileImportRepository)))
                 .Returns(_fileImportRepository.Object);
             _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(FileImport.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<long>()));

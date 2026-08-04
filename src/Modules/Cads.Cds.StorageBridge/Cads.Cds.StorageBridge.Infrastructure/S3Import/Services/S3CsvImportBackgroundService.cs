@@ -1,5 +1,5 @@
 using Cads.Cds.ApiSurface.Dtos.Imports;
-using Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
+using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
@@ -26,7 +26,7 @@ public class S3CsvImportBackgroundService(
         try
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-            var fileImportRepository = scope.ServiceProvider.GetRequiredService<IFileImportRepository>();
+            var fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
 
             var fileImport = await fileImportRepository.GetByIdAsync(request.FileImportId, cancellationToken);
 
