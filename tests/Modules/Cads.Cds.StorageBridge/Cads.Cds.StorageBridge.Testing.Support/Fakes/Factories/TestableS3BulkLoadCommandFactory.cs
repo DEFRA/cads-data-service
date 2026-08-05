@@ -20,8 +20,8 @@ public class TestableS3BulkLoadCommandFactory(NpgsqlConnection connection,
     public override async Task<List<string>> GetColumnNamesAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default)
         => _columns;
 
-    public string SqlForTempTable(ImportDataType importDataType, SchemaName schemaName)
-        => GenerateTempTableSql(importDataType, schemaName);
+    public string SqlForTempTable(ImportDataType importDataType, SchemaName schemaName, long fileImportId)
+        => GenerateTempTableSql(importDataType, schemaName, fileImportId);
 
     public Task<string> SqlForInsert(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken)
         => GenerateInsertSqlAsync(importDataType, schemaName, cancellationToken);

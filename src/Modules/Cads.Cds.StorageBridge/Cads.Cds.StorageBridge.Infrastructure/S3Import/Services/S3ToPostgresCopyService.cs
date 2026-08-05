@@ -9,7 +9,6 @@ using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
-using Cads.Cds.StorageBridge.Infrastructure.S3Import.Helpers;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,34 +46,19 @@ public class S3ToPostgresCopyService(
 
         var fileImport = await _fileImportRepository.GetByIdAsync(job.FileImportId, cancellationToken);
 
-        if (fileImport == null)
+        if (fileImport is null)
         {
-            logger.LogError("FileImport with ID {FileImportId} not found.", job.FileImportId);
             throw new InvalidOperationException($"FileImport with ID {job.FileImportId} not found.");
         }
 
-        var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileImport.FileName);
-        var filePath = $"import/{fileNameWithoutExtension}";
-
-        if (!S3Utils.TryParseS3Url(filePath, out var _, out var _, out var fileName))
-        {
-            logger.LogError("Failed to parse S3 URL: {SourceKey}", fileImport.FileName);
-            throw new InvalidOperationException("Failed to parse S3 URL");
-        }
-
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            logger.LogError("Failed to extract file name from S3 URL: {SourceKey}", fileImport.FileName);
-            throw new InvalidOperationException("Failed to extract file name from S3 URL");
-        }
-
-        var (importDataType, importActionType) = GetImportParameters(fileName);
+        var (importDataType, importActionType) = GetImportParameters(fileImport.FileName);
 
         if (importDataType == ImportDataType.None)
         {
-            logger.LogError("Failed to extract destination table from S3 URL: {SourceKey}", fileImport.FileName);
-            throw new InvalidOperationException("Failed to extract destination table from S3 URL");
+            throw new InvalidOperationException($"Failed to extract destination table from filename: {fileImport.FileName}");
         }
+
+        var filePath = $"import/{Path.GetFileNameWithoutExtension(fileImport.FileName)}";
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -85,6 +69,7 @@ public class S3ToPostgresCopyService(
         _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
 
         var keys = await _storageService.ListKeysAsync(filePath, cancellationToken);
+
         if (!keys.Any()) return 0;
 
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
@@ -140,7 +125,7 @@ public class S3ToPostgresCopyService(
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation("Completed CSV import copy for job {JobId} with key {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
-                job.JobId, filePath, totalRows, sw.Elapsed.TotalMilliseconds);
+                job.JobId, fileImport.FileName, totalRows, sw.Elapsed.TotalMilliseconds);
         }
 
         return totalRows;
