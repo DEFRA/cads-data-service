@@ -97,17 +97,22 @@ public class FileImportWithMessageProcessingTests(ApiContainerFixture apiContain
     private async Task<long> AddFileImportStatusRecordAsync(string importFileName)
     {
         var insertQuery = @"INSERT INTO cads.cts_file_imports(
-         destination_table_name
-         , file_name
-         , total_rows_to_process
-         , added_at
-         , import_status_id
-         , processing_status_id
-         , rows_found
-         , import_start_at
-         , import_end_at)
+        destination_table_name
+        , file_name
+        , total_rows_to_process
+        , added_at
+        , import_status_id
+        , processing_status_id
+        , rows_found
+        , import_start_at
+        , import_end_at
+        , batch_date
+        , group_key
+        , import_type
+        , failed_attempts
+        , last_error_reason)
          VALUES
-             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL)
+             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), 'ABC', 'BULK', 0, NULL)
         RETURNING cts_file_import_id;";
 
         var testFileImportId = await _postgresDb.ExecuteScalarAsync<long>(
