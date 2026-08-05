@@ -33,10 +33,6 @@ public class FileImport
     private FileImport(
         FileImportCreate fileImportCreate)
     {
-        if (fileImportCreate == null)
-        {
-            throw new ArgumentNullException(nameof(fileImportCreate));
-        }
         DestinationTableName = fileImportCreate.DestinationTableName!;
         FileName = StringExtensions.NormalizeToUpper(fileImportCreate.FileName)!;
         TotalRowsToProcess = fileImportCreate.TotalRowsToProcess;
