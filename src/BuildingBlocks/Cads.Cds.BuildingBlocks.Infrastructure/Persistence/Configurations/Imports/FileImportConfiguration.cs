@@ -23,7 +23,6 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
                     "cts_file_imports_total_rows_to_process_check",
                     "total_rows_to_process >= 0");
             });
-
         // PK
         builder.HasKey(x => x.Id)
             .HasName("cts_file_imports_pkey");
@@ -95,5 +94,28 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
         builder.Property(x => x.LastErrorReason)
             .HasColumnName("last_error_reason")
             .HasColumnType("text");
+
+        builder.Property(x => x.GroupKey)
+            .HasColumnName("group_key")
+            .HasColumnType("text")
+            .IsRequired();
+
+        builder.Property(x => x.ImportType)
+            .HasColumnName("import_type")
+            .HasColumnType("text")
+            .IsRequired();
+        
+        builder.Property(x => x.BatchDate)
+            .HasColumnName("batch_date")
+            .HasColumnType("timestamptz")
+            .IsRequired();
+
+        builder.HasIndex(x => x.FileName)
+            .HasDatabaseName("cts_file_imports_file_name_idx")
+            .IsUnique();
+
+        builder.HasIndex(x => x.GroupKey)
+            .HasDatabaseName("cts_file_imports_group_key_idx")
+            .IsUnique();
     }
 }
