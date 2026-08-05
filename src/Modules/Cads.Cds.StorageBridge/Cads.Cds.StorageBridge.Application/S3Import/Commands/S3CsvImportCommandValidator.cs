@@ -8,7 +8,7 @@ public class S3CsvImportCommandValidator : AbstractValidator<S3CsvImportCommand>
     {
         RuleFor(x => x.SourceKey)
             .NotEmpty()
-            .When(x=>x.FileImportId == null);
+            .When(x => x.FileImportId == null);
 
         RuleFor(x => x.FileImportId)
             .NotNull()

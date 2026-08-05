@@ -65,7 +65,7 @@ public class S3ToPostgresCopyService(
             logger.LogInformation("Starting CSV import copy for job {JobId} with key {filePath}",
                 job.JobId, filePath);
         }
-                                                                                
+
         _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
 
         var keys = await _storageService.ListKeysAsync(filePath, cancellationToken);

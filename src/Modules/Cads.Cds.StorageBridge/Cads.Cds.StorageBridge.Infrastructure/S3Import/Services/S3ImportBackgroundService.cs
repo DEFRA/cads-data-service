@@ -14,7 +14,7 @@ public abstract class S3ImportBackgroundService<T>(
     where T : CreateS3ImportJobDto
 {
     private readonly int _maxParallelImports = 5;
-    
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var semaphore = new SemaphoreSlim(_maxParallelImports);

@@ -24,7 +24,7 @@ namespace Cads.Cds.StorageBridge.Tests.Integration.S3Import;
 public class S3CsvImportEndpointTests
 {
     private const int ProcessingTimeCircuitBreakerSeconds = 30;
-    
+
     private readonly ApiContainerFixture _apiContainerFixture;
 
     private readonly string _testFileName;
