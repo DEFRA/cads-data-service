@@ -62,7 +62,7 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         });
 
         var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3BulkImportWithSourceKeyRequest, TestContext.Current.CancellationToken);
-     
+
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 

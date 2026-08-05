@@ -63,7 +63,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var fileImport = FileImport.Create("", InvalidTestFileName1,100,100);
+        var fileImport = FileImport.Create("", InvalidTestFileName1, 100, 100);
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
