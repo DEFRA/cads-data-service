@@ -12,10 +12,10 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public void CreateTempTableCommand_ShouldGenerateCorrectSql()
     {
-        var sql = GetFactory().SqlForTempTable(ImportDataType.CtLocations, SchemaName.Cts);
+        var sql = GetFactory().SqlForTempTable(ImportDataType.CtLocations, SchemaName.Cts, 12345);
 
         sql.Should().Be(
-            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" EXCLUDING CONSTRAINTS) ON COMMIT DROP;");
+            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING DEFAULTS EXCLUDING CONSTRAINTS) ON COMMIT DROP;");
     }
 
     [Fact]
@@ -80,20 +80,20 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public async Task CreateTempTableCommand_WithCtsSchema_ShouldCreateValidCommand()
     {
-        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.Cts);
+        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.Cts, 12345);
 
         cmd.CommandText.Should().Be(
-            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" EXCLUDING CONSTRAINTS) ON COMMIT DROP;");
+            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING DEFAULTS EXCLUDING CONSTRAINTS) ON COMMIT DROP;");
     }
 
     [Fact]
     public async Task CreateTempTableCommand_WithCtsTransactionsSchema_ShouldCreateValidCommand()
     {
-        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.CtsTransactions);
+        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.CtsTransactions, 12345);
 
         cmd.CommandText.Should().Be(
-            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts_transactions\".\"ct_locations\" EXCLUDING CONSTRAINTS) ON COMMIT DROP;" +
-            "ALTER TABLE \"temp_ct_locations\" DROP COLUMN trans_id, ALTER COLUMN trans_type SET DEFAULT 'B', ALTER COLUMN fake_data SET DEFAULT '0'");
+            "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts_transactions\".\"ct_locations\" INCLUDING DEFAULTS EXCLUDING CONSTRAINTS) ON COMMIT DROP;" +
+            "ALTER TABLE \"temp_ct_locations\" DROP COLUMN trans_id, ALTER COLUMN trans_type SET DEFAULT 'B', ALTER COLUMN cts_file_import_id SET DEFAULT 12345;");
     }
 
     private static TestableS3BulkLoadCommandFactory GetFactory() =>

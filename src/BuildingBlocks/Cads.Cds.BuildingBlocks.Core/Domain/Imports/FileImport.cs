@@ -8,22 +8,22 @@ public class FileImport
 {
     public long Id { get; set; }
 
-    public string DestinationTableName { get; private set; } = default!;
-    public string FileName { get; private set; } = default!;
+    public string DestinationTableName { get; set; } = default!;
+    public string FileName { get; set; } = default!;
 
-    public long TotalRowsToProcess { get; private set; }
-    public long RowsFound { get; private set; }
+    public long TotalRowsToProcess { get; set; }
+    public long RowsFound { get; set; }
 
-    public FileImportStatus ImportStatus { get; private set; }
-    public FileProcessingStatus ProcessingStatus { get; private set; }
+    public FileImportStatus ImportStatus { get; set; }
+    public FileProcessingStatus ProcessingStatus { get; set; }
 
-    public DateTimeOffset AddedAt { get; private set; }
-    public DateTimeOffset? ImportStartAt { get; private set; }
-    public DateTimeOffset? ImportEndAt { get; private set; }
-    public DateTimeOffset? ProcessingStartAt { get; private set; }
-    public DateTimeOffset? ProcessingEndAt { get; private set; }
-    public int FailedAttempts { get; private set; }
-    public string? LastErrorReason { get; private set; }
+    public DateTimeOffset AddedAt { get; set; }
+    public DateTimeOffset? ImportStartAt { get; set; }
+    public DateTimeOffset? ImportEndAt { get; set; }
+    public DateTimeOffset? ProcessingStartAt { get; set; }
+    public DateTimeOffset? ProcessingEndAt { get; set; }
+    public int FailedAttempts { get; set; }
+    public string? LastErrorReason { get; set; }
 
     public FileImport() { }
 
