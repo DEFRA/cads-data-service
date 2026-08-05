@@ -64,7 +64,16 @@ public static class FileImportDataFactory
 
     private static FileImport Build(string fileName, Action<FileImport>? configure = null)
     {
-        var fi = FileImport.Create("dtn", fileName, 100, 0);
+        var fi = FileImport.Create(new FileImportCreate
+        {
+            DestinationTableName = "dtn",
+            FileName = fileName,
+            TotalRowsToProcess = 100,
+            RowsFound = 0,
+            GroupKey = "gk",
+            ImportType = "BULK",
+            BatchDate = DateTimeOffset.Parse("2026-01-01T01:23:45Z")
+        });
         configure?.Invoke(fi);
         return fi;
     }

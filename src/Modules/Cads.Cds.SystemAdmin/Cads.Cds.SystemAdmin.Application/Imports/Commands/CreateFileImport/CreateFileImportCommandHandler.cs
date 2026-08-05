@@ -1,5 +1,6 @@
+using System.Globalization;
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.BuildingBlocks.Core.Extensions;
@@ -15,13 +16,19 @@ public sealed class CreateFileImportCommandHandler(
     {
         await CheckFileNameAlreadyExistsRule(command.FileName, cancellationToken);
 
-        var destinationTableNameWithSchema = SchemaHelper.GetDestinationTableNameFromFilename(command.FileName);
+        var parsedFileName = CtsmFilenameParser.Parse(command.FileName)!;
 
-        var fileImport = FileImport.Create(
-            destinationTableNameWithSchema,
-            command.FileName,
-            command.TotalRowsToProcess,
-            command.RowsFound);
+        var fileImport = FileImport.Create(new FileImportCreate
+        {
+            FileName = command.FileName,
+            DestinationTableName = parsedFileName.GetDestinationTableName(),
+            TotalRowsToProcess = command.TotalRowsToProcess,
+            RowsFound = command.RowsFound,
+            GroupKey = parsedFileName.GetGroupKey(),
+            ImportType = parsedFileName.Type,
+            BatchDate = DateTimeOffset.ParseExact(parsedFileName.Timestamp, "yyyy-MM-dd-HHmmss", CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal),
+        });
 
         await fileImportRepository.AddAsync(fileImport, cancellationToken);
 
