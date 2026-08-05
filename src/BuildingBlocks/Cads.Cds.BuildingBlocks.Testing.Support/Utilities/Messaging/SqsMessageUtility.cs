@@ -36,6 +36,30 @@ public static class SqsMessageUtility
         return serviceBusMessage;
     }
 
+    public static SendMessageRequest CreateFifoSqsMessage<TMessage>(
+        string queueUrl,
+        TMessage message,
+        string? subject = null,
+        string? correlationId = null,
+        string? messageGroupId = null,
+        string? messageDeduplicationId = null)
+    {
+        var body = JsonSerializer.Serialize(message, JsonDefaults.DefaultOptionsWithStringEnumConversion);
+
+        return new SendMessageRequest
+        {
+            QueueUrl = queueUrl,
+            MessageBody = body,
+            MessageGroupId = messageGroupId ?? Guid.NewGuid().ToString(),
+            MessageDeduplicationId = messageDeduplicationId ?? Guid.NewGuid().ToString(),
+            MessageAttributes = new Dictionary<string, MessageAttributeValue>
+            {
+                ["Subject"] = new() { DataType = "String", StringValue = (subject ?? typeof(TMessage).Name).ReplaceSuffix() },
+                ["CorrelationId"] = new() { DataType = "String", StringValue = correlationId ?? Guid.NewGuid().ToString() }
+            }
+        };
+    }
+
     public static void VerifyMessageWasCompleted(Mock<IAmazonSQS>? sqsMock)
     {
         sqsMock?.Verify(x => x.DeleteMessageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);

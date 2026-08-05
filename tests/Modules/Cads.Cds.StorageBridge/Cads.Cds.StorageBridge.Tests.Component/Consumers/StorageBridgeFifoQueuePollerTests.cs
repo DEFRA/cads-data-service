@@ -109,7 +109,7 @@ public class StorageBridgeFifoQueuePollerTests(StorageBridgeTestFixture testFixt
         return message;
     }
 
-    private FifoMessageMetadata GetFifoMessageMetadata()
+    private static FifoMessageMetadata GetFifoMessageMetadata()
     {
         return new FifoMessageMetadata(
             Guid.NewGuid().ToString(),
