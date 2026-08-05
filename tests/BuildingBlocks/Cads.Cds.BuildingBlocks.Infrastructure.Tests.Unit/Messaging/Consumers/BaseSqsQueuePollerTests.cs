@@ -5,12 +5,14 @@ using Cads.Cds.BuildingBlocks.Application.Messaging.Clients;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Commands;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
+using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Services;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +55,8 @@ public class BaseSqsQueuePollerTests
             .Setup(x => x.Get(It.IsAny<string>()))
             .Returns(_queueConsumerOptions);
 
+        _loggerMock.EnableAllLogLevels();
+
         return new TestFifoQueuePoller(
             _scopeFactoryMock.Object,
             _sqsMock.Object,
@@ -63,6 +67,10 @@ public class BaseSqsQueuePollerTests
             _observerMock.Object,
             _loggerMock.Object);
     }
+
+    // -------------------------------------------------------------------------
+    // Basic Start/Stop/Cancel
+    // -------------------------------------------------------------------------
 
     [Fact]
     public async Task StartAsync_ShouldLogAndStartPolling_WhenEnabled()
@@ -135,14 +143,15 @@ public class BaseSqsQueuePollerTests
         await act.Should().NotThrowAsync();
     }
 
+    // -------------------------------------------------------------------------
+    // Happy Path
+    // -------------------------------------------------------------------------
+
     [Fact]
     public async Task PollMessagesAsync_ShouldProcessMessages()
     {
-        var cancellationSource = new CancellationTokenSource();
-
         var testImportMessage = new TestImportMessage { Identifier = Guid.NewGuid().ToString() };
-        var testImportMessageSerialized = JsonSerializer.Serialize(testImportMessage, JsonDefaults.DefaultOptionsWithStringEnumConversion);
-
+        var payload = JsonSerializer.Serialize(testImportMessage, JsonDefaults.DefaultOptionsWithStringEnumConversion);
         var messageHandled = new TaskCompletionSource();
 
         _sqsMock
@@ -151,7 +160,7 @@ public class BaseSqsQueuePollerTests
             {
                 await Task.Delay(100, token);
                 token.ThrowIfCancellationRequested();
-                return GetReceiveMessageResponseArgs(testImportMessageSerialized);
+                return GetReceiveMessageResponseArgs(payload);
             });
 
         _mediatorMock
@@ -159,43 +168,258 @@ public class BaseSqsQueuePollerTests
             .ReturnsAsync(testImportMessage)
             .Callback(() => messageHandled.TrySetResult());
 
-        _serviceProviderMock
-            .Setup(sp => sp.GetService(typeof(IMediator)))
-            .Returns(_mediatorMock.Object);
+        _serviceProviderMock.Setup(sp => sp.GetService(typeof(IMediator))).Returns(_mediatorMock.Object);
+        _scopeMock.Setup(s => s.ServiceProvider).Returns(_serviceProviderMock.Object);
+        _scopeFactoryMock.Setup(f => f.CreateScope()).Returns(_scopeMock.Object);
 
-        _scopeMock
-            .Setup(s => s.ServiceProvider)
-            .Returns(_serviceProviderMock.Object);
-
-        _scopeFactoryMock
-            .Setup(f => f.CreateScope())
-            .Returns(_scopeMock.Object);
-
-        var sut = CreateSut();
-
-        await sut.StartAsync(cancellationSource.Token);
-
-        await messageHandled.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
-
-        await Task.Delay(50, TestContext.Current.CancellationToken);
-        cancellationSource.Cancel();
-
-        await sut.StopAsync(CancellationToken.None);
+        await RunUntilObserved(messageHandled);
 
         _sqsMock.Verify(x => x.DeleteMessageAsync(
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<CancellationToken>()),
-            Times.Once);
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
 
         _observerMock.Verify(x => x.OnMessageHandled(
-            It.IsAny<string>(),
-            It.IsAny<DateTime>(),
-            It.IsAny<MessageType?>(),
-            It.IsAny<Message>()),
-            Times.Once);
+            It.IsAny<string>(), It.IsAny<DateTime>(),
+            It.IsAny<MessageType?>(), It.IsAny<Message>()), Times.Once);
+    }
 
-        await sut.DisposeAsync();
+    // -------------------------------------------------------------------------
+    // RetryableException
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenRetryableException_CallsOnMessageFailed()
+    {
+        var observed = SetupExceptionScenario(new RetryableException("temporary"));
+        await RunUntilObserved(observed);
+
+        _observerMock.Verify(o => o.OnMessageFailed(
+            It.IsAny<string>(), It.IsAny<DateTime>(),
+            It.IsAny<RetryableException>(), It.IsAny<Message>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenRetryableException_DoesNotDeleteMessage()
+    {
+        var observed = SetupExceptionScenario(new RetryableException("temporary"));
+        await RunUntilObserved(observed);
+
+        _sqsMock.Verify(x => x.DeleteMessageAsync(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenRetryableException_DoesNotMoveToDeadLetterQueue()
+    {
+        var observed = SetupExceptionScenario(new RetryableException("temporary"));
+        await RunUntilObserved(observed);
+
+        _queueAdminServiceMock.Verify(x => x.MoveToDeadLetterQueueAsync(
+            It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
+            It.IsAny<Exception>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenRetryableException_LogsWarning()
+    {
+        var observed = SetupExceptionScenario(new RetryableException("temporary"));
+        await RunUntilObserved(observed);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Warning,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("RetryableException")),
+            It.IsAny<RetryableException>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
+    // -------------------------------------------------------------------------
+    // NonRetryableException
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenNonRetryableException_CallsOnMessageFailed()
+    {
+        var observed = SetupExceptionScenario(new NonRetryableException("permanent"));
+        await RunUntilObserved(observed);
+
+        _observerMock.Verify(o => o.OnMessageFailed(
+            It.IsAny<string>(), It.IsAny<DateTime>(),
+            It.IsAny<NonRetryableException>(), It.IsAny<Message>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenNonRetryableException_DoesNotDeleteMessage()
+    {
+        var observed = SetupExceptionScenario(new NonRetryableException("permanent"));
+        await RunUntilObserved(observed);
+
+        _sqsMock.Verify(x => x.DeleteMessageAsync(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenNonRetryableException_MovesToDeadLetterQueue()
+    {
+        var observed = SetupExceptionScenario(new NonRetryableException("permanent"));
+        await RunUntilObserved(observed);
+
+        _queueAdminServiceMock.Verify(x => x.MoveToDeadLetterQueueAsync(
+            It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
+            It.IsAny<NonRetryableException>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenNonRetryableException_LogsError()
+    {
+        var observed = SetupExceptionScenario(new NonRetryableException("permanent"));
+        await RunUntilObserved(observed);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("NonRetryableException")),
+            It.IsAny<NonRetryableException>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
+    // -------------------------------------------------------------------------
+    // Unexpected exception
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenUnexpectedException_CallsOnMessageFailed()
+    {
+        var observed = SetupExceptionScenario(new InvalidOperationException("unexpected"));
+        await RunUntilObserved(observed);
+
+        _observerMock.Verify(o => o.OnMessageFailed(
+            It.IsAny<string>(), It.IsAny<DateTime>(),
+            It.IsAny<InvalidOperationException>(), It.IsAny<Message>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenUnexpectedException_DoesNotDeleteMessage()
+    {
+        var observed = SetupExceptionScenario(new InvalidOperationException("unexpected"));
+        await RunUntilObserved(observed);
+
+        _sqsMock.Verify(x => x.DeleteMessageAsync(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenUnexpectedException_MovesToDeadLetterQueue()
+    {
+        var observed = SetupExceptionScenario(new InvalidOperationException("unexpected"));
+        await RunUntilObserved(observed);
+
+        _queueAdminServiceMock.Verify(x => x.MoveToDeadLetterQueueAsync(
+            It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
+            It.IsAny<InvalidOperationException>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenUnexpectedException_LogsError()
+    {
+        var observed = SetupExceptionScenario(new InvalidOperationException("unexpected"));
+        await RunUntilObserved(observed);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("UnhandledException")),
+            It.IsAny<InvalidOperationException>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+    }
+
+    // -------------------------------------------------------------------------
+    // No command registered for subject
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenNoCommandRegisteredForSubject_MovesToDeadLetterQueue()
+    {
+        // Bypass the mediator entirely — the registry throws before Send is called
+        var observed = new TaskCompletionSource();
+
+        _sqsMock
+            .Setup(x => x.ReceiveMessageAsync(It.IsAny<ReceiveMessageRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(async (ReceiveMessageRequest _, CancellationToken token) =>
+            {
+                await Task.Delay(100, token);
+                token.ThrowIfCancellationRequested();
+                return new ReceiveMessageResponse
+                {
+                    HttpStatusCode = System.Net.HttpStatusCode.OK,
+                    Messages = [BuildSqsMessage(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    "UnregisteredSubject",
+                    "{}")]
+                };
+            });
+
+        _queueAdminServiceMock
+            .Setup(x => x.MoveToDeadLetterQueueAsync(
+                It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<Exception>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        _observerMock
+            .Setup(o => o.OnMessageFailed(
+                It.IsAny<string>(), It.IsAny<DateTime>(),
+                It.IsAny<Exception>(), It.IsAny<Message>()))
+            .Callback(() => observed.TrySetResult());
+
+        _serviceProviderMock.Setup(sp => sp.GetService(typeof(IMediator))).Returns(_mediatorMock.Object);
+        _scopeMock.Setup(s => s.ServiceProvider).Returns(_serviceProviderMock.Object);
+        _scopeFactoryMock.Setup(f => f.CreateScope()).Returns(_scopeMock.Object);
+
+        await RunUntilObserved(observed);
+
+        _queueAdminServiceMock.Verify(x => x.MoveToDeadLetterQueueAsync(
+            It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
+            It.IsAny<InvalidOperationException>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleMessageAsync_WhenNoCommandRegisteredForSubject_DoesNotDeleteMessage()
+    {
+        var observed = new TaskCompletionSource();
+
+        _sqsMock
+            .Setup(x => x.ReceiveMessageAsync(It.IsAny<ReceiveMessageRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(async (ReceiveMessageRequest _, CancellationToken token) =>
+            {
+                await Task.Delay(100, token);
+                token.ThrowIfCancellationRequested();
+                return new ReceiveMessageResponse
+                {
+                    HttpStatusCode = System.Net.HttpStatusCode.OK,
+                    Messages = [BuildSqsMessage(
+                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString(),
+                    "UnregisteredSubject",
+                    "{}")]
+                };
+            });
+
+        _queueAdminServiceMock
+            .Setup(x => x.MoveToDeadLetterQueueAsync(
+                It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<Exception>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        _observerMock
+            .Setup(o => o.OnMessageFailed(
+                It.IsAny<string>(), It.IsAny<DateTime>(),
+                It.IsAny<Exception>(), It.IsAny<Message>()))
+            .Callback(() => observed.TrySetResult());
+
+        await RunUntilObserved(observed);
+
+        _sqsMock.Verify(x => x.DeleteMessageAsync(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     public class TestFifoQueuePoller(
@@ -277,5 +501,58 @@ public class BaseSqsQueuePollerTests
                 ["CorrelationId"] = new() { DataType = "String", StringValue = correlationId }
             }
         };
+    }
+
+    private TaskCompletionSource SetupExceptionScenario(Exception exceptionToThrow)
+    {
+        var observed = new TaskCompletionSource();
+
+        var payload = JsonSerializer.Serialize(
+            new TestImportMessage { Identifier = Guid.NewGuid().ToString() },
+            JsonDefaults.DefaultOptionsWithStringEnumConversion);
+
+        _sqsMock
+            .Setup(x => x.ReceiveMessageAsync(It.IsAny<ReceiveMessageRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(async (ReceiveMessageRequest _, CancellationToken token) =>
+            {
+                await Task.Delay(100, token);
+                token.ThrowIfCancellationRequested();
+                return GetReceiveMessageResponseArgs(payload);
+            });
+
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<TestImportMessageCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(exceptionToThrow);
+
+        _queueAdminServiceMock
+            .Setup(x => x.MoveToDeadLetterQueueAsync(
+                It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
+                It.IsAny<Exception>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        _observerMock
+            .Setup(o => o.OnMessageFailed(
+                It.IsAny<string>(), It.IsAny<DateTime>(),
+                It.IsAny<Exception>(), It.IsAny<Message>()))
+            .Callback(() => observed.TrySetResult());
+
+        _serviceProviderMock.Setup(sp => sp.GetService(typeof(IMediator))).Returns(_mediatorMock.Object);
+        _scopeMock.Setup(s => s.ServiceProvider).Returns(_serviceProviderMock.Object);
+        _scopeFactoryMock.Setup(f => f.CreateScope()).Returns(_scopeMock.Object);
+
+        return observed;
+    }
+
+    private async Task RunUntilObserved(TaskCompletionSource observed)
+    {
+        var sut = CreateSut();
+        using var cts = new CancellationTokenSource();
+
+        await sut.StartAsync(cts.Token);
+        await observed.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        await Task.Delay(50, TestContext.Current.CancellationToken);
+        await cts.CancelAsync();
+        await sut.StopAsync(CancellationToken.None);
+        await sut.DisposeAsync();
     }
 }
