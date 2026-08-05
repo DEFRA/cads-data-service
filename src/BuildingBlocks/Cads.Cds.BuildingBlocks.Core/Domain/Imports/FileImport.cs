@@ -17,46 +17,38 @@ public class FileImport
     public FileImportStatus ImportStatus { get; set; }
     public FileProcessingStatus ProcessingStatus { get; set; }
 
-    public DateTimeOffset AddedAt { get; set; }
-    public DateTimeOffset? ImportStartAt { get; set; }
-    public DateTimeOffset? ImportEndAt { get; set; }
-    public DateTimeOffset? ProcessingStartAt { get; set; }
-    public DateTimeOffset? ProcessingEndAt { get; set; }
-    public int FailedAttempts { get; set; }
-    public string? LastErrorReason { get; set; }
+    public DateTimeOffset AddedAt { get; private set; }
+    public DateTimeOffset? ImportStartAt { get; private set; }
+    public DateTimeOffset? ImportEndAt { get; private set; }
+    public DateTimeOffset? ProcessingStartAt { get; private set; }
+    public DateTimeOffset? ProcessingEndAt { get; private set; }
+    public int FailedAttempts { get; private set; }
+    public string? LastErrorReason { get; private set; }
+    public string? GroupKey { get; private set; }
+    public string? ImportType { get; private set; }
+    public DateTimeOffset? BatchDate { get; private set; }
 
     public FileImport() { }
 
     private FileImport(
-        string destinationTableName,
-        string fileName,
-        long totalRowsToProcess,
-        long rowsFound)
+        FileImportCreate fileImportCreate)
     {
-        DestinationTableName = destinationTableName;
-        FileName = StringExtensions.NormalizeToUpper(fileName)!;
-
-        TotalRowsToProcess = totalRowsToProcess;
-        RowsFound = rowsFound;
-
+        DestinationTableName = fileImportCreate.DestinationTableName!;
+        FileName = StringExtensions.NormalizeToUpper(fileImportCreate.FileName)!;
+        TotalRowsToProcess = fileImportCreate.TotalRowsToProcess;
+        RowsFound = fileImportCreate.RowsFound;
+        GroupKey = fileImportCreate.GroupKey;
+        ImportType = fileImportCreate.ImportType;
+        BatchDate = fileImportCreate.BatchDate;
         ImportStatus = FileImportStatus.Pending;
         ProcessingStatus = FileProcessingStatus.Pending;
-
         AddedAt = DateTimeOffset.UtcNow;
-
         FailedAttempts = 0;
     }
 
     public static FileImport Create(
-        string destinationTableName,
-        string fileName,
-        long totalRowsToProcess,
-        long rowsFound)
-        => new(
-            destinationTableName,
-            fileName,
-            totalRowsToProcess,
-            rowsFound);
+        FileImportCreate fileImportCreate)
+        => new(fileImportCreate);
 
     public void SetTotalRowsToProcess(long total)
     {
