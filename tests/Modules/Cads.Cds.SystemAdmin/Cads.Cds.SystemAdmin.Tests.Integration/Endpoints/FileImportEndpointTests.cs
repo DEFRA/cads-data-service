@@ -110,7 +110,8 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             request,
             TestContext.Current.CancellationToken);
 
-        response.IsSuccessStatusCode.Should().BeTrue();
+        var debugContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        response.IsSuccessStatusCode.Should().BeTrue($"status={(int)response.StatusCode} body={debugContent}");
 
         var dto = await FileImportTestClient.ReadDtoAsync(
             response,
