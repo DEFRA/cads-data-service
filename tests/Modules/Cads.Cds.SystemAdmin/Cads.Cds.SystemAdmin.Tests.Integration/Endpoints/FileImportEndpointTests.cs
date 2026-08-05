@@ -85,7 +85,6 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             request,
             TestContext.Current.CancellationToken);
 
-        var content = await response.Content.ReadAsStringAsync();
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         var problemDetails = await FileImportTestClient.ReadProblemDetailsAsync(
