@@ -104,7 +104,7 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
             .HasColumnName("import_type")
             .HasColumnType("text")
             .IsRequired();
-        
+
         builder.Property(x => x.BatchDate)
             .HasColumnName("batch_date")
             .HasColumnType("timestamptz")

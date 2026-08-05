@@ -30,7 +30,7 @@ public sealed class CreateFileImportCommandHandler(
             BatchDate = DateTimeOffset.ParseExact(parsedFileName.Timestamp, "yyyy-MM-dd-HHmmss", CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal),
         });
-        
+
         await fileImportRepository.Add(fileImport, cancellationToken);
 
         return fileImport;
