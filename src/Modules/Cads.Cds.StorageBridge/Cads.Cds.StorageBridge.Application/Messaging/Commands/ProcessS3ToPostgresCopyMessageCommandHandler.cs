@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Cads.Cds.StorageBridge.Application.Messaging.Commands;
 
 public class ProcessS3ToPostgresCopyMessageCommandHandler(
-    IS3ImportJobEnqueuer<CreateS3SqlImportJobDto> s3ImportEnqueueService,
+    IS3ImportJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService,
     IUnwrappedMessageSerializer<S3ToPostgresCopyMessage> serializer,
     ILogger<ProcessS3ToPostgresCopyMessageCommandHandler> logger)
     : ICommandHandler<ProcessS3ToPostgresCopyMessageCommand, MessageType>
@@ -34,7 +34,7 @@ public class ProcessS3ToPostgresCopyMessageCommandHandler(
                 $"messageId: {message.MessageId}," +
                 $"correlationId: {message.CorrelationId}");
 
-            var job = new CreateS3SqlImportJobDto
+            var job = new CreateS3CsvImportJobDto
             {
                 FileImportId = messagePayload.FileImportId,
                 SourceKey = messagePayload.ObjectKey,

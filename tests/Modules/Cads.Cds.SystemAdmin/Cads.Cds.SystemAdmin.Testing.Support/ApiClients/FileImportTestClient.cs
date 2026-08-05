@@ -114,7 +114,7 @@ public static class FileImportTestClient
         CancellationToken cancellationToken = default)
     {
         var response = await GetByFileNameAsync(client, fileName, cancellationToken);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
         var dto = await ReadDtoAsync(response, cancellationToken);
 
         dto.Should().NotBeNull();
