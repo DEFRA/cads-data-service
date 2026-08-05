@@ -10,7 +10,13 @@ public record CtsmFilename(
     string? PartNo,
     string TableName,
     string Timestamp
-);
+)
+{
+    public override string ToString()
+    {
+        return $"CTSM_{App}_{Env}_{Type}_{BatchId}{(PartNo is not null ? "_" + PartNo + "_" : "")}{TableName}_{Timestamp}";
+    }
+}
 
 public static partial class CtsmFilenameParser
 {
