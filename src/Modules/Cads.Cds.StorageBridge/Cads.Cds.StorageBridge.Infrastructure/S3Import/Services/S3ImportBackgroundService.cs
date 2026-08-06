@@ -1,5 +1,5 @@
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.DTOs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -29,7 +29,7 @@ public abstract class S3ImportBackgroundService<T>(
         await Task.WhenAll(tasks);
     }
 
-    private async Task ProcessJobAsync(
+    protected virtual async Task ProcessJobAsync(
         T request,
         SemaphoreSlim semaphore,
         CancellationToken cancellationToken)
@@ -45,8 +45,10 @@ public abstract class S3ImportBackgroundService<T>(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to process bulk load JobId: {JobId}",
-                    request.JobId);
+                if (logger.IsEnabled(LogLevel.Error))
+                {
+                    logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
+                }
             }
             finally
             {

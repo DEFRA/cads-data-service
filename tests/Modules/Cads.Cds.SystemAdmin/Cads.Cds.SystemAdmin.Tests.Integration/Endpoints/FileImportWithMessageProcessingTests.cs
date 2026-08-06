@@ -28,11 +28,12 @@ public class FileImportWithMessageProcessingTests(ApiContainerFixture apiContain
     {
         var testScenarioUniqueId = new Random().Next(1000, 9999);
         var importFileName
-            = $"CTSM_CADS_ENV_BULK_{testScenarioUniqueId}_0001_CT_LOCATIONS_2026-01-01-012345.part-0001.csv";
+            = $"CTSM_CADS_ENV_BULK_{testScenarioUniqueId}_0001_CT_LOCATIONS_2026-01-01-012345.csv";
+        var importFileKey = $"import/CTSM_CADS_ENV_BULK_{testScenarioUniqueId}_0001_CT_LOCATIONS_2026-01-01-012345/{importFileName}";
         var locationsDataRow
             = $"D|2|{testScenarioUniqueId}|1|2|88|N|01-JUL-21|17-JAN-23|BC|AH|Row 2 comments|TL 234567|VT|23456789|0202345678|07723456789|0209876543|email2@internal.test|1|m100000|10-JUN-25|29|AC|1|Y";
 
-        await UploadFileToS3BucketAsync(importFileName, locationsDataRow);
+        await UploadFileToS3BucketAsync(importFileKey, locationsDataRow);
 
         var testFileImportId = await AddFileImportStatusRecordAsync(importFileName);
         testFileImportId.Should().NotBe(0);
