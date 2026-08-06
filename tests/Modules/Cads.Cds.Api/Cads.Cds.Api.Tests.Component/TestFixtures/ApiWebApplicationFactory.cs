@@ -1,6 +1,8 @@
+using Cads.Cds.Api.Application.Uow;
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 using Cads.Cds.Api.Testing.Support.Contexts;
 using Cads.Cds.Api.Testing.Support.Fakes.Behaviours;
+using Cads.Cds.Api.Testing.Support.Fakes.Uow;
 using Cads.Cds.Api.Testing.Support.Seeding;
 using Cads.Cds.Api.Testing.Support.Specimens.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
@@ -9,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Cads.Cds.Api.Tests.Component.TestFixtures;
 
@@ -40,6 +43,9 @@ public class ApiWebApplicationFactory(
 
         services.AddDbContext<ApiWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));
+
+        services.RemoveAll<IApiUnitOfWork>();
+        services.AddScoped<IApiUnitOfWork, FakeApiUnitOfWork>();
     }
 
     private static void ConfigurePersistence(IServiceCollection services)

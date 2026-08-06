@@ -13,7 +13,7 @@ public class S3CsvImportCommandValidator : AbstractValidator<S3CsvImportCommand>
         RuleFor(x => x.FileImportId)
             .NotNull()
             .GreaterThan(0)
-            .WithMessage("'File Import Id' must not be null or greater than zero.")
+            .WithMessage("'File Import Id' must not be null and be greater than zero.")
             .When(x => x.SourceKey == null);
 
         RuleFor(x => x.Delimiter)
