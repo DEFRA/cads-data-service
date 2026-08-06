@@ -1,7 +1,6 @@
 using Amazon.S3.Model;
 using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application.Schema;
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
@@ -12,7 +11,6 @@ using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Utilities;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
-using DocumentFormat.OpenXml.Wordprocessing;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -33,7 +31,7 @@ public class S3CsvImportEndpointTests
 
     public S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
-        this._apiContainerFixture = apiContainerFixture;
+        _apiContainerFixture = apiContainerFixture;
 
         _testFileName = Path.GetFileNameWithoutExtension("CTSM_CADS_PROD_BULK_ABC_0001_CT_LOCATIONS_2026-01-01-012345.csv");
         _testKey = $"import/{Path.GetFileNameWithoutExtension(_testFileName)}/{_testFileName}";
@@ -160,12 +158,6 @@ public class S3CsvImportEndpointTests
             SourceKey = _testFileName
         });
 
-    private StringContent? ValidS3CsvImportWithFileImportIdRequest =>
-       HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
-       {
-           FileImportId = 3
-       });
-
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
     {
         var endpoint = TestEndpointConstants.StorageBridgeS3CsvImportRoot;
@@ -228,24 +220,5 @@ public class S3CsvImportEndpointTests
             });
 
         return testFileImportId;
-    }
-
-    private async Task<IEnumerable<FileImport>> GetFileImports()
-    {
-        return await _postgresDb.ExecuteQueryAsync(
-           "SELECT * FROM cads.cts_file_imports",
-           reader => new FileImport
-           {
-               Id = reader["cts_file_import_id"] != DBNull.Value ? Convert.ToInt64(reader["cts_file_import_id"]) : 0,
-               DestinationTableName = reader["destination_table_name"].ToString()!,
-               FileName = reader["file_name"].ToString()!,
-               TotalRowsToProcess = reader["total_rows_to_process"] != DBNull.Value ? Convert.ToInt64(reader["total_rows_to_process"]) : 0,
-               AddedAt = reader["added_at"] != DBNull.Value ? Convert.ToDateTime(reader["added_at"]) : DateTime.MinValue,
-               ImportStatus = reader["import_status_id"] != DBNull.Value ? (FileImportStatus)Convert.ToInt32(reader["import_status_id"]) : FileImportStatus.Pending,
-               ProcessingStatus = reader["processing_status_id"] != DBNull.Value ? (FileProcessingStatus)Convert.ToInt32(reader["processing_status_id"]) : FileProcessingStatus.Pending,
-               RowsFound = reader["rows_found"] != DBNull.Value ? Convert.ToInt64(reader["rows_found"]) : 0,
-               ImportStartAt = reader["import_start_at"] != DBNull.Value ? Convert.ToDateTime(reader["import_start_at"]) : null,
-               ImportEndAt = reader["import_end_at"] != DBNull.Value ? Convert.ToDateTime(reader["import_end_at"]) : null
-           });
     }
 }

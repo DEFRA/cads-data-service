@@ -23,37 +23,43 @@ public class S3CsvImportBackgroundService(
     {
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-        try
+        using (logger.BeginScope(new Dictionary<string, object?>
         {
-            var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-            var fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
-
-            var fileImport = await fileImportRepository.GetByIdAsync(request.FileImportId, cancellationToken);
-
+            ["CorrelationId"] = request.CorrelationId
+        }))
+        {
             try
             {
-                await processor.ExecuteAsync(request, cancellationToken);
+                var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
+                var fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
 
-                fileImport!.SetImportStatus(FileImportStatus.Completed);
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-            catch (Exception)
-            {
-                fileImport!.SetImportStatus(FileImportStatus.Failed);
-                await dbContext.SaveChangesAsync(cancellationToken);
+                var fileImport = await fileImportRepository.GetByIdAsync(request.FileImportId, cancellationToken);
 
-                throw;
+                try
+                {
+                    await processor.ExecuteAsync(request, cancellationToken);
+
+                    fileImport!.SetImportStatus(FileImportStatus.Completed);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
+                catch (Exception)
+                {
+                    fileImport!.SetImportStatus(FileImportStatus.Failed);
+                    await dbContext.SaveChangesAsync(cancellationToken);
+
+                    throw;
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
             }
-            finally
+            catch (Exception ex)
             {
-                semaphore.Release();
-            }
-        }
-        catch (Exception ex)
-        {
-            if (logger.IsEnabled(LogLevel.Error))
-            {
-                logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
+                if (logger.IsEnabled(LogLevel.Error))
+                {
+                    logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
+                }
             }
         }
     }

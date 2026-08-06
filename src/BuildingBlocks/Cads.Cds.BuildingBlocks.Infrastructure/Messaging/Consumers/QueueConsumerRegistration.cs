@@ -14,11 +14,11 @@ public static class QueueConsumerRegistration
 
         foreach (var (_, queueOptions) in queueConfigs)
         {
-            services.AddQueueConsumer(queueOptions);
+            services.AddQueueConsumerOptions(queueOptions);
         }
     }
 
-    private static void AddQueueConsumer(this IServiceCollection services, QueueConsumerOptions queueOptions)
+    private static void AddQueueConsumerOptions(this IServiceCollection services, QueueConsumerOptions queueOptions)
     {
         services.Configure(queueOptions.Name, (QueueConsumerOptions opts) =>
         {
@@ -40,10 +40,5 @@ public static class QueueConsumerRegistration
                     tags: ["aws", "sqs"]
                 );
         }
-
-        // Register poller
-        // Register DLQ service
-        // Register observers
-        // Register hosted service (runs all pollers)
     }
 }

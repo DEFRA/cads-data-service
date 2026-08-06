@@ -1,9 +1,19 @@
+using Cads.Cds.ApiSurface.Messages;
+using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Specimens.Factories;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Observers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
+using Cads.Cds.StorageBridge.Application.Messaging.Clients;
+using Cads.Cds.StorageBridge.Application.Uow;
+using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Behaviours;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Channels;
+using Cads.Cds.StorageBridge.Testing.Support.Fakes.Uow;
+using Cads.Cds.StorageBridge.Testing.Support.Seeding;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -34,6 +44,7 @@ public class StorageBridgeWebApplicationFactory(
         {
             ConfigurePersistence(services);
             OverrideS3ImportChannels(services);
+            OverrideMessageConsumers(services);
         });
     }
 
@@ -47,6 +58,9 @@ public class StorageBridgeWebApplicationFactory(
 
         services.AddDbContext<StorageBridgeWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));
+
+        services.RemoveAll<IStorageBridgeUnitOfWork>();
+        services.AddScoped<IStorageBridgeUnitOfWork, FakeStorageBridgeUnitOfWork>();
     }
 
     private static void ConfigurePersistence(IServiceCollection services)
@@ -58,6 +72,7 @@ public class StorageBridgeWebApplicationFactory(
         var readDb = scope.ServiceProvider.GetRequiredService<StorageBridgeReadDbContext>();
 
         // Seeds
+        TestStorageBridgeDataSeeder.Seed(readDb, FileImportDataFactory.CreateMockData());
 
         readDb.SaveChanges();
 
@@ -73,5 +88,16 @@ public class StorageBridgeWebApplicationFactory(
 
         services.AddSingleton(TestCsvBulkLoadJobChannel.Channel);
         services.AddSingleton(TestSqlImportJobChannel.Channel);
+    }
+
+    private static void OverrideMessageConsumers(IServiceCollection services)
+    {
+        services.RemoveAll<StorageBridgeFifoQueueListener>();
+        services.RemoveAll<TestQueuePollerObserver<MessageType>>();
+        services.RemoveAll<IQueuePoller<StorageBridgeFifoQueueClient>>();
+
+        services.AddScoped<IQueuePoller<StorageBridgeFifoQueueClient>, StorageBridgeFifoQueuePoller>();
+        services.AddScoped<TestQueuePollerObserver<MessageType>>();
+        services.AddScoped<IQueuePollerObserver<MessageType>>(sp => sp.GetRequiredService<TestQueuePollerObserver<MessageType>>());
     }
 }

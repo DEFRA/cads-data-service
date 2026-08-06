@@ -1,12 +1,15 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
+using Cads.Cds.Ingester.Application.Uow;
 using Cads.Cds.Ingester.Infrastructure.Persistence.Contexts;
 using Cads.Cds.Ingester.Testing.Support.Contexts;
 using Cads.Cds.Ingester.Testing.Support.Fakes.Behaviours;
+using Cads.Cds.Ingester.Testing.Support.Fakes.Uow;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Cads.Cds.Ingester.Tests.Component.TestFixtures;
 
@@ -38,6 +41,9 @@ public class IngesterWebApplicationFactory(
 
         services.AddDbContext<IngesterWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));
+
+        services.RemoveAll<IIngesterUnitOfWork>();
+        services.AddScoped<IIngesterUnitOfWork, FakeIngesterUnitOfWork>();
     }
 
     private static void ConfigurePersistence(IServiceCollection services)

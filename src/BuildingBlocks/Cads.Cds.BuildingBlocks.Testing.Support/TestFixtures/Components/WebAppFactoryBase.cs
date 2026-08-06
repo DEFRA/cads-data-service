@@ -2,12 +2,10 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
-using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
@@ -38,12 +36,9 @@ public abstract class WebAppFactoryBase<TStart>(
     IDictionary<string, string?>? configOverrides = null,
     bool useFakeAuth = false) : WebApplicationFactory<TStart>
     where TStart : class
-
 {
     public Mock<IAmazonSQS> AmazonSQSMock { get; private set; } = new();
     public Mock<IAmazonS3> AmazonS3Mock { get; private set; } = new();
-
-    public Mock<IStorageBridgeFileImportRepository> FileImportRepository { get; private set; } = new();
 
     private readonly List<Action<IServiceCollection>> _serviceOverrides = [];
     private readonly IDictionary<string, string?> _configOverrides = configOverrides ?? new Dictionary<string, string?>();
@@ -176,13 +171,17 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("Postgres__DefaultConnection", "Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres;");
         Environment.SetEnvironmentVariable("Postgres__ReadOnlyConnection", "Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres;");
 
-        Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
-        Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__Ingester__Storage__CadsIngester__BucketName", TestS3Constants.TestCadsInternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
+        Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__BucketName", TestS3Constants.TestCadsExternalBucketName);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__AccessKeySecretName", "IMB_S3_ACCESS_KEY");
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__SecretKeySecretName", "IMB_S3_SECRET_KEY");
+        Environment.SetEnvironmentVariable("Modules__SystemAdmin__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
+        Environment.SetEnvironmentVariable("Modules__SystemAdmin__ImportsDeduplication__BucketName", TestS3Constants.TestCadsExternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__SystemAdmin__ImportsDeduplication__EnvironmentName", "PreProd");
+
         Environment.SetEnvironmentVariable("IMB_S3_ACCESS_KEY", "test");
         Environment.SetEnvironmentVariable("IMB_S3_SECRET_KEY", "test");
 
@@ -247,9 +246,6 @@ public abstract class WebAppFactoryBase<TStart>(
         services.AddSingleton(AmazonS3Mock.Object);
 
         services.RemoveAll<IS3ClientFactory>();
-
-        services.RemoveAll<IFileImportRepository>();
-        services.AddSingleton(FileImportRepository.Object);
 
         services.AddSingleton<IS3ClientFactory>(sp =>
         {

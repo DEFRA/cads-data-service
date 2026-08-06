@@ -4,7 +4,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Repositories
 {
     public abstract class EFReadWriteRepository<TEntity, TReadContext, TWriteContext>(TReadContext readDbContext, TWriteContext writeDbContext)
-    : EFReadOnlyRepository<TEntity, TReadContext>(readDbContext), IRepository<TEntity>
+        : EFReadOnlyRepository<TEntity, TReadContext>(readDbContext), IRepository<TEntity>
         where TEntity : class
         where TReadContext : CadsDbContext
         where TWriteContext : CadsDbContext

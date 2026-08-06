@@ -34,15 +34,10 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 ///        Name = reader.GetString(1)
 ///    }
 /// );
-public sealed class PostgresDb
+public sealed class PostgresDb(string connectionString)
 {
-    private readonly string _connectionString;
-
-    public PostgresDb(string connectionString)
-    {
-        _connectionString = connectionString
+    private readonly string _connectionString = connectionString
             ?? throw new ArgumentNullException(nameof(connectionString));
-    }
 
     private async Task<NpgsqlConnection> CreateOpenConnectionAsync()
     {
@@ -118,5 +113,24 @@ public sealed class PostgresDb
         });
 
         return dataSet;
+    }
+
+    public async Task<T> PollUntilAsync<T>(
+        string sql,
+        Func<T, bool> condition,
+        TimeSpan timeout,
+        Action<NpgsqlCommand>? configure = null)
+    {
+        using var cts = new CancellationTokenSource(timeout);
+        T result;
+        do
+        {
+            result = (await ExecuteScalarAsync<T>(sql, configure))!;
+            if (condition(result)) return result;
+            await Task.Delay(500, cts.Token);
+        }
+        while (!cts.IsCancellationRequested);
+
+        return result;
     }
 }

@@ -45,33 +45,6 @@ public static class FileImportTestClient
         return await client.PutAsJsonAsync(endpoint, request, cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> MarkTransferredAsync(
-        HttpClient client,
-        long id,
-        CancellationToken cancellationToken)
-    {
-        var endpoint = string.Format(TestEndpointConstants.FileImportsTransferredEndpoint, id);
-        return await client.PostAsync(endpoint, null, cancellationToken);
-    }
-
-    public static async Task<HttpResponseMessage> MarkSplitAsync(
-        HttpClient client,
-        long id,
-        CancellationToken cancellationToken)
-    {
-        var endpoint = string.Format(TestEndpointConstants.FileImportsSplitEndpoint, id);
-        return await client.PostAsync(endpoint, null, cancellationToken);
-    }
-
-    public static async Task<HttpResponseMessage> MarkCompletedAsync(
-        HttpClient client,
-        long id,
-        CancellationToken cancellationToken)
-    {
-        var endpoint = string.Format(TestEndpointConstants.FileImportsCompleteEndpoint, id);
-        return await client.PostAsync(endpoint, null, cancellationToken);
-    }
-
     public static async Task<HttpResponseMessage> MarkFailedAsync(
         HttpClient client,
         long id,
@@ -141,7 +114,7 @@ public static class FileImportTestClient
         CancellationToken cancellationToken = default)
     {
         var response = await GetByFileNameAsync(client, fileName, cancellationToken);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
         var dto = await ReadDtoAsync(response, cancellationToken);
 
         dto.Should().NotBeNull();
