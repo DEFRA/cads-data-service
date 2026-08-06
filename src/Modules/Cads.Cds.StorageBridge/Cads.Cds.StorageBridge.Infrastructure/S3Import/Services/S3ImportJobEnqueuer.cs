@@ -12,15 +12,21 @@ public class S3ImportJobEnqueuer<T>(
 {
     public async Task<Guid> EnqueueAsync(T job, CancellationToken cancellationToken = default)
     {
-        job.JobId = Guid.NewGuid();
-
-        await channel.Writer.WriteAsync(job, cancellationToken);
-
-        if (logger.IsEnabled(LogLevel.Information))
+        using (logger.BeginScope(new Dictionary<string, object?>
         {
-            logger.LogInformation("Enqueued bulk import job with ID: {JobId}", job.JobId);
-        }
+            ["CorrelationId"] = job.CorrelationId
+        }))
+        {
+            job.JobId = Guid.NewGuid();
 
-        return job.JobId.Value;
+            await channel.Writer.WriteAsync(job, cancellationToken);
+
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation("Enqueued bulk import job with ID: {JobId}", job.JobId);
+            }
+
+            return job.JobId.Value;
+        }
     }
 }

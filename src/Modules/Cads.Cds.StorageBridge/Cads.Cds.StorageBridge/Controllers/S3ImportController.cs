@@ -22,7 +22,7 @@ public class S3ImportController(IRequestExecutor executor) : ControllerBase
         {
             FileImportId = request.FileImportId,
             SourceKey = request.SourceKey,
-            Delimiter = request.Delimiter,
+            Delimiter = request.Delimiter
         };
 
         var jobId = await _executor.ExecuteCommand(command, cancellationToken);

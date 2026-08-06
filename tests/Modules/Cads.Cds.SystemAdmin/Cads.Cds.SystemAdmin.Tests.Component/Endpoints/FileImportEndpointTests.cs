@@ -1,9 +1,11 @@
+using Amazon.SQS.Model;
 using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Tests.Component.TestFixtures;
 using FluentAssertions;
+using Moq;
 using System.Net;
 
 namespace Cads.Cds.SystemAdmin.Tests.Component.Endpoints;
@@ -263,198 +265,13 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
                 }
             },
             TestContext.Current.CancellationToken);
-    }
 
-    // FileImports - MarkTransferred
-
-    [Fact]
-    public async Task GivenInvalidRequest_WhenMarkTransferredRequested_ShouldReturnBadRequest()
-    {
-        var response = await FileImportTestClient.MarkTransferredAsync(
-            _httpClient,
-            id: 0,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task GivenUnknownRecord_WhenMarkTransferredRequested_ShouldReturnNotFound()
-    {
-        var response = await FileImportTestClient.MarkTransferredAsync(
-            _httpClient,
-            id: 99,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task GivenRecordHasInvalidState_WhenMarkTransferredRequested_ShouldReturnConflict()
-    {
-        var id = await FileImportTestClient.GetIdByFileNameAsync(
-            _httpClient,
-            TestFileScenarioConstants.New_Scenario_Complete_FileName,
-            TestContext.Current.CancellationToken);
-
-        var response = await FileImportTestClient.MarkTransferredAsync(
-            _httpClient,
-            id,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-    }
-
-    [Fact]
-    public async Task GivenValidRequest_WhenMarkTransferredRequested_ShouldSucceed()
-    {
-        var id = await FileImportTestClient.GetIdByFileNameAsync(
-            _httpClient,
-            TestFileScenarioConstants.New_Scenario_MarkTransferred_FileName,
-            TestContext.Current.CancellationToken);
-
-        var response = await FileImportTestClient.MarkTransferredAsync(
-            _httpClient,
-            id,
-            TestContext.Current.CancellationToken);
-
-        response.IsSuccessStatusCode.Should().BeTrue();
-
-        await FileImportTestClient.VerifyFileImportAsync(
-            _httpClient,
-            fileName: TestFileScenarioConstants.New_Scenario_MarkTransferred_FileName,
-            dto =>
-            {
-                FileImportAssertions.ShouldBeTransferred(dto);
-            },
-            TestContext.Current.CancellationToken);
-    }
-
-    // FileImports - MarkSplit
-
-    [Fact]
-    public async Task GivenInvalidRequest_WhenMarkSplitRequested_ShouldReturnBadRequest()
-    {
-        var response = await FileImportTestClient.MarkSplitAsync(
-            _httpClient,
-            id: 0,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task GivenUnknownRecord_WhenMarkSplitRequested_ShouldReturnNotFound()
-    {
-        var response = await FileImportTestClient.MarkSplitAsync(
-            _httpClient,
-            id: 99,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task GivenRecordHasInvalidState_WhenMarkSplitRequested_ShouldReturnConflict()
-    {
-        var id = await FileImportTestClient.GetIdByFileNameAsync(
-            _httpClient,
-            TestFileScenarioConstants.New_Scenario_Complete_FileName,
-            TestContext.Current.CancellationToken);
-
-        var response = await FileImportTestClient.MarkSplitAsync(
-            _httpClient,
-            id,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-    }
-
-    [Fact]
-    public async Task GivenValidRequest_WhenMarkSplitRequested_ShouldSucceed()
-    {
-        var id = await FileImportTestClient.GetIdByFileNameAsync(
-            _httpClient,
-            TestFileScenarioConstants.New_Scenario_MarkSplit_FileName,
-            TestContext.Current.CancellationToken);
-
-        var response = await FileImportTestClient.MarkSplitAsync(
-            _httpClient,
-            id,
-            TestContext.Current.CancellationToken);
-
-        response.IsSuccessStatusCode.Should().BeTrue();
-
-        await FileImportTestClient.VerifyFileImportAsync(
-            _httpClient,
-            fileName: TestFileScenarioConstants.New_Scenario_MarkSplit_FileName,
-            dto =>
-            {
-                FileImportAssertions.ShouldBeSplit(dto);
-            },
-            TestContext.Current.CancellationToken);
-    }
-
-    // FileImports - MarkCompleted
-
-    [Fact]
-    public async Task GivenInvalidRequest_WhenMarkImportCompleteRequested_ShouldReturnBadRequest()
-    {
-        var response = await FileImportTestClient.MarkCompletedAsync(
-            _httpClient,
-            id: 0,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task GivenUnknownRecord_WhenMarkImportCompleteRequested_ShouldReturnNotFound()
-    {
-        var response = await FileImportTestClient.MarkCompletedAsync(
-            _httpClient,
-            id: 99,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task GivenRecordHasInvalidState_WhenMarkImportCompleteRequested_ShouldReturnConflict()
-    {
-        var id = await FileImportTestClient.GetIdByFileNameAsync(
-            _httpClient,
-            TestFileScenarioConstants.New_Scenario_Pending_FileName,
-            TestContext.Current.CancellationToken);
-
-        var response = await FileImportTestClient.MarkCompletedAsync(
-            _httpClient,
-            id,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-    }
-
-    [Fact]
-    public async Task GivenValidRequest_WhenMarkImportCompleteRequested_ShouldSucceed()
-    {
-        var id = await FileImportTestClient.GetIdByFileNameAsync(
-            _httpClient,
-            TestFileScenarioConstants.New_Scenario_MarkImportComplete_FileName,
-            TestContext.Current.CancellationToken);
-
-        var response = await FileImportTestClient.MarkCompletedAsync(
-            _httpClient,
-            id,
-            TestContext.Current.CancellationToken);
-
-        response.IsSuccessStatusCode.Should().BeTrue();
-
-        await FileImportTestClient.VerifyFileImportAsync(
-            _httpClient,
-            fileName: TestFileScenarioConstants.New_Scenario_MarkImportComplete_FileName,
-            dto => { FileImportAssertions.ShouldBeCompleted(dto); },
-            TestContext.Current.CancellationToken);
+        if (importStatus == FileImportStatus.Split)
+        {
+            _testFixture.Factory.AmazonSQSMock.Verify(x => x.SendMessageAsync(
+                It.IsAny<SendMessageRequest>(), It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
     }
 
     // FileImports - MarkFailed
