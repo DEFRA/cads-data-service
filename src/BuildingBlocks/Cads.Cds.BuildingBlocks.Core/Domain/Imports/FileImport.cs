@@ -58,27 +58,6 @@ public class FileImport
             totalRowsToProcess,
             rowsFound);
 
-
-    // private FileImport(
-    //    FileImportCreate fileImportCreate)
-    //{
-    //    DestinationTableName = fileImportCreate.DestinationTableName!;
-    //    FileName = StringExtensions.NormalizeToUpper(fileImportCreate.FileName)!;
-    //    TotalRowsToProcess = fileImportCreate.TotalRowsToProcess;
-    //    RowsFound = fileImportCreate.RowsFound;
-    //    GroupKey = fileImportCreate.GroupKey;
-    //    ImportType = fileImportCreate.ImportType;
-    //    BatchDate = fileImportCreate.BatchDate;
-    //    ImportStatus = FileImportStatus.Pending;
-    //    ProcessingStatus = FileProcessingStatus.Pending;
-    //    AddedAt = DateTimeOffset.UtcNow;
-    //    FailedAttempts = 0;
-    //}
-
-    //public static FileImport Create(
-    //    FileImportCreate fileImportCreate)
-    //    => new(fileImportCreate);
-
     public void SetTotalRowsToProcess(long total)
     {
         if (TotalRowsToProcess == total) return;
