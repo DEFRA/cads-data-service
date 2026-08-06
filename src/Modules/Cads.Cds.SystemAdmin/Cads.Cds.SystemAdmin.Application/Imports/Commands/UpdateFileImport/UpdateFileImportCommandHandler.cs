@@ -9,6 +9,7 @@ using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.SystemAdmin.Application.Imports.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using Cads.Cds.SystemAdmin.Application.Messaging.Clients;
+using Cads.Cds.SystemAdmin.Application.Uow;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Options;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.UpdateFileImport;
 
 public class UpdateFileImportCommandHandler(
+    ISystemAdminUnitOfWork uow,
     ISystemAdminFileImportRepository fileImportRepository,
     IMessagePublisher<SystemAdminFifoQueueClient> messagePublisher,
     IOptions<ImportsDeduplication> importsDeduplicationOptions,
@@ -30,9 +32,13 @@ public class UpdateFileImportCommandHandler(
         var transitionToStateSplit = fileImport.ImportStatus != FileImportStatus.Split &&
             command.ImportStatus == FileImportStatus.Split;
 
-        fileImport.SetTotalRowsToProcess(command.TotalRowsToProcess);
-        fileImport.SetRowsFound(command.RowsFound);
-        fileImport.SetImportStatus(command.ImportStatus);
+        await uow.ExecuteInTransactionAsync(_ =>
+        {
+            fileImport.SetTotalRowsToProcess(command.TotalRowsToProcess);
+            fileImport.SetRowsFound(command.RowsFound);
+            fileImport.SetImportStatus(command.ImportStatus);
+            return Task.FromResult(Unit.Value);
+        }, cancellationToken);
 
         if (transitionToStateSplit)
         {

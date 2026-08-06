@@ -7,106 +7,62 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Persistence.Uow;
 public class ManualUnitOfWorkTests
 {
     [Fact]
-    public async Task BeginTransaction_SetsIsInTransaction_AndCreatesTransaction()
+    public async Task ExecuteInTransactionAsync_WhenOperationSucceeds_CommitsAndReturnsResult()
     {
         var dbContext = new FakeWriteDbContext();
         var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
 
-        uow.IsInTransaction.Should().BeFalse();
+        var result = await uow.ExecuteInTransactionAsync(
+            _ => Task.FromResult(42),
+            TestContext.Current.CancellationToken);
 
-        await uow.BeginTransactionAsync(TestContext.Current.CancellationToken);
-
-        uow.IsInTransaction.Should().BeTrue();
-        dbContext.Transaction.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task BeginTransaction_WhenAlreadyInTransaction_Throws()
-    {
-        var dbContext = new FakeWriteDbContext();
-        var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
-
-        await uow.BeginTransactionAsync(TestContext.Current.CancellationToken);
-
-        Func<Task> act = async () => await uow.BeginTransactionAsync(TestContext.Current.CancellationToken);
-
-        await act.Should()
-            .ThrowAsync<InvalidOperationException>()
-            .WithMessage("*already active*");
-    }
-
-    [Fact]
-    public async Task Commit_CommitsTransaction_AndClearsState()
-    {
-        var dbContext = new FakeWriteDbContext();
-        var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
-
-        await uow.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
-        await uow.CommitAsync(TestContext.Current.CancellationToken);
-
-        uow.IsInTransaction.Should().BeFalse();
+        result.Should().Be(42);
 
         dbContext.Transaction!.Committed.Should().BeTrue();
         dbContext.Transaction.RolledBack.Should().BeFalse();
+        dbContext.SaveChangesCalled.Should().BeTrue();
     }
 
     [Fact]
-    public async Task Commit_WithoutTransaction_Throws()
+    public async Task ExecuteInTransactionAsync_WhenOperationSucceeds_InvokesOperationExactlyOnce()
     {
         var dbContext = new FakeWriteDbContext();
         var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
 
-        Func<Task> act = async () => await uow.CommitAsync();
+        var callCount = 0;
+
+        await uow.ExecuteInTransactionAsync(
+            _ =>
+            {
+                callCount++;
+                return Task.FromResult(0);
+            },
+            TestContext.Current.CancellationToken);
+
+        callCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ExecuteInTransactionAsync_WhenOperationThrows_RollsBackAndRethrows()
+    {
+        var dbContext = new FakeWriteDbContext();
+        var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
+
+        Func<Task> act = () => uow.ExecuteInTransactionAsync<int>(
+            _ => throw new InvalidOperationException("boom"),
+            TestContext.Current.CancellationToken);
 
         await act.Should()
             .ThrowAsync<InvalidOperationException>()
-            .WithMessage("*No active transaction*");
-    }
-
-    [Fact]
-    public async Task Rollback_RollsBackTransaction_AndClearsState()
-    {
-        var dbContext = new FakeWriteDbContext();
-        var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
-
-        await uow.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        await uow.RollbackAsync(TestContext.Current.CancellationToken);
-
-        uow.IsInTransaction.Should().BeFalse();
+            .WithMessage("boom");
 
         dbContext.Transaction!.RolledBack.Should().BeTrue();
         dbContext.Transaction.Committed.Should().BeFalse();
+        dbContext.SaveChangesCalled.Should().BeFalse();
     }
 
     [Fact]
-    public async Task Rollback_WithoutTransaction_DoesNothing()
-    {
-        var dbContext = new FakeWriteDbContext();
-        var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
-
-        Func<Task> act = async () => await uow.RollbackAsync();
-
-        await act.Should().NotThrowAsync();
-
-        uow.IsInTransaction.Should().BeFalse();
-        dbContext.Transaction.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task DisposeAsync_DisposesActiveTransaction()
-    {
-        var dbContext = new FakeWriteDbContext();
-        var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
-
-        await uow.BeginTransactionAsync(TestContext.Current.CancellationToken);
-        await uow.DisposeAsync();
-
-        uow.IsInTransaction.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task SaveChanges_DelegatesToDbContext()
+    public async Task SaveChangesAsync_DelegatesToDbContext()
     {
         var dbContext = new FakeWriteDbContext();
         var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
@@ -114,5 +70,16 @@ public class ManualUnitOfWorkTests
         await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         dbContext.SaveChangesCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DisposeAsync_WithoutActiveTransaction_DoesNotThrow()
+    {
+        var dbContext = new FakeWriteDbContext();
+        var uow = new ManualUnitOfWork<FakeWriteDbContext>(dbContext);
+
+        Func<Task> act = async () => await uow.DisposeAsync();
+
+        await act.Should().NotThrowAsync();
     }
 }
