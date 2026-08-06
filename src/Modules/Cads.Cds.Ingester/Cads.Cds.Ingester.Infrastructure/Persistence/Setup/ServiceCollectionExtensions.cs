@@ -1,9 +1,10 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Uow;
+using Cads.Cds.Ingester.Application.Uow;
 using Cads.Cds.Ingester.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.Ingester.Infrastructure.Persistence.Contexts;
+using Cads.Cds.Ingester.Infrastructure.Persistence.Uow;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -40,6 +41,6 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterManualUnitOfWork(this IServiceCollection services)
     {
-        services.AddScoped<IManualUnitOfWork, ManualUnitOfWork<IngesterWriteDbContext>>();
+        services.AddScoped<IIngesterUnitOfWork, IngesterUnitOfWork>();
     }
 }

@@ -4,12 +4,14 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Observers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.StorageBridge.Application.Messaging.Clients;
+using Cads.Cds.StorageBridge.Application.Uow;
 using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Behaviours;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Channels;
+using Cads.Cds.StorageBridge.Testing.Support.Fakes.Uow;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -54,6 +56,9 @@ public class StorageBridgeWebApplicationFactory(
 
         services.AddDbContext<StorageBridgeWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));
+
+        services.RemoveAll<IStorageBridgeUnitOfWork>();
+        services.AddScoped<IStorageBridgeUnitOfWork, FakeStorageBridgeUnitOfWork>();
     }
 
     private static void ConfigurePersistence(IServiceCollection services)

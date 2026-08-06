@@ -1,11 +1,12 @@
+using Cads.Cds.Api.Application.Uow;
 using Cads.Cds.Api.Core.Domain.Repositories;
 using Cads.Cds.Api.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 using Cads.Cds.Api.Infrastructure.Persistence.Repositories;
+using Cads.Cds.Api.Infrastructure.Persistence.Uow;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Uow;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -44,7 +45,7 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterManualUnitOfWork(this IServiceCollection services)
     {
-        services.AddScoped<IManualUnitOfWork, ManualUnitOfWork<ApiWriteDbContext>>();
+        services.AddScoped<IApiUnitOfWork, ApiUnitOfWork>();
     }
 
     private static void RegisterFunctionRepositories(this IServiceCollection services)

@@ -1,4 +1,6 @@
+using Cads.Cds.BuildingBlocks.Application.Uow;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Uow;
@@ -10,38 +12,40 @@ public class ManualUnitOfWork<TDbContext>(TDbContext dbContext) : IManualUnitOfW
 
     private IDbContextTransaction? _transaction;
 
-    public bool IsInTransaction => _transaction != null;
-
-    public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<TResult> ExecuteInTransactionAsync<TResult>(
+        Func<CancellationToken, Task<TResult>> operation,
+        CancellationToken cancellationToken = default)
     {
-        if (_transaction != null)
-            throw new InvalidOperationException("A transaction is already active.");
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
 
-        _transaction = await _dbContext.BeginTransactionAsync(cancellationToken);
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await using var tx = await _dbContext.BeginTransactionAsync(cancellationToken);
+            _transaction = tx;
+
+            try
+            {
+                var result = await operation(cancellationToken);
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                await tx.CommitAsync(cancellationToken);
+
+                return result;
+            }
+            catch
+            {
+                await tx.RollbackAsync(cancellationToken);
+                throw;
+            }
+            finally
+            {
+                _transaction = null;
+            }
+        });
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         => _dbContext.SaveChangesAsync(cancellationToken);
-
-    public async Task CommitAsync(CancellationToken cancellationToken = default)
-    {
-        if (_transaction == null)
-            throw new InvalidOperationException("No active transaction to commit.");
-
-        await _transaction.CommitAsync(cancellationToken);
-        await _transaction.DisposeAsync();
-        _transaction = null;
-    }
-
-    public async Task RollbackAsync(CancellationToken cancellationToken = default)
-    {
-        if (_transaction == null)
-            return;
-
-        await _transaction.RollbackAsync(cancellationToken);
-        await _transaction.DisposeAsync();
-        _transaction = null;
-    }
 
     public async ValueTask DisposeAsync()
     {
