@@ -12,7 +12,7 @@ public sealed class GetFileImportByFileNameQueryHandler(
     public async Task<FileImportDto?> Handle(GetFileImportByFileNameQuery query, CancellationToken cancellationToken)
     {
         var fileName = StringExtensions.NormalizeToUpper(query.FileName)!;
-        var fileImport = await fileImportRepository.GetByFileName(fileName, cancellationToken);
+        var fileImport = await fileImportRepository.GetByFileNameAsync(fileName, cancellationToken);
 
         return fileImport is null
             ? null

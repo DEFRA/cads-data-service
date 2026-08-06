@@ -26,7 +26,7 @@ public class UpdateFileImportCommandHandler(
 {
     public async Task<Unit> Handle(UpdateFileImportCommand command, CancellationToken cancellationToken)
     {
-        var fileImport = await fileImportRepository.GetById(command.Id, cancellationToken)
+        var fileImport = await fileImportRepository.GetByIdAsync(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(FileImport), command.Id);
 
         var transitionToStateSplit = fileImport.ImportStatus != FileImportStatus.Split &&

@@ -36,7 +36,6 @@ public abstract class WebAppFactoryBase<TStart>(
     IDictionary<string, string?>? configOverrides = null,
     bool useFakeAuth = false) : WebApplicationFactory<TStart>
     where TStart : class
-
 {
     public Mock<IAmazonSQS> AmazonSQSMock { get; private set; } = new();
     public Mock<IAmazonS3> AmazonS3Mock { get; private set; } = new();

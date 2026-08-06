@@ -1,17 +1,19 @@
 using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Specimens.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Observers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.StorageBridge.Application.Messaging.Clients;
 using Cads.Cds.StorageBridge.Application.Uow;
-using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Behaviours;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Channels;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Uow;
+using Cads.Cds.StorageBridge.Testing.Support.Seeding;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -70,6 +72,7 @@ public class StorageBridgeWebApplicationFactory(
         var readDb = scope.ServiceProvider.GetRequiredService<StorageBridgeReadDbContext>();
 
         // Seeds
+        TestStorageBridgeDataSeeder.Seed(readDb, FileImportDataFactory.CreateMockData());
 
         readDb.SaveChanges();
 

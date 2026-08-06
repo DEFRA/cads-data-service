@@ -1,10 +1,10 @@
 using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.ApiSurface.Messages.Imports;
 using Cads.Cds.BuildingBlocks.Application.Commands;
+using Cads.Cds.BuildingBlocks.Application.Imports.Services;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Serializers;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
-using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.DTOs;
 using Microsoft.Extensions.Logging;
 
 namespace Cads.Cds.StorageBridge.Application.Messaging.Commands;
@@ -37,7 +37,6 @@ public class ProcessS3ToPostgresCopyMessageCommandHandler(
             var job = new CreateS3CsvImportJobDto
             {
                 FileImportId = messagePayload.FileImportId,
-                SourceKey = messagePayload.ObjectKey,
                 CorrelationId = messagePayload.CorrelationId
             };
 

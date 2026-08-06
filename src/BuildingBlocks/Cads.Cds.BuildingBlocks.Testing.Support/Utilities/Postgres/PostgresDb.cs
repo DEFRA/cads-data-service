@@ -1,4 +1,5 @@
 using Npgsql;
+using System.Data;
 
 namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 
@@ -33,15 +34,10 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 ///        Name = reader.GetString(1)
 ///    }
 /// );
-public sealed class PostgresDb
+public sealed class PostgresDb(string connectionString)
 {
-    private readonly string _connectionString;
-
-    public PostgresDb(string connectionString)
-    {
-        _connectionString = connectionString
+    private readonly string _connectionString = connectionString
             ?? throw new ArgumentNullException(nameof(connectionString));
-    }
 
     private async Task<NpgsqlConnection> CreateOpenConnectionAsync()
     {
@@ -96,6 +92,27 @@ public sealed class PostgresDb
         }
 
         return list;
+    }
+
+    public async Task<DataSet> FillDataSetAsync(
+        string sql,
+        Action<NpgsqlCommand>? configure = null)
+    {
+        await using var conn = await CreateOpenConnectionAsync();
+        await using var cmd = new NpgsqlCommand(sql, conn);
+
+        configure?.Invoke(cmd);
+
+        var dataSet = new DataSet();
+
+        // DataAdapter is synchronous, so wrap in Task.Run
+        await Task.Run(() =>
+        {
+            using var adapter = new NpgsqlDataAdapter(cmd);
+            adapter.Fill(dataSet);
+        });
+
+        return dataSet;
     }
 
     public async Task<T> PollUntilAsync<T>(

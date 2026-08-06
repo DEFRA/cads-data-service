@@ -18,7 +18,7 @@ public sealed class CreateFileImportCommandHandler(
 
         var parsedFileName = CtsmFilenameParser.Parse(command.FileName)!;
 
-        var fileImport = FileImport.Create(new FileImportCreate
+        var fileImport = new FileImport
         {
             FileName = command.FileName,
             DestinationTableName = parsedFileName.GetDestinationTableName(),
@@ -28,9 +28,9 @@ public sealed class CreateFileImportCommandHandler(
             ImportType = parsedFileName.Type,
             BatchDate = DateTimeOffset.ParseExact(parsedFileName.Timestamp, "yyyy-MM-dd-HHmmss", CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal),
-        });
+        };
 
-        await fileImportRepository.Add(fileImport, cancellationToken);
+        await fileImportRepository.AddAsync(fileImport, cancellationToken);
 
         return fileImport;
     }
@@ -39,7 +39,7 @@ public sealed class CreateFileImportCommandHandler(
     {
         var normalisedFileName = StringExtensions.NormalizeToUpper(fileName)!;
 
-        var fileImport = await fileImportRepository.GetByFileName(normalisedFileName, cancellationToken);
+        var fileImport = await fileImportRepository.GetByFileNameAsync(normalisedFileName, cancellationToken);
 
         if (fileImport == null)
             return;

@@ -1,4 +1,4 @@
-using Cads.Cds.StorageBridge.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 using System.Threading.Channels;
 
 namespace Cads.Cds.StorageBridge.Testing.Support.Fakes.Channels;

@@ -29,17 +29,19 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         _transaction = transaction;
     }
 
-    protected virtual string GenerateTempTableSql(ImportDataType importDataType, SchemaName schemaName)
+    protected virtual string GenerateTempTableSql(ImportDataType importDataType, SchemaName schemaName, long fileImportId)
     {
         var tableName = GetTableName(importDataType, schemaName);
         var tempTableName = GetTableName(importDataType, schemaName, isTemp: true);
-        var commandText = $"CREATE TEMP TABLE {tempTableName} (LIKE {tableName} EXCLUDING CONSTRAINTS) ON COMMIT DROP;";
+        var commandText = $"CREATE TEMP TABLE {tempTableName} (LIKE {tableName} INCLUDING DEFAULTS EXCLUDING CONSTRAINTS) ON COMMIT DROP;";
 
         if (schemaName == SchemaName.CtsTransactions)
+        {
             commandText += $"ALTER TABLE {tempTableName} " +
                 "DROP COLUMN trans_id, " +
                 "ALTER COLUMN trans_type SET DEFAULT 'B', " +
-                "ALTER COLUMN fake_data SET DEFAULT '0'";
+                $"ALTER COLUMN cts_file_import_id SET DEFAULT {fileImportId};";
+        }
 
         return commandText;
     }
@@ -78,9 +80,9 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
                $"ON CONFLICT ({key}) DO UPDATE SET {string.Join(", ", columnNames.Select(c => $"{c} = EXCLUDED.{c}"))}";
     }
 
-    public DbCommand CreateTempTableCommand(ImportDataType importDataType, SchemaName schemaName)
+    public DbCommand CreateTempTableCommand(ImportDataType importDataType, SchemaName schemaName, long fileImportId)
     {
-        var sql = GenerateTempTableSql(importDataType, schemaName);
+        var sql = GenerateTempTableSql(importDataType, schemaName, fileImportId);
 
         return new NpgsqlCommand
         {
