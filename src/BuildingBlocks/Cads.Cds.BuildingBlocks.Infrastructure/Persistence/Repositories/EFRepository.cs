@@ -8,7 +8,7 @@ public abstract class EFRepository<TEntity, TDbContext>(TDbContext dbContext)
     where TEntity : class
     where TDbContext : CadsDbContext
 {
-    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
         await DbContext.AddAsync(entity, cancellationToken);
     }
