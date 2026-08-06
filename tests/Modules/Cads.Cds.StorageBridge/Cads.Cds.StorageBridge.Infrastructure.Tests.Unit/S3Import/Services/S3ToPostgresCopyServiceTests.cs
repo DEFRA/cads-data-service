@@ -1,12 +1,12 @@
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Enums;
-using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
@@ -45,7 +45,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var fileImport = FileImport.Create("", InvalidTestFileName1, 100, 100);
+        var fileImport = new FileImport { FileName = InvalidTestFileName1, TotalRowsToProcess = 100, RowsFound = 100 };
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
@@ -63,7 +63,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var fileImport = FileImport.Create("", InvalidTestFileName1, 100, 100);
+        var fileImport = new FileImport { FileName = InvalidTestFileName1, TotalRowsToProcess = 100, RowsFound = 100 };
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
@@ -96,7 +96,7 @@ public class S3ToPostgresCopyServiceTests
     public async Task ExecuteAsync_ShouldReturnZero_WhenNoKeysFound()
     {
         var service = CreateService();
-        var fileImport = FileImport.Create("", ValidTestFileName1, 100, 100);
+        var fileImport = new FileImport { FileName = ValidTestFileName1, TotalRowsToProcess = 100, RowsFound = 100 };
 
         _storageService.Setup(x => x.ListKeysAsync(ValidTestFileName1, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);

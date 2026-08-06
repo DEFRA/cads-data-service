@@ -1,7 +1,7 @@
 using Amazon.S3.Model;
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application.Schema;
-using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
@@ -12,8 +12,7 @@ using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Utilities;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
-using Cads.Cds.ApiSurface.Dtos.Imports;
-
+using DocumentFormat.OpenXml.Wordprocessing;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -41,33 +40,7 @@ public class S3CsvImportEndpointTests
 
         _postgresDb = new PostgresDb(apiContainerFixture.PostgresFixture.HostConnectionString);
 
-        var insertQuery = @"INSERT INTO cads.cts_file_imports(
-	        destination_table_name
-	        , file_name
-	        , total_rows_to_process
-	        , added_at
-	        , import_status_id
-	        , processing_status_id
-	        , rows_found
-	        , import_start_at
-	        , import_end_at)
-	        VALUES
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0001_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 3, 1, 0, NULL, NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0002_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 2, 1, 0, NOW(), NULL),
-		        ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0003_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 3, 1, 0, NOW(), NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0004_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 4, 1, 0, NOW(), NOW()),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0005_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 5, 1, 0, NOW(), NOW()),
-		        ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0007_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 1, 1, 0, NULL, NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0008_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 2, 1, 0, NOW(), NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0009_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 3, 1, 0, NOW(), NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0010_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 2, 1, 0, NOW(), NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0011_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 2, 1, 0, NOW(), NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0012_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 1, 1, 0, NULL, NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0013_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 2, 1, 0, NOW(), NULL),
-                ('dtn', 'CTSM_CADS_PROD_BULK_ABC_0014_CT_LOCATIONS_2026-01-01-012345', 100, NOW(), 2, 1, 0, NOW(), NULL)
-        ON CONFLICT DO NOTHING;";
-
-        _postgresDb.ExecuteNonQueryAsync(insertQuery).ConfigureAwait(false);
+        AddFileImportStatusRecordAsync(_testFileName, FileImportStatus.Split).ConfigureAwait(false);
     }
 
     [Fact]
@@ -222,6 +195,39 @@ public class S3CsvImportEndpointTests
         }
 
         foundLogEntry.Should().BeTrue($"Expected log entry within {ProcessingTimeCircuitBreakerSeconds} seconds but none was found.");
+    }
+
+    private async Task<long> AddFileImportStatusRecordAsync(string importFileName, FileImportStatus fileImportStatus)
+    {
+        var insertQuery = @"INSERT INTO cads.cts_file_imports(
+        destination_table_name
+        , file_name
+        , total_rows_to_process
+        , added_at
+        , import_status_id
+        , processing_status_id
+        , rows_found
+        , import_start_at
+        , import_end_at
+        , batch_date
+        , group_key
+        , import_type
+        , failed_attempts
+        , last_error_reason)
+         VALUES
+             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), 'ABC', 'BULK', 0, NULL)
+        ON CONFLICT DO NOTHING
+        RETURNING cts_file_import_id;";
+
+        var testFileImportId = await _postgresDb.ExecuteScalarAsync<long>(
+            insertQuery,
+            cmd =>
+            {
+                cmd.Parameters.AddWithValue("fileName", importFileName);
+                cmd.Parameters.AddWithValue("fileImportStatus", (int)fileImportStatus);
+            });
+
+        return testFileImportId;
     }
 
     private async Task<IEnumerable<FileImport>> GetFileImports()

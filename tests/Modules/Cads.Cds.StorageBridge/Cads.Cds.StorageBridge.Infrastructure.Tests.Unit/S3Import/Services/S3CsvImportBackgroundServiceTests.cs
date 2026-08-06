@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using Microsoft.EntityFrameworkCore;
@@ -112,7 +112,7 @@ public class S3CsvImportBackgroundServiceTests
             _provider.Setup(x => x.GetService(typeof(IStorageBridgeFileImportRepository)))
                 .Returns(_fileImportRepository.Object);
             _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(FileImport.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<long>()));
+                .ReturnsAsync(new FileImport());
 
             Logger.Setup(l => l.IsEnabled(LogLevel.Error))
                 .Returns(true);

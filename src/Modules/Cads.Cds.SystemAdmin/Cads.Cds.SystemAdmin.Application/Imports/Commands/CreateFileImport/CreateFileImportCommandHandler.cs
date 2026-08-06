@@ -18,7 +18,7 @@ public sealed class CreateFileImportCommandHandler(
 
         var parsedFileName = CtsmFilenameParser.Parse(command.FileName)!;
 
-        var fileImport = FileImport.Create(new FileImportCreate
+        var fileImport = new FileImport
         {
             FileName = command.FileName,
             DestinationTableName = parsedFileName.GetDestinationTableName(),
@@ -28,7 +28,7 @@ public sealed class CreateFileImportCommandHandler(
             ImportType = parsedFileName.Type,
             BatchDate = DateTimeOffset.ParseExact(parsedFileName.Timestamp, "yyyy-MM-dd-HHmmss", CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal),
-        });
+        };
 
         await fileImportRepository.AddAsync(fileImport, cancellationToken);
 

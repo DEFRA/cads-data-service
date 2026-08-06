@@ -1,4 +1,4 @@
-namespace Cads.Cds.StorageBridge.Core.DTOs;
+namespace Cads.Cds.BuildingBlocks.Core.DTOs;
 
 public abstract class CreateS3ImportJobDto
 {
