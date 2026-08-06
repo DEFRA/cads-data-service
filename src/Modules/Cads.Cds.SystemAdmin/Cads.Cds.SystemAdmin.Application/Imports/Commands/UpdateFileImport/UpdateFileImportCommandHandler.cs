@@ -10,7 +10,7 @@ using MediatR;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.UpdateFileImport;
 
 public class UpdateFileImportCommandHandler(
-    ISystemAdminFileImportRepository fileImportRepository, 
+    ISystemAdminFileImportRepository fileImportRepository,
     IS3ImportJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService)
     : ICommandHandler<UpdateFileImportCommand, Unit>
 {
