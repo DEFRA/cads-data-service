@@ -1,12 +1,14 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
+using Cads.Cds.BuildingBlocks.Application.Imports.Services;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
-using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.DTOs;
 
 namespace Cads.Cds.StorageBridge.Application.S3Import.Commands;
 
-public class S3CsvImportCommandHandler(IS3ImportJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService, IStorageBridgeFileImportRepository fileImportRepository)
+public class S3CsvImportCommandHandler(
+    IStorageBridgeFileImportRepository fileImportRepository, 
+    IS3ImportJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService)
     : ICommandHandler<S3CsvImportCommand, Guid>
 {
     public async Task<Guid> Handle(S3CsvImportCommand command, CancellationToken cancellationToken)

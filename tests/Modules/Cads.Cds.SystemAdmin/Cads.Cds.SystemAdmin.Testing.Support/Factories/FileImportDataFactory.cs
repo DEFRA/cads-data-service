@@ -64,7 +64,7 @@ public static class FileImportDataFactory
 
     private static FileImport Build(string fileName, Action<FileImport>? configure = null)
     {
-        var fi = FileImport.Create(new FileImportCreate
+        var fi = new FileImport
         {
             DestinationTableName = "dtn",
             FileName = fileName,
@@ -73,7 +73,7 @@ public static class FileImportDataFactory
             GroupKey = "gk",
             ImportType = "BULK",
             BatchDate = DateTimeOffset.Parse("2026-01-01T01:23:45Z")
-        });
+        };
         configure?.Invoke(fi);
         return fi;
     }

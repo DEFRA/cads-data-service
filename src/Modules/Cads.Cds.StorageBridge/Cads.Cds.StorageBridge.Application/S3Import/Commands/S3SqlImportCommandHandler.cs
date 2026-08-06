@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Application.Imports.Services;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 
 namespace Cads.Cds.StorageBridge.Application.S3Import.Commands;
 
