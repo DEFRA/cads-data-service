@@ -12,7 +12,7 @@ public sealed class MarkCompletedCommandHandler(
 {
     public async Task<Unit> Handle(MarkCompletedCommand command, CancellationToken cancellationToken)
     {
-        var fileImport = await fileImportRepository.GetById(command.Id, cancellationToken)
+        var fileImport = await fileImportRepository.GetByIdAsync(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(FileImport), command.Id);
 
         fileImport.MarkCompleted();

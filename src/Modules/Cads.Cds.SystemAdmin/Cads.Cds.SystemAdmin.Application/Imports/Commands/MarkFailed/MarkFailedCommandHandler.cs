@@ -12,7 +12,7 @@ public sealed class MarkFailedCommandHandler(
 {
     public async Task<Unit> Handle(MarkFailedCommand command, CancellationToken cancellationToken)
     {
-        var fileImport = await fileImportRepository.GetById(command.Id, cancellationToken)
+        var fileImport = await fileImportRepository.GetByIdAsync(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(FileImport), command.Id);
 
         fileImport.MarkFailed(command.Reason);
