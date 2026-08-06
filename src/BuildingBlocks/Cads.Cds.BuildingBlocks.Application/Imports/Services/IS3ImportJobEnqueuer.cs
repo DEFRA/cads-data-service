@@ -1,6 +1,6 @@
-using Cads.Cds.StorageBridge.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 
-namespace Cads.Cds.StorageBridge.Application.S3Import.Services;
+namespace Cads.Cds.BuildingBlocks.Application.Imports.Services;
 
 public interface IS3ImportJobEnqueuer<T>
     where T : CreateS3ImportJobDto
