@@ -1,8 +1,8 @@
 using Cads.Cds.ApiSurface.Dtos.Imports;
+using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
-using Cads.Cds.SystemAdmin.Testing.Support.Factories;
 using FluentAssertions;
 using System.Net;
 
@@ -42,7 +42,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var response = await FileImportTestClient.GetByFileNameAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_Pending_FileName,
+            fileName: TestFileScenarioConstants.New_Scenario_Pending_FileName,
             TestContext.Current.CancellationToken);
 
         response.IsSuccessStatusCode.Should().BeTrue();
@@ -52,7 +52,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             TestContext.Current.CancellationToken);
 
         dto.Should().NotBeNull();
-        dto.FileName.Should().Be(FileImportDataFactory.New_Scenario_Pending_FileName);
+        dto.FileName.Should().Be(TestFileScenarioConstants.New_Scenario_Pending_FileName);
 
         FileImportAssertions.ShouldBePending(dto);
     }
@@ -75,7 +75,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var request = new CreateFileImportRequest
         {
-            FileName = FileImportDataFactory.New_Scenario_Complete_FileName,
+            FileName = TestFileScenarioConstants.New_Scenario_Complete_FileName,
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -100,7 +100,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var request = new CreateFileImportRequest
         {
-            FileName = FileImportDataFactory.New_Scenario_Create_Bulk_FileName,
+            FileName = TestFileScenarioConstants.New_Scenario_Create_Bulk_FileName,
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -127,7 +127,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var request = new CreateFileImportRequest
         {
-            FileName = FileImportDataFactory.New_Scenario_Create_Delta_FileName,
+            FileName = TestFileScenarioConstants.New_Scenario_Create_Delta_FileName,
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -153,7 +153,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var request = new CreateFileImportRequest
         {
-            FileName = FileImportDataFactory.New_Scenario_Create_Invalid_FileName,
+            FileName = TestFileScenarioConstants.New_Scenario_Create_Invalid_FileName,
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -204,7 +204,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Complete_FileName,
+            TestFileScenarioConstants.New_Scenario_Complete_FileName,
             TestContext.Current.CancellationToken);
 
         var request = new UpdateFileImportRequest
@@ -228,7 +228,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Transferred_FileName,
+            TestFileScenarioConstants.New_Scenario_Transferred_FileName,
             TestContext.Current.CancellationToken);
 
         var request = new UpdateFileImportRequest
@@ -248,7 +248,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_Transferred_FileName,
+            fileName: TestFileScenarioConstants.New_Scenario_Transferred_FileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeTransferred(dto);
@@ -287,7 +287,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Complete_FileName,
+            TestFileScenarioConstants.New_Scenario_Complete_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkTransferredAsync(
@@ -303,7 +303,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_MarkTransferred_FileName,
+            TestFileScenarioConstants.New_Scenario_MarkTransferred_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkTransferredAsync(
@@ -315,7 +315,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_MarkTransferred_FileName,
+            fileName: TestFileScenarioConstants.New_Scenario_MarkTransferred_FileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeTransferred(dto);
@@ -352,7 +352,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Complete_FileName,
+            TestFileScenarioConstants.New_Scenario_Complete_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkSplitAsync(
@@ -368,7 +368,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_MarkSplit_FileName,
+            TestFileScenarioConstants.New_Scenario_MarkSplit_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkSplitAsync(
@@ -380,7 +380,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_MarkSplit_FileName,
+            fileName: TestFileScenarioConstants.New_Scenario_MarkSplit_FileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeSplit(dto);
@@ -417,7 +417,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Pending_FileName,
+            TestFileScenarioConstants.New_Scenario_Pending_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkCompletedAsync(
@@ -433,7 +433,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_MarkImportComplete_FileName,
+            TestFileScenarioConstants.New_Scenario_MarkImportComplete_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkCompletedAsync(
@@ -445,7 +445,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_MarkImportComplete_FileName,
+            fileName: TestFileScenarioConstants.New_Scenario_MarkImportComplete_FileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeCompleted(dto);
@@ -484,7 +484,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Complete_FileName,
+            TestFileScenarioConstants.New_Scenario_Complete_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkFailedAsync(
@@ -501,7 +501,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_MarkImportFailed_FileName,
+            TestFileScenarioConstants.New_Scenario_MarkImportFailed_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.MarkFailedAsync(
@@ -514,7 +514,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_MarkImportFailed_FileName,
+            fileName: TestFileScenarioConstants.New_Scenario_MarkImportFailed_FileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeFailed(dto);
@@ -551,7 +551,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
-            FileImportDataFactory.New_Scenario_Reset_FileName,
+            TestFileScenarioConstants.New_Scenario_Reset_FileName,
             TestContext.Current.CancellationToken);
 
         var response = await FileImportTestClient.ResetAsync(
@@ -563,7 +563,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: FileImportDataFactory.New_Scenario_Reset_FileName,
+            fileName: TestFileScenarioConstants.New_Scenario_Reset_FileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeReset(dto);

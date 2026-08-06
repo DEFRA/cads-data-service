@@ -1,6 +1,11 @@
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.DTOs;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -17,7 +22,7 @@ public class S3CsvImportBackgroundServiceTests
         var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
         var service = ctx.CreateService();
 
-        var job = new CreateS3CsvImportJobDto { JobId = Guid.NewGuid() };
+        var job = new CreateS3CsvImportJobDto { JobId = Guid.NewGuid(), FileImportId = 1 };
 
         await ctx.Channel.Writer.WriteAsync(job, TestContext.Current.CancellationToken);
         ctx.Channel.Writer.Complete();
@@ -38,7 +43,7 @@ public class S3CsvImportBackgroundServiceTests
 
         var service = ctx.CreateService();
 
-        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvImportJobDto(), TestContext.Current.CancellationToken);
+        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvImportJobDto { JobId = Guid.NewGuid(), FileImportId = 1 }, TestContext.Current.CancellationToken);
         ctx.Channel.Writer.Complete();
 
         await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service);
@@ -59,9 +64,9 @@ public class S3CsvImportBackgroundServiceTests
         var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
         var service = ctx.CreateService();
 
-        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvImportJobDto(), TestContext.Current.CancellationToken);
-        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvImportJobDto(), TestContext.Current.CancellationToken);
-        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvImportJobDto(), TestContext.Current.CancellationToken);
+        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvImportJobDto { JobId = Guid.NewGuid(), FileImportId = 1 }, TestContext.Current.CancellationToken);
+        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvImportJobDto { JobId = Guid.NewGuid(), FileImportId = 2 }, TestContext.Current.CancellationToken);
+        await ctx.Channel.Writer.WriteAsync(new CreateS3CsvImportJobDto { JobId = Guid.NewGuid(), FileImportId = 3 }, TestContext.Current.CancellationToken);
         ctx.Channel.Writer.Complete();
 
         await service.StartAsync(CancellationToken.None);
@@ -78,15 +83,41 @@ public class S3CsvImportBackgroundServiceTests
 
     public class S3CsvBulkLoadBackgroundServiceTestContext
     {
+        private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
+        private readonly Mock<IServiceScope> _scope = new();
+        private readonly Mock<IServiceProvider> _provider = new();
+        private readonly Mock<IStorageBridgeFileImportRepository> _fileImportRepository = new();
+
+        // DbContext is not exercised in unit tests, but is referenced
+        private readonly StorageBridgeWriteDbContext _dbContext = new(new DbContextOptions<StorageBridgeWriteDbContext>());
+
         public Mock<ILogger<S3CsvImportBackgroundService>> Logger { get; } = new();
         public Mock<IS3ToPostgresCopyService> CopyService { get; } = new();
 
         public Channel<CreateS3CsvImportJobDto> Channel { get; } =
             System.Threading.Channels.Channel.CreateUnbounded<CreateS3CsvImportJobDto>();
 
+        // -----------------------------------------------------------------------
+        // Helpers
+        // -----------------------------------------------------------------------
+
         public S3CsvImportBackgroundService CreateService()
         {
-            return new S3CsvImportBackgroundService(Channel, Logger.Object, CopyService.Object);
+            _scopeFactory.Setup(x => x.CreateScope())
+                .Returns(_scope.Object);
+            _scope.Setup(x => x.ServiceProvider)
+                .Returns(_provider.Object);
+            _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
+                .Returns(_dbContext);
+            _provider.Setup(x => x.GetService(typeof(IStorageBridgeFileImportRepository)))
+                .Returns(_fileImportRepository.Object);
+            _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new FileImport());
+
+            Logger.Setup(l => l.IsEnabled(LogLevel.Error))
+                .Returns(true);
+
+            return new S3CsvImportBackgroundService(Channel, _scopeFactory.Object, Logger.Object, CopyService.Object);
         }
 
         public static Task InvokeProcessJobAsync(
