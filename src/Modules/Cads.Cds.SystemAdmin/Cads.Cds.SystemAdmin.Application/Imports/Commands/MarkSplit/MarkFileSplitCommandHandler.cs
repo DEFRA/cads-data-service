@@ -12,7 +12,7 @@ public sealed class MarkFileSplitCommandHandler(
 {
     public async Task<Unit> Handle(MarkFileSplitCommand command, CancellationToken cancellationToken)
     {
-        var fileImport = await fileImportRepository.GetById(command.Id, cancellationToken)
+        var fileImport = await fileImportRepository.GetByIdAsync(command.Id, cancellationToken)
                          ?? throw new NotFoundException(nameof(FileImport), command.Id);
 
         fileImport.MarkSplit();

@@ -20,6 +20,7 @@ public class S3ImportController(IRequestExecutor executor) : ControllerBase
     {
         var command = new S3CsvImportCommand
         {
+            FileImportId = request.FileImportId,
             SourceKey = request.SourceKey,
             Delimiter = request.Delimiter,
         };

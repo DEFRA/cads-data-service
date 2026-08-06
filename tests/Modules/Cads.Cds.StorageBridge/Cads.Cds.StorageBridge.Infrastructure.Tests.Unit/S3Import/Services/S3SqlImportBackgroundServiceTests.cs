@@ -1,5 +1,5 @@
+using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.DTOs;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -86,6 +86,9 @@ public class S3SqlImportBackgroundServiceTests
 
         public S3SqlImportBackgroundService CreateService()
         {
+            Logger.Setup(l => l.IsEnabled(LogLevel.Error))
+                .Returns(true);
+
             return new S3SqlImportBackgroundService(Channel, Logger.Object, CopyService.Object);
         }
 

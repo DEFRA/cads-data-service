@@ -8,12 +8,12 @@ public abstract class EFRepository<TEntity, TDbContext>(TDbContext dbContext)
     where TEntity : class
     where TDbContext : CadsDbContext
 {
-    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
+    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         await DbContext.AddAsync(entity, cancellationToken);
     }
 
-    public Task Remove(TEntity entity)
+    public virtual Task Remove(TEntity entity)
     {
         DbContext.Remove(entity);
         return Task.CompletedTask;
