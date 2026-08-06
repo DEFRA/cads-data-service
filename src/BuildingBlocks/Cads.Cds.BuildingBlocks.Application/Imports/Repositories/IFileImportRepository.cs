@@ -4,7 +4,7 @@ namespace Cads.Cds.BuildingBlocks.Application.Imports.Repositories;
 
 public interface IFileImportRepository
 {
-    Task<FileImport?> GetById(long id, CancellationToken cancellationToken);
-    Task<FileImport?> GetByFileName(string fileName, CancellationToken cancellationToken);
-    Task Add(FileImport entity, CancellationToken cancellationToken);
+    Task<FileImport?> GetByIdAsync(long id, CancellationToken cancellationToken);
+    Task<FileImport?> GetByFileNameAsync(string fileName, CancellationToken cancellationToken);
+    Task AddAsync(FileImport entity, CancellationToken cancellationToken);
 }
