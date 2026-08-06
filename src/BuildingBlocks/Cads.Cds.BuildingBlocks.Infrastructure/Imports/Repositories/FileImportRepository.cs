@@ -11,9 +11,9 @@ public abstract class FileImportRepository<TReadContext, TWriteContext>(TReadCon
     where TReadContext : CadsDbContext
     where TWriteContext : CadsDbContext
 {
-    public async Task<FileImport?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<FileImport?> GetByIdAsync(long id, CancellationToken cancellationToken)
         => await Set().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task<FileImport?> GetByFileNameAsync(string fileName, CancellationToken cancellationToken = default)
+    public async Task<FileImport?> GetByFileNameAsync(string fileName, CancellationToken cancellationToken)
         => await Query().FirstOrDefaultAsync(x => x.FileName == fileName, cancellationToken);
 }

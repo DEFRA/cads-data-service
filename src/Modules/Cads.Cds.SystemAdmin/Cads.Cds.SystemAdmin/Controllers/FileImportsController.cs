@@ -2,10 +2,7 @@ using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkCompleted;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkFailed;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkSplit;
-using Cads.Cds.SystemAdmin.Application.Imports.Commands.MarkTransferred;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.ResetFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Commands.UpdateFileImport;
 using Cads.Cds.SystemAdmin.Application.Imports.Queries.GetFileImportByFileName;
@@ -105,72 +102,6 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
             request.ImportStatus ?? FileImportStatus.Pending);
 
         await executor.ExecuteCommand(command, cancellationToken);
-
-        return NoContent();
-    }
-
-    /// <summary>
-    /// Marks the import workflow as transferred.
-    /// Used when the file has been transferred and decrypted into S3.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpPost("{id:long}/transferred")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkTransferred(long id, CancellationToken cancellationToken)
-    {
-        await executor.ExecuteCommand(new MarkFileTransferredCommand(id), cancellationToken);
-
-        return NoContent();
-    }
-
-    /// <summary>
-    /// Marks the import workflow as split.
-    /// Used when the file has been split into chunks in the internal S3 bucket.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpPost("{id:long}/split")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkSplit(long id, CancellationToken cancellationToken)
-    {
-        await executor.ExecuteCommand(new MarkFileSplitCommand(id), cancellationToken);
-
-        return NoContent();
-    }
-
-    /// <summary>
-    /// Marks the import workflow as complete.
-    /// Used after a file (chunks) is successfully loaded into S3.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [HttpPost("{id:long}/completed")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> MarkCompleted(long id, CancellationToken cancellationToken)
-    {
-        await executor.ExecuteCommand(new MarkCompletedCommand(id), cancellationToken);
 
         return NoContent();
     }
