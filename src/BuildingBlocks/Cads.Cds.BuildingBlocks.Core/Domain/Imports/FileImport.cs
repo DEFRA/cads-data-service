@@ -27,9 +27,9 @@ public class FileImport
     public string? ImportType { get; set; }
     public DateTimeOffset? BatchDate { get; set; }
 
-    public FileImport() 
-    { 
-    
+    public FileImport()
+    {
+
     }
 
     private FileImport(
@@ -58,8 +58,8 @@ public class FileImport
             totalRowsToProcess,
             rowsFound);
 
-   
-   // private FileImport(
+
+    // private FileImport(
     //    FileImportCreate fileImportCreate)
     //{
     //    DestinationTableName = fileImportCreate.DestinationTableName!;

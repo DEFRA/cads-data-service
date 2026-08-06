@@ -7,7 +7,7 @@ using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 namespace Cads.Cds.StorageBridge.Application.S3Import.Commands;
 
 public class S3CsvImportCommandHandler(
-    IStorageBridgeFileImportRepository fileImportRepository, 
+    IStorageBridgeFileImportRepository fileImportRepository,
     IS3ImportJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService)
     : ICommandHandler<S3CsvImportCommand, Guid>
 {
