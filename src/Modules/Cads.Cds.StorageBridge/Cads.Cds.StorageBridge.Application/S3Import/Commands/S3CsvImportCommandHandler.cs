@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
 using Cads.Cds.BuildingBlocks.Application.Imports.Services;
+using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
@@ -24,12 +25,8 @@ public class S3CsvImportCommandHandler(
                 throw new ArgumentException("FileImport SourceKey is required.", nameof(command));
             }
 
-            fileImport = await fileImportRepository.GetByFileNameAsync(command.SourceKey, cancellationToken);
-
-            if (fileImport == null)
-            {
-                throw new InvalidOperationException($"FileImport with SourceKey {command.SourceKey} not found.");
-            }
+            fileImport = await fileImportRepository.GetByFileNameAsync(command.SourceKey, cancellationToken)
+                ?? throw new InvalidOperationException($"FileImport with SourceKey {command.SourceKey} not found.");
 
             fileImportId = fileImport.Id;
         }
@@ -37,7 +34,8 @@ public class S3CsvImportCommandHandler(
         var job = new CreateS3CsvImportJobDto
         {
             FileImportId = fileImportId.GetValueOrDefault(),
-            Delimiter = command.Delimiter
+            Delimiter = command.Delimiter,
+            CorrelationId = CorrelationIdContext.Value
         };
 
         return await s3ImportEnqueueService.EnqueueAsync(job, cancellationToken);
