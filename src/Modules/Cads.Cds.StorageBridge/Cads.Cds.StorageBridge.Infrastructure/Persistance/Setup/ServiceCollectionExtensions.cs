@@ -1,11 +1,12 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Uow;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
+using Cads.Cds.StorageBridge.Application.Uow;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Behaviours;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Repositories;
+using Cads.Cds.StorageBridge.Infrastructure.Persistance.Uow;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -44,7 +45,7 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterManualUnitOfWork(this IServiceCollection services)
     {
-        services.AddScoped<IManualUnitOfWork, ManualUnitOfWork<StorageBridgeWriteDbContext>>();
+        services.AddScoped<IStorageBridgeUnitOfWork, StorageBridgeUnitOfWork>();
     }
 
     private static void RegisterRepositories(this IServiceCollection services)

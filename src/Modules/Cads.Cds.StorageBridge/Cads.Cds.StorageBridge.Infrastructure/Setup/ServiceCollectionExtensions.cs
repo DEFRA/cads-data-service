@@ -1,3 +1,4 @@
+using Cads.Cds.StorageBridge.Infrastructure.Messaging.Setup;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Setup;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Setup;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Setup;
@@ -16,6 +17,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddStorageBridgeInfrastructureLayer(this IServiceCollection services, IConfiguration config)
     {
         services.ConfigureStorageBridgePersistence();
+
+        services.AddStorageBridgeMessaging(config);
 
         services.AddStorageBridgeStorage(config);
 
