@@ -26,6 +26,11 @@ public static class ParsedFileNameExtensions
 
     public static string GetGroupKey(this CtsmFilename parsedFileName)
     {
-        return $"CTSM_{parsedFileName.App}_{parsedFileName.Env}_{parsedFileName.Type}_{parsedFileName.BatchId}";
+        return $"CTSM_" +
+            $"{parsedFileName.App}_" +
+            $"{parsedFileName.Env}_" +
+            $"{parsedFileName.Type}_" +
+            $"{parsedFileName.BatchId}_" +
+            $"{parsedFileName.TableName}";
     }
 }
