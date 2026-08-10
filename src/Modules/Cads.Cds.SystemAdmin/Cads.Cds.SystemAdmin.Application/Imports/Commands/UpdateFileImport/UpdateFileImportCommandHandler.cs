@@ -72,7 +72,8 @@ public class UpdateFileImportCommandHandler(
             {
                 Id = DeterministicGuid.From(messageDeduplicationId),
                 FileImportId = fileImportId,
-                ObjectKey = objectKey
+                ObjectKey = objectKey,
+                CorrelationId = correlationId
             };
 
             var metadata = new FifoMessageMetadata(
