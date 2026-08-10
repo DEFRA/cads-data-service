@@ -16,7 +16,8 @@ public static class CdpLogging
             .ReadFrom.Configuration(ctx.Configuration)
             .Enrich.FromLogContext()
             .Enrich.With(new HttpContextEnricher(new HttpContextAccessor()))
-            .Enrich.WithProperty("service.version", serviceVersion);
+            .Enrich.WithProperty("service.version", serviceVersion)
+            .Enrich.With<BuildingBlocks.Core.Correlation.CorrelationIdEnricher>();
 
         if (!string.IsNullOrWhiteSpace(traceIdHeader))
         {
