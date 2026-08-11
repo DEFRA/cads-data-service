@@ -1,4 +1,5 @@
 using Cads.Cds.ApiSurface.Dtos.Imports;
+using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
@@ -23,10 +24,7 @@ public class S3CsvImportBackgroundService(
     {
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-        using (logger.BeginScope(new Dictionary<string, object?>
-        {
-            ["CorrelationId"] = request.CorrelationId
-        }))
+        using (CorrelationScope.Begin(request.CorrelationId))
         {
             try
             {
