@@ -23,32 +23,26 @@ public class ProcessS3ToPostgresCopyMessageCommandHandler(
 
         ArgumentNullException.ThrowIfNull(message);
 
-        using (logger.BeginScope(new Dictionary<string, object?>
-        {
-            ["CorrelationId"] = message.CorrelationId
-        }))
-        {
-            var messagePayload = _serializer.Deserialize(message)
+        var messagePayload = _serializer.Deserialize(message)
                 ?? throw new NonRetryableException($"Deserialisation failed or the message payload was null for " +
                 $"messageType: {typeof(S3ToPostgresCopyMessage).Name}," +
                 $"messageId: {message.MessageId}," +
                 $"correlationId: {message.CorrelationId}");
 
-            var job = new CreateS3CsvImportJobDto
-            {
-                FileImportId = messagePayload.FileImportId,
-                CorrelationId = messagePayload.CorrelationId
-            };
+        var job = new CreateS3CsvImportJobDto
+        {
+            FileImportId = messagePayload.FileImportId,
+            CorrelationId = messagePayload.CorrelationId
+        };
 
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation("Enqueueing CreateS3SqlImportJob with FileImportId={FileImportId}, ObjectKey={ObjectKey}",
-                    messagePayload.FileImportId, messagePayload.ObjectKey);
-            }
-
-            await s3ImportEnqueueService.EnqueueAsync(job, cancellationToken);
-
-            return messagePayload;
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Enqueueing CreateS3SqlImportJob with FileImportId={FileImportId}, ObjectKey={ObjectKey}",
+                messagePayload.FileImportId, messagePayload.ObjectKey);
         }
+
+        await s3ImportEnqueueService.EnqueueAsync(job, cancellationToken);
+
+        return messagePayload;
     }
 }
