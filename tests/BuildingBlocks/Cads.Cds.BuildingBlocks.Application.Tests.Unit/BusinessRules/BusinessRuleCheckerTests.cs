@@ -48,4 +48,28 @@ public class BusinessRuleCheckerTests
         // Assert
         act.Should().Throw<BusinessRuleValidationException>().WithMessage("Broken Rule 1");
     }
+
+    [Fact]
+    public void ShouldIncludeBrokenRuleTypeAndMessageInToString()
+    {
+        // Arrange
+        var validRule = new StubBusinessRule(isBroken: false, "Valid Rule");
+        var brokenRule1 = new StubBusinessRule(isBroken: true, "Broken Rule 1");
+        var brokenRule2 = new StubBusinessRule(isBroken: true, "Broken Rule 2");
+
+        // Act
+        Action act = () => BusinessRuleChecker.CheckRule(validRule, brokenRule1, brokenRule2);
+
+        // Assert
+        var exception = act.Should().Throw<BusinessRuleValidationException>().Which;
+
+        exception.ToString().Should().Be($"{typeof(StubBusinessRule).FullName}: Broken Rule 1");
+    }
+
+    private sealed class StubBusinessRule(bool isBroken, string message) : IBusinessRule
+    {
+        public string Message { get; } = message;
+
+        public bool IsBroken() => isBroken;
+    }
 }
