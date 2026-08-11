@@ -61,9 +61,9 @@ public class UpdateFileImportCommandHandler(
             fileImportId.ToString(),
             oracleEnvironment);
 
+        using (CorrelationScope.Begin(correlationId))
         using (logger.BeginScope(new Dictionary<string, object?>
         {
-            ["CorrelationId"] = correlationId,
             ["GroupId"] = messageGroupId,
             ["DeduplicationId"] = messageDeduplicationId
         }))
