@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Microsoft.Extensions.Hosting;
@@ -34,10 +35,7 @@ public abstract class S3ImportBackgroundService<T>(
         SemaphoreSlim semaphore,
         CancellationToken cancellationToken)
     {
-        using (logger.BeginScope(new Dictionary<string, object?>
-        {
-            ["CorrelationId"] = request.CorrelationId
-        }))
+        using (CorrelationScope.Begin(request.CorrelationId))
         {
             try
             {
