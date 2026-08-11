@@ -29,60 +29,54 @@ public class S3SqlScriptExecutorService(
     [ExcludeFromCodeCoverage]
     public async Task<int> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
     {
-        using (logger.BeginScope(new Dictionary<string, object?>
+        if (string.IsNullOrWhiteSpace(job.SourceKey))
         {
-            ["CorrelationId"] = job.CorrelationId
-        }))
-        {
-            if (string.IsNullOrWhiteSpace(job.SourceKey))
-            {
-                throw new ArgumentException("SourceKey must not be empty.", nameof(job));
-            }
-
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation("Starting SQL script execution for prefix {SourceKey}", job.SourceKey);
-            }
-
-            await using var scope = serviceScopeFactory.CreateAsyncScope();
-
-            _dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-            _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
-            _checksumService = scope.ServiceProvider.GetRequiredService<IFileChecksumService>();
-            _historyRepository = scope.ServiceProvider.GetRequiredService<IDataSeedIngestionHistoryRepository>();
-
-            var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken);
-            var keyList = keys.ToList();
-
-            if (keyList.Count == 0)
-            {
-                if (logger.IsEnabled(LogLevel.Warning))
-                {
-                    logger.LogWarning("No SQL script files found under prefix {SourceKey}", job.SourceKey);
-                }
-                return 0;
-            }
-
-            var successCount = 0;
-            var sw = Stopwatch.StartNew();
-
-            foreach (var key in keyList)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var executed = await TryExecuteFileAsync(key, cancellationToken);
-                if (executed) successCount++;
-            }
-
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation(
-                    "Completed SQL script execution for prefix {SourceKey}. {SuccessCount}/{TotalCount} files succeeded in {ElapsedMs}ms",
-                    job.SourceKey, successCount, keyList.Count, sw.ElapsedMilliseconds);
-            }
-
-            return successCount;
+            throw new ArgumentException("SourceKey must not be empty.", nameof(job));
         }
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Starting SQL script execution for prefix {SourceKey}", job.SourceKey);
+        }
+
+        await using var scope = serviceScopeFactory.CreateAsyncScope();
+
+        _dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
+        _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
+        _checksumService = scope.ServiceProvider.GetRequiredService<IFileChecksumService>();
+        _historyRepository = scope.ServiceProvider.GetRequiredService<IDataSeedIngestionHistoryRepository>();
+
+        var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken);
+        var keyList = keys.ToList();
+
+        if (keyList.Count == 0)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning("No SQL script files found under prefix {SourceKey}", job.SourceKey);
+            }
+            return 0;
+        }
+
+        var successCount = 0;
+        var sw = Stopwatch.StartNew();
+
+        foreach (var key in keyList)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var executed = await TryExecuteFileAsync(key, cancellationToken);
+            if (executed) successCount++;
+        }
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Completed SQL script execution for prefix {SourceKey}. {SuccessCount}/{TotalCount} files succeeded in {ElapsedMs}ms",
+                job.SourceKey, successCount, keyList.Count, sw.ElapsedMilliseconds);
+        }
+
+        return successCount;
     }
 
     [ExcludeFromCodeCoverage]
