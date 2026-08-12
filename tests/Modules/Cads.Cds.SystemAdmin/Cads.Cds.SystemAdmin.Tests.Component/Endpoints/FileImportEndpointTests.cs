@@ -94,7 +94,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             TestContext.Current.CancellationToken);
 
         problemDetails.Should().NotBeNull();
-        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name. ImportStatus: '{FileImportStatus.Completed}'. ProcessingStatus: '{FileProcessingStatus.Pending}'.");
+        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name '{TestFileScenarioConstants.New_Scenario_Complete_FileName}'.");
     }
 
     [Fact]
@@ -198,8 +198,10 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
-    public async Task GivenRecordHasInvalidState_WhenUpdateRequested_ShouldReturnConflict()
+    [Theory]
+    [InlineData(FileImportStatus.Transferred)]
+    [InlineData(FileImportStatus.Split)]
+    public async Task GivenRecordHasInvalidState_WhenUpdateRequested_ShouldReturnConflict(FileImportStatus invalidStatus)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
@@ -210,7 +212,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         {
             TotalRowsToProcess = 100,
             RowsFound = 100,
-            ImportStatus = FileImportStatus.Transferred
+            ImportStatus = invalidStatus
         };
 
         var response = await FileImportTestClient.UpdateAsync(
