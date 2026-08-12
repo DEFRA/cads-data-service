@@ -6,9 +6,10 @@ public static class BusinessRuleChecker
 {
     public static void CheckRule(params IBusinessRule[] rules)
     {
-        foreach (var rule in rules.Where(rule => rule.IsBroken()))
+        var brokenRule = rules.FirstOrDefault(rule => rule.IsBroken());
+        if (brokenRule != null)
         {
-            throw new BusinessRuleValidationException(rule);
+            throw new BusinessRuleValidationException(brokenRule);
         }
     }
 }
