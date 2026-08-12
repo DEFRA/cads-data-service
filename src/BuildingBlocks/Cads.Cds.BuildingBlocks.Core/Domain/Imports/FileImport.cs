@@ -1,4 +1,6 @@
 using Cads.Cds.ApiSurface.Dtos.Imports;
+using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports.BusinessRules;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.BuildingBlocks.Core.Extensions;
 
@@ -39,7 +41,7 @@ public class FileImport
         long rowsFound)
     {
         DestinationTableName = destinationTableName;
-        FileName = StringExtensions.NormalizeToUpper(fileName)!;
+        FileName = fileName.NormalizeToUpper()!;
 
         TotalRowsToProcess = totalRowsToProcess;
         RowsFound = rowsFound;
@@ -97,8 +99,7 @@ public class FileImport
 
     public void MarkTransferred()
     {
-        if (ImportStatus != FileImportStatus.Pending)
-            throw new DomainException("Transferred can only start from pending.");
+        BusinessRuleChecker.CheckRule(new MarkTransferredRule(ImportStatus));
 
         ImportStatus = FileImportStatus.Transferred;
         ImportStartAt = DateTimeOffset.UtcNow;
@@ -106,16 +107,14 @@ public class FileImport
 
     public void MarkSplit()
     {
-        if (ImportStatus != FileImportStatus.Transferred)
-            throw new DomainException("Split can only start from transferred.");
+        BusinessRuleChecker.CheckRule(new MarkSplitRule(ImportStatus));
 
         ImportStatus = FileImportStatus.Split;
     }
 
     public void MarkCompleted()
     {
-        if (ImportStatus != FileImportStatus.Split)
-            throw new DomainException("Import must be in split state to complete.");
+        BusinessRuleChecker.CheckRule(new MarkCompletedRule(ImportStatus));
 
         ImportStatus = FileImportStatus.Completed;
         ImportEndAt = DateTimeOffset.UtcNow;
@@ -123,8 +122,7 @@ public class FileImport
 
     public void MarkFailed(string reason)
     {
-        if (ImportStatus == FileImportStatus.Completed)
-            throw new DomainException("Import must be in pending, transferred, or split state to be marked as failed.");
+        BusinessRuleChecker.CheckRule(new MarkFailedRule(ImportStatus));
 
         ImportStatus = FileImportStatus.Failed;
         ImportEndAt = DateTimeOffset.UtcNow;

@@ -1,10 +1,10 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
-using Cads.Cds.BuildingBlocks.Core.Exceptions;
-using Cads.Cds.BuildingBlocks.Core.Extensions;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using System.Globalization;
+using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
+using Cads.Cds.SystemAdmin.Application.Imports.BusinessRules;
 
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
 
@@ -14,7 +14,7 @@ public sealed class CreateFileImportCommandHandler(
 {
     public async Task<FileImport> Handle(CreateFileImportCommand command, CancellationToken cancellationToken)
     {
-        await CheckFileNameAlreadyExistsRule(command.FileName, cancellationToken);
+        BusinessRuleChecker.CheckRule(new FileNameMustBeUniqueRule(fileImportRepository, command.FileName, cancellationToken));
 
         var parsedFileName = CtsmFilenameParser.Parse(command.FileName)!;
 
@@ -33,17 +33,5 @@ public sealed class CreateFileImportCommandHandler(
         await fileImportRepository.AddAsync(fileImport, cancellationToken);
 
         return fileImport;
-    }
-
-    private async Task CheckFileNameAlreadyExistsRule(string fileName, CancellationToken cancellationToken)
-    {
-        var normalisedFileName = StringExtensions.NormalizeToUpper(fileName)!;
-
-        var fileImport = await fileImportRepository.GetByFileNameAsync(normalisedFileName, cancellationToken);
-
-        if (fileImport == null)
-            return;
-
-        throw new DomainException($"A record exists with matching file name. ImportStatus: '{fileImport.ImportStatus}'. ProcessingStatus: '{fileImport.ProcessingStatus}'.");
     }
 }

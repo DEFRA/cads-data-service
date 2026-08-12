@@ -33,20 +33,21 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var fileData = " ";
 
+        var sourceKey = "no-data-rows-exist.sql";
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "test.sql",
+            Key = sourceKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3SqlImportRequest);
+        var response = await ExecuteTest(ValidS3SqlImportRequest(sourceKey));
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"SQL script file \"test.sql\" is empty — skipping.");
+        await VerifyLoggingMessage($"SQL script file \"{sourceKey}\" is empty — skipping.");
     }
 
     [Fact]
@@ -54,20 +55,21 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var fileData = TestDataFileConstants.InvalidLocationsSqlInsertStatement;
 
+        var sourceKey = "invalid-data-rows-exist.sql";
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "test.sql",
+            Key = sourceKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3SqlImportRequest);
+        var response = await ExecuteTest(ValidS3SqlImportRequest(sourceKey));
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Failed to execute SQL script file \"test.sql\"");
+        await VerifyLoggingMessage($"Failed to execute SQL script file \"{sourceKey}\"");
     }
 
     [Fact]
@@ -75,14 +77,15 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var fileData = $"{TestDataFileConstants.LocationsSqlInsertStatement}";
 
+        var sourceKey = "valid-data-rows-exist.sql";
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = "test.sql",
+            Key = sourceKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3SqlImportRequest);
+        var response = await ExecuteTest(ValidS3SqlImportRequest(sourceKey));
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -100,7 +103,7 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
             [LocationRecordUtilities.MapLocation(TestDataFileConstants.LocationsSqlInsertDataDictionary)],
             LocationRecordUtilities.MapLocation);
 
-        await VerifyLoggingMessage($"Completed SQL script execution for prefix \"test.sql\".");
+        await VerifyLoggingMessage($"Completed SQL script execution for prefix \"{sourceKey}\".");
     }
 
     private static StringContent? InvalidS3SqlImportRequest =>
@@ -109,10 +112,10 @@ public class S3SqlImportEndpointTests(ApiContainerFixture apiContainerFixture)
             SourceKey = string.Empty
         });
 
-    private static StringContent? ValidS3SqlImportRequest =>
+    private static StringContent? ValidS3SqlImportRequest(string sourceKey) =>
        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3SqlImportRequest
        {
-           SourceKey = "test.sql"
+           SourceKey = sourceKey
        });
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
