@@ -11,7 +11,7 @@ public static class StringExtensions
         public string? ParseUpToFirstOccurrence(string? occurence)
         {
             ArgumentNullException.ThrowIfNull(text);
-            
+
             var index = string.IsNullOrWhiteSpace(occurence) ? -1 : text.IndexOf(occurence, StringComparison.Ordinal);
             return index < 0 ? text : text[..index];
         }
