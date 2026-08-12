@@ -1,5 +1,5 @@
-using Cads.Cds.BuildingBlocks.Application.BusinessRules;
 using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
+using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using FluentAssertions;
 using Moq;
 

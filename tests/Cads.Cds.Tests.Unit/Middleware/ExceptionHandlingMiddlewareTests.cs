@@ -122,7 +122,7 @@ public class ExceptionHandlingMiddlewareTests
 
         var problem = await GetProblemDetailsFromResponse(context);
         problem.Status.Should().Be(404);
-        problem.Title.Should().Be("Not Found");
+        problem.Title.Should().Be("Not fhaound");
         problem.Detail.Should().Contain("'Sheep' (42) was not found.");
         problem.Instance.Should().Be("/test-path");
         problem.Extensions.Should().ContainKey("traceId");
@@ -184,21 +184,6 @@ public class ExceptionHandlingMiddlewareTests
 
         errors.Should().ContainKey("CPH");
         errors["CPH"].Should().Contain("'CPH' is not valid.");
-    }
-
-    [Fact]
-    public async Task DomainException_returns_409()
-    {
-        var context = CreateHttpContext();
-        var middleware = CreateMiddleware(_ => throw new DomainException("Domain error"));
-
-        await middleware.InvokeAsync(context);
-
-        context.Response.StatusCode.Should().Be(409);
-
-        var problem = await GetProblemDetailsFromResponse(context);
-        problem.Status.Should().Be(409);
-        problem.Title.Should().Be("Conflict error");
     }
 
     [Fact]

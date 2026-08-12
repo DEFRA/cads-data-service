@@ -94,7 +94,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             TestContext.Current.CancellationToken);
 
         problemDetails.Should().NotBeNull();
-        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name. ImportStatus: '{FileImportStatus.Completed}'. ProcessingStatus: '{FileProcessingStatus.Pending}'.");
+        problemDetails.Detail.Should().NotBeNull().And.Be($"A record exists with matching file name '{TestFileScenarioConstants.New_Scenario_Complete_FileName}'.");
     }
 
     [Fact]

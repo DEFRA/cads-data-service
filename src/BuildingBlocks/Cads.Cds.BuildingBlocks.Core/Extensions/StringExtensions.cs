@@ -2,17 +2,18 @@ namespace Cads.Cds.BuildingBlocks.Core.Extensions;
 
 public static class StringExtensions
 {
-    public static string? NormalizeToUpper(string? value) =>
-        value?.ToUpperInvariant();
-
-    public static string? NormalizeToLower(string? value) =>
-        value?.ToLowerInvariant();
-
-    public static string? ParseUpToFirstOccurrence(string? value, string occurence)
+    extension(string? text)
     {
-        ArgumentNullException.ThrowIfNull(value);
+        public string? NormalizeToUpper() => text?.ToUpperInvariant();
 
-        var index = value!.IndexOf(occurence);
-        return index < 0 ? value : value[..index];
+        public string? NormalizeToLower() => text?.ToLowerInvariant();
+
+        public string? ParseUpToFirstOccurrence(string occurence)
+        {
+            ArgumentNullException.ThrowIfNull(text);
+
+            var index = text!.IndexOf(occurence);
+            return index < 0 ? text : text[..index];
+        }
     }
 }

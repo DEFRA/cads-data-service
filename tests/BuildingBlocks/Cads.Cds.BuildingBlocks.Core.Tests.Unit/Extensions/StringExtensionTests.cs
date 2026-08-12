@@ -16,7 +16,7 @@ public class StringExtensionTests
         [InlineData("hello world", "HELLO WORLD")]
         public void NormalizeToUpper_ReturnsExpectedResult(string? input, string? expected)
         {
-            var result = StringExtensions.NormalizeToUpper(input);
+            var result = input.NormalizeToUpper();
             Assert.Equal(expected, result);
         }
     }

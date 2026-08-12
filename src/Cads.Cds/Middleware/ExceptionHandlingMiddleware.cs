@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
+using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
 
 namespace Cads.Cds.Middleware;
 
@@ -30,15 +31,15 @@ public sealed class ExceptionHandlingMiddleware(
         }
         catch (NotFoundException ex)
         {
-            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.NotFound);
+            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.NotFound, "Not found");
         }
         catch (UnprocessableException ex)
         {
             await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.UnprocessableEntity, "Unprocessable content");
         }
-        catch (DomainException ex)
+        catch (BusinessRuleValidationException ex)
         {
-            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.Conflict, "Conflict error");
+            await HandleExceptionAsync(context, ex, correlationId, (int)ex.HttpStatusCode, "Business rule validation error");
         }
         catch (Exception ex)
         {
@@ -72,12 +73,9 @@ public sealed class ExceptionHandlingMiddleware(
             }
         }
 
-        var resolvedTitle = title
-            ?? (exception is DomainException de ? de.Title : "An error occurred");
-
         var problemDetails = new ProblemDetails
         {
-            Title = resolvedTitle,
+            Title = title ?? "An error occurred",
             Detail = exception.Message,
             Status = statusCode,
             Instance = context.Request.Path
