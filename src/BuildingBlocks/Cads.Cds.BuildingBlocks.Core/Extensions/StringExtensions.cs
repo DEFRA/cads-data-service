@@ -8,11 +8,11 @@ public static class StringExtensions
 
         public string? NormalizeToLower() => text?.ToLowerInvariant();
 
-        public string? ParseUpToFirstOccurrence(string occurence)
+        public string? ParseUpToFirstOccurrence(string? occurence)
         {
             ArgumentNullException.ThrowIfNull(text);
-
-            var index = text!.IndexOf(occurence);
+            
+            var index = string.IsNullOrWhiteSpace(occurence) ? -1 : text.IndexOf(occurence, StringComparison.Ordinal);
             return index < 0 ? text : text[..index];
         }
     }
