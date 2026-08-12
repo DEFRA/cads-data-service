@@ -122,7 +122,7 @@ public class ExceptionHandlingMiddlewareTests
 
         var problem = await GetProblemDetailsFromResponse(context);
         problem.Status.Should().Be(404);
-        problem.Title.Should().Be("Not fhaound");
+        problem.Title.Should().Be("Not found");
         problem.Detail.Should().Contain("'Sheep' (42) was not found.");
         problem.Instance.Should().Be("/test-path");
         problem.Extensions.Should().ContainKey("traceId");
