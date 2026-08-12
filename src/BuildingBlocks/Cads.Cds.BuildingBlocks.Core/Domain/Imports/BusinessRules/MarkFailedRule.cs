@@ -4,7 +4,7 @@ using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
 
 namespace Cads.Cds.BuildingBlocks.Core.Domain.Imports.BusinessRules;
 
-public class MarkFailedRule(FileImportStatus fileImportStatus): IBusinessRule
+public class MarkFailedRule(FileImportStatus fileImportStatus) : IBusinessRule
 {
     public HttpStatusCode HttpStatusCode => HttpStatusCode.Conflict;
 
