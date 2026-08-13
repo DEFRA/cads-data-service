@@ -1,12 +1,12 @@
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Imports.Attributes;
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
 using Cads.Cds.StorageBridge.Controllers.Requests;
 using Cads.Cds.StorageBridge.Controllers.Responses;
-using Cads.Cds.StorageBridge.Core.Attributes;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Utilities;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
 using FluentAssertions;
