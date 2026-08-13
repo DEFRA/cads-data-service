@@ -115,7 +115,6 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
             .IsUnique();
 
         builder.HasIndex(x => x.GroupKey)
-            .HasDatabaseName("cts_file_imports_group_key_idx")
-            .IsUnique();
+            .HasDatabaseName("cts_file_imports_group_key_idx");
     }
 }
