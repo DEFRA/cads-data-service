@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Schema;
-using Cads.Cds.StorageBridge.Application.Extensions;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
+using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
@@ -171,10 +171,7 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         var primaryKey = importDataType.GetTableInfoAttribute(schemaName)?.PrimaryKey
             ?? throw new ArgumentException("Primarykey cannot be null", nameof(importDataType));
 
-        if (_getSchemaColumnsCommand == null)
-        {
-            _getSchemaColumnsCommand = CreateGetSchemaColumnsCommand(_connection);
-        }
+        _getSchemaColumnsCommand ??= CreateGetSchemaColumnsCommand(_connection);
 
         _getSchemaColumnsCommand.Parameters["tableName"].Value = tableName;
         _getSchemaColumnsCommand.Parameters["schema"].Value = (object?)schema ?? DBNull.Value;

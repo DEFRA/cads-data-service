@@ -1,8 +1,8 @@
 using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Imports.Attributes;
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
+using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Application.Schema;
-using Cads.Cds.StorageBridge.Application.Extensions;
-using Cads.Cds.StorageBridge.Core.Attributes;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using FluentAssertions;
 
 namespace Cads.Cds.StorageBridge.Application.Tests.Unit.Extensions;

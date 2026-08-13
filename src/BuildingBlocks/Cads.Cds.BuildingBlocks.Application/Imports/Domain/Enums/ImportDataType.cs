@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Schema;
-using Cads.Cds.StorageBridge.Core.Attributes;
+using Cads.Cds.BuildingBlocks.Application.Imports.Attributes;
 
-namespace Cads.Cds.StorageBridge.Core.Domain.Enums;
+namespace Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 
 public enum ImportDataType
 {
