@@ -1,10 +1,10 @@
 using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Imports.Attributes;
 using Cads.Cds.BuildingBlocks.Application.Schema;
-using Cads.Cds.StorageBridge.Core.Attributes;
 
-namespace Cads.Cds.StorageBridge.Application.Extensions;
+namespace Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 
-public static class StorageBridgeEnumExtensions
+public static class TableInfoAttributeExtensions
 {
     public static TableInfoAttribute? GetTableInfoAttribute(this Enum value, SchemaName schemaName)
     {

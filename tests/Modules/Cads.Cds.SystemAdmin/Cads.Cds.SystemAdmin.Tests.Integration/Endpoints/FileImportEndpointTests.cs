@@ -149,6 +149,32 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
+    public async Task GivenValidRequest_WithImportTable_NoCorrespondingDestinationTable_WhenCreateRequested_ShouldFailed()
+    {
+        var request = new CreateFileImportRequest
+        {
+            FileName = TestFileScenarioConstants.New_Scenario_Create_NoDestinationTable_FileName,
+            TotalRowsToProcess = 100,
+            RowsFound = 0
+        };
+
+        var response = await FileImportTestClient.CreateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await FileImportTestClient.ReadDtoAsync(
+            response,
+            TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto.Id.Should().BeGreaterThan(0);
+        FileImportAssertions.ShouldBeFailedWithUnknownDestinationTableName(dto);
+    }
+
+    [Fact]
     public async Task GivenInvalidDeltaRequest_WhenCreateRequested_ShouldReturnUnprocessableEntity()
     {
         var request = new CreateFileImportRequest

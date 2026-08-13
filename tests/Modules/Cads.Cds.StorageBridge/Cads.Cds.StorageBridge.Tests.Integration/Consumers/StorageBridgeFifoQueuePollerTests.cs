@@ -1,12 +1,12 @@
 using Amazon.S3.Model;
 using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.ApiSurface.Messages.Imports;
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Utilities;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
