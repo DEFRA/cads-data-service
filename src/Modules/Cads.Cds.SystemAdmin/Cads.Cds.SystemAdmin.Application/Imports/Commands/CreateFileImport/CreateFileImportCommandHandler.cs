@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Application.Commands;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Core.Extensions;
 using Cads.Cds.SystemAdmin.Application.Imports.BusinessRules;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using System.Globalization;
@@ -23,7 +24,7 @@ public sealed class CreateFileImportCommandHandler(
 
         var fileImport = new FileImport
         {
-            FileName = command.FileName,
+            FileName = command.FileName.NormalizeToUpper()!,
             DestinationTableName = destinationTableName ?? "UNKNOWN",
             TotalRowsToProcess = command.TotalRowsToProcess,
             RowsFound = command.RowsFound,
