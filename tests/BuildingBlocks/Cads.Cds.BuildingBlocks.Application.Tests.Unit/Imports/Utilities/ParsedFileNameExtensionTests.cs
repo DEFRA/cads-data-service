@@ -7,12 +7,12 @@ namespace Cads.Cds.BuildingBlocks.Application.Tests.Unit.Imports.Utilities;
 public class ParsedFileNameExtensionTests
 {
     [Theory]
-    //[InlineData("CTSM_CADS_PREP_BULK_00001_001_CT_LOCATIONS_2026-07-28-094638.csv", "cts_transactions.ct_locations")]
-    //[InlineData("CTSM_CADS_PREP_BULK_00001_002_CT_LOCATIONS_2026-07-28-094638.csv", "cts_transactions.ct_locations")]
-    //[InlineData("CTSM_CADS_PREP_BULK_00001_001_CT_REGISTERED_ANIMALS_2026-07-28-094629.csv", "cts_transactions.ct_registered_animals")]
-    //[InlineData("CTSM_CADS_PREP_BULK_00001_002_CT_REGISTERED_ANIMALS_2026-07-28-094629.csv", "cts?_transactions.ct_registered_animals")]
-    //[InlineData("CTSM_CADS_PREP_DELTA_00002_001_CT_ADDRESSES_2026-07-30-141209.csv", "cts_transactions.ct_addresses")]
-    //[InlineData("CTSM_CADS_PREP_DELTA_00002_002_CT_ADDRESSES_2026-07-30-141209.csv", "cts_transactions.ct_addresses")]
+    [InlineData("CTSM_CADS_PREP_BULK_00001_001_CT_LOCATIONS_2026-07-28-094638.csv", "cts_transactions.ct_locations")]
+    [InlineData("CTSM_CADS_PREP_BULK_00001_002_CT_LOCATIONS_2026-07-28-094638.csv", "cts_transactions.ct_locations")]
+    [InlineData("CTSM_CADS_PREP_BULK_00001_001_CT_REGISTERED_ANIMALS_2026-07-28-094629.csv", "cts_transactions.ct_registered_animals")]
+    [InlineData("CTSM_CADS_PREP_BULK_00001_002_CT_REGISTERED_ANIMALS_2026-07-28-094629.csv", "cts_transactions.ct_registered_animals")]
+    [InlineData("CTSM_CADS_PREP_DELTA_00002_001_CT_ADDRESSES_2026-07-30-141209.csv", "cts_transactions.ct_addresses")]
+    [InlineData("CTSM_CADS_PREP_DELTA_00002_002_CT_ADDRESSES_2026-07-30-141209.csv", "cts_transactions.ct_addresses")]
     [InlineData("CTSM_CADS_PREP_DELTA_00002_002_CT_BREEDS_2026-07-30-141209.csv", null)]
     public void GetDestinationTableName_Should_Return_Expected(string filename, string? expected)
     {
