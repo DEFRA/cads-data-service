@@ -13,7 +13,8 @@ public class ParsedFileNameExtensionTests
     [InlineData("CTSM_CADS_PREP_BULK_00001_002_CT_REGISTERED_ANIMALS_2026-07-28-094629.csv", "cts_transactions.ct_registered_animals")]
     [InlineData("CTSM_CADS_PREP_DELTA_00002_001_CT_ADDRESSES_2026-07-30-141209.csv", "cts_transactions.ct_addresses")]
     [InlineData("CTSM_CADS_PREP_DELTA_00002_002_CT_ADDRESSES_2026-07-30-141209.csv", "cts_transactions.ct_addresses")]
-    public void GetDestinationTableName_Should_Return_Expected(string filename, string expected)
+    [InlineData("CTSM_CADS_PREP_DELTA_00002_002_CT_BREEDS_2026-07-30-141209.csv", null)]
+    public void GetDestinationTableName_Should_Return_Expected(string filename, string? expected)
     {
         var parsedFile = CtsmFilenameParser.Parse(filename);
         parsedFile.Should().NotBeNull();

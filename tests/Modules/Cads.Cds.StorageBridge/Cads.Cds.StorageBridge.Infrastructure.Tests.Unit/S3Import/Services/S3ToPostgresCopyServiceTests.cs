@@ -1,4 +1,5 @@
 using Amazon.S3.Model;
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
@@ -6,7 +7,6 @@ using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
-using Cads.Cds.StorageBridge.Core.Domain.Enums;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
