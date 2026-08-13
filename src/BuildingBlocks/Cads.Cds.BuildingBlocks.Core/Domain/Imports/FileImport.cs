@@ -125,6 +125,7 @@ public class FileImport
         BusinessRuleChecker.CheckRule(new MarkFailedRule(ImportStatus));
 
         ImportStatus = FileImportStatus.Failed;
+        ImportStartAt ??= DateTimeOffset.UtcNow;
         ImportEndAt = DateTimeOffset.UtcNow;
 
         LastErrorReason = reason;

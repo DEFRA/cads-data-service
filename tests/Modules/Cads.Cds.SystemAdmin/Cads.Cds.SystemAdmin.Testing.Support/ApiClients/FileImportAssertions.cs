@@ -72,6 +72,17 @@ public static class FileImportAssertions
         dto.LastErrorReason.Should().NotBeNull();
     }
 
+    public static void ShouldBeFailedWithUnknownDestinationTableName(FileImportDto dto)
+    {
+        dto.ImportStatus.Should().Be(FileImportStatus.Failed);
+        dto.ProcessingStatus.Should().Be(FileProcessingStatus.Pending);
+        dto.DestinationTableName.Should().Be("UNKNOWN");
+        dto.ImportStartAt.Should().NotBeNull();
+        dto.ImportEndAt.Should().NotBeNull();
+        dto.FailedAttempts.Should().Be(1);
+        dto.LastErrorReason.Should().NotBeNull();
+    }
+
     public static void ShouldBeReset(FileImportDto dto)
     {
         dto.ImportStatus.Should().Be(FileImportStatus.Pending);
