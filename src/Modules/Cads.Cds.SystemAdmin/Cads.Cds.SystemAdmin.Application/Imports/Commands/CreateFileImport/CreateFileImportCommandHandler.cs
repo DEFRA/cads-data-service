@@ -24,7 +24,7 @@ public sealed class CreateFileImportCommandHandler(
 
         var fileImport = new FileImport
         {
-            FileName = command.FileName.NormalizeToUpper()!,
+            FileName = command.FileName.NormalizeToUpper(),
             DestinationTableName = destinationTableName ?? "UNKNOWN",
             TotalRowsToProcess = command.TotalRowsToProcess,
             RowsFound = command.RowsFound,
