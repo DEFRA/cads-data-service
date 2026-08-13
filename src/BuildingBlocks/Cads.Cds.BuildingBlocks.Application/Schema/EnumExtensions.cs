@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 
 namespace Cads.Cds.BuildingBlocks.Application.Schema;
 
