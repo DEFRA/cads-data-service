@@ -3,7 +3,6 @@ using Cads.Cds.BuildingBlocks.Application.Commands;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
-using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.SystemAdmin.Application.Imports.BusinessRules;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using System.Globalization;
@@ -22,19 +21,6 @@ public sealed class CreateFileImportCommandHandler(
 
         var destinationTableName = parsedFileName?.GetDestinationTableName();
 
-        // Validate timestamp before parsing and allow null batchDate
-        DateTimeOffset? batchDate = null;
-        if (!string.IsNullOrEmpty(parsedFileName?.Timestamp))
-        {
-            if (!DateTimeOffset.TryParseExact(parsedFileName.Timestamp, "yyyy-MM-dd-HHmmss", CultureInfo.InvariantCulture,
-                DateTimeStyles.AssumeUniversal, out var parsedBatchDate))
-            {
-                throw new UnprocessableException($"Invalid timestamp '{parsedFileName.Timestamp}' derived from file name '{parsedFileName}'.");
-            }
-
-            batchDate = parsedBatchDate;
-        }
-
         var fileImport = new FileImport
         {
             FileName = command.FileName,
@@ -43,7 +29,8 @@ public sealed class CreateFileImportCommandHandler(
             RowsFound = command.RowsFound,
             GroupKey = parsedFileName?.GetGroupKey(),
             ImportType = parsedFileName?.Type,
-            BatchDate = batchDate,
+            BatchDate = DateTimeOffset.ParseExact(parsedFileName!.Timestamp, "yyyy-MM-dd-HHmmss", CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal),
         };
 
         if (destinationTableName is null)
