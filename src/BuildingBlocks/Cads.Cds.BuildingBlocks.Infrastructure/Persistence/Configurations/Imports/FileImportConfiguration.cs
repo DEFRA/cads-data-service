@@ -23,6 +23,7 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
                     "cts_file_imports_total_rows_to_process_check",
                     "total_rows_to_process >= 0");
             });
+
         // PK
         builder.HasKey(x => x.Id)
             .HasName("cts_file_imports_pkey");
@@ -115,7 +116,6 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
             .IsUnique();
 
         builder.HasIndex(x => x.GroupKey)
-            .HasDatabaseName("cts_file_imports_group_key_idx")
-            .IsUnique();
+            .HasDatabaseName("cts_file_imports_group_key_idx");
     }
 }
