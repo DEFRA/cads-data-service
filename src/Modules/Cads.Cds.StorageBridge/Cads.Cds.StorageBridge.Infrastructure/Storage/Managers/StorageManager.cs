@@ -5,30 +5,19 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Models;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Storage.Managers;
 
-public class StorageManager<T>(IS3ClientFactory s3ClientFactory)
+public class StorageManager<T>(IS3ClientFactory s3ClientFactory, IStorageReader<T> reader)
     : IStorageManager<T> where T : IStorageClient, new()
 {
     private readonly IAmazonS3 _s3Client = s3ClientFactory.GetClient<T>();
-    
+
     public string BucketName { get; } = s3ClientFactory.GetClientBucketName<T>();
     public string ClientName { get; } = new T().ClientName;
 
-    public async Task<GetObjectResponse> GetObjectResponseAsync(string key, CancellationToken cancellationToken = default)
-    {
-        return await _s3Client.GetObjectAsync(new GetObjectRequest
-        {
-            BucketName = BucketName,
-            Key = key
-        }, cancellationToken);
-    }
+    public Task<GetObjectResponse> GetObjectResponseAsync(string key, CancellationToken cancellationToken = default)
+        => reader.GetObjectResponseAsync(key, cancellationToken);
 
-    public async Task<string> ReadAsync(string key, CancellationToken cancellationToken = default)
-    {
-        using var response = await GetObjectResponseAsync(key, cancellationToken);
-        using var reader = new StreamReader(response.ResponseStream);
-
-        return await reader.ReadToEndAsync(cancellationToken);
-    }
+    public Task<string> ReadAsync(string key, CancellationToken cancellationToken = default)
+        => reader.ReadAsync(key, cancellationToken);
 
     public async Task<IEnumerable<string>> ListKeysAsync(string prefix, CancellationToken cancellationToken = default)
     {
