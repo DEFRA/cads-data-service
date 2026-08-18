@@ -110,7 +110,33 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 }
 ```
 
-# 3. Summary
+# 3. First principles (modular monolith rules)
+
+A modular monolith enforces:
+
+## Modules own their own data
+
+StorageBridge owns its tables.
+SystemAdmin owns its tables.
+
+## Modules cannot call each other's application services
+
+That creates tight coupling.
+
+## Modules can depend on shared canonical domain models
+
+Which we have already placed in BuildingBlocks.Core.
+
+## Modules can update shared canonical tables directly
+
+As long as:
+
+ * The entity is canonical
+ * The EF configuration is canonical
+ * The DbContext includes it
+ * The module has permission to update it
+
+# 4. Summary
 
 ✔ No inheritance
 ✔ No shared base DbContext
