@@ -3,7 +3,6 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
-using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
 
 namespace Cads.Cds.Middleware;
 

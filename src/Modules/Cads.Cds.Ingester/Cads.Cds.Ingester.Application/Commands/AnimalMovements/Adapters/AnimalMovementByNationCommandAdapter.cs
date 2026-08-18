@@ -13,12 +13,12 @@ public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storag
     {
         var key = GetKey(command.Nation);
 
-        if (logger.IsEnabled(LogLevel.Information))
+        if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogInformation("Writing to storage: {Key}", key);
+            logger.LogDebug("Writing to storage: {Key}", key);
         }
-        var result =
-            await storageService.WriteAsync(key, command.Payload!, cancellationToken);
+
+        var result = await storageService.WriteAsync(key, command.Payload!, cancellationToken);
         return result;
     }
 

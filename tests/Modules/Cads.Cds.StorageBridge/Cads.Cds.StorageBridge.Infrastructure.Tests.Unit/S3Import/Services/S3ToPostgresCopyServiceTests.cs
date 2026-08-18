@@ -132,7 +132,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insertCmd);
 
-        var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, ImportActionType.Delta, _factory.Object);
+        var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, SchemaName.CtsTransactions, ImportActionType.Delta, _factory.Object);
 
         result.Should().ContainSingle().Which.Should().Be(insertCmd);
     }
@@ -145,7 +145,7 @@ public class S3ToPostgresCopyServiceTests
         _factory.Setup(x => x.CreateInsertCommandAsync(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(insertCmd);
 
-        var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, ImportActionType.Bulk, _factory.Object);
+        var result = await InvokeGetCommandsAsync(ImportDataType.CtLocations, SchemaName.CtsTransactions, ImportActionType.Bulk, _factory.Object);
 
         result.Should().ContainSingle().Which.Should().Be(insertCmd);
     }
@@ -286,13 +286,17 @@ public class S3ToPostgresCopyServiceTests
         return (string?)method!.Invoke(null, [input]);
     }
 
-    private static async Task<List<DbCommand>> InvokeGetCommandsAsync(ImportDataType importDataType, ImportActionType importActionType, IS3ImportCommandFactory factory)
+    private static async Task<List<DbCommand>> InvokeGetCommandsAsync(
+        ImportDataType importDataType,
+        SchemaName schemaName,
+        ImportActionType importActionType,
+        IS3ImportCommandFactory factory)
     {
         var method = MethodInfoUtility.GetPrivateStatic<S3ToPostgresCopyService>("GetCommandsAsync");
 
         var task = (Task<List<DbCommand>>)method.Invoke(
             null,
-            [importDataType, importActionType, factory, CancellationToken.None])!;
+            [importDataType, schemaName, importActionType, factory, CancellationToken.None])!;
 
         return await task;
     }
