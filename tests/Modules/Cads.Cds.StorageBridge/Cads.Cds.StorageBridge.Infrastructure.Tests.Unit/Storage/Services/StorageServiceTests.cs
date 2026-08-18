@@ -16,8 +16,9 @@ public class StorageServiceTests
 
     private readonly Mock<IAmazonS3> _s3 = new();
     private readonly Mock<IS3ClientFactory> _factory = new();
+    private readonly Mock<IStorageReader<TestClient>> _reader = new();
 
-    private class TestClient : IStorageClient
+    public class TestClient : IStorageClient
     {
         public string ClientName => GetType().Name;
     }
@@ -38,7 +39,7 @@ public class StorageServiceTests
         _s3.Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
            .ReturnsAsync(new PutObjectResponse());
 
-        var sut = new StorageService<TestClient>(_factory.Object);
+        var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
         await sut.WriteAsync(SourceKey, Payload, TestContext.Current.CancellationToken);
 
@@ -57,7 +58,7 @@ public class StorageServiceTests
         _s3.Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
            .ThrowsAsync(new AmazonS3Exception("S3 unavailable"));
 
-        var sut = new StorageService<TestClient>(_factory.Object);
+        var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
         await Assert.ThrowsAsync<AmazonS3Exception>(() =>
             sut.WriteAsync(SourceKey, Payload, TestContext.Current.CancellationToken));
@@ -75,7 +76,7 @@ public class StorageServiceTests
         _s3.Setup(s => s.DeleteObjectAsync(It.IsAny<DeleteObjectRequest>(), It.IsAny<CancellationToken>()))
            .ReturnsAsync(new DeleteObjectResponse());
 
-        var sut = new StorageService<TestClient>(_factory.Object);
+        var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
         await sut.CopyAsync(SourceKey, TargetKey, TestContext.Current.CancellationToken);
 
@@ -97,7 +98,7 @@ public class StorageServiceTests
         _s3.Setup(s => s.DeleteObjectAsync(It.IsAny<DeleteObjectRequest>(), It.IsAny<CancellationToken>()))
            .ReturnsAsync(new DeleteObjectResponse());
 
-        var sut = new StorageService<TestClient>(_factory.Object);
+        var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
         await sut.CopyAsync(SourceKey, TargetKey, TestContext.Current.CancellationToken);
 
@@ -115,7 +116,7 @@ public class StorageServiceTests
         _s3.Setup(s => s.CopyObjectAsync(It.IsAny<CopyObjectRequest>(), It.IsAny<CancellationToken>()))
            .ThrowsAsync(new AmazonS3Exception("Copy failed"));
 
-        var sut = new StorageService<TestClient>(_factory.Object);
+        var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
         await Assert.ThrowsAsync<AmazonS3Exception>(() =>
             sut.CopyAsync(SourceKey, TargetKey, TestContext.Current.CancellationToken));
@@ -134,7 +135,7 @@ public class StorageServiceTests
         _s3.Setup(s => s.DeleteObjectAsync(It.IsAny<DeleteObjectRequest>(), It.IsAny<CancellationToken>()))
            .ThrowsAsync(new AmazonS3Exception("Delete failed"));
 
-        var sut = new StorageService<TestClient>(_factory.Object);
+        var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
         await Assert.ThrowsAsync<AmazonS3Exception>(() =>
             sut.CopyAsync(SourceKey, TargetKey, TestContext.Current.CancellationToken));
@@ -152,7 +153,7 @@ public class StorageServiceTests
            .Callback<DeleteObjectRequest, CancellationToken>((_, _) => callOrder.Add("Delete"))
            .ReturnsAsync(new DeleteObjectResponse());
 
-        var sut = new StorageService<TestClient>(_factory.Object);
+        var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
         await sut.CopyAsync(SourceKey, TargetKey, TestContext.Current.CancellationToken);
 
