@@ -152,9 +152,8 @@ public static class StorageManagementEndpoints
         CancellationToken cancellationToken) =>
         clientName switch
         {
-            // Internal-bucket CTSM exports are stored AES-encrypted, so serve them decrypted.
-            nameof(CadsInternalClient) => GetClientObject<CadsInternalClient>(services, key, decryptCtsm: true, cancellationToken),
-            nameof(CadsExternalClient) => GetClientObject<CadsExternalClient>(services, key, decryptCtsm: false, cancellationToken),
+            nameof(CadsInternalClient) => GetClientObject<CadsInternalClient>(services, key, decryptCtsm: false, cancellationToken),
+            nameof(CadsExternalClient) => GetClientObject<CadsExternalClient>(services, key, decryptCtsm: true, cancellationToken),
             _ => Task.FromResult(UnknownClient(clientName))
         };
 
