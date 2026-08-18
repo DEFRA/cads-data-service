@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileChecksumService, S3FileChecksumService<CadsInternalClient>>();
 
         // Register module storage readers
-        services.AddSingleton<IStorageReader<CadsInternalClient>, BulkImportStorageReader<CadsInternalClient>>();
+        services.AddSingleton(typeof(IStorageReader<>), typeof(BulkImportStorageReader<>));
 
         // Register module storage writers
         services.AddSingleton<IStorageService<CadsInternalClient>, StorageService<CadsInternalClient>>();

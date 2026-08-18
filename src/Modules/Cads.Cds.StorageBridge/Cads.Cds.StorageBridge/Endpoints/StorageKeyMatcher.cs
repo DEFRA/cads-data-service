@@ -3,16 +3,10 @@ using System.Text.RegularExpressions;
 
 namespace Cads.Cds.StorageBridge.Endpoints;
 
-/// <summary>
-/// Compiles the storage-management listing filter into a case-insensitive key
-/// predicate. Supported modes: contains (default), glob (* and ?, where * also
-/// matches /) and regex.
-/// </summary>
 internal static class StorageKeyMatcher
 {
     private static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(500);
 
-    /// <summary>Returns null when the mode is unknown or the pattern is not a valid regex.</summary>
     public static Func<string, bool>? Create(string pattern, string? mode)
     {
         switch (mode)
