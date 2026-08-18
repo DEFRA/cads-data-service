@@ -427,7 +427,7 @@ public class S3ToPostgresCopyService(
     // conflicts, resource exhaustion, and "try again shortly" conditions. Anything else
     // (bad data, constraint violations, bad SQL, permissions) will fail identically on
     // every attempt, so it defaults to non-transient rather than being retried blindly.
-    private static readonly HashSet<string> TransientPostgresSqlStateClasses = new(StringComparer.Ordinal)
+    private static readonly HashSet<string> s_transientPostgresSqlStateClasses = new(StringComparer.Ordinal)
     {
         "08", // Connection Exception
         "40", // Transaction Rollback — serialization_failure, deadlock_detected
@@ -454,5 +454,5 @@ public class S3ToPostgresCopyService(
     private static bool IsTransientPostgresSqlState(string? sqlState) =>
         !string.IsNullOrEmpty(sqlState)
         && sqlState.Length >= 2
-        && TransientPostgresSqlStateClasses.Contains(sqlState[..2]);
+        && s_transientPostgresSqlStateClasses.Contains(sqlState[..2]);
 }
