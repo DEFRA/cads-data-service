@@ -56,7 +56,7 @@ public class ServiceCollectionExtensionsTests
         act.Should().Throw<ArgumentException>().WithMessage("Unknown connection identifier: invalidConnectionIdentifier");
     }
 
-    private class TestDbContext(DbContextOptions<TestDbContext> options) : DbContext(options)
+    private class TestDbContext(DbContextOptions<TestDbContext> options) : CadsDbContext(options)
     {
     }
 
