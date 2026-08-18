@@ -1,14 +1,15 @@
 using Cads.Cds.Api.Core.Domain.Entities;
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : DbContext(options)
+public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : CadsDbContext(options)
 {
-    // Shared canonical entities
-
     // Module-specific entities
 
     // Tables
@@ -19,17 +20,15 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : DbCo
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Import shared canonical entities (from BuildingBlocks)
-
         // Import module-specific entities
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ApiReadDbContext).Assembly
         );
 
         modelBuilder.HasDbFunction(
-            typeof(ApiReadDbContext).GetMethod(nameof(GetLocationsSummary))!)
+            GetType().GetMethod(nameof(GetLocationsSummary))!)
             .HasName("get_locations")
-            .HasSchema("public");
+            .HasSchema(SchemaName.Cads.GetDescription());
 
         base.OnModelCreating(modelBuilder);
     }

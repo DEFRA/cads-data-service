@@ -7,26 +7,49 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 
 public static class ServicePostgresDbContextExtensions
 {
-    public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services) where TContext : DbContext
+    private const int MaxRetryCount = 5;
+    private const int MaxRetryDelaySeconds = 10;
+
+    public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services)
+        where TContext : CadsDbContext
     {
         services.AddDbContext<TContext>((sp, options) =>
         {
             var dataSourceFactory = sp.GetRequiredService<IPostgresDataSourceFactory>();
             var dataSource = dataSourceFactory.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier);
-            options.UseNpgsql(dataSource);
+
+            options.UseNpgsql(dataSource, npgsql =>
+            {
+                npgsql.EnableRetryOnFailure(
+                    maxRetryCount: MaxRetryCount,
+                    maxRetryDelay: TimeSpan.FromSeconds(MaxRetryDelaySeconds),
+                    errorCodesToAdd: null
+                );
+            });
         });
+
         return services;
     }
 
     // Overload for modules that need to specify connection identifier
-    public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services, string connectionIdentifier) where TContext : DbContext
+    public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services, string connectionIdentifier)
+        where TContext : CadsDbContext
     {
         services.AddDbContext<TContext>((sp, options) =>
         {
             var dataSourceFactory = sp.GetRequiredService<IPostgresDataSourceFactory>();
             var dataSource = dataSourceFactory.CreateDataSource(connectionIdentifier);
-            options.UseNpgsql(dataSource);
+
+            options.UseNpgsql(dataSource, npgsql =>
+            {
+                npgsql.EnableRetryOnFailure(
+                    maxRetryCount: MaxRetryCount,
+                    maxRetryDelay: TimeSpan.FromSeconds(MaxRetryDelaySeconds),
+                    errorCodesToAdd: null
+                );
+            });
         });
+
         return services;
     }
 }
