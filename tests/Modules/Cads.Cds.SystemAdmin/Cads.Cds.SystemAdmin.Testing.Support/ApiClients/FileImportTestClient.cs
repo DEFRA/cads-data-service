@@ -1,0 +1,127 @@
+using Cads.Cds.ApiSurface.Dtos.Imports;
+using Cads.Cds.BuildingBlocks.Infrastructure.Json;
+using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
+using Cads.Cds.SystemAdmin.Testing.Support.Constants;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Json;
+using System.Web;
+
+namespace Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
+
+public static class FileImportTestClient
+{
+    public static async Task<HttpResponseMessage> GetByFileNameAsync(
+        HttpClient client,
+        string? fileName,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = TestEndpointConstants.FileImportsGetByFileNameEndpoint;
+
+        if (!string.IsNullOrWhiteSpace(fileName))
+        {
+            endpoint += "?fileName=" + HttpUtility.UrlEncode(fileName);
+        }
+
+        return await client.GetAsync(endpoint, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> CreateAsync(
+        HttpClient client,
+        CreateFileImportRequest? request,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = TestEndpointConstants.FileImportsCreateEndpoint;
+        return await client.PostAsJsonAsync(endpoint, request, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> UpdateAsync(
+        HttpClient client,
+        long id,
+        UpdateFileImportRequest? request,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.FileImportsUpdateEndpoint, id);
+        return await client.PutAsJsonAsync(endpoint, request, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> MarkFailedAsync(
+        HttpClient client,
+        long id,
+        string reason,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.FileImportsFailedEndpoint, id);
+        return await client.PostAsJsonAsync(endpoint, reason, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> ResetAsync(
+        HttpClient client,
+        long id,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.FileImportsResetEndpoint, id);
+        return await client.PostAsync(endpoint, null, cancellationToken);
+    }
+
+    public static async Task<long> GetIdByFileNameAsync(
+        HttpClient client,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        var dto = await GetAndReadAsync(client, fileName, cancellationToken);
+        return dto.Id;
+    }
+
+    public static async Task<FileImportDto> GetAndReadAsync(
+        HttpClient client,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        var response = await GetByFileNameAsync(client, fileName, cancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue(
+            $"GET /file-imports?fileName={fileName} should return 200 OK");
+
+        var dto = await ReadDtoAsync(response, cancellationToken);
+        dto.Should().NotBeNull($"GET /file-imports returned no DTO for fileName={fileName}");
+
+        return dto;
+    }
+
+    public static async Task<FileImportDto?> ReadDtoAsync(
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
+        return await response.Content.ReadFromJsonAsync<FileImportDto>(
+            JsonDefaults.DefaultOptionsWithStringEnumConversion,
+            cancellationToken);
+    }
+
+    public static async Task<ProblemDetails?> ReadProblemDetailsAsync(
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
+        return await response.Content.ReadFromJsonAsync<ProblemDetails>(
+            JsonDefaults.DefaultOptionsWithStringEnumConversion,
+            cancellationToken);
+    }
+
+    public static async Task<FileImportDto> VerifyFileImportAsync(
+        HttpClient client,
+        string fileName,
+        Action<FileImportDto>? assertions = null,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await GetByFileNameAsync(client, fileName, cancellationToken);
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        var dto = await ReadDtoAsync(response, cancellationToken);
+
+        dto.Should().NotBeNull();
+        dto.FileName.Should().Be(fileName);
+
+        assertions?.Invoke(dto);
+
+        return dto;
+    }
+}

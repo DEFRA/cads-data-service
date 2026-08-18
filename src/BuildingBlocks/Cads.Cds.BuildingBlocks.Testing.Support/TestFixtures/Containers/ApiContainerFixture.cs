@@ -14,12 +14,21 @@ using IContainer = DotNet.Testcontainers.Containers.IContainer;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class ApiContainerFixture : IAsyncLifetime
 {
+    private readonly string _networkName = $"integration-test-network-{Guid.NewGuid():N}";
+
     public IContainer ApiContainer { get; private set; } = null!;
     private HttpClient HttpClient { get; set; } = null!;
-    public PostgresFixture PostgresFixture { get; } = new();
-    public LocalStackFixture LocalStackFixture { get; } = new();
-    public OidcMockFixture OidcMockFixture { get; } = new();
+    public PostgresFixture PostgresFixture { get; }
+    public LocalStackFixture LocalStackFixture { get; }
+    public OidcMockFixture OidcMockFixture { get; }
     public TestAzureAdConfiguration? AzureAdConfig { get; set; }
+
+    public ApiContainerFixture()
+    {
+        PostgresFixture = new PostgresFixture(_networkName);
+        LocalStackFixture = new LocalStackFixture(_networkName);
+        OidcMockFixture = new OidcMockFixture(_networkName);
+    }
 
     public async ValueTask InitializeAsync()
     {
@@ -28,8 +37,6 @@ public class ApiContainerFixture : IAsyncLifetime
         await OidcMockFixture.InitializeAsync();
 
         AzureAdConfig = new TestAzureAdConfiguration(OidcMockFixture);
-
-        DockerNetworkHelper.EnsureNetworkExists(TestContainerConstants.NetworkName);
 
         var certPath = Path.Combine(AppContext.BaseDirectory, "certs");
 
@@ -42,18 +49,21 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Kestrel__Certificates__Default__Path", "/https/https-dev-cert.pfx")
           .WithEnvironment("Kestrel__Certificates__Default__Password", "testpassword")
           .WithEnvironment("AWS__ServiceURL", LocalStackFixture.NetworkServiceUrl)
+          .WithEnvironment("Modules__Ingester__Storage__CadsIngester__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__BucketName", LocalStackFixture.CadsExternalBucketName)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__AccessKeySecretName", "IMB_S3_ACCESS_KEY")
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__SecretKeySecretName", "IMB_S3_SECRET_KEY")
-          .WithEnvironment("IMB_S3_ACCESS_KEY", "test")
-          .WithEnvironment("IMB_S3_SECRET_KEY", "test")
-          .WithEnvironment("Modules__Ingester__Storage__CadsIngester__BucketName", LocalStackFixture.CadsInternalBucketName)
-          .WithEnvironment("Modules__Ingester__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsQueueUrl)
-          .WithEnvironment("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsDeadLetterQueueUrl)
+          .WithEnvironment("Modules__StorageBridge__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsFifoQueueUrl)
+          .WithEnvironment("Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsFifoDeadLetterQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsFifoQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__ImportsDeduplication__BucketName", LocalStackFixture.CadsExternalBucketName)
+          .WithEnvironment("Modules__SystemAdmin__ImportsDeduplication__EnvironmentName", "PreProd")
           .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ReadConnectionString)
+          .WithEnvironment("IMB_S3_ACCESS_KEY", "test")
+          .WithEnvironment("IMB_S3_SECRET_KEY", "test")
           .WithEnvironment("AuthenticationConfiguration__ApiKey__Enabled", "true")
           .WithEnvironment("AuthenticationConfiguration__Cognito__Enabled", "false")
           .WithEnvironment("AuthenticationConfiguration__Cognito__Authority", "")
@@ -69,7 +79,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
           .WithEnvironment("AWS_SECRET_ACCESS_KEY", LocalStackFixture.AwsSecretAccessKey)
           .WithEnvironment("DOTNET_SYSTEM_NET_SOCKETS_HTTP_USEIPV6", "false")
-          .WithNetwork(TestContainerConstants.NetworkName)
+          .WithNetwork(_networkName)
           .WithNetworkAliases("cads_cds")
           .WithWaitStrategy(Wait.ForUnixContainer()
               .UntilHttpRequestIsSucceeded(req => req.ForPort(5555).ForPath("/health"), o => o.WithTimeout(TimeSpan.FromSeconds(25))))
@@ -132,6 +142,7 @@ public class ApiContainerFixture : IAsyncLifetime
         catch (Exception ex) { error ??= ex; }
 
         await Safe(() => ApiContainer.DisposeAsync());
+        await Safe(() => DockerNetworkHelper.DeleteNetwork(_networkName));
 
         GC.SuppressFinalize(this);
 
