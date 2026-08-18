@@ -101,8 +101,6 @@ public static class StorageManagementEndpoints
 
         if (matches is not null)
         {
-            // Match against the entry's name relative to the requested prefix,
-            // i.e. what the listing renders, not the full key.
             var basePrefix = prefix ?? string.Empty;
 
             listing = listing with
