@@ -257,7 +257,7 @@ public class S3ToPostgresCopyService(
 
                 if (logger.IsEnabled(LogLevel.Information))
                 {
-                    logger.LogInformation("NpgsqlException details: {Message}, SQLState: {SQLState}, ErrorCode: {ErrorCode}, ConnectionState: {connectionState}",
+                    logger.LogInformation(ex, "NpgsqlException details: {Message}, SqlState: {SqlState}, ErrorCode: {ErrorCode}, ConnectionState: {connectionState}",
                         ex.Message, ex.SqlState, ex.ErrorCode, connection.State.ToString());
                 }
 
@@ -265,6 +265,8 @@ public class S3ToPostgresCopyService(
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Failed to process file {Key}", key);
+
                 // Attempt rollback, but do not swallow original exception
                 try
                 {
@@ -276,7 +278,6 @@ public class S3ToPostgresCopyService(
                     logger.LogError(rbEx, "Rollback failed for key {Key}", key);
                 }
 
-                logger.LogError(ex, "Failed to process file {Key}", key);
                 throw;
             }
 
