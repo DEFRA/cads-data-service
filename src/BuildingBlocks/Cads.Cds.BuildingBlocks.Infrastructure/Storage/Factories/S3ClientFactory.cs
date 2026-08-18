@@ -5,7 +5,7 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 
 public class S3ClientFactory : IS3ClientFactory
 {
-    public sealed record ClientInfo(IAmazonS3 Client, string BucketName);
+    public sealed record ClientInfo(IAmazonS3 Client, string BucketName, bool HealthCheckEnabled);
 
     private readonly Dictionary<string, ClientInfo> _clients = [];
 
@@ -41,11 +41,19 @@ public class S3ClientFactory : IS3ClientFactory
         return client.BucketName;
     }
 
+    public bool GetClientHealthCheckEnabled(string clientName)
+    {
+        if (!_clients.TryGetValue(clientName, out var client))
+            throw new KeyNotFoundException($"No S3 client registered for name '{clientName}'");
+
+        return client.HealthCheckEnabled;
+    }
+
     public IEnumerable<string> GetRegisteredClientNames() => _clients.Keys;
 
     public bool HasStorageClient(string storageClientName) => _clients.ContainsKey(storageClientName);
 
-    public void AddClient<T>(string defaultBucketName, AmazonS3Config amazonS3Config)
+    public void AddClient<T>(string defaultBucketName, bool healthCheckEnabled, AmazonS3Config amazonS3Config)
         where T : IStorageClient, new()
     {
         var instance = new T();
@@ -54,11 +62,11 @@ public class S3ClientFactory : IS3ClientFactory
         if (!HasStorageClient(storageClientName))
         {
             var newClient = new AmazonS3Client(amazonS3Config);
-            _clients[storageClientName] = new(newClient, defaultBucketName);
+            _clients[storageClientName] = new(newClient, defaultBucketName, healthCheckEnabled);
         }
     }
 
-    public void AddClientWithCredentials<T>(string defaultBucketName, string accessKeyRef, string secretKeyRef, AmazonS3Config amazonS3Config)
+    public void AddClientWithCredentials<T>(string defaultBucketName, bool healthCheckEnabled, string accessKeyRef, string secretKeyRef, AmazonS3Config amazonS3Config)
         where T : IStorageClient, new()
     {
         var instance = new T();
@@ -76,15 +84,15 @@ public class S3ClientFactory : IS3ClientFactory
                 throw new InvalidOperationException($"Missing AWS credentials for '{storageClientName}'");
 
             var newClient = new AmazonS3Client(accessKey, secretKey, amazonS3Config);
-            _clients[storageClientName] = new(newClient, defaultBucketName);
+            _clients[storageClientName] = new(newClient, defaultBucketName, healthCheckEnabled);
         }
     }
 
-    public void RegisterMockClient<T>(string bucketName, IAmazonS3 mockClient)
+    public void RegisterMockClient<T>(string bucketName, bool healthCheckEnabled, IAmazonS3 mockClient)
         where T : IStorageClient, new()
     {
         var instance = new T();
         var name = instance.ClientName;
-        _clients[name] = new(mockClient, bucketName);
+        _clients[name] = new(mockClient, bucketName, healthCheckEnabled);
     }
 }

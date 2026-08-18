@@ -4,19 +4,24 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-  <!-- Define constants here -->
-  <property name="gfName" value="Gary Fletcher" context="dev,test,ext-test,perf-test"/>
-  <property name="gfEmail" value="gary.fletcher@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="mgName" value="Mark Gent" context="dev,test,ext-test,perf-test"/>
-  <property name="mgEmail" value="mark.gent@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+<property name="anName" value="Andy Norman" context="dev,test,ext-test,perf-test"/>
+  <property name="anEmail" value="andrew.norman@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="arName" value="Andy Rose" context="dev,test,ext-test,perf-test"/>
+  <property name="arEmail" value="andy.rose@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="cjName" value="Craig John" context="dev,test,ext-test,perf-test"/>
   <property name="cjEmail" value="craig.john@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="dbName" value="David Baillie" context="dev,test,ext-test,perf-test"/>
   <property name="dbEmail" value="david.baillie@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="arName" value="Andy Rose" context="dev,test,ext-test,perf-test"/>
-  <property name="arEmail" value="andy.rose@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="thName" value="Tom Harrison" context="dev,test,ext-test,perf-test"/>
-  <property name="thEmail" value="tom.harrison@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="gfName" value="Gary Fletcher" context="dev,test,ext-test,perf-test"/>
+  <property name="gfEmail" value="gary.fletcher@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="mgName" value="Mark Gent" context="dev,test,ext-test,perf-test"/>
+  <property name="mgEmail" value="mark.gent@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="mhName" value="Matthew Hodgson" context="dev,test,ext-test,perf-test"/>
+  <property name="mhEmail" value="matthew.hodgson@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="msName" value="Mark Stocker" context="dev,test,ext-test,perf-test"/>
+  <property name="msEmail" value="mark.stocker@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
+  <property name="vsName" value="Verrol Skerritt" context="dev,test,ext-test,perf-test"/>
+  <property name="vsEmail" value="verrol.skerritt@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="jtDevName" value="SA-O365-CADS-MIP-DEV" context="dev"/>
   <property name="jtDevEmail" value="SA-O365-CADS-MIP-DEV-dev@defradev.onmicrosoft.com" context="dev"/>
   <property name="jtTestName" value="SA-O365-CADS-MIP-TEST" context="test"/>
@@ -25,66 +30,86 @@
   <property name="jtExtTestEmail" value="SA-O365-CADS-MIP-EXT-TEST-tst@defradev.onmicrosoft.com" context="ext-test"/>
   <property name="jtPerfTestNam" value="SA-O365-CADS-MIP-PERF-TEST" context="perf-test"/>
   <property name="jtPerfTestEmail" value="SA-O365-CADS-MIP-PERF-TEST-tst@defradev.onmicrosoft.com" context="perf-test"/>
-  <property name="mhName" value="Matthew Hodgson" context="dev,test,ext-test,perf-test"/>
-  <property name="mhEmail" value="matthew.hodgson@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="msName" value="Mark Stocker" context="dev,test,ext-test,perf-test"/>
-  <property name="msEmail" value="mark.stocker@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <property name="vsName" value="Verrol Skerritt" context="dev,test,ext-test,perf-test"/>
-  <property name="vsEmail" value="verrol.skerritt@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
-  <!-- Your existing includes -->
-  <include file="0000_000__drop_all_tables.postgresql.sql"/>
-  <include file="0000_001_create_cleanup_functions.postgresql.sql"/>
-  <include file="0001_000__create_cads_tables.postgresql.sql"/>
-  <include file="0001_001__create_cts_tables.postgresql.sql"/>
-  <include file="0001_002__create_mi_tables.postgresql.sql"/>
-  <include file="0001_003_get_births_summary_create_function.postgresql.sql"/>
-  <include file="0001_004_get_mi__effective_report_permission_create_functions.postgresql.sql"/>
-  <include file="0001_005_get_mi_effective_report_all_permissions_create_functions.postgresql.sql"/>
-  <include file="0001_006_get_deaths_summary_create_function.postgresql.sql"/>
-  <include file="0001_007_get_imports_summary_create_function.postgresql.sql"/>
-  <include file="0001_008_create_data_seed_injestion_history_table.postgresql.sql"/>
-  <include file="0001_009_get_locations_create_function.postgresql.sql"/>
-  <include file="0001_010_get_locations_create_function.postgresql.sql"/>
-  <include file="0002_000_mi_seed.postgresql.sql"/>
-  <include file="0002_001_mi_cattle_import_report_seed.postgresql.sql"/>
-  <include file="0002_010_mi_user_seed_initial_users_local.postgresql.sql"/>
-  <include file="0002_011_mi_user_seed_initial_users_dev.postgresql.sql"/>
-  <include file="0002_012_mi_user_seed_initial_users_test.postgresql.sql"/>
-  <include file="0002_013_mi_user_seed_initial_users_ext-test.postgresql.sql"/>
-  <include file="0002_014_mi_user_seed_initial_users_perf-test.postgresql.sql"/>
-  <include file="0002_015_mi_user_seed_journey_test_users_dev.postgresql.sql"/>
-  <include file="0002_016_mi_user_seed_journey_test_users_test.postgresql.sql"/>
-  <include file="0002_017_mi_user_seed_journey_test_users_ext-test.postgresql.sql"/>
-  <include file="0002_018_mi_user_seed_journey_test_users_perf-test.postgresql.sql"/>
-  <include file="0002_019_mi_user_seed_additional_users_dev.postgresql.sql"/>
-  <include file="0002_020_mi_user_seed_additional_users_test.postgresql.sql"/>
-  <include file="0002_021_mi_user_seed_additional_users_ext-test.postgresql.sql"/>
-  <include file="0002_022_mi_user_seed_additional_users_perf-test.postgresql.sql"/>
-  <include file="0003_000__ct_sublocation_types_seed_data.postgresql.sql"/>
-  <include file="0003_001__ct_param_header_seed_data.postgresql.sql"/>
-  <include file="0003_002__ct_param_group_seed_data.postgresql.sql"/>
-  <include file="0003_002__ct_param_value_seed_data.postgresql.sql"/>
-  <include file="0003_003__ct_param_value_group_seed_data.postgresql.sql"/>
-  <include file="0003_004__ct_probity_checks_seed_data.postgresql.sql"/>
-  <include file="0003_005__ct_condition_types_seed_data.postgresql.sql"/>
-  <include file="0003_006__ct_conditions_seed_data.postgresql.sql"/>
-  <include file="0003_007__ct_condition_activities_seed_data.postgresql.sql"/>
-  <include file="0003_008__ct_condition_variants_seed_data.postgresql.sql"/>
-  <include file="0003_009__ct_cond_variant_groupings_seed_data.postgresql.sql"/>
-  <include file="0003_010__ct_cm_authorities_seed_data.postgresql.sql"/>
-  <include file="0003_011__ct_countries_seed_data.postgresql.sql"/>
-  <include file="0003_012__ct_counties_seed_data.postgresql.sql"/>
-  <include file="0003_013__ct_location_id_formats_seed_data.postgresql.sql"/>
-  <include file="0003_014__ct_location_types_seed_data.postgresql.sql"/>
-  <include file="0003_015__ct_location_rel_types_seed_data.postgresql.sql"/>
-  <include file="0003_016__ct_loc_type_rel_combs_seed_data.postgresql.sql"/>
-  <include file="0003_017__ct_location_party_rel_types_seed_data.postgresql.sql"/>
-  <include file="0003_018__ct_eartag_formats_seed_data.postgresql.sql"/>
-  <include file="0003_019__ct_eartag_types_seed_data.postgresql.sql"/>
-  <include file="0003_020__ct_eartag_reasons_seed_data.postgresql.sql"/>
-  <include file="0003_021__ct_eartag_reason_flags_seed_data_faker_data.postgresql.sql"/>
-  <include file="0003_022__ct_schemes_seed_data.postgresql.sql"/>
-  <include file="0003_023__ct_breeds_seed_data.postgresql.sql"/>
-  <include file="0003_024__ct_workgroups_seed_data_faker_data.postgresql.sql"/>
-  <include file="0003_025__integration_ct_locations_seed_data.postgresql.sql"/>
+  <include file="0000_000_drop_legacy_schema_objects.postgresql.sql"/>
+  <include file="0000_001_create_schemas.postgresql.sql"/>
+  <include file="0000_002_create_schemas_permissions.postgresql.sql"/>
+  <include file="0002_008_cads_pseudonymisation_routine.postgresql.sql"/>
+  <include file="0002_009_cads_truncate_all_tables_routine.postgresql.sql"/>
+  <include file="0002_019_cts_truncate_tables_routine.postgresql.sql"/>
+  <include file="0002_028_cts_transactions_pseudonymisation_routine.postgresql.sql"/>
+  <include file="0002_029_cts_transactions_truncate_tables_routine.postgresql.sql"/>
+  <include file="0002_038_cts_audit_pseudonymisation_routine.postgresql.sql"/>
+  <include file="0002_039_cts_audit_truncate_tables_routine.postgresql.sql"/>
+  <include file="0000_003_truncate_all_tables.postgresql.sql"/>
+  <include file="0000_010_cads_core_tables.postgresql.sql"/>
+  <include file="0000_011_cads_mi_tables.postgresql.sql"/>
+  <include file="0000_012_cads_import_tables.postgresql.sql"/>
+  <include file="0000_020_cts_tables.postgresql.sql"/>
+  <include file="0000_030_cts_transactions_tables.postgresql.sql"/>
+  <include file="0000_040_cts_audit_tables.postgresql.sql"/>
+  <include file="0001_000_cads_indexes.postgresql.sql"/>
+  <include file="0001_001_cts_indexes.postgresql.sql"/>
+  <include file="0001_002_cts_transactions_indexes.postgresql.sql"/>
+  <include file="0001_003_cts_audit_indexes.postgresql.sql"/>
+  <include file="0001_010_cts_animals_on_holding_indexes.postgresql.sql"/>
+  <include file="0001_011_cts_ctso_indexes.postgresql.sql"/>
+  <include file="0001_016_create_data_seed_injestion_history_table.postgresql.sql"/>
+  <include file="0002_010_cads_import_routines.postgresql.sql"/>
+  <include file="0002_011_cads_get_births_summary.postgresql.sql"/>
+  <include file="0002_012_cads_get_mi_effective_report_permission.postgresql.sql"/>
+  <include file="0002_013_cads_get_mi_effective_report_all_permissions.postgresql.sql"/>
+  <include file="0002_014_cads_get_deaths_summary.postgresql.sql"/>
+  <include file="0002_015_cads_get_imports_summary.postgresql.sql"/>
+  <include file="0002_016_cads_get_locations.postgresql.sql"/>
+  <include file="0002_017_cads_file_import_status_routine.postgresql.sql"/>
+  <include file="0002_018_cads_animals_on_holding_routines.postgresql.sql"/>
+  <include file="0002_021_cts_pseudonymisation_routine.postgresql.sql"/>
+  <include file="0002_030_cts_audit_routines.postgresql.sql"/>
+  <include file="0004_001_cads_file_import_status_data.postgresql.sql"/>
+  <include file="0004_002_cads_reference_state_seed_data.postgresql.sql"/>
+  <include file="0004_003_mi_seed.postgresql.sql"/>
+  <include file="0004_004_mi_cattle_import_report_seed.postgresql.sql"/>
+  <include file="0004_005_mi_report_groups_seed.postgresql.sql"/>
+  <include file="0004_006_mi_user_seed_initial_users_local.postgresql.sql"/>
+  <include file="0004_007_mi_user_seed_initial_users_dev.postgresql.sql"/>
+  <include file="0004_008_mi_user_seed_initial_users_test.postgresql.sql"/>
+  <include file="0004_009_mi_user_seed_initial_users_ext-test.postgresql.sql"/>
+  <include file="0004_010_mi_user_seed_initial_users_perf-test.postgresql.sql"/>
+  <include file="0004_011_mi_user_seed_journey_test_users_dev.postgresql.sql"/>
+  <include file="0004_012_mi_user_seed_journey_test_users_test.postgresql.sql"/>
+  <include file="0004_013_mi_user_seed_journey_test_users_ext-test.postgresql.sql"/>
+  <include file="0004_014_mi_user_seed_journey_test_users_perf-test.postgresql.sql"/>
+  <include file="0004_015_mi_user_seed_additional_users_dev.postgresql.sql"/>
+  <include file="0004_016_mi_user_seed_additional_users_test.postgresql.sql"/>
+  <include file="0004_017_mi_user_seed_additional_users_ext-test.postgresql.sql"/>
+  <include file="0004_018_mi_user_seed_additional_users_perf-test.postgresql.sql"/>
+  <include file="0004_019_ct_sublocation_types_seed_data.postgresql.sql"/>
+  <include file="0004_020_ct_param_header_seed_data.postgresql.sql"/>
+  <include file="0004_021_ct_param_group_seed_data.postgresql.sql"/>
+  <include file="0004_022_ct_param_value_seed_data.postgresql.sql"/>
+  <include file="0004_023_ct_param_value_group_seed_data.postgresql.sql"/>
+  <include file="0004_024_ct_probity_checks_seed_data.postgresql.sql"/>
+  <include file="0004_025_ct_condition_types_seed_data.postgresql.sql"/>
+  <include file="0004_026_ct_conditions_seed_data.postgresql.sql"/>
+  <include file="0004_027_ct_condition_activities_seed_data.postgresql.sql"/>
+  <include file="0004_028_ct_condition_variants_seed_data.postgresql.sql"/>
+  <include file="0004_029_ct_cond_variant_groupings_seed_data.postgresql.sql"/>
+  <include file="0004_030_ct_cm_authorities_seed_data.postgresql.sql"/>
+  <include file="0004_031_ct_countries_seed_data.postgresql.sql"/>
+  <include file="0004_032_ct_counties_seed_data.postgresql.sql"/>
+  <include file="0004_033_ct_location_id_formats_seed_data.postgresql.sql"/>
+  <include file="0004_034_ct_location_types_seed_data.postgresql.sql"/>
+  <include file="0004_035_ct_location_rel_types_seed_data.postgresql.sql"/>
+  <include file="0004_036_ct_loc_type_rel_combs_seed_data.postgresql.sql"/>
+  <include file="0004_037_ct_location_party_rel_types_seed_data.postgresql.sql"/>
+  <include file="0004_038_ct_eartag_formats_seed_data.postgresql.sql"/>
+  <include file="0004_039_ct_eartag_types_seed_data.postgresql.sql"/>
+  <include file="0004_040_ct_eartag_reasons_seed_data.postgresql.sql"/>
+  <include file="0004_041_ct_schemes_seed_data.postgresql.sql"/>
+  <include file="0004_042_ct_breeds_seed_data.postgresql.sql"/>
+  <include file="0004_043_get_births_summary_seed_data_local.postgresql.sql"/>
+  <include file="0003_000_ct_locations_integration.postgresql.sql"/>
+  <include file="0003_001_cts_file_imports_integration.postgresql.sql"/>
+  <include file="0005_000_ct_eartag_reason_flags_seed_data_faker_data.postgresql.sql"/>
+  <include file="0005_001_ct_workgroups_seed_data_faker_data.postgresql.sql"/>
 </databaseChangeLog>

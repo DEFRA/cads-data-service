@@ -1,12 +1,23 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
+using Cads.Cds.ApiSurface.Messages;
+using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
+using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Specimens.Factories;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Observers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
-using Cads.Cds.StorageBridge.Core.DTOs;
+using Cads.Cds.StorageBridge.Application.Messaging.Clients;
+using Cads.Cds.StorageBridge.Application.Uow;
+using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Testing.Support.Contexts;
+using Cads.Cds.StorageBridge.Testing.Support.Fakes.Behaviours;
 using Cads.Cds.StorageBridge.Testing.Support.Fakes.Channels;
+using Cads.Cds.StorageBridge.Testing.Support.Fakes.Uow;
 using Cads.Cds.StorageBridge.Testing.Support.Seeding;
+using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Threading.Channels;
@@ -19,6 +30,8 @@ public class StorageBridgeWebApplicationFactory(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
+    private readonly string _dbName = $"StorageBridgeDb_{Guid.NewGuid()}";
+
     public TestCsvBulkLoadJobChannel TestCsvBulkLoadJobChannel { get; } = new();
 
     public TestSqlImportJobChannel TestSqlImportJobChannel { get; } = new();
@@ -29,28 +42,62 @@ public class StorageBridgeWebApplicationFactory(
 
         builder.ConfigureTestServices(services =>
         {
-            OverrideBulkLoadChannels(services);
+            ConfigurePersistence(services);
+            OverrideS3ImportChannels(services);
+            OverrideMessageConsumers(services);
         });
     }
 
     protected override void ConfigureDatabase(IServiceCollection services)
     {
-        var storageBridgeReadDbContext = DbContextFactory.CreateInMemoryTestDbContextFromDbContext<StorageBridgeReadDbContext, TestStorageBridgeReadDbContext>(Guid.NewGuid().ToString());
-        TestStorageBridgeDataSeeder.SeedSaveChanges(storageBridgeReadDbContext);
+        services.AddScoped<StorageBridgeReadDbContext>(_ =>
+            new TestStorageBridgeReadDbContext(
+                new DbContextOptionsBuilder<StorageBridgeReadDbContext>()
+                    .UseInMemoryDatabase(_dbName)
+                    .Options));
 
-        var storageBridgeWriteDbContext = DbContextFactory.CreateInMemoryDbContext<StorageBridgeWriteDbContext>(Guid.NewGuid().ToString());
-        TestStorageBridgeDataSeeder.SeedSaveChanges(storageBridgeWriteDbContext);
+        services.AddDbContext<StorageBridgeWriteDbContext>(o =>
+            o.UseInMemoryDatabase(_dbName));
 
-        services.Replace(new ServiceDescriptor(typeof(StorageBridgeReadDbContext), storageBridgeReadDbContext));
-        services.Replace(new ServiceDescriptor(typeof(StorageBridgeWriteDbContext), storageBridgeWriteDbContext));
+        services.RemoveAll<IStorageBridgeUnitOfWork>();
+        services.AddScoped<IStorageBridgeUnitOfWork, FakeStorageBridgeUnitOfWork>();
     }
 
-    private void OverrideBulkLoadChannels(IServiceCollection services)
+    private static void ConfigurePersistence(IServiceCollection services)
     {
-        services.RemoveAll<Channel<CreateS3BulkLoadJobDto>>();
+        var provider = services.BuildServiceProvider();
+
+        using var scope = provider.CreateScope();
+
+        var readDb = scope.ServiceProvider.GetRequiredService<StorageBridgeReadDbContext>();
+
+        // Seeds
+        TestStorageBridgeDataSeeder.Seed(readDb, FileImportDataFactory.CreateMockData());
+
+        readDb.SaveChanges();
+
+        // Real transactions are not suppoted by in memory db so use cut down version
+        services.AddTransient(typeof(IPipelineBehavior<,>),
+            typeof(TestStorageBridgeCommitBehaviour<,>));
+    }
+
+    private void OverrideS3ImportChannels(IServiceCollection services)
+    {
+        services.RemoveAll<Channel<CreateS3ImportJobDto>>();
         services.RemoveAll<Channel<CreateS3SqlImportJobDto>>();
 
         services.AddSingleton(TestCsvBulkLoadJobChannel.Channel);
         services.AddSingleton(TestSqlImportJobChannel.Channel);
+    }
+
+    private static void OverrideMessageConsumers(IServiceCollection services)
+    {
+        services.RemoveAll<StorageBridgeFifoQueueListener>();
+        services.RemoveAll<TestQueuePollerObserver<MessageType>>();
+        services.RemoveAll<IQueuePoller<StorageBridgeFifoQueueClient>>();
+
+        services.AddScoped<IQueuePoller<StorageBridgeFifoQueueClient>, StorageBridgeFifoQueuePoller>();
+        services.AddScoped<TestQueuePollerObserver<MessageType>>();
+        services.AddScoped<IQueuePollerObserver<MessageType>>(sp => sp.GetRequiredService<TestQueuePollerObserver<MessageType>>());
     }
 }
