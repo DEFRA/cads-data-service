@@ -52,6 +52,8 @@
   <include file="0001_002_cts_transactions_indexes.postgresql.sql"/>
   <include file="0001_003_cts_audit_indexes.postgresql.sql"/>
   <include file="0001_010_cts_animals_on_holding_indexes.postgresql.sql"/>
+  <include file="0001_011_cts_ctso_indexes.postgresql.sql"/>
+  <include file="0001_016_create_data_seed_injestion_history_table.postgresql.sql"/>
   <include file="0002_010_cads_import_routines.postgresql.sql"/>
   <include file="0002_011_cads_get_births_summary.postgresql.sql"/>
   <include file="0002_012_cads_get_mi_effective_report_permission.postgresql.sql"/>
