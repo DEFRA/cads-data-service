@@ -7,4 +7,6 @@ public record StorageBridgeStorageConfiguration
     public StorageConfigurationDetails CadsInternal { get; init; } = new();
 
     public StorageConfigurationDetailsWithCredentials CadsExternal { get; init; } = new();
+
+    public StorageManagerConfiguration StorageManager { get; init; } = new();
 }
