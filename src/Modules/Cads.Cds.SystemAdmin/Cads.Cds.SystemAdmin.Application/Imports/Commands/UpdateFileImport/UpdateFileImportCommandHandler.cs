@@ -81,9 +81,9 @@ public class UpdateFileImportCommandHandler(
                 messageDeduplicationId,
                 correlationId);
 
-            if (logger.IsEnabled(LogLevel.Information))
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogInformation("UpdateFileImportCommandHandler publishing S3ToPostgresCopyMessage");
+                logger.LogDebug("UpdateFileImportCommandHandler publishing S3ToPostgresCopyMessage");
             }
 
             await messagePublisher.PublishAsync(message, metadata, cancellationToken);
