@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Extensions;
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
-using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;
@@ -29,7 +29,7 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         _transaction = transaction;
     }
 
-    protected virtual string GenerateTempTableSql(ImportDataType importDataType, SchemaName schemaName, long fileImportId)
+    protected virtual string GenerateTempTableSql(ImportDataType importDataType, SchemaName schemaName, ImportActionType importActionType, long fileImportId)
     {
         var tableName = GetTableName(importDataType, schemaName);
         var tempTableName = GetTableName(importDataType, schemaName, isTemp: true);
@@ -37,9 +37,11 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
 
         if (schemaName == SchemaName.CtsTransactions)
         {
+            var transTypeChar = importActionType.GetTransTypeChar();
+
             commandText += $"ALTER TABLE {tempTableName} " +
                 "DROP COLUMN trans_id, " +
-                "ALTER COLUMN trans_type SET DEFAULT 'B', " +
+                $"ALTER COLUMN trans_type SET DEFAULT '{transTypeChar}', " +
                 $"ALTER COLUMN cts_file_import_id SET DEFAULT {fileImportId};";
         }
 
@@ -80,9 +82,9 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
                $"ON CONFLICT ({key}) DO UPDATE SET {string.Join(", ", columnNames.Select(c => $"{c} = EXCLUDED.{c}"))}";
     }
 
-    public DbCommand CreateTempTableCommand(ImportDataType importDataType, SchemaName schemaName, long fileImportId)
+    public DbCommand CreateTempTableCommand(ImportDataType importDataType, SchemaName schemaName, ImportActionType importActionType, long fileImportId)
     {
-        var sql = GenerateTempTableSql(importDataType, schemaName, fileImportId);
+        var sql = GenerateTempTableSql(importDataType, schemaName, importActionType, fileImportId);
 
         return new NpgsqlCommand
         {

@@ -44,7 +44,7 @@ public class S3ToPostgresCopyService(
         var fileImport = await fileImportRepository.GetByIdAsync(job.FileImportId, cancellationToken)
                 ?? throw new InvalidOperationException($"FileImport with ID {job.FileImportId} not found.");
 
-        var (importDataType, importActionType) = GetImportParameters(fileImport.FileName);
+        var (importDataType, importActionType, schemaName) = GetImportParameters(fileImport.FileName);
 
         if (importDataType == ImportDataType.None)
         {
@@ -53,9 +53,9 @@ public class S3ToPostgresCopyService(
 
         var filePath = $"import/{Path.GetFileNameWithoutExtension(fileImport.FileName)}";
 
-        if (logger.IsEnabled(LogLevel.Information))
+        if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogInformation("Starting CSV import copy for job {JobId} with key {FilePath}",
+            logger.LogDebug("Starting CSV import copy for job {JobId} with key {FilePath}",
                 job.JobId, filePath);
         }
 
@@ -70,8 +70,8 @@ public class S3ToPostgresCopyService(
 
         var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
         var factory = factoryProvider.Create((NpgsqlConnection)connection);
-        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName(), fileImport.Id);
-        var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
+        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, schemaName, importActionType, fileImport.Id);
+        var actionCommands = await GetCommandsAsync(importDataType, schemaName, importActionType, factory, cancellationToken);
 
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
@@ -92,7 +92,7 @@ public class S3ToPostgresCopyService(
             var rows = await ProcessFileAsync(
                 key,
                 importDataType,
-                importActionType,
+                schemaName,
                 job.Delimiter,
                 factory,
                 dbContext,
@@ -140,7 +140,7 @@ public class S3ToPostgresCopyService(
     private async Task<int> ProcessFileAsync(
         string key,
         ImportDataType importDataType,
-        ImportActionType importActionType,
+        SchemaName schemaName,
         char delimiter,
         IS3ImportCommandFactory factory,
         StorageBridgeWriteDbContext dbContext,
@@ -212,7 +212,7 @@ public class S3ToPostgresCopyService(
                 await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
                 // Copy file to staging (may involve network IO; add retry)
-                await CopyFileToStagingAsync(importDataType, importActionType.GetSchemaName(), delimiter, key, factory, cancellationToken);
+                await CopyFileToStagingAsync(importDataType, schemaName, delimiter, key, factory, cancellationToken);
 
                 // Execute action commands (retry the whole command set if transient)
                 foreach (var command in actionCommands)
@@ -296,9 +296,9 @@ public class S3ToPostgresCopyService(
 
             if (command is null) continue;
 
-            if (logger.IsEnabled(LogLevel.Information))
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogInformation("Command: {CommandText}", command.CommandText);
+                logger.LogDebug("Command: {CommandText}", command.CommandText);
             }
 
             total += await command.ExecuteNonQueryAsync(cancellationToken);
@@ -384,18 +384,17 @@ public class S3ToPostgresCopyService(
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
         ImportDataType importDataType,
+        SchemaName schemaName,
         ImportActionType importActionType,
         IS3ImportCommandFactory factory,
         CancellationToken cancellationToken)
     {
         var commands = new List<DbCommand>();
-        var schemaName = importActionType.GetSchemaName();
 
         switch (importActionType)
         {
-            // Both Bulk and Delta will be inserting into cts-transactions
+            // Both Bulk and Delta currently insert into cts-transactions the same way
             case ImportActionType.Bulk:
-
             case ImportActionType.Delta:
                 commands.Add(await factory.CreateInsertCommandAsync(importDataType, schemaName, cancellationToken));
                 break;
@@ -406,20 +405,20 @@ public class S3ToPostgresCopyService(
         return commands;
     }
 
-    private static (ImportDataType, ImportActionType) GetImportParameters(string filename)
+    private static (ImportDataType ImportDataType, ImportActionType ImportActionType, SchemaName SchemaName) GetImportParameters(string filename)
     {
         var parsedFilename = CtsmFilenameParser.Parse(filename);
 
-        if (!Enum.TryParse<ImportActionType>(parsedFilename?.Type, true, out var importActionTypeParsed))
+        if (!Enum.TryParse<ImportActionType>(parsedFilename?.Type, true, out var importActionType))
         {
             throw new InvalidOperationException($"Invalid ImportActionType '{parsedFilename?.Type}' for file '{filename}'.");
         }
 
-        var schemaName = importActionTypeParsed.GetSchemaName();
+        var schemaName = importActionType.GetSchemaName();
 
         var importDataType = Enum.GetValues<ImportDataType>()
             .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(parsedFilename?.TableName, StringComparison.InvariantCultureIgnoreCase) == true);
 
-        return (importDataType, importActionTypeParsed);
+        return (importDataType, importActionType, schemaName);
     }
 }
