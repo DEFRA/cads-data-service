@@ -530,3 +530,7 @@ drop table if exists cads.party_species cascade;
 drop table if exists cads.party_state cascade;
 drop table if exists cads.party_type cascade;
 drop table if exists cads.party_location cascade;
+
+DROP FUNCTION IF EXISTS public.truncate_schema_tables(p_schemas text[]);
+DROP FUNCTION IF EXISTS public.truncate_data_seed_tables();
+DROP FUNCTION IF EXISTS public.clear_schema_objects(p_schema text);
