@@ -4,6 +4,53 @@
 
 This guide explains how to install Liquibase, configure your environment, maintain a reference (“golden”) database, and generate migration scripts for the CADS database using Liquibase’s diff workflow.
 
+## Changelog Organisation
+
+The complete Liquibase changelog is organised as follows:
+
+- `0000` — table DDL, split by `cads`, `cts`, `cts_transactions`, and `cts_audit`
+- `0001` — indexes, split by schema
+- `0002` — functions and stored procedures, held centrally in the `cads` schema
+- `0003` — integrations
+- `0004` — ordinary DEV database seed data
+- `0005` — fake data
+
+This ensures that tables and indexes exist before any data is loaded.
+
+All functions and stored procedures are held in the `cads` schema. A routine that operates on another schema includes the target schema at the start of its name. For example, a procedure that truncates the `cts_audit` schema is named `cads.cts_audit_truncate_all_tables()`.
+
+### Removing DEV and Fake Data
+
+Before importing real data, remove the existing DEV and fake data while retaining all tables, indexes, constraints, functions, permissions, and other database structures:
+
+```sql
+BEGIN;
+CALL cads.cts_audit_truncate_all_tables();
+CALL cads.cts_transactions_truncate_all_tables();
+CALL cads.cts_truncate_all_tables();
+CALL cads.truncate_all_tables();
+COMMIT;
+```
+
+These procedures use `TRUNCATE TABLE ... RESTART IDENTITY CASCADE`. This deletes all data in the four application schemas and resets identity sequences, so only run them when the existing data is no longer required.
+
+### Pseudonymising Existing Data
+
+To pseudonymise all supported data in one transaction, run:
+
+```sql
+CALL cads.pseudonymise_all_data();
+```
+
+Individual schemas can be pseudonymised with:
+
+```sql
+CALL cads.pseudonymise_data();
+CALL cads.cts_pseudonymise_data();
+CALL cads.cts_transactions_pseudonymise_data();
+CALL cads.cts_audit_pseudonymise_data();
+```
+
 ## 1. Installation & Setup
 
 **Install Java (required for Liquibase)**
@@ -196,59 +243,28 @@ Liquibase outputs a migration script containing:
 
 Review and commit this file.
 
-**Naming conventions:**
+**Naming convention:**
 
-```
-<sequence>_<scope>_<action>_<object>.postgresql.sql
-<sequence>_<domain>_seed_<object>_<purpose>.sql
+```text
+<series>_<sequence>_<description>.postgresql.sql
 ```
 
 Where:
 
-- sequence = a zero‑padded number (0010, 0020, 0030)
-- scope = the domain (user, report, permission, role, schema, etc.)
-- action = create, alter, add, drop, seed, view, etc.
-- object = the table/view/index/etc
+- `series` identifies the type of database object or data: `0000` tables, `0001` indexes, `0002` routines, `0003` integrations, `0004` ordinary DEV data, or `0005` fake data
+- `sequence` is a zero-padded number within that series
+- `description` identifies the schema, object, or purpose
 
-**Note.** You should break it into multiple changesets grouped by domain.
+Examples:
 
-### Examples
-
-New
-
+```text
+0000_020_cts_tables.postgresql.sql
+0001_002_cts_transactions_indexes.postgresql.sql
+0002_019_cts_truncate_tables_routine.postgresql.sql
+0003_001_cts_file_imports_integration.postgresql.sql
+0004_019_ct_sublocation_types_seed_data.postgresql.sql
+0005_001_ct_workgroups_seed_data_faker_data.postgresql.sql
 ```
-0010_user_create_table.sql
-0020_role_create_table.sql
-0030_permission_create_table.sql
-0040_user_role_create_table.sql
-0050_permission_create_view_effective_report_permission.sql
-```
-
-Alterations
-
-```
-0011_user_add_column_last_login.sql
-0012_report_add_index_report_key.sql
-0013_permission_seed_initial_permissions.sql
-0014_user_role_add_fk_constraints.sql
-```
-
-Seeds
-
-```
-0110_permission_seed_initial_permissions.sql
-0120_report_seed_initial_reports.sql
-```
-
-Sequencing provides: spacing for future changes.
-
-Spacing changesets is a strategic choice, not a requirement.
-It gives you:
-- room to insert future changes
-- a clean, readable history
-- a timeline that tells a story
-- no renumbering headaches
-- a schema that scales with your platform
 
 ### Step 5
 
