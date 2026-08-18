@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Extensions;
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
-using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
+using Cads.Cds.BuildingBlocks.Application.Schema;
 using Npgsql;
 using NpgsqlTypes;
 using System.Data;

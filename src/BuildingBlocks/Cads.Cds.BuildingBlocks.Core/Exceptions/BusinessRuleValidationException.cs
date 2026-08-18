@@ -1,5 +1,5 @@
-using System.Net;
 using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
+using System.Net;
 
 namespace Cads.Cds.BuildingBlocks.Core.Exceptions;
 
