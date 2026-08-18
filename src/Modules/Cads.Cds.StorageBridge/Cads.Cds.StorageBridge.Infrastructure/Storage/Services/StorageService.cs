@@ -1,6 +1,6 @@
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
-using Cads.Cds.StorageBridge.Application.BulkLoad.Services;
+using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Readers;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Storage.Services;

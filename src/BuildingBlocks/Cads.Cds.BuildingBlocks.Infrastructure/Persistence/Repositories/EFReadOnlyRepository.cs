@@ -1,12 +1,14 @@
 using Cads.Cds.BuildingBlocks.Core.Persistence;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Repositories;
 
-public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbContext) : IReadOnlyRepository<TEntity>
+public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbContext)
+    : IReadOnlyRepository<TEntity>
     where TEntity : class
-    where TDbContext : DbContext
+    where TDbContext : CadsDbContext
 {
     protected TDbContext DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
@@ -28,7 +30,7 @@ public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbCon
 
         if (entity != null)
         {
-            dbContext.Entry(entity).State = EntityState.Detached;
+            DbContext.Entry(entity).State = EntityState.Detached;
         }
 
         return entity;
@@ -66,7 +68,7 @@ public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbCon
             : await query.ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TEntity>> ListAsync(
+    public virtual async Task<IReadOnlyList<TEntity>> ListAsync(
         Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryShaper = null,
         bool asNoTracking = true,
         CancellationToken cancellationToken = default)
@@ -81,7 +83,7 @@ public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbCon
         return await query.ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TResult>> ProjectAsync<TResult>(
+    public virtual async Task<IReadOnlyList<TResult>> ProjectAsync<TResult>(
         Func<IQueryable<TEntity>, IQueryable<TResult>> projection,
         bool asNoTracking = true,
         CancellationToken cancellationToken = default)
@@ -91,5 +93,20 @@ public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbCon
         var shaped = projection(baseQuery);
 
         return await shaped.ToListAsync(cancellationToken);
+    }
+
+    public virtual async Task<TEntity?> FirstOrDefaultAsync(
+       Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryShaper = null,
+       bool asNoTracking = true,
+       CancellationToken cancellationToken = default)
+    {
+        var query = Query(asNoTracking);
+
+        if (queryShaper is not null)
+        {
+            query = queryShaper(query);
+        }
+
+        return await query.FirstOrDefaultAsync(cancellationToken);
     }
 }
