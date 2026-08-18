@@ -12,6 +12,7 @@ using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
 using Cads.Cds.Setup.Providers;
 using Cads.Cds.StorageBridge.Application;
+using Cads.Cds.SystemAdmin.Application;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -97,6 +98,7 @@ public static class ServiceCollectionExtensions
             cfg.RegisterServicesFromAssembly(typeof(IIngesterApplicationMarker).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(ISystemAdminApplicationMarker).Assembly);
         });
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
@@ -104,6 +106,7 @@ public static class ServiceCollectionExtensions
         services.AddValidatorsFromAssembly(typeof(IApiApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(ISystemAdminApplicationMarker).Assembly);
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)

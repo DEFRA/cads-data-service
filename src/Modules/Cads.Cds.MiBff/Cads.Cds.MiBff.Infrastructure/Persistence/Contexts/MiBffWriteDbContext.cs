@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
@@ -5,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) : DbContext(options)
+public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) : CadsDbContext(options)
 {
     // Tables
     public DbSet<MiPermission> Permissions => Set<MiPermission>();

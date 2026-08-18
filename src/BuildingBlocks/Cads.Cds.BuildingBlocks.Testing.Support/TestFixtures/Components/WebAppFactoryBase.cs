@@ -6,11 +6,13 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Services;
+using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
+using Cads.Cds.MiBff.Application.Reports.Authorisation;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -33,7 +36,6 @@ public abstract class WebAppFactoryBase<TStart>(
     IDictionary<string, string?>? configOverrides = null,
     bool useFakeAuth = false) : WebApplicationFactory<TStart>
     where TStart : class
-
 {
     public Mock<IAmazonSQS> AmazonSQSMock { get; private set; } = new();
     public Mock<IAmazonS3> AmazonS3Mock { get; private set; } = new();
@@ -73,6 +75,10 @@ public abstract class WebAppFactoryBase<TStart>(
 
             OverrideAmazonSqs(services);
             OverrideAmazonS3(services);
+
+            RemoveReportAccessService(services);
+
+            RemoveAllEntityFramework(services);
             ConfigureDatabase(services);
 
             foreach (var apply in _serviceOverrides)
@@ -81,7 +87,7 @@ public abstract class WebAppFactoryBase<TStart>(
             services.RemoveAll<IHostedService>();
         });
 
-        builder.ConfigureServices(services =>
+        builder.ConfigureServices((context, services) =>
         {
             var mockService = new Mock<IPostgresStatusService>();
             mockService.Setup(x => x.CanConnect(It.IsAny<CancellationToken>())).ReturnsAsync(new PostgresStatusServiceResult { CanConnect = true });
@@ -165,13 +171,17 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("Postgres__DefaultConnection", "Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres;");
         Environment.SetEnvironmentVariable("Postgres__ReadOnlyConnection", "Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres;");
 
-        Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
-        Environment.SetEnvironmentVariable("Modules__Ingester__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__Ingester__Storage__CadsIngester__BucketName", TestS3Constants.TestCadsInternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
+        Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__BucketName", TestS3Constants.TestCadsExternalBucketName);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__AccessKeySecretName", "IMB_S3_ACCESS_KEY");
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsExternal__SecretKeySecretName", "IMB_S3_SECRET_KEY");
+        Environment.SetEnvironmentVariable("Modules__SystemAdmin__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
+        Environment.SetEnvironmentVariable("Modules__SystemAdmin__ImportsDeduplication__BucketName", TestS3Constants.TestCadsExternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__SystemAdmin__ImportsDeduplication__EnvironmentName", "PreProd");
+
         Environment.SetEnvironmentVariable("IMB_S3_ACCESS_KEY", "test");
         Environment.SetEnvironmentVariable("IMB_S3_SECRET_KEY", "test");
 
@@ -243,12 +253,15 @@ public abstract class WebAppFactoryBase<TStart>(
 
             factory.RegisterMockClient<CadsInternalClient>(
                 TestS3Constants.TestCadsInternalBucketName,
+                healthCheckEnabled: true,
                 AmazonS3Mock.Object);
             factory.RegisterMockClient<IngesterClient>(
                 TestS3Constants.TestCadsInternalBucketName,
+                healthCheckEnabled: true,
                 AmazonS3Mock.Object);
             factory.RegisterMockClient<CadsExternalClient>(
                 TestS3Constants.TestCadsExternalBucketName,
+                healthCheckEnabled: true,
                 AmazonS3Mock.Object);
 
             return factory;
@@ -283,6 +296,64 @@ public abstract class WebAppFactoryBase<TStart>(
         AmazonS3Mock
             .Setup(x => x.ListObjectsV2Async(It.IsAny<ListObjectsV2Request>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ListObjectsV2Response { HttpStatusCode = HttpStatusCode.OK });
+    }
+
+    private static void RemoveReportAccessService(IServiceCollection services)
+    {
+        services.RemoveAll<IReportAccessService>();
+        services.AddTransient<IReportAccessService, FakeReportAccessService>();
+    }
+
+    public static void RemoveAllEntityFramework(IServiceCollection services)
+    {
+        // Remove all DbContexts
+        foreach (var descriptor in services
+            .Where(s => typeof(DbContext).IsAssignableFrom(s.ServiceType))
+            .ToList())
+        {
+            services.Remove(descriptor);
+        }
+
+        // Remove all DbContextOptions<T>
+        foreach (var descriptor in services
+            .Where(s => s.ServiceType.IsGenericType &&
+                        s.ServiceType.GetGenericTypeDefinition() == typeof(DbContextOptions<>))
+            .ToList())
+        {
+            services.Remove(descriptor);
+        }
+
+        // Remove non-generic DbContextOptions
+        services.RemoveAll<DbContextOptions>();
+
+        // Remove ALL EF Core provider services (Npgsql, relational, etc.)
+        foreach (var descriptor in services
+            .Where(s =>
+                s.ServiceType.Namespace != null &&
+                (
+                    s.ServiceType.Namespace.StartsWith("Microsoft.EntityFrameworkCore") ||
+                    s.ServiceType.Namespace.StartsWith("Npgsql.EntityFrameworkCore")
+                ))
+            .ToList())
+        {
+            services.Remove(descriptor);
+        }
+
+        // Remove transaction behaviours
+        foreach (var descriptor in services.ToList())
+        {
+            var impl = descriptor.ImplementationType;
+
+            if (impl is null)
+                continue;
+
+            if (impl.IsGenericType &&
+                impl.BaseType?.IsGenericType == true &&
+                impl.BaseType.GetGenericTypeDefinition() == typeof(TransactionBehaviourBase<,,>))
+            {
+                services.Remove(descriptor);
+            }
+        }
     }
 
     protected virtual void ConfigureDatabase(IServiceCollection services)

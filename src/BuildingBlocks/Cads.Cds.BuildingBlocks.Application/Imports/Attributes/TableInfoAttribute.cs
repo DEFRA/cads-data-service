@@ -1,0 +1,13 @@
+using Cads.Cds.BuildingBlocks.Application.Schema;
+
+namespace Cads.Cds.BuildingBlocks.Application.Imports.Attributes;
+
+[AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
+public sealed class TableInfoAttribute(string name, SchemaName schemaName = SchemaName.Public, string? primaryKey = null) : Attribute
+{
+    public string Name { get; } = name;
+
+    public string? PrimaryKey { get; } = primaryKey;
+
+    public SchemaName Schema { get; } = schemaName;
+}

@@ -1,3 +1,6 @@
+using Cads.Cds.BuildingBlocks.Application.Extensions;
+using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
@@ -5,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 
 [ExcludeFromCodeCoverage]
-public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : DbContext(options)
+public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : CadsDbContext(options)
 {
     // Tables
     public DbSet<MiPermission> Permissions => Set<MiPermission>();
@@ -47,27 +50,27 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
         modelBuilder.HasDbFunction(
             typeof(MiBffReadDbContext).GetMethod(nameof(GetMiEffectiveReportPermission))!)
             .HasName("get_mi_effective_report_permission")
-            .HasSchema("public");
+            .HasSchema(SchemaName.Cads.GetDescription());
 
         modelBuilder.HasDbFunction(
             typeof(MiBffReadDbContext).GetMethod(nameof(GetMiEffectiveReportAllPermission))!)
             .HasName("get_mi_effective_report_all_permission")
-            .HasSchema("public");
+            .HasSchema(SchemaName.Cads.GetDescription());
 
         modelBuilder.HasDbFunction(
             typeof(MiBffReadDbContext).GetMethod(nameof(GetBirthsSummary))!)
             .HasName("get_births_summary")
-            .HasSchema("public");
+            .HasSchema(SchemaName.Cads.GetDescription());
 
         modelBuilder.HasDbFunction(
                 typeof(MiBffReadDbContext).GetMethod(nameof(GetDeathsSummary))!)
             .HasName("get_deaths_summary")
-            .HasSchema("public");
+            .HasSchema(SchemaName.Cads.GetDescription());
 
         modelBuilder.HasDbFunction(
                 typeof(MiBffReadDbContext).GetMethod(nameof(GetImportsSummary))!)
             .HasName("get_imports_summary")
-            .HasSchema("public");
+            .HasSchema(SchemaName.Cads.GetDescription());
 
         base.OnModelCreating(modelBuilder);
     }

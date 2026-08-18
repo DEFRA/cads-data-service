@@ -28,7 +28,10 @@ public class AnimalCohortServiceContract : IAnimalCohortServiceContract
             TraceIdentifier = request.AnimalCohortQuery.TraceIdentifier
         };
 
-        _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Successfully processed GetAnimalCohortRequest");
+        }
 
         return response;
     }
