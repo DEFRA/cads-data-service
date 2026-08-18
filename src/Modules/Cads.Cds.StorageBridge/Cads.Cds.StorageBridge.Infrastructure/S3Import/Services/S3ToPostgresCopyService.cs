@@ -251,7 +251,7 @@ public class S3ToPostgresCopyService(
                 }
                 catch (Exception rbEx)
                 {
-                    // avoid evaluating rbEx.Message unnecessarily; exception is logged already
+                    // Avoid evaluating rbEx.Message unnecessarily; exception is logged already
                     logger.LogError(rbEx, "Rollback failed for key {Key}", key);
                 }
 
@@ -274,7 +274,7 @@ public class S3ToPostgresCopyService(
                 }
                 catch (Exception rbEx)
                 {
-                    // avoid evaluating rbEx.Message unnecessarily; exception is logged already
+                    // Avoid evaluating rbEx.Message unnecessarily; exception is logged already
                     logger.LogError(rbEx, "Rollback failed for key {Key}", key);
                 }
 
