@@ -28,7 +28,10 @@ public class AnimalDetailsServiceContract : IAnimalDetailsServiceContract
             SearchResults = GetMockSearchResults(request.Body.AnimalsIds.Eartag[0])
         };
 
-        _logger.LogInformation("Successfully processed GetAnimalCohortRequest");
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Successfully processed GetAnimalCohortRequest");
+        }
 
         return response;
     }
