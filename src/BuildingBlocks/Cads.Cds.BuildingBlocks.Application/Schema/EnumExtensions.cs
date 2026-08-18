@@ -15,4 +15,14 @@ public static class EnumExtensions
             _ => SchemaName.NotDefined
         };
     }
+
+    public static char GetTransTypeChar(this ImportActionType importActionType)
+    {
+        return importActionType switch
+        {
+            ImportActionType.Bulk => 'B',
+            ImportActionType.Delta => 'D',
+            _ => throw new ArgumentOutOfRangeException(nameof(importActionType), importActionType, "Unsupported ImportActionType.")
+        };
+    }
 }
