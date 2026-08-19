@@ -2,6 +2,7 @@ using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application.Queries;
 using Cads.Cds.BuildingBlocks.Core.Extensions;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
+using Cads.Cds.SystemAdmin.Application.Imports.Mappings;
 
 namespace Cads.Cds.SystemAdmin.Application.Imports.Queries.GetFileImportByFileName;
 
@@ -14,22 +15,6 @@ public sealed class GetFileImportByFileNameQueryHandler(
         var fileName = query.FileName.NormalizeToUpper()!;
         var fileImport = await fileImportRepository.GetByFileNameAsync(fileName, cancellationToken);
 
-        return fileImport is null
-            ? null
-            : new FileImportDto(
-                fileImport.Id,
-                fileImport.DestinationTableName,
-                fileImport.FileName,
-                fileImport.TotalRowsToProcess,
-                fileImport.RowsFound,
-                fileImport.ImportStatus,
-                fileImport.ProcessingStatus,
-                fileImport.AddedAt,
-                fileImport.ImportStartAt,
-                fileImport.ImportEndAt,
-                fileImport.ProcessingStartAt,
-                fileImport.ProcessingEndAt,
-                fileImport.FailedAttempts,
-                fileImport.LastErrorReason);
+        return fileImport?.MapToDto();
     }
 }
