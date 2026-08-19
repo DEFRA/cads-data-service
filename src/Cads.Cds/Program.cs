@@ -27,7 +27,7 @@ static void ConfigureBuilder(WebApplicationBuilder builder)
 {
     builder.Configuration.AddEnvironmentVariables();
 
-    // Load certificates into Trust Store - Note must happen before Mongo and Http client connections.
+    // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
     builder.Services.AddCustomTrustStore();
 
     // Configure logging to use the CDP Platform standards.
