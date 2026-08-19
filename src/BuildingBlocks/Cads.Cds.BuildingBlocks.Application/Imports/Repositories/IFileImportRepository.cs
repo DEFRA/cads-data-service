@@ -20,7 +20,7 @@ public interface IFileImportRepository
        string? includeProperties = "",
        bool asNoTracking = true,
        CancellationToken cancellationToken = default);
-    
+
     Task<FileImport?> GetByIdAsync(long id, CancellationToken cancellationToken);
 
     Task<FileImport?> GetByFileNameAsync(string fileName, CancellationToken cancellationToken);

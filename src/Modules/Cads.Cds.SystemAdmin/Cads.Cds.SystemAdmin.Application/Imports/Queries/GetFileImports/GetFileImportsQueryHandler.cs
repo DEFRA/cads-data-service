@@ -6,7 +6,7 @@ using Cads.Cds.SystemAdmin.Application.Imports.Utilities;
 
 namespace Cads.Cds.SystemAdmin.Application.Imports.Queries.GetFileImports;
 
-public sealed class GetFileImportsQueryHandler(     
+public sealed class GetFileImportsQueryHandler(
     ISystemAdminFileImportRepository fileImportRepository)
     : IQueryHandler<GetFileImportsQuery, IEnumerable<FileImportDto>>
 {
@@ -19,7 +19,7 @@ public sealed class GetFileImportsQueryHandler(
               .Select(x => x.MapToDto()),
         asNoTracking: true,
         cancellationToken: CancellationToken.None);
-        
+
         return projected;
     }
 }
