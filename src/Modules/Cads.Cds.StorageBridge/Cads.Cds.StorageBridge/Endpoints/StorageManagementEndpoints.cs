@@ -219,9 +219,7 @@ public static class StorageManagementEndpoints
         clientName switch
         {
             nameof(CadsInternalClient) => DeleteClientObject<CadsInternalClient>(services, key, cancellationToken),
-            nameof(CadsExternalClient) => Task.FromResult(Results.Problem(
-                $"Deletes are only permitted for the internal bucket ('{nameof(CadsInternalClient)}').",
-                statusCode: StatusCodes.Status403Forbidden)),
+            nameof(CadsExternalClient) => DeleteClientObject<CadsExternalClient>(services, key, cancellationToken),
             _ => Task.FromResult(UnknownClient(clientName))
         };
 
