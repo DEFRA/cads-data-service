@@ -33,6 +33,8 @@ public static class StorageManagementEndpoints
         group.MapGet("/buckets/{clientName}/objects", ListObjects);
         group.MapGet("/buckets/{clientName}/search", SearchKeys);
         group.MapGet("/buckets/{clientName}/object", GetObject);
+        group.MapPut("/buckets/{clientName}/object", PutObject);
+        group.MapDelete("/buckets/{clientName}/object", DeleteObject);
 
         return app;
     }
@@ -180,6 +182,57 @@ public static class StorageManagementEndpoints
         {
             return Results.NotFound();
         }
+    }
+
+    private static Task<IResult> PutObject(
+        string clientName,
+        string key,
+        HttpRequest request,
+        IServiceProvider services,
+        CancellationToken cancellationToken) =>
+        clientName switch
+        {
+            nameof(CadsInternalClient) => PutClientObject<CadsInternalClient>(services, key, request, cancellationToken),
+            nameof(CadsExternalClient) => PutClientObject<CadsExternalClient>(services, key, request, cancellationToken),
+            _ => Task.FromResult(UnknownClient(clientName))
+        };
+
+    private static async Task<IResult> PutClientObject<T>(IServiceProvider services, string key, HttpRequest request, CancellationToken cancellationToken)
+        where T : IStorageClient, new()
+    {
+        var manager = services.GetRequiredService<IStorageManager<T>>();
+
+        using var content = new MemoryStream();
+        await request.Body.CopyToAsync(content, cancellationToken);
+        content.Position = 0;
+
+        await manager.PutObjectAsync(key, content, request.ContentType, cancellationToken);
+
+        return Results.NoContent();
+    }
+
+    private static Task<IResult> DeleteObject(
+        string clientName,
+        string key,
+        IServiceProvider services,
+        CancellationToken cancellationToken) =>
+        clientName switch
+        {
+            nameof(CadsInternalClient) => DeleteClientObject<CadsInternalClient>(services, key, cancellationToken),
+            nameof(CadsExternalClient) => Task.FromResult(Results.Problem(
+                $"Deletes are only permitted for the internal bucket ('{nameof(CadsInternalClient)}').",
+                statusCode: StatusCodes.Status403Forbidden)),
+            _ => Task.FromResult(UnknownClient(clientName))
+        };
+
+    private static async Task<IResult> DeleteClientObject<T>(IServiceProvider services, string key, CancellationToken cancellationToken)
+        where T : IStorageClient, new()
+    {
+        var manager = services.GetRequiredService<IStorageManager<T>>();
+
+        await manager.DeleteObjectAsync(key, cancellationToken);
+
+        return Results.NoContent();
     }
 
     private static IResult UnknownClient(string clientName) =>
