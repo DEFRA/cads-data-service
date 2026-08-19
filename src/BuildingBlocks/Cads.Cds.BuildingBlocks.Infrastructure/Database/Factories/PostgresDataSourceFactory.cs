@@ -119,6 +119,7 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         {
             dataSource.Dispose();
         }
+
         _dataSources.Clear();
         _lock.Dispose();
 
