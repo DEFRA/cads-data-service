@@ -32,7 +32,8 @@ static void ConfigureBuilder(WebApplicationBuilder builder)
 
     // Configure logging to use the CDP Platform standards.
     builder.Services.AddHttpContextAccessor();
-    builder.Host.UseSerilog(CdpLogging.Configuration);
+    builder.Host.UseSerilog((context, services, config) =>
+        CdpLogging.Configuration(context, services.GetRequiredService<IHttpContextAccessor>(), config));
 
     // Default HTTP Client
     builder.Services
