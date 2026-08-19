@@ -27,7 +27,10 @@ public class CattleStatusServiceContract : ICattleStatusServiceContract
         var holdingId = request.HoldingId;
         var response = GetCattleStatusResponseMessage(holdingId);
 
-        _logger.LogInformation("Successfully processed GetCattleStatusRequest for HoldingId: {HoldingId}", holdingId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Successfully processed GetCattleStatusRequest for HoldingId: {HoldingId}", holdingId);
+        }
 
         return response;
     }

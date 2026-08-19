@@ -27,5 +27,5 @@ public static class TestFileScenarioConstants
     public const string New_Scenario_Create_Invalid_FileName = "CTSM_CADS_PROD_XXXX_ABC_CT_0001_PARTIES_2026-01-01-012345";
 
     // New scenario for testing missing destination table for seed data file scenario
-    public const string New_Scenario_Create_NoDestinationTable_FileName = "CTSM_CADS_PROD_BULK_ABC_0006_CT_BREEDS_2026-01-01-012345";
+    public const string New_Scenario_Create_NoDestinationTable_FileName = "CTSM_CADS_PROD_BULK_ABC_0006_CT_INVALID_2026-01-01-012345";
 }

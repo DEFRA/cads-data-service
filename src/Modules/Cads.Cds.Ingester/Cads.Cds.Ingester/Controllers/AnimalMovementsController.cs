@@ -21,19 +21,20 @@ public class AnimalMovementsController(IRequestExecutor executor, ILogger<Animal
         Nation nation,
         [FromBody] AnimalMovementsRequest request)
     {
-        if (logger.IsEnabled(LogLevel.Information))
+        if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogInformation("Received animal movements request for {Nation} at {Timestamp}", nation, DateTime.UtcNow);
+            logger.LogDebug("Received animal movements request for {Nation} at {Timestamp}", nation, DateTime.UtcNow);
         }
 
         var payload = JsonSerializer.Serialize<AnimalMovementsRequest>(request, JsonDefaults.DefaultOptionsWithIndented);
         var command = new AnimalMovementByNationCommand(nation, payload);
         var response = await executor.ExecuteCommand(command);
 
-        if (logger.IsEnabled(LogLevel.Information))
+        if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogInformation("Animal movements request in storage at {IngestionId} and completed at {Timestamp}", response.IngestionId, DateTime.UtcNow);
+            logger.LogDebug("Animal movements request in storage at {IngestionId} and completed at {Timestamp}", response.IngestionId, DateTime.UtcNow);
         }
+
         return Accepted(response);
     }
 }
