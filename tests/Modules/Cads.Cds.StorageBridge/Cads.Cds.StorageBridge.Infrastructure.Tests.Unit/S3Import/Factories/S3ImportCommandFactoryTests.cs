@@ -12,7 +12,7 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public void CreateTempTableCommand_ShouldGenerateCorrectSql()
     {
-        var sql = GetFactory().SqlForTempTable(ImportDataType.CtLocations, SchemaName.Cts, 12345);
+        var sql = GetFactory().SqlForTempTable(ImportDataType.CtLocations, SchemaName.Cts, ImportActionType.Bulk, 12345);
 
         sql.Should().Be(
             "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING DEFAULTS EXCLUDING CONSTRAINTS) ON COMMIT DROP;");
@@ -80,20 +80,22 @@ public class S3ImportCommandFactoryTests
     [Fact]
     public async Task CreateTempTableCommand_WithCtsSchema_ShouldCreateValidCommand()
     {
-        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.Cts, 12345);
+        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.Cts, ImportActionType.Bulk, 12345);
 
         cmd.CommandText.Should().Be(
             "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts\".\"ct_locations\" INCLUDING DEFAULTS EXCLUDING CONSTRAINTS) ON COMMIT DROP;");
     }
 
-    [Fact]
-    public async Task CreateTempTableCommand_WithCtsTransactionsSchema_ShouldCreateValidCommand()
+    [Theory]
+    [InlineData(ImportActionType.Bulk, 'B')]
+    [InlineData(ImportActionType.Delta, 'D')]
+    public async Task CreateTempTableCommand_WithCtsTransactionsSchema_ShouldCreateValidCommand(ImportActionType importActionType, char transType)
     {
-        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.CtsTransactions, 12345);
+        var cmd = GetFactory().CreateTempTableCommand(ImportDataType.CtLocations, SchemaName.CtsTransactions, importActionType, 12345);
 
         cmd.CommandText.Should().Be(
             "CREATE TEMP TABLE \"temp_ct_locations\" (LIKE \"cts_transactions\".\"ct_locations\" INCLUDING DEFAULTS EXCLUDING CONSTRAINTS) ON COMMIT DROP;" +
-            "ALTER TABLE \"temp_ct_locations\" DROP COLUMN trans_id, ALTER COLUMN trans_type SET DEFAULT 'B', ALTER COLUMN cts_file_import_id SET DEFAULT 12345;");
+            $"ALTER TABLE \"temp_ct_locations\" DROP COLUMN trans_id, ALTER COLUMN trans_type SET DEFAULT '{transType}', ALTER COLUMN cts_file_import_id SET DEFAULT 12345;");
     }
 
     private static TestableS3BulkLoadCommandFactory GetFactory() =>

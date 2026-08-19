@@ -44,7 +44,7 @@ public class S3ToPostgresCopyService(
         var fileImport = await fileImportRepository.GetByIdAsync(job.FileImportId, cancellationToken)
                 ?? throw new InvalidOperationException($"FileImport with ID {job.FileImportId} not found.");
 
-        var (importDataType, importActionType) = GetImportParameters(fileImport.FileName);
+        var (importDataType, importActionType, schemaName) = GetImportParameters(fileImport.FileName);
 
         if (importDataType == ImportDataType.None)
         {
@@ -53,9 +53,9 @@ public class S3ToPostgresCopyService(
 
         var filePath = $"import/{Path.GetFileNameWithoutExtension(fileImport.FileName)}";
 
-        if (logger.IsEnabled(LogLevel.Information))
+        if (logger.IsEnabled(LogLevel.Debug))
         {
-            logger.LogInformation("Starting CSV import copy for job {JobId} with key {FilePath}",
+            logger.LogDebug("Starting CSV import copy for job {JobId} with key {FilePath}",
                 job.JobId, filePath);
         }
 
@@ -70,8 +70,8 @@ public class S3ToPostgresCopyService(
 
         var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
         var factory = factoryProvider.Create((NpgsqlConnection)connection);
-        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, importActionType.GetSchemaName(), fileImport.Id);
-        var actionCommands = await GetCommandsAsync(importDataType, importActionType, factory, cancellationToken);
+        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, schemaName, importActionType, fileImport.Id);
+        var actionCommands = await GetCommandsAsync(importDataType, schemaName, importActionType, factory, cancellationToken);
 
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
@@ -92,7 +92,7 @@ public class S3ToPostgresCopyService(
             var rows = await ProcessFileAsync(
                 key,
                 importDataType,
-                importActionType,
+                schemaName,
                 job.Delimiter,
                 factory,
                 dbContext,
@@ -140,7 +140,7 @@ public class S3ToPostgresCopyService(
     private async Task<int> ProcessFileAsync(
         string key,
         ImportDataType importDataType,
-        ImportActionType importActionType,
+        SchemaName schemaName,
         char delimiter,
         IS3ImportCommandFactory factory,
         StorageBridgeWriteDbContext dbContext,
@@ -171,13 +171,14 @@ public class S3ToPostgresCopyService(
                 {
                     attempt++;
 
-                    // Consider DbException, IO and timeout-like exceptions as transient
-                    var isTransient = ex is DbException
-                                  || ex is IOException
-                                  || ex is TimeoutException
-                                  || ex is NpgsqlException;
+                    if (!IsTransient(ex))
+                    {
+                        logger.LogError(ex, "Operation {Operation} for key {Key} failed with a non-transient error on attempt {Attempt}; not retrying",
+                            operationName, key, attempt);
+                        throw;
+                    }
 
-                    if (attempt >= maxAttempts || !isTransient)
+                    if (attempt >= maxAttempts)
                     {
                         logger.LogError(ex, "Operation {Operation} for key {Key} failed permanently after {Attempt} attempts", operationName, key, attempt);
                         throw;
@@ -212,7 +213,7 @@ public class S3ToPostgresCopyService(
                 await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
                 // Copy file to staging (may involve network IO; add retry)
-                await CopyFileToStagingAsync(importDataType, importActionType.GetSchemaName(), delimiter, key, factory, cancellationToken);
+                await CopyFileToStagingAsync(importDataType, schemaName, delimiter, key, factory, cancellationToken);
 
                 // Execute action commands (retry the whole command set if transient)
                 foreach (var command in actionCommands)
@@ -250,20 +251,22 @@ public class S3ToPostgresCopyService(
                 }
                 catch (Exception rbEx)
                 {
-                    // avoid evaluating rbEx.Message unnecessarily; exception is logged already
+                    // Avoid evaluating rbEx.Message unnecessarily; exception is logged already
                     logger.LogError(rbEx, "Rollback failed for key {Key}", key);
                 }
 
                 if (logger.IsEnabled(LogLevel.Information))
                 {
-                    logger.LogInformation("NpgsqlException details: {Message}, SQLState: {SQLState}, ErrorCode: {ErrorCode}, ConnectionState: {connectionState}",
-                        ex.Message, ex.SqlState, ex.ErrorCode, connection.State.ToString());
+                    logger.LogInformation(ex, "An NpgsqlException has occurred. Current ConnectionState: {ConnectionState}",
+                        connection.State.ToString());
                 }
 
                 throw;
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Failed to process file {Key}", key);
+
                 // Attempt rollback, but do not swallow original exception
                 try
                 {
@@ -271,11 +274,10 @@ public class S3ToPostgresCopyService(
                 }
                 catch (Exception rbEx)
                 {
-                    // avoid evaluating rbEx.Message unnecessarily; exception is logged already
+                    // Avoid evaluating rbEx.Message unnecessarily; exception is logged already
                     logger.LogError(rbEx, "Rollback failed for key {Key}", key);
                 }
 
-                logger.LogError(ex, "Failed to process file {Key}", key);
                 throw;
             }
 
@@ -296,9 +298,9 @@ public class S3ToPostgresCopyService(
 
             if (command is null) continue;
 
-            if (logger.IsEnabled(LogLevel.Information))
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogInformation("Command: {CommandText}", command.CommandText);
+                logger.LogDebug("Command: {CommandText}", command.CommandText);
             }
 
             total += await command.ExecuteNonQueryAsync(cancellationToken);
@@ -384,18 +386,17 @@ public class S3ToPostgresCopyService(
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
         ImportDataType importDataType,
+        SchemaName schemaName,
         ImportActionType importActionType,
         IS3ImportCommandFactory factory,
         CancellationToken cancellationToken)
     {
         var commands = new List<DbCommand>();
-        var schemaName = importActionType.GetSchemaName();
 
         switch (importActionType)
         {
-            // Both Bulk and Delta will be inserting into cts-transactions
+            // Both Bulk and Delta currently insert into cts-transactions the same way
             case ImportActionType.Bulk:
-
             case ImportActionType.Delta:
                 commands.Add(await factory.CreateInsertCommandAsync(importDataType, schemaName, cancellationToken));
                 break;
@@ -406,20 +407,53 @@ public class S3ToPostgresCopyService(
         return commands;
     }
 
-    private static (ImportDataType, ImportActionType) GetImportParameters(string filename)
+    private static (ImportDataType ImportDataType, ImportActionType ImportActionType, SchemaName SchemaName) GetImportParameters(string filename)
     {
         var parsedFilename = CtsmFilenameParser.Parse(filename);
 
-        if (!Enum.TryParse<ImportActionType>(parsedFilename?.Type, true, out var importActionTypeParsed))
+        if (!Enum.TryParse<ImportActionType>(parsedFilename?.Type, true, out var importActionType))
         {
             throw new InvalidOperationException($"Invalid ImportActionType '{parsedFilename?.Type}' for file '{filename}'.");
         }
 
-        var schemaName = importActionTypeParsed.GetSchemaName();
+        var schemaName = importActionType.GetSchemaName();
 
         var importDataType = Enum.GetValues<ImportDataType>()
             .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(parsedFilename?.TableName, StringComparison.InvariantCultureIgnoreCase) == true);
 
-        return (importDataType, importActionTypeParsed);
+        return (importDataType, importActionType, schemaName);
     }
+
+    // Postgres SQLSTATE classes worth retrying — connection drops, deadlocks/serialization
+    // conflicts, resource exhaustion, and "try again shortly" conditions. Anything else
+    // (bad data, constraint violations, bad SQL, permissions) will fail identically on
+    // every attempt, so it defaults to non-transient rather than being retried blindly.
+    private static readonly HashSet<string> s_transientPostgresSqlStateClasses = new(StringComparer.Ordinal)
+    {
+        "08", // Connection Exception
+        "40", // Transaction Rollback — serialization_failure, deadlock_detected
+        "53", // Insufficient Resources — too_many_connections, disk_full, out_of_memory
+        "57", // Operator Intervention — e.g. 57P03 cannot_connect_now (server still starting up)
+        "58", // System Error — I/O failures
+    };
+
+    /// <summary>
+    /// Whether an exception represents a transient failure worth retrying, versus a permanent
+    /// one (bad data, malformed SQL, constraint violation) that will fail identically on every
+    /// attempt and should fail fast instead of wasting backoff time.
+    /// </summary>
+    private static bool IsTransient(Exception ex) => ex switch
+    {
+        PostgresException pgEx => IsTransientPostgresSqlState(pgEx.SqlState),
+        NpgsqlException => true,   // client/connection-level Npgsql errors not wrapping a specific Postgres error
+        DbException => true,
+        IOException => true,
+        TimeoutException => true,
+        _ => false
+    };
+
+    private static bool IsTransientPostgresSqlState(string? sqlState) =>
+        !string.IsNullOrEmpty(sqlState)
+        && sqlState.Length >= 2
+        && s_transientPostgresSqlStateClasses.Contains(sqlState[..2]);
 }
