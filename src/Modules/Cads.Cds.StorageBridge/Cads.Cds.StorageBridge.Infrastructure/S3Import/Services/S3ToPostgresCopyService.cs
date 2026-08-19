@@ -257,7 +257,7 @@ public class S3ToPostgresCopyService(
 
                 if (logger.IsEnabled(LogLevel.Information))
                 {
-                    logger.LogInformation(ex, "NpgsqlException details: {Message}, SqlState: {SqlState}, ErrorCode: {ErrorCode}, ConnectionState: {ConnectionState}",
+                    logger.LogInformation("NpgsqlException details: {Message}, SqlState: {SqlState}, ErrorCode: {ErrorCode}, ConnectionState: {ConnectionState}",
                         ex.Message, ex.SqlState, ex.ErrorCode, connection.State.ToString());
                 }
 
