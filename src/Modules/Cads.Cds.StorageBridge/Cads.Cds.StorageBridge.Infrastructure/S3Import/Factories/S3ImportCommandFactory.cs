@@ -23,7 +23,7 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
 
     public S3ImportCommandFactory(NpgsqlConnection connection, NpgsqlTransaction? transaction)
     {
-        ArgumentNullException.ThrowIfNull(connection, nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
         _connection = connection;
         _transaction = transaction;
