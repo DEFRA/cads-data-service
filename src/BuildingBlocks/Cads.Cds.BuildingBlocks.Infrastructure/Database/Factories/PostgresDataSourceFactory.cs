@@ -95,9 +95,9 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
             passwordProvider: async (_, ct) =>
             {
                 var token = await iamTokenGenerator!.GenerateAuthTokenAsync(
-                    config.DefaultHost!,
+                    config.DefaultHost,
                     config.Port,
-                    config.User!);
+                    config.User);
                 return token;
             },
             successRefreshInterval: TimeSpan.FromMinutes(10), // Refresh every 10 minutes
