@@ -53,7 +53,7 @@ public static class WebApplicationExtensions
         app.UseAuthorization();
 
         app.MapControllers();
-        
+
         app.MapStorageBridgeStorageManagementEndpoints();
 
         app.UseApiSoapEndpoints();
