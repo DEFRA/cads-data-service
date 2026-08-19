@@ -43,7 +43,7 @@
   <include file="0000_003_truncate_all_tables.postgresql.sql"/>
   <include file="0000_010_cads_core_tables.postgresql.sql"/>
   <include file="0000_011_cads_mi_tables.postgresql.sql"/>
-  <include file="0000_012_cads_import_tables.postgresql.sql"/>
+  <include file="0000_012_create_cts_file_import_monitoring_tables.postgresql.sql"/>
   <include file="0000_020_cts_tables.postgresql.sql"/>
   <include file="0000_030_cts_transactions_tables.postgresql.sql"/>
   <include file="0000_040_cts_audit_tables.postgresql.sql"/>
@@ -54,6 +54,7 @@
   <include file="0001_010_cts_animals_on_holding_indexes.postgresql.sql"/>
   <include file="0001_011_cts_ctso_indexes.postgresql.sql"/>
   <include file="0001_016_create_data_seed_injestion_history_table.postgresql.sql"/>
+  <include file="0002_003_cads_cts_service_query_functions.postgresql.sql"/>
   <include file="0002_010_cads_import_routines.postgresql.sql"/>
   <include file="0002_011_cads_get_births_summary.postgresql.sql"/>
   <include file="0002_012_cads_get_mi_effective_report_permission.postgresql.sql"/>
@@ -65,7 +66,6 @@
   <include file="0002_018_cads_animals_on_holding_routines.postgresql.sql"/>
   <include file="0002_021_cts_pseudonymisation_routine.postgresql.sql"/>
   <include file="0002_030_cts_audit_routines.postgresql.sql"/>
-  <include file="0004_001_cads_file_import_status_data.postgresql.sql"/>
   <include file="0004_002_cads_reference_state_seed_data.postgresql.sql"/>
   <include file="0004_003_mi_seed.postgresql.sql"/>
   <include file="0004_004_mi_cattle_import_report_seed.postgresql.sql"/>
