@@ -67,13 +67,15 @@ public enum ImportDataType
     CtApplicationLateDays,
     #endregion
 
-    #region Batch Retention Configuration (Cts only)
+    #region Batch Retention Configuration
     [TableInfo("ct_batch_retention_conf", SchemaName.Cts, "id")]
+    [TableInfo("ct_batch_retention_conf", SchemaName.CtsTransactions, "trans_id")]
     CtBatchRetentionConf,
     #endregion
 
-    #region Breeds (Cts only)
+    #region Breeds
     [TableInfo("ct_breeds", SchemaName.Cts, "brd_id")]
+    [TableInfo("ct_breeds", SchemaName.CtsTransactions, "trans_id")]
     CtBreeds,
     #endregion
 
@@ -107,18 +109,21 @@ public enum ImportDataType
     CtClaMiniExtract,
     #endregion
 
-    #region Claim Statuses (Cts only)
+    #region Claim Statuses
     [TableInfo("ct_claim_statuses", SchemaName.Cts, "cls_id")]
+    [TableInfo("ct_claim_statuses", SchemaName.CtsTransactions, "trans_id")]
     CtClaimStatuses,
     #endregion
 
-    #region Claim Types (Cts only)
+    #region Claim Types
     [TableInfo("ct_claim_types", SchemaName.Cts, "clt_id")]
+    [TableInfo("ct_claim_types", SchemaName.CtsTransactions, "trans_id")]
     CtClaimTypes,
     #endregion
 
-    #region CM Authorities (Cts only)
+    #region CM Authorities
     [TableInfo("ct_cm_authorities", SchemaName.Cts, "cma_id")]
+    [TableInfo("ct_cm_authorities", SchemaName.CtsTransactions, "trans_id")]
     CtCmAuthorities,
     #endregion
 
@@ -134,13 +139,15 @@ public enum ImportDataType
     CtCommsAddresses,
     #endregion
 
-    #region Condition Variant Groupings (Cts only)
+    #region Condition Variant Groupings
     [TableInfo("ct_cond_variant_groupings", SchemaName.Cts, "cvg_id")]
+    [TableInfo("ct_cond_variant_groupings", SchemaName.CtsTransactions, "trans_id")]
     CtCondVariantGroupings,
     #endregion
 
-    #region Condition Activities (Cts only)
+    #region Condition Activities
     [TableInfo("ct_condition_activities", SchemaName.Cts, "cac_id")]
+    [TableInfo("ct_condition_activities", SchemaName.CtsTransactions, "trans_id")]
     CtConditionActivities,
     #endregion
 
@@ -156,33 +163,39 @@ public enum ImportDataType
     CtConditionMarkers,
     #endregion
 
-    #region Condition Types (Cts only)
+    #region Condition Types
     [TableInfo("ct_condition_types", SchemaName.Cts, "cot_id")]
+    [TableInfo("ct_condition_types", SchemaName.CtsTransactions, "trans_id")]
     CtConditionTypes,
     #endregion
 
-    #region Condition Variants (Cts only)
+    #region Condition Variants
     [TableInfo("ct_condition_variants", SchemaName.Cts, "cov_id")]
+    [TableInfo("ct_condition_variants", SchemaName.CtsTransactions, "trans_id")]
     CtConditionVariants,
     #endregion
 
-    #region Conditions (Cts only)
+    #region Conditions
     [TableInfo("ct_conditions", SchemaName.Cts, "con_id")]
+    [TableInfo("ct_conditions", SchemaName.CtsTransactions, "trans_id")]
     CtConditions,
     #endregion
 
-    #region Counties (Cts only)
+    #region Counties
     [TableInfo("ct_counties", SchemaName.Cts, "cty_id")]
+    [TableInfo("ct_counties", SchemaName.CtsTransactions, "trans_id")]
     CtCounties,
     #endregion
 
-    #region Counties Migration (Cts only)
+    #region Counties Migration
     [TableInfo("ct_counties_migration", SchemaName.Cts, "cty_id")]
+    [TableInfo("ct_counties_migration", SchemaName.CtsTransactions, "trans_id")]
     CtCountiesMigration,
     #endregion
 
-    #region Countries (Cts only)
+    #region Countries
     [TableInfo("ct_countries", SchemaName.Cts, "cry_id")]
+    [TableInfo("ct_countries", SchemaName.CtsTransactions, "trans_id")]
     CtCountries,
     #endregion
 
@@ -192,8 +205,9 @@ public enum ImportDataType
     CtCps167Report,
     #endregion
 
-    #region CTS164 Handshake File Keys (Cts only)
+    #region CTS164 Handshake File Keys
     [TableInfo("ct_cts164_handshake_file_keys", SchemaName.Cts, "id")]
+    [TableInfo("ct_cts164_handshake_file_keys", SchemaName.CtsTransactions, "trans_id")]
     CtCts164HandshakeFileKeys,
     #endregion
 
@@ -203,18 +217,21 @@ public enum ImportDataType
     CtCtsUsers,
     #endregion
 
-    #region Eartag Formats (Cts only)
+    #region Eartag Formats
     [TableInfo("ct_eartag_formats", SchemaName.Cts, "etf_id")]
+    [TableInfo("ct_eartag_formats", SchemaName.CtsTransactions, "trans_id")]
     CtEartagFormats,
     #endregion
 
-    #region Eartag Reason Flags (Cts only)
+    #region Eartag Reason Flags
     [TableInfo("ct_eartag_reason_flags", SchemaName.Cts, "erf_id")]
+    [TableInfo("ct_eartag_reason_flags", SchemaName.CtsTransactions, "trans_id")]
     CtEartagReasonFlags,
     #endregion
 
-    #region Eartag Reasons (Cts only)
+    #region Eartag Reasons
     [TableInfo("ct_eartag_reasons", SchemaName.Cts, "etr_id")]
+    [TableInfo("ct_eartag_reasons", SchemaName.CtsTransactions, "trans_id")]
     CtEartagReasons,
     #endregion
 
@@ -224,8 +241,9 @@ public enum ImportDataType
     CtEartagStaging,
     #endregion
 
-    #region Eartag Types (Cts only)
+    #region Eartag Types
     [TableInfo("ct_eartag_types", SchemaName.Cts, "ett_id")]
+    [TableInfo("ct_eartag_types", SchemaName.CtsTransactions, "trans_id")]
     CtEartagTypes,
     #endregion
 
@@ -277,23 +295,27 @@ public enum ImportDataType
     CtExtCetdEartag,
     #endregion
 
-    #region Ext NI District (Cts only)
+    #region Ext NI District
     [TableInfo("ct_ext_ni_district", SchemaName.Cts, "id")]
+    [TableInfo("ct_ext_ni_district", SchemaName.CtsTransactions, "trans_id")]
     CtExtNiDistrict,
     #endregion
 
-    #region Ext Special Herd (Cts only)
+    #region Ext Special Herd
     [TableInfo("ct_ext_special_herd", SchemaName.Cts, "id")]
+    [TableInfo("ct_ext_special_herd", SchemaName.CtsTransactions, "trans_id")]
     CtExtSpecialHerd,
     #endregion
 
-    #region File Layouts (Cts only)
+    #region File Layouts
     [TableInfo("ct_file_layouts", SchemaName.Cts, "id")]
+    [TableInfo("ct_file_layouts", SchemaName.CtsTransactions, "trans_id")]
     CtFileLayouts,
     #endregion
 
-    #region HSF Sequences (Cts only)
+    #region HSF Sequences
     [TableInfo("ct_hsf_sequences", SchemaName.Cts, "id")]
+    [TableInfo("ct_hsf_sequences", SchemaName.CtsTransactions, "trans_id")]
     CtHsfSequences,
     #endregion
 
@@ -309,8 +331,9 @@ public enum ImportDataType
     CtIssuedDocuments,
     #endregion
 
-    #region Issuing Authorities (Cts only)
+    #region Issuing Authorities
     [TableInfo("ct_issuing_authorities", SchemaName.Cts, "isa_id")]
+    [TableInfo("ct_issuing_authorities", SchemaName.CtsTransactions, "trans_id")]
     CtIssuingAuthorities,
     #endregion
 
@@ -326,8 +349,9 @@ public enum ImportDataType
     CtLabelSummaries,
     #endregion
 
-    #region Late Days (Cts only)
+    #region Late Days
     [TableInfo("ct_late_days", SchemaName.Cts, "lda_id")]
+    [TableInfo("ct_late_days", SchemaName.CtsTransactions, "trans_id")]
     CtLateDays,
     #endregion
 
@@ -337,13 +361,15 @@ public enum ImportDataType
     CtLetters,
     #endregion
 
-    #region Location Type Relationship Combinations (Cts only)
+    #region Location Type Relationship Combinations
     [TableInfo("ct_loc_type_rel_combs", SchemaName.Cts, "lrc_id")]
+    [TableInfo("ct_loc_type_rel_combs", SchemaName.CtsTransactions, "trans_id")]
     CtLocTypeRelCombs,
     #endregion
 
-    #region Location ID Formats (Cts only)
+    #region Location ID Formats
     [TableInfo("ct_location_id_formats", SchemaName.Cts, "lif_id")]
+    [TableInfo("ct_location_id_formats", SchemaName.CtsTransactions, "trans_id")]
     CtLocationIdFormats,
     #endregion
 
@@ -353,8 +379,9 @@ public enum ImportDataType
     CtLocationIdentifiers,
     #endregion
 
-    #region Location Party Relationship Types (Cts only)
+    #region Location Party Relationship Types
     [TableInfo("ct_location_party_rel_types", SchemaName.Cts, "lpt_id")]
+    [TableInfo("ct_location_party_rel_types", SchemaName.CtsTransactions, "trans_id")]
     CtLocationPartyRelTypes,
     #endregion
 
@@ -364,8 +391,9 @@ public enum ImportDataType
     CtLocationPartyRels,
     #endregion
 
-    #region Location Relationship Types (Cts only)
+    #region Location Relationship Types
     [TableInfo("ct_location_rel_types", SchemaName.Cts, "lrt_id")]
+    [TableInfo("ct_location_rel_types", SchemaName.CtsTransactions, "trans_id")]
     CtLocationRelTypes,
     #endregion
 
@@ -375,8 +403,9 @@ public enum ImportDataType
     CtLocationRelationships,
     #endregion
 
-    #region Location Types (Cts only)
+    #region Location Types
     [TableInfo("ct_location_types", SchemaName.Cts, "lty_id")]
+    [TableInfo("ct_location_types", SchemaName.CtsTransactions, "trans_id")]
     CtLocationTypes,
     #endregion
 
@@ -404,8 +433,9 @@ public enum ImportDataType
     CtMgtControlErrors,
     #endregion
 
-    #region Management Working Group Allocation Rules (Cts only)
+    #region Management Working Group Allocation Rules
     [TableInfo("ct_mgt_wg_allocation_rules", SchemaName.Cts, "war_id")]
+    [TableInfo("ct_mgt_wg_allocation_rules", SchemaName.CtsTransactions, "trans_id")]
     CtMgtWgAllocationRules,
     #endregion
 
@@ -433,33 +463,39 @@ public enum ImportDataType
     CtMovtCorrectSummaries,
     #endregion
 
-    #region Message Text (Cts only)
+    #region Message Text
     [TableInfo("ct_msgtxt", SchemaName.Cts, "id")]
+    [TableInfo("ct_msgtxt", SchemaName.CtsTransactions, "trans_id")]
     CtMsgtxt,
     #endregion
 
-    #region Non Working Days (Cts only)
+    #region Non Working Days
     [TableInfo("ct_non_working_days", SchemaName.Cts, "nwd_id")]
+    [TableInfo("ct_non_working_days", SchemaName.CtsTransactions, "trans_id")]
     CtNonWorkingDays,
     #endregion
 
-    #region Parameter Group (Cts only)
+    #region Parameter Group
     [TableInfo("ct_param_group", SchemaName.Cts, "pgp_id")]
+    [TableInfo("ct_param_group", SchemaName.CtsTransactions, "trans_id")]
     CtParamGroup,
     #endregion
 
-    #region Parameter Header (Cts only)
+    #region Parameter Header
     [TableInfo("ct_param_header", SchemaName.Cts, "phd_id")]
+    [TableInfo("ct_param_header", SchemaName.CtsTransactions, "trans_id")]
     CtParamHeader,
     #endregion
 
-    #region Parameter Value (Cts only)
+    #region Parameter Value
     [TableInfo("ct_param_value", SchemaName.Cts, "pvl_id")]
+    [TableInfo("ct_param_value", SchemaName.CtsTransactions, "trans_id")]
     CtParamValue,
     #endregion
 
-    #region Parameter Value Group (Cts only)
+    #region Parameter Value Group
     [TableInfo("ct_param_value_group", SchemaName.Cts, "pvg_id")]
+    [TableInfo("ct_param_value_group", SchemaName.CtsTransactions, "trans_id")]
     CtParamValueGroup,
     #endregion
 
@@ -487,8 +523,9 @@ public enum ImportDataType
     CtPreprintedAppnForms,
     #endregion
 
-    #region Probity Checks (Cts only)
+    #region Probity Checks
     [TableInfo("ct_probity_checks", SchemaName.Cts, "pch_id")]
+    [TableInfo("ct_probity_checks", SchemaName.CtsTransactions, "trans_id")]
     CtProbityChecks,
     #endregion
 
@@ -552,8 +589,9 @@ public enum ImportDataType
     CtSbcsExt,
     #endregion
 
-    #region Schemes (Cts only)
+    #region Schemes
     [TableInfo("ct_schemes", SchemaName.Cts, "sch_id")]
+    [TableInfo("ct_schemes", SchemaName.CtsTransactions, "trans_id")]
     CtSchemes,
     #endregion
 
@@ -575,8 +613,9 @@ public enum ImportDataType
     CtStageMessages,
     #endregion
 
-    #region Sublocation Types (Cts only)
+    #region Sublocation Types
     [TableInfo("ct_sublocation_types", SchemaName.Cts, "slt_id")]
+    [TableInfo("ct_sublocation_types", SchemaName.CtsTransactions, "trans_id")]
     CtSublocationTypes,
     #endregion
 
@@ -616,13 +655,15 @@ public enum ImportDataType
     CtSuspendedMovements,
     #endregion
 
-    #region Suspense Character Allocation Rules (Cts only)
+    #region Suspense Character Allocation Rules
     [TableInfo("ct_suspense_char_alloc_rules", SchemaName.Cts, "sca_id")]
+    [TableInfo("ct_suspense_char_alloc_rules", SchemaName.CtsTransactions, "trans_id")]
     CtSuspenseCharAllocRules,
     #endregion
 
-    #region Suspense Working Group Allocation Rules (Cts only)
+    #region Suspense Working Group Allocation Rules
     [TableInfo("ct_suspense_wg_alloc_rules", SchemaName.Cts, "swa_id")]
+    [TableInfo("ct_suspense_wg_alloc_rules", SchemaName.CtsTransactions, "trans_id")]
     CtSuspenseWgAllocRules,
     #endregion
 
