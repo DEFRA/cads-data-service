@@ -98,18 +98,24 @@ public class StorageManagementEndpointTests : IClassFixture<StorageManagementTes
     }
 
     [Fact]
-    public async Task GivenExternalClient_WhenObjectDeleted_ShouldReturnForbidden()
+    public async Task GivenExternalClient_WhenObjectDeleted_ShouldDeleteFromExternalBucket()
     {
+        _testFixture.Factory.AmazonS3Mock
+            .Setup(x => x.DeleteObjectAsync(It.IsAny<DeleteObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DeleteObjectResponse());
+
         var response = await _testFixture.HttpClient.DeleteAsync(
             $"{Endpoint}/buckets/CadsExternalClient/object?key={Uri.EscapeDataString(ObjectKey)}",
             TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         _testFixture.Factory.AmazonS3Mock.Verify(x => x.DeleteObjectAsync(
-            It.IsAny<DeleteObjectRequest>(),
+            It.Is<DeleteObjectRequest>(r =>
+                r.BucketName == TestS3Constants.TestCadsExternalBucketName &&
+                r.Key == ObjectKey),
             It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
     }
 
     [Fact]
