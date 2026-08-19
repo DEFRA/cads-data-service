@@ -28,7 +28,7 @@ public abstract class TransactionBehaviourBase<TRequest, TResponse, TDbContext>(
 
             try
             {
-                var response = await next();
+                var response = await next(cancellationToken);
 
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 await tx.CommitAsync(cancellationToken);
