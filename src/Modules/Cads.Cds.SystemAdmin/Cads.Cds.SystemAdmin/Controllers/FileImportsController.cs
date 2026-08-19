@@ -39,7 +39,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
         var query = new GetFileImportByFileNameQuery(fileName);
 
         var result = await executor.ExecuteQuery(query, cancellationToken);
-    
+
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -107,9 +107,9 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var query = new GetFileImportsQuery(
-            GroupKey: groupKey, 
-            FileImportStatus: fileImportStatus, 
-            FileProcessingStatus : fileProcessingStatus 
+            GroupKey: groupKey,
+            FileImportStatus: fileImportStatus,
+            FileProcessingStatus: fileProcessingStatus
         );
 
         var result = await executor.ExecuteQuery(query, cancellationToken);

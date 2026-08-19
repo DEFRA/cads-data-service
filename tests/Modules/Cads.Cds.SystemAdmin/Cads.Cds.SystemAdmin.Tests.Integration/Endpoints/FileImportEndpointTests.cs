@@ -14,7 +14,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 {
     private HttpClient _httpClient => apiContainerFixture.CreateBasicClient();
 
-    private readonly PostgresDb _postgresDb = new (apiContainerFixture.PostgresFixture.HostConnectionString);
+    private readonly PostgresDb _postgresDb = new(apiContainerFixture.PostgresFixture.HostConnectionString);
 
     [Fact]
     public async Task GivenInvalidRequest_WhenGetByFileNameRequested_ShouldReturnBadRequest()
