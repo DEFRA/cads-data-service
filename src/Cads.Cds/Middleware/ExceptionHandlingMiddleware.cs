@@ -3,7 +3,6 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
-using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
 
 namespace Cads.Cds.Middleware;
 
@@ -102,6 +101,6 @@ public sealed class ExceptionHandlingMiddleware(
         context.Response.ContentType = "application/json";
 
         var json = JsonSerializer.Serialize(problemDetails, JsonDefaults.DefaultOptionsWithIndented);
-        return context.Response.WriteAsync(json);
+        return context.Response.WriteAsync(json, context.RequestAborted);
     }
 }
