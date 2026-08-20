@@ -15,5 +15,5 @@ public abstract class FileImportRepository<TReadContext, TWriteContext>(TReadCon
         => await Set().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public async Task<FileImport?> GetByFileNameAsync(string fileName, CancellationToken cancellationToken)
-        => await Query().FirstOrDefaultAsync(x => x.FileName == fileName, cancellationToken);
+        => await Query().FirstOrDefaultAsync(x => x.FileName.Equals(fileName, StringComparison.OrdinalIgnoreCase), cancellationToken);
 }
