@@ -231,14 +231,14 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
             _httpClient,
             TestFileScenarioConstants.New_Scenario_Pending_FileName,
             TestContext.Current.CancellationToken);
-        
+
         var request = new UpdateFileImportRequest
         {
             TotalRowsToProcess = 220,
             RowsFound = 210,
             ImportStatus = FileImportStatus.Failed
         };
-        
+
         var response = await FileImportTestClient.UpdateAsync(
             _httpClient,
             id,
