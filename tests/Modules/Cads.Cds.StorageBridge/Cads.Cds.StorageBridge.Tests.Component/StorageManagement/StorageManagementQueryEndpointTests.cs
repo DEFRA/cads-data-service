@@ -206,7 +206,7 @@ public class StorageManagementQueryEndpointTests : IClassFixture<StorageManageme
             new MemoryStream(Encoding.UTF8.GetBytes(plainCsv)),
             encrypted,
             password,
-            StorageManagementTestFixture.Salt,
+            S3StorageConstants.Salt,
             cancellationToken: TestContext.Current.CancellationToken);
         encrypted.Position = 0;
 
