@@ -158,7 +158,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update([FromRoute] long id, [FromBody] UpdateFileImportRequest request, CancellationToken cancellationToken)
     {
-        if(request.ImportStatus == FileImportStatus.Failed)
+        if (request.ImportStatus == FileImportStatus.Failed)
         {
             return BadRequest("Use the /failed endpoint to mark a file import as failed.");
         }
