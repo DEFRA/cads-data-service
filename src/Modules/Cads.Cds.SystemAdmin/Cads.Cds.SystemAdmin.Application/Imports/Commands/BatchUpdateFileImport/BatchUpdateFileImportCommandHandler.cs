@@ -6,19 +6,13 @@ using MediatR;
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.BatchUpdateFileImport;
 
 public class BatchUpdateFileImportCommandHandler(
-    ISystemAdminUnitOfWork uow,
     ISystemAdminFileImportRepository fileImportRepository)
     : ICommandHandler<BatchUpdateFileImportCommand, Unit>
 {
     public async Task<Unit> Handle(BatchUpdateFileImportCommand command, CancellationToken cancellationToken)
     {
-        await uow.ExecuteInTransactionAsync(_ =>
-        {
-            fileImportRepository.BatchUpdateAsync(command.GroupKey, command.TotalRowsToProcess, command.RowsFound, command.ImportStatus);
-
-            return Task.FromResult(Unit.Value);
-        }, cancellationToken);
+        await fileImportRepository.BatchUpdateAsync(command.GroupKey, command.TotalRowsToProcess, command.RowsFound, command.ImportStatus);
 
         return Unit.Value;
     }
-}
+} 
