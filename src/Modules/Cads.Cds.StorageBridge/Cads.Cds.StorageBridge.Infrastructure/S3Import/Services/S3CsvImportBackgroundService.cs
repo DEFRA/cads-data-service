@@ -40,11 +40,10 @@ public class S3CsvImportBackgroundService(
                     fileImport!.SetImportStatus(FileImportStatus.Completed);
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    fileImport!.SetImportStatus(FileImportStatus.Failed);
+                    fileImport!.MarkFailed($"Import failed: {ex.Message}");
                     await dbContext.SaveChangesAsync(cancellationToken);
-
                     throw;
                 }
                 finally
