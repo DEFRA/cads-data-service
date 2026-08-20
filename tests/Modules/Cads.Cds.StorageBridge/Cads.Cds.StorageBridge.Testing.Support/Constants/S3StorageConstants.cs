@@ -1,4 +1,4 @@
-﻿namespace Cads.Cds.StorageBridge.Testing.Support.Constants;
+namespace Cads.Cds.StorageBridge.Testing.Support.Constants;
 
 public class S3StorageConstants
 {
