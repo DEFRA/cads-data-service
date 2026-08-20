@@ -224,10 +224,33 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
+    [Fact]
+    public async Task GivenRequestToStatusFailed_WhenUpdateRequested_ShouldThrowInvalidOpException()
+    {
+        var id = await FileImportTestClient.GetIdByFileNameAsync(
+            _httpClient,
+            TestFileScenarioConstants.New_Scenario_Pending_FileName,
+            TestContext.Current.CancellationToken);
+
+        var request = new UpdateFileImportRequest
+        {
+            TotalRowsToProcess = 220,
+            RowsFound = 210,
+            ImportStatus = FileImportStatus.Failed
+        };
+
+        var response = await FileImportTestClient.UpdateAsync(
+            _httpClient,
+            id,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     [Theory]
     [InlineData(TestFileScenarioConstants.New_Scenario_Pending_Update_Transferred_FileName, FileImportStatus.Transferred)]
     [InlineData(TestFileScenarioConstants.New_Scenario_Transferred_Update_Split_FileName, FileImportStatus.Split)]
-    [InlineData(TestFileScenarioConstants.New_Scenario_Transferred_Update_Failed_FileName, FileImportStatus.Failed)]
     public async Task GivenValidRequest_WhenUpdateRequested_ShouldSucceed(string fileName, FileImportStatus importStatus)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
