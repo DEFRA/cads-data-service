@@ -1,37 +1,33 @@
 namespace Cads.Cds.ApiSurface.Dtos.Imports;
 
-public class FileImportDto(
-    long id,
-    string destinationTableName,
-    string fileName,
-    long totalRowsToProcess,
-    long rowsFound,
-    FileImportStatus importStatus,
-    FileProcessingStatus processingStatus,
-    DateTimeOffset addedAt,
-    DateTimeOffset? importStartAt,
-    DateTimeOffset? importEndAt,
-    DateTimeOffset? processingStartAt,
-    DateTimeOffset? processingEndAt,
-    int failedAttempts,
-    string? lastErrorReason)
+public class FileImportDto
 {
-    public long Id { get; set; } = id;
+    public long Id { get; set; }
 
-    public string DestinationTableName { get; set; } = destinationTableName;
-    public string FileName { get; set; } = fileName;
+    public required string DestinationTableName { get; set; }
 
-    public long TotalRowsToProcess { get; set; } = totalRowsToProcess;
-    public long RowsFound { get; set; } = rowsFound;
+    public required string FileName { get; set; }
 
-    public FileImportStatus ImportStatus { get; set; } = importStatus;
-    public FileProcessingStatus ProcessingStatus { get; set; } = processingStatus;
+    public string? GroupKey { get; set; }
 
-    public DateTimeOffset AddedAt { get; set; } = addedAt;
-    public DateTimeOffset? ImportStartAt { get; set; } = importStartAt;
-    public DateTimeOffset? ImportEndAt { get; set; } = importEndAt;
-    public DateTimeOffset? ProcessingStartAt { get; set; } = processingStartAt;
-    public DateTimeOffset? ProcessingEndAt { get; set; } = processingEndAt;
-    public int FailedAttempts { get; set; } = failedAttempts;
-    public string? LastErrorReason { get; set; } = lastErrorReason;
+    public long TotalRowsToProcess { get; set; }
+    public long RowsFound { get; set; }
+
+    public FileImportStatus ImportStatus { get; set; }
+
+    public FileProcessingStatus ProcessingStatus { get; set; }
+
+    public DateTimeOffset AddedAt { get; set; }
+
+    public DateTimeOffset? ImportStartAt { get; set; }
+
+    public DateTimeOffset? ImportEndAt { get; set; }
+
+    public DateTimeOffset? ProcessingStartAt { get; set; }
+
+    public DateTimeOffset? ProcessingEndAt { get; set; }
+
+    public int FailedAttempts { get; set; }
+
+    public string? LastErrorReason { get; set; }
 }
