@@ -13,11 +13,23 @@ public class TestEndpointConstants
     // FileImports - GetByFileName
     public const string FileImportsGetByFileNameEndpoint = SystemAdminFileImportsRoot + "/search";
 
+    // FileImports - GetAll
+    public const string FileImportsGetAllEndpoint = SystemAdminFileImportsRoot;
+
+    // FileImports - GetById
+    public const string FileImportsGetByIdEndpoint = SystemAdminFileImportsRoot + "/{0}";
+
+    // FileImports - GetByIdWithSiblings    
+    public const string FileImportsGetByIdWithSiblingsEndpoint = SystemAdminFileImportsRoot + "/{0}/group";
+
     // FileImports - Create
     public const string FileImportsCreateEndpoint = SystemAdminFileImportsRoot;
 
     // FileImports - Update
     public const string FileImportsUpdateEndpoint = SystemAdminFileImportsRoot + "/{0}";
+
+    // FileImports - Batch Update
+    public const string FileImportsBatchUpdateEndpoint = SystemAdminFileImportsRoot + "/batch";
 
     // FileImports - MarkTransferred
     public const string FileImportsTransferredEndpoint = SystemAdminFileImportsRoot + "/{0}/transferred";
