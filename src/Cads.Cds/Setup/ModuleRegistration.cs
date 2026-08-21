@@ -10,6 +10,7 @@ namespace Cads.Cds.Setup;
 public static class ModuleRegistration
 {
     // BuildingBlocks registers the shared infrastructure the other modules build on, so it stays first.
+    // Assembly scanning explicitly ruled out so manual control over the order of middleware execution can live here.
     private static readonly IModule[] _modules =
     [
         new BuildingBlocksModule(),
