@@ -1,18 +1,23 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Setup;
 using Cads.Cds.SystemAdmin.Application.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Setup;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.SystemAdmin.Setup;
 
-public static class ServiceCollectionExtensions
+public sealed class SystemAdminModule : IModule
 {
-    public static IServiceCollection AddSystemAdminModule(this IServiceCollection services, IConfiguration config)
+    public void AddServices(IServiceCollection services, IConfiguration config)
     {
         services.AddSystemAdminInfrastructureLayer(config);
 
         services.AddSystemAdminApplicationLayer(config);
+    }
 
-        return services;
+    public void MapEndpoints(IEndpointRouteBuilder app)
+    {
+        // No minimal API endpoints; this module exposes controllers.
     }
 }
