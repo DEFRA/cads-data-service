@@ -33,6 +33,7 @@
   <include file="0000_000_drop_legacy_schema_objects.postgresql.sql"/>
   <include file="0000_001_create_schemas.postgresql.sql"/>
   <include file="0000_002_create_schemas_permissions.postgresql.sql"/>
+  <include file="0000_004_create_cleanup_functions.postgresql.sql"/>
   <include file="0002_008_cads_pseudonymisation_routine.postgresql.sql"/>
   <include file="0002_009_cads_truncate_all_tables_routine.postgresql.sql"/>
   <include file="0002_019_cts_truncate_tables_routine.postgresql.sql"/>

@@ -36,7 +36,7 @@ public sealed class CreateFileImportCommandHandler(
 
         if (destinationTableName is null)
         {
-            fileImport.SetImportStatus(FileImportStatus.Failed);
+            fileImport.MarkFailed($"Import failed: Unable to determine destination table name from file name '{command.FileName}'");
         }
 
         await fileImportRepository.AddAsync(fileImport, cancellationToken);

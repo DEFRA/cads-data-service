@@ -1,5 +1,4 @@
 using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
-using Cads.Cds.BuildingBlocks.Core.Extensions;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using System.Net;
 
@@ -14,10 +13,8 @@ public class FileNameMustBeUniqueRule(
 
     public bool IsBroken()
     {
-        var normalisedFileName = fileName.NormalizeToUpper()!;
-
         var existingFileImport = repository
-            .GetByFileNameAsync(normalisedFileName, cancellationToken)
+            .GetByFileNameAsync(fileName, cancellationToken)
             .GetAwaiter()
             .GetResult();
 

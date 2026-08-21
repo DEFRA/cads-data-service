@@ -31,7 +31,6 @@ public class FileImport
 
     public FileImport()
     {
-
     }
 
     private FileImport(
@@ -80,8 +79,7 @@ public class FileImport
 
         if (status == FileImportStatus.Failed)
         {
-            MarkFailed("Import failed.");
-            return;
+            throw new InvalidOperationException($"Invalid import status transition from {ImportStatus} to Failed. Use MarkFailed(reason) instead.");
         }
 
         (status switch
