@@ -118,7 +118,7 @@ public class FileImport
         ImportEndAt = DateTimeOffset.UtcNow;
     }
 
-    public void MarkFailed(string reason)
+    public void MarkFailed(string reason, bool isTransient = true)
     {
         BusinessRuleChecker.CheckRule(new MarkFailedRule(ImportStatus));
 
@@ -127,7 +127,7 @@ public class FileImport
         ImportEndAt = DateTimeOffset.UtcNow;
 
         LastErrorReason = reason;
-        FailedAttempts++;
+        FailedAttempts = isTransient ? FailedAttempts + 1 : 3;
     }
 
     // -----------------------------
