@@ -208,12 +208,14 @@ liquibase diff \
 	--url=jdbc:postgresql://localhost:5432/cads_data_service \
 	--username=<POSTGRES_USER> \
 	--password=<POSTGRES_PASSWORD> \
+	--schemas=cads,cts,cts_audit,cts_transactions \
 	--reference-url=jdbc:postgresql://localhost:54432/reference_schema \
 	--reference-username=<POSTGRES_USER> \
-	--reference-password=<POSTGRES_PASSWORD>
+	--reference-password=<POSTGRES_PASSWORD> \
+	--reference-schemas=cads,cts,cts_audit,cts_transactions
 ```
 
-Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff`
+Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff --schemas=cads,cts,cts_audit,cts_transactions --reference-schemas=cads,cts,cts_audit,cts_transactions`
 
 This shows what changed between:
 - reference_schema
@@ -227,12 +229,14 @@ liquibase diff-changelog
 	--url=jdbc:postgresql://localhost:5432/cads_data_service  \
 	--username=<POSTGRES_USER> \
 	--password=<POSTGRES_PASSWORD> \
+	--schemas=cads,cts,cts_audit,cts_transactions \
 	--reference-url=jdbc:postgresql://localhost:54432/reference_schema  \
 	--reference-username=<POSTGRES_USER> \
-	--reference-password=<POSTGRES_PASSWORD>
+	--reference-password=<POSTGRES_PASSWORD> \
+	--reference-schemas=cads,cts,cts_audit,cts_transactions
 ```
 
-Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff-changelog --changelog-file=<XXXX_NEW_CHANGESET_NAME>.postgresql.sql`
+Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff-changelog --changelog-file=<XXXX_NEW_CHANGESET_NAME>.postgresql.sql --schemas=cads,cts,cts_audit,cts_transactions --reference-schemas=cads,cts,cts_audit,cts_transactions`
 
 Liquibase outputs a migration script containing:
 - addColumn
