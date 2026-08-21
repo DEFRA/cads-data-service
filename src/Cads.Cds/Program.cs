@@ -27,6 +27,11 @@ static void ConfigureBuilder(WebApplicationBuilder builder)
 {
     builder.Configuration.AddEnvironmentVariables();
 
+    // Give hosted background services time to gracefully finalise in-flight long-running processes
+    var shutdownTimeoutSeconds = builder.Configuration.GetValue("Host:ShutdownTimeoutSeconds", 25);
+    builder.Services.Configure<HostOptions>(options =>
+        options.ShutdownTimeout = TimeSpan.FromSeconds(shutdownTimeoutSeconds));
+
     // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
     builder.Services.AddCustomTrustStore();
 

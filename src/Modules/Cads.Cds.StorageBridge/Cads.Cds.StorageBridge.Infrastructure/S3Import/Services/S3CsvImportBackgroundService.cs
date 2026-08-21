@@ -7,6 +7,7 @@ using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Extensions;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
@@ -17,6 +18,8 @@ public class S3CsvImportBackgroundService(
     IS3ToPostgresCopyService processor
 ) : S3ImportBackgroundService<CreateS3CsvImportJobDto>(channel, logger, processor)
 {
+    private static readonly TimeSpan CleanupTimeout = TimeSpan.FromSeconds(10);
+
     protected override async Task ProcessJobAsync(
         CreateS3CsvImportJobDto request,
         SemaphoreSlim semaphore,
@@ -42,9 +45,22 @@ public class S3CsvImportBackgroundService(
                 }
                 catch (Exception ex)
                 {
-                    fileImport!.MarkFailed($"Import failed: {ex.Message}");
-                    await dbContext.SaveChangesAsync(cancellationToken);
-                    throw;
+                    // IMPORTANT: never use the (possibly cancelled) shutdown token to
+                    // persist the failure status, otherwise SaveChanges fails immediately
+                    // and the import is left in an unstable state.
+                    using var cleanupCts = new CancellationTokenSource(CleanupTimeout);
+
+                    var reason = ex is OperationCanceledException
+                        ? "Import interrupted by service shutdown"
+                        : $"Import failed: {ex.Message}";
+
+                    if (logger.IsEnabled(LogLevel.Error))
+                    {
+                        logger.LogError(ex, "Failed to process bulk load job {JobId}. {Reason}", request.JobId, reason);
+                    }
+
+                    fileImport!.MarkFailed(reason, ex.IsTransientPostgresException());
+                    await dbContext.SaveChangesAsync(cleanupCts.Token);
                 }
                 finally
                 {
