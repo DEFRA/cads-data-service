@@ -48,6 +48,7 @@
   <include file="0000_020_cts_tables.postgresql.sql"/>
   <include file="0000_030_cts_transactions_tables.postgresql.sql"/>
   <include file="0000_040_cts_audit_tables.postgresql.sql"/>
+  <include file="0000_031_cts_transactions_ct_file_layouts_alter.postgresql.sql"/>
   <include file="0001_000_cads_indexes.postgresql.sql"/>
   <include file="0001_001_cts_indexes.postgresql.sql"/>
   <include file="0001_002_cts_transactions_indexes.postgresql.sql"/>
