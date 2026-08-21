@@ -114,4 +114,5 @@
   <include file="0003_001_cts_file_imports_integration.postgresql.sql"/>
   <include file="0005_000_ct_eartag_reason_flags_seed_data_faker_data.postgresql.sql"/>
   <include file="0005_001_ct_workgroups_seed_data_faker_data.postgresql.sql"/>
+  <include file="0005_002_psudeo-anonymisation.postgresql.sql" />
 </databaseChangeLog>
