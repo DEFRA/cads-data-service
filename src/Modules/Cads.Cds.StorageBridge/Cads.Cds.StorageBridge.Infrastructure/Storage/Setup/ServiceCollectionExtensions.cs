@@ -5,6 +5,7 @@ using Cads.Cds.StorageBridge.Core.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Health;
+using Cads.Cds.StorageBridge.Infrastructure.Storage.Managers;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Readers;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Services;
 using Microsoft.Extensions.Configuration;
@@ -27,10 +28,17 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileChecksumService, S3FileChecksumService<CadsInternalClient>>();
 
         // Register module storage readers
-        services.AddSingleton<IStorageReader<CadsInternalClient>, BulkImportStorageReader<CadsInternalClient>>();
+        services.AddSingleton(typeof(IStorageReader<>), typeof(BulkImportStorageReader<>));
 
         // Register module storage writers
         services.AddSingleton<IStorageService<CadsInternalClient>, StorageService<CadsInternalClient>>();
+
+        // Register module storage managers
+        if (moduleConfig.StorageManager.Enabled)
+        {
+            services.AddSingleton<IStorageManager<CadsInternalClient>, StorageManager<CadsInternalClient>>();
+            services.AddSingleton<IStorageManager<CadsExternalClient>, StorageManager<CadsExternalClient>>();
+        }
 
         if (moduleConfig.CadsInternal.HealthcheckEnabled)
         {
