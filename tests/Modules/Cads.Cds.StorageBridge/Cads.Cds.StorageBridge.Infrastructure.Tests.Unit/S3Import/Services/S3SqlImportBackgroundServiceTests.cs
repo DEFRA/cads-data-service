@@ -76,6 +76,68 @@ public class S3SqlImportBackgroundServiceTests
             Times.Exactly(3));
     }
 
+    [Fact]
+    public async Task ExecuteAsync_WhenStoppingTokenCancelled_CompletesGracefullyWithoutThrowing()
+    {
+        var ctx = new S3SqlBulkLoadBackgroundServiceTestContext();
+        var service = ctx.CreateService();
+
+        using var stoppingCts = new CancellationTokenSource();
+
+        // Do NOT complete the channel so the reader is blocked awaiting new jobs,
+        // mirroring a live service when the host begins shutting down.
+        var executeTask = S3SqlBulkLoadBackgroundServiceTestContext.InvokeExecuteAsync(service, stoppingCts.Token);
+
+        await stoppingCts.CancelAsync();
+
+        // If the graceful-shutdown catch block were missing, the cancellation would
+        // propagate and this task would fault/cancel. Completing normally proves the
+        // OperationCanceledException is swallowed on shutdown.
+        await executeTask;
+
+        Assert.True(executeTask.IsCompletedSuccessfully);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenStoppingTokenCancelled_StillDrainsInFlightJobs()
+    {
+        var ctx = new S3SqlBulkLoadBackgroundServiceTestContext();
+
+        var jobStarted = new TaskCompletionSource();
+        var releaseJob = new TaskCompletionSource<int>();
+
+        // Block the in-flight job until we've cancelled the stopping token, so we can
+        // prove that the finally/WhenAll still awaits it to completion.
+        ctx.CopyService
+            .Setup(s => s.ExecuteAsync(It.IsAny<CreateS3SqlImportJobDto>(), It.IsAny<CancellationToken>()))
+            .Callback(() => jobStarted.TrySetResult())
+            .Returns(releaseJob.Task);
+
+        var service = ctx.CreateService();
+
+        using var stoppingCts = new CancellationTokenSource();
+
+        await ctx.Channel.Writer.WriteAsync(new CreateS3SqlImportJobDto(), TestContext.Current.CancellationToken);
+
+        var executeTask = S3SqlBulkLoadBackgroundServiceTestContext.InvokeExecuteAsync(service, stoppingCts.Token);
+
+        // Wait until the job is actually running, then request shutdown.
+        await jobStarted.Task;
+        await stoppingCts.CancelAsync();
+
+        // The service must not complete until the in-flight job is drained.
+        Assert.False(executeTask.IsCompleted);
+
+        releaseJob.SetResult(0);
+
+        await executeTask;
+
+        Assert.True(executeTask.IsCompletedSuccessfully);
+        ctx.CopyService.Verify(
+            s => s.ExecuteAsync(It.IsAny<CreateS3SqlImportJobDto>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     public class S3SqlBulkLoadBackgroundServiceTestContext
     {
         public Mock<ILogger<S3SqlImportBackgroundService>> Logger { get; } = new();
@@ -95,10 +157,17 @@ public class S3SqlImportBackgroundServiceTests
         public static Task InvokeProcessJobAsync(
             S3SqlImportBackgroundService service)
         {
+            return InvokeExecuteAsync(service, CancellationToken.None);
+        }
+
+        public static Task InvokeExecuteAsync(
+            S3SqlImportBackgroundService service,
+            CancellationToken stoppingToken)
+        {
             var method = typeof(S3SqlImportBackgroundService)
                 .GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            return (Task)method!.Invoke(service, [CancellationToken.None])!;
+            return (Task)method!.Invoke(service, [stoppingToken])!;
         }
 
         public static Task GetExecuteTask(BackgroundService service)
