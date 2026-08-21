@@ -67,6 +67,12 @@ public enum ImportDataType
     CtApplicationLateDays,
     #endregion
 
+    #region ALLOC ROUTINES
+    [TableInfo("ct_alloc_routines", SchemaName.Cts, "rou_id")]
+    [TableInfo("ct_alloc_routines", SchemaName.CtsTransactions, "trans_id")]
+    CtAllocRoutines,
+    #endregion
+
     #region Batch Retention Configuration
     [TableInfo("ct_batch_retention_conf", SchemaName.Cts, "id")]
     [TableInfo("ct_batch_retention_conf", SchemaName.CtsTransactions, "trans_id")]
