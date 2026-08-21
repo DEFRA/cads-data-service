@@ -7,6 +7,7 @@ using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Extensions;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
@@ -58,7 +59,7 @@ public class S3CsvImportBackgroundService(
                         logger.LogError(ex, "Failed to process bulk load job {JobId}. {Reason}", request.JobId, reason);
                     }
 
-                    fileImport!.MarkFailed(reason);
+                    fileImport!.MarkFailed(reason, ex.IsTransientPostgresException());
                     await dbContext.SaveChangesAsync(cleanupCts.Token);
                 }
                 finally
