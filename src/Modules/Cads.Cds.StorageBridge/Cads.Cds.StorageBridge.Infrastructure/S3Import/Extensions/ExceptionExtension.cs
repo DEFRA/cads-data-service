@@ -24,7 +24,7 @@ public static class ExceptionExtension
                 _ => false
             };
         }
-        
+
         private static bool IsTransientPostgresSqlState(string? sqlState) =>
             !string.IsNullOrEmpty(sqlState)
             && sqlState.Length >= 2
