@@ -290,9 +290,15 @@ POSTGRES_DB=cads_data_service
 POSTGRES_REF_DB=reference_schema
 PGADMIN_EMAIL=pgadmin@pgadmin.com
 PGADMIN_PASSWORD=*****
+STORAGE_MANAGER_ENABLED=true
+STORAGE_MANAGER_SALT=*****
 ```
 
 Passwords can be anything for local development.
+
+`STORAGE_MANAGER_ENABLED` toggles the StorageBridge storage-management endpoints
+(defaults to `false` when unset). `STORAGE_MANAGER_SALT` must match cads-bridge's
+`DataLoad__Salt` so both services decrypt the same CTSM files.
 
 ### Running the Application
 
