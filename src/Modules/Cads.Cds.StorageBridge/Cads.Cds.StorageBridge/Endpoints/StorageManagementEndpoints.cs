@@ -1,4 +1,5 @@
 using Amazon.S3;
+using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Endpoints.Responses;
@@ -33,6 +34,7 @@ public static class StorageManagementEndpoints
         group.MapGet("/buckets/{clientName}/objects", ListObjects);
         group.MapGet("/buckets/{clientName}/search", SearchKeys);
         group.MapGet("/buckets/{clientName}/object", GetObject);
+        group.MapGet("/buckets/{clientName}/object/rows", GetObjectRows);
         group.MapPut("/buckets/{clientName}/object", PutObject);
         group.MapDelete("/buckets/{clientName}/object", DeleteObject);
 
@@ -165,22 +167,90 @@ public static class StorageManagementEndpoints
         try
         {
             var response = await manager.GetObjectResponseAsync(key, cancellationToken);
+            var (stream, contentType) = DecodeObjectStream(services, key, decryptCtsm, response);
 
-            if (decryptCtsm && CtsmFilenameParser.TryParse(Path.GetFileName(key), out var ctsmFilename))
-            {
-                var salt = services.GetRequiredService<StorageBridgeStorageConfiguration>().StorageManager.Salt;
-                var decryptor = AesCryptoTransform.CreateDecryptor(ctsmFilename!.DerivePassword(), salt);
-
-                return Results.Stream(
-                    new CryptoStream(response.ResponseStream, decryptor, CryptoStreamMode.Read),
-                    "text/csv");
-            }
-
-            return Results.Stream(response.ResponseStream, response.Headers.ContentType ?? "application/octet-stream");
+            return Results.Stream(stream, contentType);
         }
         catch (AmazonS3Exception e) when (e.StatusCode == HttpStatusCode.NotFound)
         {
             return Results.NotFound();
+        }
+    }
+
+    /// <summary>
+    /// The object's readable stream — decrypted for external CTSM files, so
+    /// callers always see plaintext content.
+    /// </summary>
+    private static (Stream Stream, string ContentType) DecodeObjectStream(
+        IServiceProvider services,
+        string key,
+        bool decryptCtsm,
+        GetObjectResponse response)
+    {
+        if (decryptCtsm && CtsmFilenameParser.TryParse(Path.GetFileName(key), out var ctsmFilename))
+        {
+            var salt = services.GetRequiredService<StorageBridgeStorageConfiguration>().StorageManager.Salt;
+            var decryptor = AesCryptoTransform.CreateDecryptor(ctsmFilename!.DerivePassword(), salt);
+
+            return (new CryptoStream(response.ResponseStream, decryptor, CryptoStreamMode.Read), "text/csv");
+        }
+
+        return (response.ResponseStream, response.Headers.ContentType ?? "application/octet-stream");
+    }
+
+    private const int MaxRowSliceCount = 1000;
+
+    private static Task<IResult> GetObjectRows(
+        string clientName,
+        string key,
+        int startRow,
+        int rowCount,
+        string delimiter,
+        IServiceProvider services,
+        CancellationToken cancellationToken) =>
+        clientName switch
+        {
+            nameof(CadsInternalClient) => GetClientObjectRows<CadsInternalClient>(services, key, decryptCtsm: false, startRow, rowCount, delimiter, cancellationToken),
+            nameof(CadsExternalClient) => GetClientObjectRows<CadsExternalClient>(services, key, decryptCtsm: true, startRow, rowCount, delimiter, cancellationToken),
+            _ => Task.FromResult(UnknownClient(clientName))
+        };
+
+    private static async Task<IResult> GetClientObjectRows<T>(IServiceProvider services, string key, bool decryptCtsm, int startRow, int rowCount, string delimiter, CancellationToken cancellationToken)
+        where T : IStorageClient, new()
+    {
+        if (startRow < 1)
+        {
+            return Results.BadRequest("startRow must be 1 or greater");
+        }
+
+        if (rowCount < 1 || rowCount > MaxRowSliceCount)
+        {
+            return Results.BadRequest($"rowCount must be between 1 and {MaxRowSliceCount}");
+        }
+
+        if (string.IsNullOrEmpty(delimiter))
+        {
+            return Results.BadRequest("delimiter is required");
+        }
+
+        var manager = services.GetRequiredService<IStorageManager<T>>();
+
+        try
+        {
+            // Disposing before the body is drained aborts the storage download,
+            // so completing the slice early stops pulling the rest of the object.
+            using var response = await manager.GetObjectResponseAsync(key, cancellationToken);
+            var stream = DecodeObjectStream(services, key, decryptCtsm, response).Stream;
+
+            return Results.Ok(await StorageRowSliceReader.ReadAsync(stream, startRow, rowCount, delimiter, cancellationToken));
+        }
+        catch (AmazonS3Exception e) when (e.StatusCode == HttpStatusCode.NotFound)
+        {
+            return Results.NotFound();
+        }
+        catch (InvalidDataException e)
+        {
+            return Results.BadRequest(e.Message);
         }
     }
 

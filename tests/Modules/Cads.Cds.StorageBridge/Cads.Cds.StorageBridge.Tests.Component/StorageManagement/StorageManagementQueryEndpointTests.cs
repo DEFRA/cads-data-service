@@ -258,6 +258,132 @@ public class StorageManagementQueryEndpointTests : IClassFixture<StorageManageme
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    [Fact]
+    public async Task GivenInternalClient_WhenRowsRead_ShouldReturnRequestedSliceOnly()
+    {
+        SetupGetObject("row1\nrow2\nrow3\nrow4\nrow5", contentType: "text/csv");
+
+        var slice = await ReadRowsAsync("CadsInternalClient", "data/one.csv", startRow: 2, rowCount: 2, "\n");
+
+        slice.Rows.Should().Equal("row2", "row3");
+        slice.ReachedEnd.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GivenSliceReachingEndOfObject_WhenRowsRead_ShouldFlagReachedEnd()
+    {
+        SetupGetObject("row1\nrow2\nrow3\n", contentType: "text/csv");
+
+        var slice = await ReadRowsAsync("CadsInternalClient", "data/one.csv", startRow: 2, rowCount: 10, "\n");
+
+        slice.Rows.Should().Equal("row2", "row3");
+        slice.ReachedEnd.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GivenStartRowPastEndOfObject_WhenRowsRead_ShouldReturnNoRows()
+    {
+        SetupGetObject("row1\nrow2", contentType: "text/csv");
+
+        var slice = await ReadRowsAsync("CadsInternalClient", "data/one.csv", startRow: 10, rowCount: 5, "\n");
+
+        slice.Rows.Should().BeEmpty();
+        slice.ReachedEnd.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GivenCustomDelimiter_WhenRowsRead_ShouldSplitOnIt()
+    {
+        SetupGetObject("a|b|c", contentType: "text/plain");
+
+        var slice = await ReadRowsAsync("CadsInternalClient", "data/one.txt", startRow: 1, rowCount: 2, "|");
+
+        slice.Rows.Should().Equal("a", "b");
+        slice.ReachedEnd.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GivenExternalCtsmFile_WhenRowsRead_ShouldReturnDecryptedRows()
+    {
+        const string fileName = "CTSM_APP_TEST_FULL_BATCH1_1_ct_locations_2025-01-01-120000.csv";
+        const string plainCsv = "id,name\n1,Cow\n2,Sheep";
+
+        var password = CtsmFilenameParser.Parse(fileName)!.DerivePassword();
+        var encrypted = new MemoryStream();
+        await new AesCryptoTransform().EncryptStreamAsync(
+            new MemoryStream(Encoding.UTF8.GetBytes(plainCsv)),
+            encrypted,
+            password,
+            S3StorageConstants.Salt,
+            cancellationToken: TestContext.Current.CancellationToken);
+        encrypted.Position = 0;
+
+        _testFixture.Factory.AmazonS3Mock
+            .Setup(x => x.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetObjectResponse { ResponseStream = encrypted });
+
+        var slice = await ReadRowsAsync("CadsExternalClient", $"inbound/{fileName}", startRow: 2, rowCount: 5, "\n");
+
+        slice.Rows.Should().Equal("1,Cow", "2,Sheep");
+        slice.ReachedEnd.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("startRow=0&rowCount=10&delimiter=%0A")]
+    [InlineData("startRow=1&rowCount=0&delimiter=%0A")]
+    [InlineData("startRow=1&rowCount=1001&delimiter=%0A")]
+    [InlineData("startRow=1&rowCount=10&delimiter=")]
+    public async Task GivenInvalidParameters_WhenRowsRead_ShouldReturnBadRequest(string queryString)
+    {
+        SetupGetObject("row1\nrow2", contentType: "text/csv");
+
+        var response = await _testFixture.HttpClient.GetAsync(
+            $"{Endpoint}/buckets/CadsInternalClient/object/rows?key=data/one.csv&{queryString}",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GivenMissingObject_WhenRowsRead_ShouldReturnNotFound()
+    {
+        _testFixture.Factory.AmazonS3Mock
+            .Setup(x => x.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new AmazonS3Exception("no such key") { StatusCode = HttpStatusCode.NotFound });
+
+        var response = await _testFixture.HttpClient.GetAsync(
+            $"{Endpoint}/buckets/CadsInternalClient/object/rows?key=data/missing.csv&startRow=1&rowCount=10&delimiter=%0A",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GivenUnknownClient_WhenRowsRead_ShouldReturnNotFound()
+    {
+        var response = await _testFixture.HttpClient.GetAsync(
+            $"{Endpoint}/buckets/NoSuchClient/object/rows?key=data/one.csv&startRow=1&rowCount=10&delimiter=%0A",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    private async Task<StorageRowSliceResponse> ReadRowsAsync(string clientName, string key, int startRow, int rowCount, string delimiter)
+    {
+        var response = await _testFixture.HttpClient.GetAsync(
+            $"{Endpoint}/buckets/{clientName}/object/rows" +
+            $"?key={Uri.EscapeDataString(key)}&startRow={startRow}&rowCount={rowCount}&delimiter={Uri.EscapeDataString(delimiter)}",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var slice = await response.Content.ReadFromJsonAsync<StorageRowSliceResponse>(
+            TestContext.Current.CancellationToken);
+
+        slice.Should().NotBeNull();
+        return slice!;
+    }
+
     private void SetupListing(string[] folders, string[] keys)
     {
         _testFixture.Factory.AmazonS3Mock
