@@ -189,7 +189,7 @@ public class S3CsvImportEndpointTests
         foundLogEntry.Should().BeTrue($"Expected log entry within {ProcessingTimeCircuitBreakerSeconds} seconds but none was found.");
     }
 
-    private async Task<long> AddFileImportStatusRecordAsync(string importFileName, FileImportStatus fileImportStatus)
+    private async Task<long> AddFileImportStatusRecordAsync(string importFileName, FileImportStatus fileImportStatus, string? lastfileImported = null, long rowsImported = 0)
     {
         var insertQuery = @"INSERT INTO cads.cts_file_imports(
         destination_table_name
@@ -205,9 +205,11 @@ public class S3CsvImportEndpointTests
         , group_key
         , import_type
         , failed_attempts
-        , last_error_reason)
+        , last_error_reason
+        , last_file_imported
+        , rows_imported)
          VALUES
-             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), 'ABC', 'BULK', 0, NULL)
+             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), 'ABC', 'BULK', 0, NULL, @lastfileImported, @rowsImported)
         ON CONFLICT DO NOTHING
         RETURNING cts_file_import_id;";
 
@@ -217,6 +219,8 @@ public class S3CsvImportEndpointTests
             {
                 cmd.Parameters.AddWithValue("fileName", importFileName);
                 cmd.Parameters.AddWithValue("fileImportStatus", (int)fileImportStatus);
+                cmd.Parameters.AddWithValue("lastfileImported", ((object)lastfileImported) ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("rowsImported", rowsImported);
             });
 
         return testFileImportId;
