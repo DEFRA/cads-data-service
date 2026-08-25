@@ -13,6 +13,7 @@ public static class ModuleRegistration
     // Assembly scanning explicitly ruled out so manual control over the order of middleware execution can live here.
     private static readonly IModule[] s_modules =
     [
+        new BuildingBlocksModule(),
         new ApiModule(),
         new IngesterModule(),
         new MiBffModule(),
