@@ -109,8 +109,8 @@ public static class StorageManagementEndpoints
 
             listing = listing with
             {
-                Folders = listing.Folders.Where(folder => matches(RelativeName(folder, basePrefix))).ToList(),
-                Objects = listing.Objects.Where(item => matches(RelativeName(item.Key, basePrefix))).ToList()
+                Folders = [.. listing.Folders.Where(folder => matches(RelativeName(folder, basePrefix)))],
+                Objects = [.. listing.Objects.Where(item => matches(RelativeName(item.Key, basePrefix)))]
             };
         }
 
