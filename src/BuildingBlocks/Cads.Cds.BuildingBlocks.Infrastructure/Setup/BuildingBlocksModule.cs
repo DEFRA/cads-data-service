@@ -20,8 +20,11 @@ public sealed class BuildingBlocksModule : IModule
         services.AddBuildBlocksApplicationLayer();
     }
 
+    /// <summary>
+    /// No endpoints; this module provides shared infrastructure to the other modules.
+    /// </summary>
+    /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        // No endpoints; this module provides shared infrastructure to the other modules.
     }
 }

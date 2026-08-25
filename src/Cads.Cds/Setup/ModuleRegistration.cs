@@ -11,9 +11,8 @@ public static class ModuleRegistration
 {
     // BuildingBlocks registers the shared infrastructure the other modules build on, so it stays first.
     // Assembly scanning explicitly ruled out so manual control over the order of middleware execution can live here.
-    private static readonly IModule[] _modules =
+    private static readonly IModule[] s_modules =
     [
-        new BuildingBlocksModule(),
         new ApiModule(),
         new IngesterModule(),
         new MiBffModule(),
@@ -23,7 +22,7 @@ public static class ModuleRegistration
 
     public static IServiceCollection AddModules(this IServiceCollection services, IConfiguration config)
     {
-        foreach (var module in _modules)
+        foreach (var module in s_modules)
         {
             module.AddServices(services, config);
         }
@@ -33,7 +32,7 @@ public static class ModuleRegistration
 
     public static IEndpointRouteBuilder MapModules(this IEndpointRouteBuilder app)
     {
-        foreach (var module in _modules)
+        foreach (var module in s_modules)
         {
             module.MapEndpoints(app);
         }

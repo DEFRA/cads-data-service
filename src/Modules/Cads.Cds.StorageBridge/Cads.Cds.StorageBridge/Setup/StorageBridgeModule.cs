@@ -17,6 +17,10 @@ public sealed class StorageBridgeModule : IModule
         services.AddStorageBridgeApplicationLayer();
     }
 
+    /// <summary>
+    /// Add minimal API endpoints here. This excludes standard controllers.
+    /// </summary>
+    /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
         app.MapStorageBridgeStorageManagementEndpoints();

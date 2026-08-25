@@ -16,8 +16,11 @@ public sealed class IngesterModule : IModule
         services.AddIngesterApplicationLayer();
     }
 
+    /// <summary>
+    /// Add minimal API endpoints here. This excludes standard controllers.
+    /// </summary>
+    /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        // No minimal API endpoints; this module runs as background services.
     }
 }
