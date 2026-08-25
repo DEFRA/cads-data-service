@@ -63,7 +63,7 @@ public class S3ImportStorageReaderTests
         var reader = new BulkImportStorageReader<TestClient>(factory.Object);
 
         // Act
-        var result = await reader.ListKeysAsync("path/to/LOCATIONS.part-0001.csv", TestContext.Current.CancellationToken);
+        var result = await reader.ListKeysAsync("path/to/LOCATIONS.part-0001.csv", null, TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().BeEquivalentTo(["path/to/LOCATIONS.part-0001.csv"]);
@@ -101,7 +101,7 @@ public class S3ImportStorageReaderTests
         var reader = new BulkImportStorageReader<TestClient>(factory.Object);
 
         // Act
-        var result = await reader.ListKeysAsync("folder", TestContext.Current.CancellationToken);
+        var result = await reader.ListKeysAsync("folder", null, TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().BeEquivalentTo(
@@ -141,7 +141,7 @@ public class S3ImportStorageReaderTests
         var reader = new BulkImportStorageReader<TestClient>(factory.Object);
 
         // Act
-        var result = await reader.ListKeysAsync("missing", TestContext.Current.CancellationToken);
+        var result = await reader.ListKeysAsync("missing", null, TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().BeEmpty();
