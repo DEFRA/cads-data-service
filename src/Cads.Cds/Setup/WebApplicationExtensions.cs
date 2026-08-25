@@ -1,7 +1,6 @@
 using Cads.Cds.Api.Setup;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.Middleware;
-using Cads.Cds.StorageBridge.Endpoints;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics.CodeAnalysis;
@@ -54,7 +53,7 @@ public static class WebApplicationExtensions
 
         app.MapControllers();
 
-        app.MapStorageBridgeStorageManagementEndpoints();
+        app.MapModules();
 
         app.UseApiSoapEndpoints();
 
