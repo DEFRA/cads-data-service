@@ -16,8 +16,11 @@ public sealed class ApiModule : IModule
         services.AddApiApplicationLayer();
     }
 
+    /// <summary>
+    /// Add minimal API endpoints here. This excludes standard controllers.
+    /// </summary>
+    /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        // Controllers and SOAP endpoints are wired by the host pipeline.
     }
 }

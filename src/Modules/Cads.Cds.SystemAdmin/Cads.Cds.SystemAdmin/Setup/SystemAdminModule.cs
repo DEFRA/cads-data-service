@@ -16,8 +16,11 @@ public sealed class SystemAdminModule : IModule
         services.AddSystemAdminApplicationLayer(config);
     }
 
+    /// <summary>
+    /// Add minimal API endpoints here. This excludes standard controllers.
+    /// </summary>
+    /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        // No minimal API endpoints; this module exposes controllers.
     }
 }
