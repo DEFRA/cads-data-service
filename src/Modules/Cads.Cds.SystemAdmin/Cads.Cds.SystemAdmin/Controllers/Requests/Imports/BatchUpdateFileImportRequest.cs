@@ -10,5 +10,9 @@ public class BatchUpdateFileImportRequest
 
     public long? RowsFound { get; set; }
 
+    public long? RowsImported { get; set; }
+
+    public string? LastFilePartImported { get; set; }
+
     public FileImportStatus? ImportStatus { get; set; }
 }

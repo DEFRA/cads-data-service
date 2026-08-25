@@ -1,11 +1,13 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Extensions;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +19,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
-using Cads.Cds.StorageBridge.Infrastructure.S3Import.Extensions;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
@@ -34,7 +35,7 @@ public class S3ToPostgresCopyService(
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
-    public async Task<int> ExecuteAsync(CreateS3CsvImportJobDto job, CancellationToken cancellationToken = default)
+    public async Task<long> ExecuteAsync(CreateS3CsvImportJobDto job, CancellationToken cancellationToken = default)
     {
         const int MaxRetryAttempts = 3;
 
@@ -62,7 +63,7 @@ public class S3ToPostgresCopyService(
 
         _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
 
-        var keys = await _storageService.ListKeysAsync(filePath, cancellationToken);
+        var keys = await _storageService.ListKeysAsync(filePath, fileImport.LastFilePartImported, cancellationToken);
 
         if (!keys.Any()) return 0;
 
@@ -77,7 +78,7 @@ public class S3ToPostgresCopyService(
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
         var sw = Stopwatch.StartNew();
-        var totalRows = 0;
+        var totalRowsImported = fileImport.RowsImported.GetValueOrDefault(0);
 
         foreach (var key in keys)
         {
@@ -91,6 +92,7 @@ public class S3ToPostgresCopyService(
             var fileSw = Stopwatch.StartNew();
 
             var rows = await ProcessFileAsync(
+                fileImport,
                 key,
                 importDataType,
                 schemaName,
@@ -102,7 +104,7 @@ public class S3ToPostgresCopyService(
                 MaxRetryAttempts,
                 cancellationToken);
 
-            totalRows += rows;
+            totalRowsImported += rows;
             counter.Add(rows);
 
             fileHistogram.Record(fileSw.Elapsed.TotalMilliseconds);
@@ -119,26 +121,30 @@ public class S3ToPostgresCopyService(
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation("Completed CSV import copy for job {JobId} with key {SourceKey}, {TotalRows} records processed in {TotalMilliseconds} ms",
-                job.JobId, fileImport.FileName, totalRows, sw.Elapsed.TotalMilliseconds);
+                job.JobId, fileImport.FileName, totalRowsImported, sw.Elapsed.TotalMilliseconds);
         }
 
-        return totalRows;
+        return totalRowsImported;
     }
 
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
     /// </summary>
+    /// <param name="fileImport"></param>
     /// <param name="key"></param>
     /// <param name="importDataType"></param>
-    /// <param name="importActionType"></param>
+    /// <param name="schemaName"></param>
     /// <param name="delimiter"></param>
     /// <param name="factory"></param>
     /// <param name="dbContext"></param>
+    /// <param name="createTempTableCommand"></param>
+    /// <param name="actionCommands"></param>
     /// <param name="maxRetryAttempts"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
     private async Task<int> ProcessFileAsync(
+        FileImport fileImport,
         string key,
         ImportDataType importDataType,
         SchemaName schemaName,
@@ -224,6 +230,12 @@ public class S3ToPostgresCopyService(
                 }
 
                 var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
+
+                // Update the FileImport record with the last file imported and the number of rows imported
+                fileImport.LastFilePartImported = key;
+                fileImport.RowsImported += rows;
+
+                await dbContext.SaveChangesAsync();
 
                 // Commit once everything succeeds
                 await transaction.CommitAsync(cancellationToken);

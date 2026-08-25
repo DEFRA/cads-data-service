@@ -7,5 +7,7 @@ public sealed record BatchUpdateFileImportCommand(
     string GroupKey,
     long? TotalRowsToProcess,
     long? RowsFound,
+    long? RowsImported,
+    string? LastFilePartImported,
     FileImportStatus? ImportStatus)
     : ISystemAdminCommand<Unit>;
