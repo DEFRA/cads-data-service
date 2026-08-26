@@ -78,7 +78,7 @@ public class S3ToPostgresCopyService(
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
         var sw = Stopwatch.StartNew();
-        var totalRowsImported = fileImport.RowsImported.GetValueOrDefault(0);
+        var totalRowsImported = fileImport.RowsImported;
 
         foreach (var key in keys)
         {
