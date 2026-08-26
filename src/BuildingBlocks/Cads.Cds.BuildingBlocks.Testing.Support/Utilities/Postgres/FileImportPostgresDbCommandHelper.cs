@@ -4,7 +4,7 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 
 public static class FileImportPostgresDbCommandHelper
 {
-    public static async Task<long> InsertFileImportAsync(this PostgresDb postgresDb,  string importFileName, string groupKey, FileImportStatus fileImportStatus, string? lastfilePartImported = null, long rowsImported = 0)
+    public static async Task<long> InsertFileImportAsync(this PostgresDb postgresDb, string importFileName, string groupKey, FileImportStatus fileImportStatus, string? lastfilePartImported = null, long rowsImported = 0)
     {
         var insertQuery = @"INSERT INTO cads.cts_file_imports(
             destination_table_name
@@ -65,7 +65,7 @@ public static class FileImportPostgresDbCommandHelper
     public static async Task<System.Data.DataSet> GetFileImportDataSetByFileName(this PostgresDb postgresDb, string fileName)
     {
         var dataSet = await postgresDb.FillDataSetAsync(
-            "SELECT * FROM cads.cts_file_imports WHERE file_name = @fileName", 
+            "SELECT * FROM cads.cts_file_imports WHERE file_name = @fileName",
             cmd =>
             {
                 cmd.Parameters.AddWithValue("fileName", fileName);
@@ -77,7 +77,7 @@ public static class FileImportPostgresDbCommandHelper
     public static async Task<System.Data.DataSet> GetFileImportDataSetByGroupKey(this PostgresDb postgresDb, string groupKey)
     {
         var dataSet = await postgresDb.FillDataSetAsync(
-            "SELECT * FROM cads.cts_file_imports WHERE group_key = @groupKey", 
+            "SELECT * FROM cads.cts_file_imports WHERE group_key = @groupKey",
             cmd =>
             {
                 cmd.Parameters.AddWithValue("groupKey", groupKey);
