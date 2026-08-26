@@ -4,10 +4,10 @@ using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
-using Cads.Cds.StorageBridge.Infrastructure.S3Import.Extensions;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
