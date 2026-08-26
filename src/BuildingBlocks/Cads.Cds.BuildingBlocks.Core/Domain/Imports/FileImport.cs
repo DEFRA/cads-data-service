@@ -13,7 +13,7 @@ public class FileImport
     public string DestinationTableName { get; set; } = default!;
     public string FileName { get; set; } = default!;
     public string? LastFilePartImported { get; set; }
-    
+
     public long TotalRowsToProcess { get; set; }
     public long RowsFound { get; set; }
     public long? RowsImported { get; set; }
@@ -30,7 +30,7 @@ public class FileImport
     public string? GroupKey { get; set; }
     public string? ImportType { get; set; }
     public DateTimeOffset? BatchDate { get; set; }
-    
+
     public FileImport()
     {
     }
