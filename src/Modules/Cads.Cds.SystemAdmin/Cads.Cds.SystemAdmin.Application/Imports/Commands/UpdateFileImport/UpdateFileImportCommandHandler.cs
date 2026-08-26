@@ -37,8 +37,8 @@ public class UpdateFileImportCommandHandler(
             fileImport.SetTotalRowsToProcess(command.TotalRowsToProcess);
             fileImport.SetRowsFound(command.RowsFound);
             fileImport.SetImportStatus(command.ImportStatus);
-            fileImport.RowsImported = command.RowsImported ?? fileImport.RowsImported;
-            fileImport.LastFilePartImported = command.LastFilePartImported ?? fileImport.LastFilePartImported;
+            fileImport.RowsImported = command.RowsImported ?? 0;
+            fileImport.LastFilePartImported = command.LastFilePartImported;
             return Task.FromResult(Unit.Value);
         }, cancellationToken);
 
