@@ -1,6 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
-using Cads.Cds.SystemAdmin.Application.Uow;
 using MediatR;
 
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.BatchUpdateFileImport;
