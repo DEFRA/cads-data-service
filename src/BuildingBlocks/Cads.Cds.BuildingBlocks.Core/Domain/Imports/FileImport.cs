@@ -16,7 +16,7 @@ public class FileImport
 
     public long TotalRowsToProcess { get; set; }
     public long RowsFound { get; set; }
-    public long? RowsImported { get; set; }
+    public long RowsImported { get; set; }
 
     public FileImportStatus ImportStatus { get; set; } = FileImportStatus.Pending;
     public FileProcessingStatus ProcessingStatus { get; set; } = FileProcessingStatus.Pending;
