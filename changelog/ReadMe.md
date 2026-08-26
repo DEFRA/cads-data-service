@@ -270,6 +270,19 @@ Examples:
 0005_001_ct_workgroups_seed_data_faker_data.postgresql.sql
 ```
 
+**Naming conventions for CADS DB:**
+
+```
+Had to reorganise the complete Liquibase changelog into the following structure:
+
+0000 — table DDL, split by cads, cts, cts_transactions, and cts_audit
+0001 — indexes, split by schema
+0002 — functions and stored procedures, held centrally in the cads schema
+0003 — integrations
+0004 — ordinary DEV database seed data
+0005 — fake data
+```
+
 ### Step 5
 
 Update the master changelog file, `changelog/db.changelog.xml`, with the new changeset.
