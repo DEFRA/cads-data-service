@@ -57,7 +57,7 @@ public class S3SqlScriptExecutorServiceTests
     public async Task ExecuteAsync_ShouldReturnZero_WhenNoKeysFound()
     {
         _storageService
-            .Setup(x => x.ListKeysAsync(TestPrefix, null,It.IsAny<CancellationToken>()))
+            .Setup(x => x.ListKeysAsync(TestPrefix, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var result = await CreateService().ExecuteAsync(
