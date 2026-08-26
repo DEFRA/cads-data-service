@@ -35,7 +35,7 @@ public static class FileImportPostgresDbCommandHelper
               cmd.Parameters.AddWithValue("fileName", importFileName);
               cmd.Parameters.AddWithValue("fileImportStatus", (int)fileImportStatus);
               cmd.Parameters.AddWithValue("groupKey", groupKey);
-              cmd.Parameters.AddWithValue("lastfilePartImported", ((object)lastfilePartImported) ?? DBNull.Value);
+              cmd.Parameters.AddWithValue("lastfilePartImported", ((object?)lastfilePartImported) ?? DBNull.Value);
               cmd.Parameters.AddWithValue("rowsImported", rowsImported);
           });
 
