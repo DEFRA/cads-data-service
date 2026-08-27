@@ -235,7 +235,7 @@ public class S3ToPostgresCopyService(
                 fileImport.LastFilePartImported = key;
                 fileImport.RowsImported += rows;
 
-                await dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync(cancellationToken);
 
                 // Commit once everything succeeds
                 await transaction.CommitAsync(cancellationToken);
