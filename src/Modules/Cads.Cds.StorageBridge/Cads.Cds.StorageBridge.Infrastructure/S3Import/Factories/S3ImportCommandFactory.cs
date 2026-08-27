@@ -213,5 +213,4 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
             CommandTimeout = 300
         };
     }
-
 }
