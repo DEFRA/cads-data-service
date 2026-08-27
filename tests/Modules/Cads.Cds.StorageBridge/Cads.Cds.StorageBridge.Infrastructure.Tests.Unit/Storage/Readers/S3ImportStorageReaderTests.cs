@@ -63,7 +63,7 @@ public class S3ImportStorageReaderTests
         var reader = new BulkImportStorageReader<TestClient>(factory.Object);
 
         // Act
-        var result = await reader.ListKeysAsync("path/to/LOCATIONS.part-0001.csv", TestContext.Current.CancellationToken);
+        var result = await reader.ListKeysAsync("path/to/LOCATIONS.part-0001.csv", It.IsAny<string>(), TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().BeEquivalentTo(["path/to/LOCATIONS.part-0001.csv"]);
@@ -86,7 +86,7 @@ public class S3ImportStorageReaderTests
           .ThrowsAsync(new AmazonS3Exception("not found", ErrorType.Sender, "", "", HttpStatusCode.NotFound));
 
         s3.Setup(s => s.ListObjectsV2Async(
-                It.Is<ListObjectsV2Request>(r => r.Prefix == "folder/"),
+                It.Is<ListObjectsV2Request>(r => r.Prefix == "folder/" && r.StartAfter == null),
                 It.IsAny<CancellationToken>()))
           .ReturnsAsync(new ListObjectsV2Response
           {
@@ -101,13 +101,56 @@ public class S3ImportStorageReaderTests
         var reader = new BulkImportStorageReader<TestClient>(factory.Object);
 
         // Act
-        var result = await reader.ListKeysAsync("folder", TestContext.Current.CancellationToken);
+        var result = await reader.ListKeysAsync("folder", null, TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().BeEquivalentTo(
         [
             "folder/a.csv",
             "folder/b.csv"
+        ]);
+    }
+
+
+    [Fact]
+    public async Task ListKeysAsync_ShouldListKeys_StartAfterSpecifiedKey_WhenPrefixIsFolder()
+    {
+        // Arrange
+        var s3 = new Mock<IAmazonS3>();
+        var factory = new Mock<IS3ClientFactory>();
+
+        factory.Setup(f => f.GetClient<TestClient>())
+               .Returns(s3.Object);
+
+        factory.Setup(f => f.GetClientBucketName<TestClient>())
+               .Returns("bucket");
+
+        s3.Setup(s => s.GetObjectMetadataAsync("bucket", "folder", It.IsAny<CancellationToken>()))
+          .ThrowsAsync(new AmazonS3Exception("not found", ErrorType.Sender, "", "", HttpStatusCode.NotFound));
+
+        s3.Setup(s => s.ListObjectsV2Async(
+                It.Is<ListObjectsV2Request>(r => r.Prefix == "folder/" && r.StartAfter == "folder/a.csv"),
+                It.IsAny<CancellationToken>()))
+          .ReturnsAsync(new ListObjectsV2Response
+          {
+              S3Objects =
+              [
+                  new() { Key = "folder/b.csv" },
+                  new() { Key = "folder/c.csv" },
+              ],
+              IsTruncated = false
+          });
+
+        var reader = new BulkImportStorageReader<TestClient>(factory.Object);
+
+        // Act
+        var result = await reader.ListKeysAsync("folder", "folder/a.csv", TestContext.Current.CancellationToken);
+
+        // Assert
+        result.Should().BeEquivalentTo(
+        [
+            "folder/b.csv",
+            "folder/c.csv"
         ]);
     }
 
@@ -141,7 +184,7 @@ public class S3ImportStorageReaderTests
         var reader = new BulkImportStorageReader<TestClient>(factory.Object);
 
         // Act
-        var result = await reader.ListKeysAsync("missing", TestContext.Current.CancellationToken);
+        var result = await reader.ListKeysAsync("missing", It.IsAny<string>(), TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().BeEmpty();
