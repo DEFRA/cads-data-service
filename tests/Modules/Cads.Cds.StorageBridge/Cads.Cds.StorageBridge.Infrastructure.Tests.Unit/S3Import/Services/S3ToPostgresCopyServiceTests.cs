@@ -98,7 +98,7 @@ public class S3ToPostgresCopyServiceTests
         var service = CreateService();
         var fileImport = new FileImport { FileName = ValidTestFileName1, TotalRowsToProcess = 100, RowsFound = 100 };
 
-        _storageService.Setup(x => x.ListKeysAsync(ValidTestFileName1, It.IsAny<CancellationToken>()))
+        _storageService.Setup(x => x.ListKeysAsync(ValidTestFileName1, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))

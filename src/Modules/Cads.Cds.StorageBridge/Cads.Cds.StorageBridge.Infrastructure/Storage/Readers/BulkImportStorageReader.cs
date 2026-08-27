@@ -28,7 +28,7 @@ public sealed class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
         return await reader.ReadToEndAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<string>> ListKeysAsync(string prefix, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<string>> ListKeysAsync(string prefix, string? startAfterKey = null, CancellationToken cancellationToken = default)
     {
         var keys = new List<string>();
 
@@ -41,6 +41,7 @@ public sealed class BulkImportStorageReader<T>(IS3ClientFactory s3ClientFactory)
         var request = new ListObjectsV2Request
         {
             BucketName = _bucketName,
+            StartAfter = startAfterKey,
             Prefix = prefix.EndsWith('/') ? prefix : prefix + "/"
         };
 

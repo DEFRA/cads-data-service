@@ -5,5 +5,5 @@ namespace Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 
 public interface ISystemAdminFileImportRepository : IFileImportRepository
 {
-    Task BatchUpdateAsync(string groupKey, long? totalRowsToProcess, long? rowsFound, FileImportStatus? importStatus);
+    Task BatchUpdateAsync(string groupKey, long? totalRowsToProcess, long? rowsFound, long? rowsImported, string? lastFilePartImported, FileImportStatus? importStatus);
 }
