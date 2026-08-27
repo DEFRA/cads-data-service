@@ -105,36 +105,21 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
     {
         var sql = await GenerateInsertSqlAsync(importDataType, schemaName, cancellationToken);
 
-        return new NpgsqlCommand
-        {
-            CommandText = sql,
-            Connection = _connection,
-            Transaction = _transaction
-        };
+        return CreateNpgsqlCommand(sql, _connection, _transaction);
     }
 
     public async Task<DbCommand> CreateUpdateCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateUpdateSqlAsync(importDataType, schemaName, cancellationToken);
 
-        return new NpgsqlCommand
-        {
-            CommandText = sql,
-            Connection = _connection,
-            Transaction = _transaction
-        };
+        return CreateNpgsqlCommand(sql, _connection, _transaction);
     }
 
     public async Task<DbCommand> CreateUpsertCommandAsync(ImportDataType importDataType, SchemaName schemaName, CancellationToken cancellationToken = default)
     {
         var sql = await GenerateUpsertSqlAsync(importDataType, schemaName, cancellationToken);
 
-        return new NpgsqlCommand
-        {
-            CommandText = sql,
-            Connection = _connection,
-            Transaction = _transaction
-        };
+        return CreateNpgsqlCommand(sql, _connection, _transaction);
     }
 
     public static string GetTableName(ImportDataType importDataType, SchemaName schemaName, bool isTemp = false)
@@ -217,4 +202,16 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
 
         return command;
     }
+
+    private NpgsqlCommand CreateNpgsqlCommand(string? commandText, NpgsqlConnection? connection, NpgsqlTransaction? transaction)
+    {
+        return new NpgsqlCommand
+        {
+            CommandText = commandText,
+            Connection = _connection,
+            Transaction = _transaction,
+            CommandTimeout = 300
+        };
+    }
+
 }
