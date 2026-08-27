@@ -8,5 +8,5 @@ public interface IStorageReader<T> where T : IStorageClient, new()
 
     Task<string> ReadAsync(string key, CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<string>> ListKeysAsync(string prefix, string? startAfter = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<string>> ListKeysAsync(string prefix, string? startAfterKey = null, CancellationToken cancellationToken = default);
 }
