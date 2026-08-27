@@ -203,13 +203,13 @@ public class S3ImportCommandFactory : IS3ImportCommandFactory
         return command;
     }
 
-    private NpgsqlCommand CreateNpgsqlCommand(string? commandText, NpgsqlConnection? connection, NpgsqlTransaction? transaction)
+    private static NpgsqlCommand CreateNpgsqlCommand(string? commandText, NpgsqlConnection? connection, NpgsqlTransaction? transaction)
     {
         return new NpgsqlCommand
         {
             CommandText = commandText,
-            Connection = _connection,
-            Transaction = _transaction,
+            Connection = connection,
+            Transaction = transaction,
             CommandTimeout = 300
         };
     }
