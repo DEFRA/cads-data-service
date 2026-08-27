@@ -8,7 +8,7 @@ public interface IStorageManager<T> : IStorageReader<T> where T : IStorageClient
 
     string BucketName { get; }
 
-    Task<StorageObjectListing> ListObjectsAsync(string prefix, string? delimiter = null, int maxKeys = 1000, string? continuationToken = null, CancellationToken cancellationToken = default);
+    Task<StorageObjectListing> ListObjectsAsync(string prefix, string? startAfterKey = null, string? delimiter = null, int maxKeys = 1000, string? continuationToken = null, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<string>> SearchKeysAsync(string pattern, string? prefix = null, CancellationToken cancellationToken = default);
 

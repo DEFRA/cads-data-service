@@ -256,9 +256,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var testGroupKey = "CTSM_CADS_PROD_BULK_555_CT_LOCATIONS";
         var testFileName = "CTSM_CADS_PROD_BULK_555_0001_CT_LOCATIONS_2026-01-01-012345.CSV";
 
-        await DeleteFileImportStatusRecordsAsync(testGroupKey);
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
 
-        var recordId = await AddFileImportStatusRecordAsync(testFileName, testGroupKey, FileImportStatus.Pending);
+        var recordId = await _postgresDb.InsertFileImportAsync(testFileName, testGroupKey, FileImportStatus.Pending);
 
         var request = new UpdateFileImportRequest
         {
@@ -294,9 +294,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var testFileNameTemplateWithIndex = "CTSM_CADS_PROD_BULK_666_{0:D4}_CT_LOCATIONS_2026-01-01-012345.CSV";
         var testFileImportCount = 10;
 
-        await DeleteFileImportStatusRecordsAsync(testGroupKey);
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
 
-        var recordIds = await AddFileImportStatusRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
+        var recordIds = await AddFileImportRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
 
         var request = new BatchUpdateFileImportRequest
         {
@@ -441,9 +441,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var testGroupKey = "CTSM_CADS_PROD_BULK_777_CT_LOCATIONS";
         var testFileImportCount = 1;
 
-        await DeleteFileImportStatusRecordsAsync(testGroupKey);
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
 
-        var recordIds = await AddFileImportStatusRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
+        var recordIds = await AddFileImportRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
 
         // Reset records to Split status for testing GetByIdAsync
         var request = new BatchUpdateFileImportRequest
@@ -484,9 +484,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var testGroupKey = "CTSM_CADS_PROD_BULK_888_CT_LOCATIONS";
         var testFileImportCount = 10;
 
-        await DeleteFileImportStatusRecordsAsync(testGroupKey);
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
 
-        var recordIds = await AddFileImportStatusRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
+        var recordIds = await AddFileImportRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
 
         // Reset records to Split status for testing GetByIdWithSiblingsAsync
         var request = new BatchUpdateFileImportRequest
@@ -534,9 +534,9 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var testGroupKey = "CTSM_CADS_PROD_BULK_999_CT_LOCATIONS";
         var testFileImportCount = 10;
 
-        await DeleteFileImportStatusRecordsAsync(testGroupKey);
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
 
-        var recordIds = await AddFileImportStatusRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
+        var recordIds = await AddFileImportRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
 
         // Reset records to Split status for testing GetAllAsync
         var request = new BatchUpdateFileImportRequest
@@ -556,6 +556,8 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
             _httpClient,
             groupKey: testGroupKey,
             cancellationToken: TestContext.Current.CancellationToken);
+
+        var dataset = await _postgresDb.GetFileImportDataSetByGroupKey(testGroupKey);
 
         response.IsSuccessStatusCode.Should().BeTrue();
 
@@ -577,92 +579,17 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         }
     }
 
-    private async Task<List<long>> AddFileImportStatusRecordsAsync(int range, string filenameTemplate, string testGroupKey, FileImportStatus fileImportStatus)
+    private async Task<List<long>> AddFileImportRecordsAsync(int range, string filenameTemplate, string testGroupKey, FileImportStatus fileImportStatus, string? lastFilePartImported = null, long rowsImported = 0)
     {
         var list = new List<long>();
 
         for (var index = 1; index <= range; index++)
         {
-            var id = await AddFileImportStatusRecordAsync(string.Format(filenameTemplate, index), testGroupKey, fileImportStatus);
+            var testFilename = string.Format(filenameTemplate, index);
+            var id = await _postgresDb.InsertFileImportAsync(testFilename, testGroupKey, fileImportStatus, lastFilePartImported, rowsImported);
             list.Add(id);
         }
 
         return list;
-    }
-
-    private async Task<long> AddFileImportStatusRecordAsync(string importFileName, string groupKey, FileImportStatus fileImportStatus)
-    {
-        var insertQuery = @"INSERT INTO cads.cts_file_imports(
-            destination_table_name,
-            file_name,
-            total_rows_to_process,
-            added_at,
-            import_status_id,
-            processing_status_id,
-            rows_found,
-            import_start_at,
-            import_end_at,
-            batch_date,
-            group_key,
-            import_type,
-            failed_attempts,
-            last_error_reason)
-         VALUES
-             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), @groupKey, 'BULK', 0, NULL)
-        ON CONFLICT DO NOTHING
-        RETURNING cts_file_import_id;";
-
-        var testFileImportId = await _postgresDb.ExecuteScalarAsync<long>(
-            insertQuery,
-            cmd =>
-            {
-                cmd.Parameters.AddWithValue("fileName", importFileName);
-                cmd.Parameters.AddWithValue("fileImportStatus", (int)fileImportStatus);
-                cmd.Parameters.AddWithValue("groupKey", groupKey);
-            });
-
-        return testFileImportId;
-    }
-
-    private async Task DeleteFileImportStatusRecordAsync(string importFileName)
-    {
-        var deleteQuery = @"DELETE FROM cads.cts_file_imports WHERE file_name = @fileName;";
-        await _postgresDb.ExecuteNonQueryAsync(
-            deleteQuery,
-            cmd =>
-            {
-                cmd.Parameters.AddWithValue("fileName", importFileName);
-            });
-    }
-
-    private async Task DeleteFileImportStatusRecordsAsync(string groupKey)
-    {
-        var deleteQuery = @"DELETE FROM cads.cts_file_imports WHERE group_key = @groupKey;";
-        await _postgresDb.ExecuteNonQueryAsync(
-            deleteQuery,
-            cmd =>
-            {
-                cmd.Parameters.AddWithValue("groupKey", groupKey);
-            });
-    }
-
-    private async Task<System.Data.DataSet> GetFileImportDataByFilename(string fileName)
-    {
-        var dataSet = await _postgresDb.FillDataSetAsync("SELECT * FROM cads.cts_file_imports WHERE file_name=@fileName", cmd =>
-        {
-            cmd.Parameters.AddWithValue("fileName", fileName);
-        });
-
-        return dataSet;
-    }
-
-    private async Task<System.Data.DataSet> GetFileImportDataByGroupKey(string groupKey)
-    {
-        var dataSet = await _postgresDb.FillDataSetAsync("SELECT * FROM cads.cts_file_imports WHERE group_key=@groupKey", cmd =>
-        {
-            cmd.Parameters.AddWithValue("groupKey", groupKey);
-        });
-
-        return dataSet;
     }
 }
