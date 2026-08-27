@@ -167,6 +167,8 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
             id,
             request.TotalRowsToProcess ?? 0,
             request.RowsFound ?? 0,
+            request.RowsImported,
+            request.LastFilePartImported,
             request.ImportStatus ?? FileImportStatus.Pending);
 
         await executor.ExecuteCommand(command, cancellationToken);
@@ -192,8 +194,10 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     {
         var command = new BatchUpdateFileImportCommand(
             request.GroupKey,
-            request.TotalRowsToProcess ?? 0,
-            request.RowsFound ?? 0,
+            request.TotalRowsToProcess,
+            request.RowsFound,
+            request.RowsImported,
+            request.LastFilePartImported,
             request.ImportStatus ?? FileImportStatus.Pending);
 
         await executor.ExecuteCommand(command, cancellationToken);
