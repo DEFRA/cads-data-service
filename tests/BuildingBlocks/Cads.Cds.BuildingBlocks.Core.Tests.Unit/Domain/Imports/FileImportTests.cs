@@ -1,5 +1,6 @@
 using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
+using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using FluentAssertions;
 
 namespace Cads.Cds.BuildingBlocks.Core.Tests.Unit.Domain.Imports;
@@ -38,5 +39,42 @@ public class FileImportTests
         // Assert
         act.Should().NotThrow();
         fileImport.ImportStatus.Should().Be(FileImportStatus.Failed);
+    }
+
+    [Theory]
+    [InlineData(FileImportStatus.Transferred)]
+    [InlineData(FileImportStatus.Split)]
+    [InlineData(FileImportStatus.Failed)]
+    public void MarkCompleted_FromAllowedStates_TransitionsToCompleted(FileImportStatus currentStatus)
+    {
+        // Arrange
+        var fileImport = new FileImport
+        {
+            ImportStatus = currentStatus
+        };
+
+        // Act
+        fileImport.MarkCompleted();
+
+        // Assert
+        fileImport.ImportStatus.Should().Be(FileImportStatus.Completed);
+        fileImport.ImportEndAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void MarkCompleted_FromPending_ThrowsBusinessRuleValidationException()
+    {
+        // Arrange
+        var fileImport = new FileImport
+        {
+            ImportStatus = FileImportStatus.Pending
+        };
+
+        // Act
+        Action act = () => fileImport.MarkCompleted();
+
+        // Assert
+        act.Should().Throw<BusinessRuleValidationException>()
+            .WithMessage("Import must be in transferred, split or failed state to complete.");
     }
 }
