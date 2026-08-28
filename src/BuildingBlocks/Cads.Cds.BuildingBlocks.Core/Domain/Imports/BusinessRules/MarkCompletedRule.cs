@@ -10,8 +10,11 @@ public class MarkCompletedRule(FileImportStatus fileImportStatus) : IBusinessRul
 
     public bool IsBroken()
     {
-        return fileImportStatus != FileImportStatus.Split;
+        return fileImportStatus is not (
+            FileImportStatus.Transferred or
+            FileImportStatus.Split or
+            FileImportStatus.Failed);
     }
 
-    public string Message => "Import must be in split state to complete.";
+    public string Message => "Import must be in transferred, split or failed state to complete.";
 }
