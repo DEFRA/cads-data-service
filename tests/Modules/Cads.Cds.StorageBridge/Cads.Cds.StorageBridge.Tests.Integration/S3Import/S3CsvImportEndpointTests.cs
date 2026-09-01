@@ -24,21 +24,27 @@ public class S3CsvImportEndpointTests
 
     private readonly ApiContainerFixture _apiContainerFixture;
 
-    private readonly string _testFileName;
-    private readonly string _testKey;
-
     private readonly PostgresDb _postgresDb;
+
+    private readonly Random _random = new();
 
     public S3CsvImportEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         _apiContainerFixture = apiContainerFixture;
 
-        _testFileName = Path.GetFileNameWithoutExtension("CTSM_CADS_PROD_BULK_ABC_0001_CT_LOCATIONS_2026-01-01-012345.csv");
-        _testKey = $"import/{Path.GetFileNameWithoutExtension(_testFileName)}/{_testFileName}";
-
         _postgresDb = new PostgresDb(apiContainerFixture.PostgresFixture.HostConnectionString);
+    }
 
-        AddFileImportStatusRecordAsync(_testFileName, FileImportStatus.Split).ConfigureAwait(false);
+    public (string testFileName, string testKey) GetTestFileDetails()
+    {
+        var batchId = _random.Next(1000, 9999);
+        var testFileName = Path.GetFileNameWithoutExtension($"CTSM_CADS_PROD_BULK_{batchId}_0001_CT_LOCATIONS_2026-01-01-{_random.Next(10, 23)}{_random.Next(10, 59)}{_random.Next(10, 59)}.CSV");
+        var testKey = $"import/{Path.GetFileNameWithoutExtension(testFileName)}/{testFileName}.CSV";
+        var testGroupKey = $"CTSM_CADS_PROD_BULK_{batchId}_CT_LOCATIONS";
+
+        _postgresDb.InsertFileImportAsync(testFileName, testGroupKey, FileImportStatus.Split).ConfigureAwait(false);
+
+        return (testFileName, testKey);
     }
 
     [Fact]
@@ -52,47 +58,53 @@ public class S3CsvImportEndpointTests
     [Fact]
     public async Task GivenHeadingRowMissing_WhenS3CsvImportRequested_ShouldFail()
     {
+        var (testFileName, testKey) = GetTestFileDetails();
+
         var fileData = $"{TestDataFileConstants.LocationsDataRow1}\n" +
                        $"{TestDataFileConstants.LocationsDataRow2}";
 
         await _apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = _testKey,
+            Key = testKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest);
+        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest(testFileName));
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        await VerifyLoggingMessage($"File {_testKey} does not contain a valid header row.");
+        await VerifyLoggingMessage($"File {testKey} does not contain a valid header row.");
     }
 
     [Fact]
     public async Task GivenNoDataRowsExist_WhenS3CsvImportRequested_ShouldCreateNoRecords()
     {
+        var (testFileName, testKey) = GetTestFileDetails();
+
         var fileData = $"{TestDataFileConstants.LocationsHeader}";
 
         await _apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = _testKey,
+            Key = testKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest);
+        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest(testFileName));
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var job = await response.Content.ReadFromJsonAsync<JobResponse>(TestContext.Current.CancellationToken);
 
-        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key \"{_testFileName}\", 0 records processed");
+        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key \"{testFileName}\", 0 records processed");
     }
 
     [Fact]
     public async Task GivenInvalidDataRowsExist_WhenS3CsvImportRequested_ShouldFail()
     {
+        var (testFileName, testKey) = GetTestFileDetails();
+
         var fileData = $"{TestDataFileConstants.LocationsHeader}\n" +
                        $"{TestDataFileConstants.LocationsDataRow1}\n" +
                        $"{TestDataFileConstants.InvalidLocationsDataRow1}";
@@ -100,11 +112,11 @@ public class S3CsvImportEndpointTests
         await _apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = _testKey,
+            Key = testKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest);
+        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest(testFileName));
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -116,6 +128,8 @@ public class S3CsvImportEndpointTests
     [Fact]
     public async Task GivenValidRequest_WhenS3CsvImportRequested_ShouldSucceed()
     {
+        var (testFileName, testKey) = GetTestFileDetails();
+
         var fileData = $"{TestDataFileConstants.LocationsHeader}\n" +
                        $"{TestDataFileConstants.LocationsDataRow1}\n" +
                        $"{TestDataFileConstants.LocationsDataRow2}";
@@ -123,11 +137,11 @@ public class S3CsvImportEndpointTests
         await _apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
-            Key = _testKey,
+            Key = testKey,
             ContentBody = fileData
         }, TestContext.Current.CancellationToken);
 
-        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest);
+        var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest(testFileName));
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
@@ -143,7 +157,7 @@ public class S3CsvImportEndpointTests
                 TestDataFileConstants.LocationsDataRow2
             ]);
 
-        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key \"{_testFileName}\", 2 records processed");
+        await VerifyLoggingMessage($"Completed CSV import copy for job {job!.JobId} with key \"{testFileName}\", 2 records processed");
     }
 
     private static StringContent? InvalidS3CsvImportRequest =>
@@ -152,10 +166,10 @@ public class S3CsvImportEndpointTests
             SourceKey = string.Empty
         });
 
-    private StringContent? ValidS3CsvImportWithSourceKeyRequest =>
+    private StringContent? ValidS3CsvImportWithSourceKeyRequest(string testFileName) =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            SourceKey = _testFileName
+            SourceKey = testFileName
         });
 
     private async Task<HttpResponseMessage> ExecuteTest(StringContent? payload)
@@ -187,38 +201,5 @@ public class S3CsvImportEndpointTests
         }
 
         foundLogEntry.Should().BeTrue($"Expected log entry within {ProcessingTimeCircuitBreakerSeconds} seconds but none was found.");
-    }
-
-    private async Task<long> AddFileImportStatusRecordAsync(string importFileName, FileImportStatus fileImportStatus)
-    {
-        var insertQuery = @"INSERT INTO cads.cts_file_imports(
-        destination_table_name
-        , file_name
-        , total_rows_to_process
-        , added_at
-        , import_status_id
-        , processing_status_id
-        , rows_found
-        , import_start_at
-        , import_end_at
-        , batch_date
-        , group_key
-        , import_type
-        , failed_attempts
-        , last_error_reason)
-         VALUES
-             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), 'ABC', 'BULK', 0, NULL)
-        ON CONFLICT DO NOTHING
-        RETURNING cts_file_import_id;";
-
-        var testFileImportId = await _postgresDb.ExecuteScalarAsync<long>(
-            insertQuery,
-            cmd =>
-            {
-                cmd.Parameters.AddWithValue("fileName", importFileName);
-                cmd.Parameters.AddWithValue("fileImportStatus", (int)fileImportStatus);
-            });
-
-        return testFileImportId;
     }
 }

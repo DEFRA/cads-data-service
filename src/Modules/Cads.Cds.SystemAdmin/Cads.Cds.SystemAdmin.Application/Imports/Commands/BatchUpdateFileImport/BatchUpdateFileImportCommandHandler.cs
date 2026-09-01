@@ -1,6 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
-using Cads.Cds.SystemAdmin.Application.Uow;
 using MediatR;
 
 namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.BatchUpdateFileImport;
@@ -11,7 +10,7 @@ public class BatchUpdateFileImportCommandHandler(
 {
     public async Task<Unit> Handle(BatchUpdateFileImportCommand command, CancellationToken cancellationToken)
     {
-        await fileImportRepository.BatchUpdateAsync(command.GroupKey, command.TotalRowsToProcess, command.RowsFound, command.ImportStatus);
+        await fileImportRepository.BatchUpdateAsync(command.GroupKey, command.TotalRowsToProcess, command.RowsFound, command.RowsImported, command.LastFilePartImported, command.ImportStatus);
 
         return Unit.Value;
     }
