@@ -178,8 +178,11 @@ public class FileImport
         ImportEndAt = null;
         ProcessingStartAt = null;
         ProcessingEndAt = null;
+    }
 
-        FailedAttempts = 0;
-        LastErrorReason = string.Empty;
+    public void ForceResetImportStatus(FileImportStatus importStatus)
+    {
+        ImportStatus = importStatus;
+        ProcessingStatus = FileProcessingStatus.Pending;
     }
 }
