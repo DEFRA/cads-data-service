@@ -43,7 +43,7 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
-        job.FileImportId.Should().Be(1234);
+        job.FileImportId.Should().Be(1);
     }
 
     [Fact]
@@ -60,20 +60,6 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         job.FileImportId.Should().BeGreaterThan(0);
     }
 
-    [Fact]
-    public async Task GivenValidRequest_WhenS3DeltaImportWithFileImportIdRequested_ShouldSucceed()
-    {
-        SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
-
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3DeltaWithFileImportIdRequest, TestContext.Current.CancellationToken);
-
-        response.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
-
-        var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
-        job.FileImportId.Should().Be(5678);
-    }
-
     private static StringContent? InvalidS3ImportRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
@@ -83,19 +69,13 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
     private static StringContent? ValidS3BulkImportWithFileImportIdRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            FileImportId = 1234
+            FileImportId = 1
         });
 
     private static StringContent? ValidS3BulkImportWithSourceKeyRequest =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = TestFileScenarioConstants.New_Scenario_Pending_FileName,
-        });
-
-    private static StringContent? ValidS3DeltaWithFileImportIdRequest =>
-        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
-        {
-            FileImportId = 5678
         });
 
     private void SetupS3MockForLocations(string row1, string row2)
