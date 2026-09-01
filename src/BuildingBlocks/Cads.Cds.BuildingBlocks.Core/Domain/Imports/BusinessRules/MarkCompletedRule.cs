@@ -12,9 +12,8 @@ public class MarkCompletedRule(FileImportStatus fileImportStatus) : IBusinessRul
     {
         return fileImportStatus is not (
             FileImportStatus.Transferred or
-            FileImportStatus.Split or
-            FileImportStatus.Failed);
+            FileImportStatus.Split);
     }
 
-    public string Message => "Import must be in transferred, split or failed state to complete.";
+    public string Message => "Import must be in transferred or split state to complete.";
 }

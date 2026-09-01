@@ -44,7 +44,6 @@ public class FileImportTests
     [Theory]
     [InlineData(FileImportStatus.Transferred)]
     [InlineData(FileImportStatus.Split)]
-    [InlineData(FileImportStatus.Failed)]
     public void MarkCompleted_FromAllowedStates_TransitionsToCompleted(FileImportStatus currentStatus)
     {
         // Arrange
@@ -61,13 +60,15 @@ public class FileImportTests
         fileImport.ImportEndAt.Should().NotBeNull();
     }
 
-    [Fact]
-    public void MarkCompleted_FromPending_ThrowsBusinessRuleValidationException()
+    [Theory]
+    [InlineData(FileImportStatus.Pending)]
+    [InlineData(FileImportStatus.Failed)]
+    public void MarkCompleted_FromDisallowedStates_ThrowsBusinessRuleValidationException(FileImportStatus currentStatus)
     {
         // Arrange
         var fileImport = new FileImport
         {
-            ImportStatus = FileImportStatus.Pending
+            ImportStatus = currentStatus
         };
 
         // Act
@@ -75,6 +76,6 @@ public class FileImportTests
 
         // Assert
         act.Should().Throw<BusinessRuleValidationException>()
-            .WithMessage("Import must be in transferred, split or failed state to complete.");
+            .WithMessage("Import must be in transferred or split state to complete.");
     }
 }
