@@ -1,4 +1,5 @@
 using Amazon.S3.Model;
+using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
@@ -19,9 +20,9 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
     private const string Endpoint = TestEndpointConstants.StorageBridgeS3CsvImportRoot;
 
     [Fact]
-    public async Task GivenInvalidRequest_WhenS3CsvImportRequested_ShouldReturnBadRequest()
+    public async Task GivenInvalidFileImportId_WhenS3CsvImportRequested_ShouldReturnBadRequest()
     {
-        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3ImportRequest, TestContext.Current.CancellationToken);
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3ImportRequest(0), TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -30,6 +31,21 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         problemDetails.Should().NotBeNull();
         problemDetails.Errors.Should().NotBeNull().And.HaveCount(1);
         problemDetails.Errors["FileImportId"].Should().Contain("'File Import Id' must not be null and be greater than zero.");
+    }
+
+    [Fact]
+    public async Task GivenInvalidSourceKey_WhenS3CsvImportRequested_ShouldReturnBadRequest()
+    {
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, InvalidS3ImportRequest(), TestContext.Current.CancellationToken);
+
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetailsDto>(TestContext.Current.CancellationToken);
+        problemDetails.Should().NotBeNull();
+        problemDetails.Errors.Should().NotBeNull().And.HaveCount(2);
+        problemDetails.Errors["FileImportId"].Should().Contain("'File Import Id' must not be empty.");
+        problemDetails.Errors["SourceKey"].Should().Contain("'Source Key' must not be empty.");
     }
 
     [Fact]
@@ -60,10 +76,25 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         job.FileImportId.Should().BeGreaterThan(0);
     }
 
-    private static StringContent? InvalidS3ImportRequest =>
+    [Fact]
+    public async Task GivenValidRequest_WhenS3BulkImportWithForceResetImportStatusRequested_ShouldSucceed()
+    {
+        SetupS3MockForLocations(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
+
+        var response = await _testFixture.HttpClient.PostAsync(Endpoint, ValidS3BulkImportWithForceResetImportStatusRequest, TestContext.Current.CancellationToken);
+
+        response.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        var job = await _testFixture.Factory.TestCsvBulkLoadJobChannel.WaitForJobAsync(TestContext.Current.CancellationToken);
+        job.FileImportId.Should().BeGreaterThan(0);
+    }
+
+    private static StringContent? InvalidS3ImportRequest(long? id = null, string? key = null) =>
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
-            FileImportId = 0
+            FileImportId = id,
+            SourceKey = key
         });
 
     private static StringContent? ValidS3BulkImportWithFileImportIdRequest =>
@@ -76,6 +107,13 @@ public class S3CsvImportEndpointTests(StorageBridgeTestFixture testFixture) : IC
         HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
         {
             SourceKey = TestFileScenarioConstants.New_Scenario_Pending_FileName,
+        });
+
+    private static StringContent? ValidS3BulkImportWithForceResetImportStatusRequest =>
+        HttpContentUtility.CreateApplicationJsonAsStringContent(new S3CsvImportRequest
+        {
+            SourceKey = TestFileScenarioConstants.New_Scenario_Failed_FileName,
+            ForceResetImportStatus = FileImportStatus.Split
         });
 
     private void SetupS3MockForLocations(string row1, string row2)
