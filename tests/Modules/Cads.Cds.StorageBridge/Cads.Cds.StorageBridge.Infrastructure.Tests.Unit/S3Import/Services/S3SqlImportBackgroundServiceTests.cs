@@ -104,7 +104,7 @@ public class S3SqlImportBackgroundServiceTests
         var ctx = new S3SqlBulkLoadBackgroundServiceTestContext();
 
         var jobStarted = new TaskCompletionSource();
-        var releaseJob = new TaskCompletionSource<int>();
+        var releaseJob = new TaskCompletionSource<long>();
 
         // Block the in-flight job until we've cancelled the stopping token, so we can
         // prove that the finally/WhenAll still awaits it to completion.

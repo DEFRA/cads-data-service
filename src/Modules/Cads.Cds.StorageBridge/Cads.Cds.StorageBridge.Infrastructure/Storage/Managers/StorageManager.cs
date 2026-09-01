@@ -19,11 +19,11 @@ public class StorageManager<T>(IS3ClientFactory s3ClientFactory, IStorageReader<
     public Task<string> ReadAsync(string key, CancellationToken cancellationToken = default)
         => reader.ReadAsync(key, cancellationToken);
 
-    public async Task<IEnumerable<string>> ListKeysAsync(string prefix, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<string>> ListKeysAsync(string prefix, string? startAfterKey = null, CancellationToken cancellationToken = default)
     {
         var keys = new List<string>();
 
-        await foreach (var s3Object in ListAllObjectsAsync(prefix, cancellationToken))
+        await foreach (var s3Object in ListAllObjectsAsync(prefix, startAfterKey, cancellationToken))
         {
             keys.Add(s3Object.Key);
         }
@@ -31,12 +31,13 @@ public class StorageManager<T>(IS3ClientFactory s3ClientFactory, IStorageReader<
         return keys;
     }
 
-    public async Task<StorageObjectListing> ListObjectsAsync(string prefix, string? delimiter = null, int maxKeys = 1000, string? continuationToken = null, CancellationToken cancellationToken = default)
+    public async Task<StorageObjectListing> ListObjectsAsync(string prefix, string? startAfterKey = null, string? delimiter = null, int maxKeys = 1000, string? continuationToken = null, CancellationToken cancellationToken = default)
     {
         var response = await _s3Client.ListObjectsV2Async(new ListObjectsV2Request
         {
             BucketName = BucketName,
             Prefix = prefix,
+            StartAfter = startAfterKey,
             Delimiter = delimiter,
             MaxKeys = maxKeys,
             ContinuationToken = continuationToken
@@ -58,7 +59,7 @@ public class StorageManager<T>(IS3ClientFactory s3ClientFactory, IStorageReader<
     {
         var keys = new List<string>();
 
-        await foreach (var s3Object in ListAllObjectsAsync(prefix ?? string.Empty, cancellationToken))
+        await foreach (var s3Object in ListAllObjectsAsync(prefix ?? string.Empty, cancellationToken: cancellationToken))
         {
             if (s3Object.Key.Contains(pattern, StringComparison.OrdinalIgnoreCase))
             {
@@ -90,12 +91,13 @@ public class StorageManager<T>(IS3ClientFactory s3ClientFactory, IStorageReader<
         }, cancellationToken);
     }
 
-    private async IAsyncEnumerable<S3Object> ListAllObjectsAsync(string prefix, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
+    private async IAsyncEnumerable<S3Object> ListAllObjectsAsync(string prefix, string? startAfterKey = null, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var request = new ListObjectsV2Request
         {
             BucketName = BucketName,
-            Prefix = prefix
+            Prefix = prefix,
+            StartAfter = startAfterKey
         };
 
         ListObjectsV2Response response;

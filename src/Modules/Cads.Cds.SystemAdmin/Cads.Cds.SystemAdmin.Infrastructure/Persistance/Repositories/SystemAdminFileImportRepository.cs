@@ -11,7 +11,7 @@ public class SystemAdminFileImportRepository(
     SystemAdminWriteDbContext writeDbContext)
     : FileImportRepository<SystemAdminReadDbContext, SystemAdminWriteDbContext>(readDbContext, writeDbContext), ISystemAdminFileImportRepository
 {
-    public async Task BatchUpdateAsync(string groupKey, long? totalRowsToProcess, long? rowsFound, FileImportStatus? importStatus)
+    public async Task BatchUpdateAsync(string groupKey, long? totalRowsToProcess, long? rowsFound, long? rowsImported, string? lastFilePartImported, FileImportStatus? importStatus)
     {
         var items = Set();
 
@@ -22,6 +22,10 @@ public class SystemAdminFileImportRepository(
                     r => totalRowsToProcess ?? r.TotalRowsToProcess)
                 .SetProperty(l => l.RowsFound,
                     r => rowsFound != null ? rowsFound.Value : r.RowsFound)
+                .SetProperty(l => l.RowsImported,
+                    r => rowsImported != null ? rowsImported.Value : r.RowsImported)
+                .SetProperty(l => l.LastFilePartImported,
+                    r => lastFilePartImported != null ? lastFilePartImported : r.LastFilePartImported)
                 .SetProperty(l => l.ImportStatus,
                     r => importStatus != null ? importStatus.Value : r.ImportStatus)
             );

@@ -98,6 +98,7 @@ public static class StorageManagementEndpoints
 
         var listing = await manager.ListObjectsAsync(
             prefix ?? string.Empty,
+            null,
             delimiter,
             maxKeys ?? 1000,
             continuationToken,

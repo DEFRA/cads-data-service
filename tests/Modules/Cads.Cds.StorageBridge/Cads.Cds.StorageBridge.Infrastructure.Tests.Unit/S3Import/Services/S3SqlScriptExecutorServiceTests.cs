@@ -57,7 +57,7 @@ public class S3SqlScriptExecutorServiceTests
     public async Task ExecuteAsync_ShouldReturnZero_WhenNoKeysFound()
     {
         _storageService
-            .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<CancellationToken>()))
+            .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var result = await CreateService().ExecuteAsync(
@@ -71,7 +71,7 @@ public class S3SqlScriptExecutorServiceTests
     public async Task ExecuteAsync_ShouldNotCallGetObject_WhenNoKeysFound()
     {
         _storageService
-            .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<CancellationToken>()))
+            .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         await CreateService().ExecuteAsync(
@@ -91,7 +91,7 @@ public class S3SqlScriptExecutorServiceTests
     public async Task ExecuteAsync_ShouldReturnZero_WhenResponseStreamIsNull()
     {
         _storageService
-            .Setup(x => x.ListKeysAsync(TestKey, It.IsAny<CancellationToken>()))
+            .Setup(x => x.ListKeysAsync(TestKey, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([TestKey]);
 
         _storageService
@@ -109,7 +109,7 @@ public class S3SqlScriptExecutorServiceTests
     public async Task ExecuteAsync_ShouldReturnZero_WhenFileContentIsWhitespace()
     {
         _storageService
-            .Setup(x => x.ListKeysAsync(TestKey, It.IsAny<CancellationToken>()))
+            .Setup(x => x.ListKeysAsync(TestKey, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([TestKey]);
 
         _storageService
@@ -134,7 +134,7 @@ public class S3SqlScriptExecutorServiceTests
     public async Task ExecuteAsync_ShouldPropagate_WhenListKeysFails()
     {
         _storageService
-            .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<CancellationToken>()))
+            .Setup(x => x.ListKeysAsync(TestPrefix, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("S3 unreachable"));
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>

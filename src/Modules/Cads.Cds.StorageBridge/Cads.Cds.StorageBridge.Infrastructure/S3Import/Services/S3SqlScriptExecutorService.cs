@@ -27,7 +27,7 @@ public class S3SqlScriptExecutorService(
     private IDataSeedIngestionHistoryRepository _historyRepository = null!;
 
     [ExcludeFromCodeCoverage]
-    public async Task<int> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
+    public async Task<long> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(job.SourceKey))
         {
@@ -46,7 +46,7 @@ public class S3SqlScriptExecutorService(
         _checksumService = scope.ServiceProvider.GetRequiredService<IFileChecksumService>();
         _historyRepository = scope.ServiceProvider.GetRequiredService<IDataSeedIngestionHistoryRepository>();
 
-        var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken);
+        var keys = await _storageService.ListKeysAsync(job.SourceKey, cancellationToken: cancellationToken);
         var keyList = keys.ToList();
 
         if (keyList.Count == 0)

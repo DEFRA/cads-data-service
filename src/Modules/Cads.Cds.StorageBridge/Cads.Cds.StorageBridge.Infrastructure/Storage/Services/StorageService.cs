@@ -17,8 +17,8 @@ public class StorageService<T>(IS3ClientFactory s3ClientFactory, IStorageReader<
     public Task<string> ReadAsync(string key, CancellationToken cancellationToken = default)
         => reader.ReadAsync(key, cancellationToken);
 
-    public Task<IEnumerable<string>> ListKeysAsync(string prefix, CancellationToken cancellationToken = default)
-        => reader.ListKeysAsync(prefix, cancellationToken);
+    public Task<IEnumerable<string>> ListKeysAsync(string prefix, string? startAfterKey = null, CancellationToken cancellationToken = default)
+        => reader.ListKeysAsync(prefix, startAfterKey, cancellationToken);
 
     public async Task WriteAsync(string key, string payload, CancellationToken cancellationToken)
     {
