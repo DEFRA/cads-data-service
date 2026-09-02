@@ -39,7 +39,7 @@ public class S3CsvImportEndpointTests
     {
         var batchId = _random.Next(1000, 9999);
         var testFileName = Path.GetFileNameWithoutExtension($"CTSM_CADS_PROD_BULK_{batchId}_0001_CT_LOCATIONS_2026-01-01-{_random.Next(10, 23)}{_random.Next(10, 59)}{_random.Next(10, 59)}.CSV");
-        var testKey = $"import/{Path.GetFileNameWithoutExtension(testFileName)}/{testFileName}.CSV";
+        var testKey = $"import/cts/bulk/{Path.GetFileNameWithoutExtension(testFileName)}/{testFileName}.CSV";
         var testGroupKey = $"CTSM_CADS_PROD_BULK_{batchId}_CT_LOCATIONS";
 
         _postgresDb.InsertFileImportAsync(testFileName, testGroupKey, FileImportStatus.Split).ConfigureAwait(false);

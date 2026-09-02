@@ -17,6 +17,7 @@ public static class FileImportMapper
             Id = fileImport.Id,
             DestinationTableName = fileImport.DestinationTableName,
             FileName = fileImport.FileName,
+            DestinationPrefix = fileImport.DestinationPrefix,
             GroupKey = fileImport.GroupKey,
             LastFilePartImported = fileImport.LastFilePartImported,
             TotalRowsToProcess = fileImport.TotalRowsToProcess,

@@ -8,6 +8,8 @@ public class FileImportDto
 
     public required string FileName { get; set; }
 
+    public string? DestinationPrefix { get; set; }
+
     public string? GroupKey { get; set; }
 
     public string? LastFilePartImported { get; set; }
