@@ -16,4 +16,9 @@
     <ProjectReference Include="..\Cads.Cds.SystemAdmin.Application\Cads.Cds.SystemAdmin.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="EntityGraphQL" Version="6.2.1" />
+    <PackageReference Include="EntityGraphQL.AspNet" Version="6.2.1" />
+  </ItemGroup>
+
 </Project>
