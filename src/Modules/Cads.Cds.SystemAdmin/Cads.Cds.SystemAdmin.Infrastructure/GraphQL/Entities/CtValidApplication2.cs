@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+
+namespace Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Entities;
+
+public partial class CtValidApplication2
+{
+    public long AuditId { get; set; }
+
+    public string AuditAction { get; set; } = null!;
+
+    public DateTime AuditedAt { get; set; }
+
+    public decimal VapId { get; set; }
+
+    public string? VapCurrentStatus { get; set; }
+
+    public string? VapCurrentUser { get; set; }
+
+    public DateOnly? VapCurrentModifiedDate { get; set; }
+
+    public decimal? VapCurrentPid { get; set; }
+
+    public string? VapCurrentIntendedAction { get; set; }
+
+    public char? VapApplicationType { get; set; }
+
+    public DateOnly? VapReceiptDate { get; set; }
+
+    public decimal? VapLocIdRequester { get; set; }
+
+    public DateOnly? VapRequesterDate { get; set; }
+
+    public string? VapCountyRequester { get; set; }
+
+    public string? VapSourceType { get; set; }
+
+    public DateOnly? VapTargetDate { get; set; }
+
+    public string? VapSourceReference { get; set; }
+
+    public char? VapCtsIndicator { get; set; }
+
+    public decimal? VapNoOfAnimals { get; set; }
+
+    public decimal? VapNoOfAnimalsNotCanc { get; set; }
+
+    public decimal? VapNumberCalfMovts { get; set; }
+
+    public string? VapInterfaceFileName { get; set; }
+
+    public decimal? VapInterfaceFileTxn { get; set; }
+
+    public decimal? VapWurId { get; set; }
+
+    public decimal? VapVersion { get; set; }
+
+    public string? VapRequesterLocationRepd { get; set; }
+
+    public decimal FakeData { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public string? RecordType { get; set; }
+
+    public decimal? RecordCount { get; set; }
+
+    public DateTime? ImportedDate { get; set; }
+
+    public long? AuditTransId { get; set; }
+
+    public long? TransId { get; set; }
+
+    public virtual CtValidApplication1? AuditTrans { get; set; }
+}
