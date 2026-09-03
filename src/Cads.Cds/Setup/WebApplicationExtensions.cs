@@ -51,6 +51,8 @@ public static class WebApplicationExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
+        app.MapGraphQL();
+
         app.MapControllers();
 
         app.MapModules();

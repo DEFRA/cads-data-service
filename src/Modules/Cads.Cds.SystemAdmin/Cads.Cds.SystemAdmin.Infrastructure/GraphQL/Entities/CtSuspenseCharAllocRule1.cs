@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+
+namespace Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Entities;
+
+public partial class CtSuspenseCharAllocRule1
+{
+    public decimal ScaId { get; set; }
+
+    public string? ScaSuspenseChar { get; set; }
+
+    public decimal? ScaRouId { get; set; }
+
+    public string? ScaSubroutine { get; set; }
+
+    public string? ScaTestValue { get; set; }
+
+    public string? ScaCurrentUser { get; set; }
+
+    public string? ScaCurrentStatus { get; set; }
+
+    public DateOnly? ScaCurrentModifiedDate { get; set; }
+
+    public decimal? ScaCurrentPid { get; set; }
+
+    public decimal? ScaVersion { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+
+    public long? ScaAudId { get; set; }
+
+    public string? ScaAudType { get; set; }
+
+    public DateTime? ScaAudDatetime { get; set; }
+
+    public string? RecordType { get; set; }
+
+    public decimal? RecordCount { get; set; }
+
+    public DateTime? ImportedDate { get; set; }
+
+    public long? CtsFileImportId { get; set; }
+
+    public virtual CtsFileImport? CtsFileImport { get; set; }
+}
