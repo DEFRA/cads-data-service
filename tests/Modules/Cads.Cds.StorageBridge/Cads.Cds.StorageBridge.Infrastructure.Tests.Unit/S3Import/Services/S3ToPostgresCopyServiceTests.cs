@@ -45,7 +45,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var fileImport = new FileImport { FileName = InvalidTestFileName1, TotalRowsToProcess = 100, RowsFound = 100 };
+        var fileImport = new FileImport { FileName = InvalidTestFileName1, DestinationPrefix = "import/cts/bulk", TotalRowsToProcess = 100, RowsFound = 100 };
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
@@ -63,7 +63,7 @@ public class S3ToPostgresCopyServiceTests
     {
         var service = CreateService();
 
-        var fileImport = new FileImport { FileName = InvalidTestFileName1, TotalRowsToProcess = 100, RowsFound = 100 };
+        var fileImport = new FileImport { FileName = InvalidTestFileName1, DestinationPrefix = "import/cts/bulk", TotalRowsToProcess = 100, RowsFound = 100 };
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
@@ -96,9 +96,9 @@ public class S3ToPostgresCopyServiceTests
     public async Task ExecuteAsync_ShouldReturnZero_WhenNoKeysFound()
     {
         var service = CreateService();
-        var fileImport = new FileImport { FileName = ValidTestFileName1, TotalRowsToProcess = 100, RowsFound = 100 };
+        var fileImport = new FileImport { FileName = ValidTestFileName1, DestinationPrefix = "import/cts/bulk", TotalRowsToProcess = 100, RowsFound = 100 };
 
-        _storageService.Setup(x => x.ListKeysAsync(ValidTestFileName1, null, It.IsAny<CancellationToken>()))
+        _storageService.Setup(x => x.ListKeysAsync(S3ToPostgresCopyService.GetSplitPartsPrefix(fileImport), null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
@@ -112,6 +112,30 @@ public class S3ToPostgresCopyServiceTests
         var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
 
         result.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData("import/cts/bulk", "CTSM_FILE_2026-01-01-000000.csv", "import/cts/bulk/CTSM_FILE_2026-01-01-000000")]
+    [InlineData("import/cts/daily/", "CTSM_FILE_2026-01-01-000000.CSV", "import/cts/daily/CTSM_FILE_2026-01-01-000000")]
+    [InlineData("import", "CTSM_FILE_2026-01-01-000000.csv", "import/CTSM_FILE_2026-01-01-000000")]
+    public void GetSplitPartsPrefix_ShouldCombineDestinationPrefixAndFileNameWithoutExtension(string destinationPrefix, string fileName, string expected)
+    {
+        var fileImport = new FileImport { FileName = fileName, DestinationPrefix = destinationPrefix };
+
+        S3ToPostgresCopyService.GetSplitPartsPrefix(fileImport).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("  ")]
+    [InlineData(null)]
+    public void GetSplitPartsPrefix_ShouldThrow_WhenDestinationPrefixIsMissing(string? destinationPrefix)
+    {
+        var fileImport = new FileImport { FileName = "CTSM_FILE_2026-01-01-000000.csv", DestinationPrefix = destinationPrefix! };
+
+        var act = () => S3ToPostgresCopyService.GetSplitPartsPrefix(fileImport);
+
+        act.Should().Throw<InvalidOperationException>();
     }
 
     [Theory]

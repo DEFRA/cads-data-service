@@ -53,7 +53,7 @@ public class S3ToPostgresCopyService(
             throw new InvalidOperationException($"Failed to extract destination table from filename: {fileImport.FileName}");
         }
 
-        var filePath = $"import/{Path.GetFileNameWithoutExtension(fileImport.FileName)}";
+        var filePath = GetSplitPartsPrefix(fileImport);
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
@@ -418,6 +418,16 @@ public class S3ToPostgresCopyService(
         }
 
         return commands;
+    }
+
+    public static string GetSplitPartsPrefix(FileImport fileImport)
+    {
+        if (string.IsNullOrWhiteSpace(fileImport.DestinationPrefix))
+        {
+            throw new InvalidOperationException($"FileImport {fileImport.Id} ('{fileImport.FileName}') has no destination prefix.");
+        }
+
+        return $"{fileImport.DestinationPrefix.Trim('/')}/{Path.GetFileNameWithoutExtension(fileImport.FileName)}";
     }
 
     private static (ImportDataType ImportDataType, ImportActionType ImportActionType, SchemaName SchemaName) GetImportParameters(string filename)

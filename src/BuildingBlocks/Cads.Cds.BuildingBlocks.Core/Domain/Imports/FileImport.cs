@@ -12,6 +12,8 @@ public class FileImport
 
     public string DestinationTableName { get; set; } = default!;
     public string FileName { get; set; } = default!;
+
+    public string DestinationPrefix { get; set; } = default!;
     public string? LastFilePartImported { get; set; }
 
     public long TotalRowsToProcess { get; set; }
