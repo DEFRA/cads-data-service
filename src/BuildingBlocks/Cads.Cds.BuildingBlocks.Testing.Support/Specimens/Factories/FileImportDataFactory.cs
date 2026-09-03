@@ -68,6 +68,7 @@ public static class FileImportDataFactory
         {
             DestinationTableName = "dtn",
             FileName = fileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0,
             GroupKey = "gk",
