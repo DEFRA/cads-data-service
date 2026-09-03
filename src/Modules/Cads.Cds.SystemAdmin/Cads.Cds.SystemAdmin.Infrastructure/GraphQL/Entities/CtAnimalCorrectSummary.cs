@@ -47,9 +47,9 @@ public partial class CtAnimalCorrectSummary
 
     public string? AcsNewEartag { get; set; }
 
-    public char? AcsChrCorrectionType { get; set; }
+    public string? AcsChrCorrectionType { get; set; }
 
-    public char? AcsChrLocationInd { get; set; }
+    public string? AcsChrLocationInd { get; set; }
 
     public string? AcsInterfaceFileName { get; set; }
 

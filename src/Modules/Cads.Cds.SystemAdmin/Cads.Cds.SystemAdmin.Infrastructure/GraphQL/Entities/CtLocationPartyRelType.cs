@@ -11,15 +11,15 @@ public partial class CtLocationPartyRelType
 
     public string? LptDescription { get; set; }
 
-    public char? LptGapsAllowed { get; set; }
+    public string? LptGapsAllowed { get; set; }
 
-    public char? LptMandatory { get; set; }
+    public string? LptMandatory { get; set; }
 
-    public char? LptPrimarySingleLink { get; set; }
+    public string? LptPrimarySingleLink { get; set; }
 
-    public char? LptSecondSingleLink { get; set; }
+    public string? LptSecondSingleLink { get; set; }
 
-    public char? LptHierarchicalLink { get; set; }
+    public string? LptHierarchicalLink { get; set; }
 
     public string? LptRelshipTextDown { get; set; }
 

@@ -13,9 +13,9 @@ public partial class CtParamHeader1
 
     public string? PhdLongDesc { get; set; }
 
-    public char? PhdDontCache { get; set; }
+    public string? PhdDontCache { get; set; }
 
-    public char? PhdUseShort { get; set; }
+    public string? PhdUseShort { get; set; }
 
     public string? PhdCurrentUser { get; set; }
 

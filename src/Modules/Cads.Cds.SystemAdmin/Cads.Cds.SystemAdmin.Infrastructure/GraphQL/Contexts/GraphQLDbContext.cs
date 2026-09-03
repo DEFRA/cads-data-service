@@ -1,10 +1,6 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Contexts;
 
@@ -708,7 +704,7 @@ public partial class GraphQLDbContext(DbContextOptions<GraphQLDbContext> options
 
     public virtual DbSet<Databasechangeloglock> Databasechangeloglocks { get; set; }
 
-    public virtual DbSet<Location> Locations { get; set; }
+    public virtual DbSet<Entities.Location> Locations { get; set; }
 
     public virtual DbSet<LocationActivity> LocationActivities { get; set; }
 
@@ -24204,7 +24200,7 @@ public partial class GraphQLDbContext(DbContextOptions<GraphQLDbContext> options
                 .HasColumnName("lockgranted");
         });
 
-        modelBuilder.Entity<Location>(entity =>
+        modelBuilder.Entity<Entities.Location>(entity =>
         {
             entity.HasKey(e => e.Identifier).HasName("location_pkey");
 

@@ -19,13 +19,13 @@ public partial class CtReceivedApplication1
 
     public decimal? RapCurrentPid { get; set; }
 
-    public char? RapApplicationType { get; set; }
+    public string? RapApplicationType { get; set; }
 
     public string? RapApplicReceiptDate { get; set; }
 
     public DateOnly? RapApplicTargetDate { get; set; }
 
-    public char? RapCtsIndicator { get; set; }
+    public string? RapCtsIndicator { get; set; }
 
     public string? RapEartagType { get; set; }
 
@@ -91,9 +91,9 @@ public partial class CtReceivedApplication1
 
     public decimal? RapOrigIfFileTxn { get; set; }
 
-    public char? RapChrCorrectionType { get; set; }
+    public string? RapChrCorrectionType { get; set; }
 
-    public char? RapChrLocationInd { get; set; }
+    public string? RapChrLocationInd { get; set; }
 
     public DateOnly? RapCreatedDate { get; set; }
 

@@ -29,9 +29,9 @@ public partial class CtAnimalChange
 
     public string? AchBreedNew { get; set; }
 
-    public char? AchSexOriginal { get; set; }
+    public string? AchSexOriginal { get; set; }
 
-    public char? AchSexNew { get; set; }
+    public string? AchSexNew { get; set; }
 
     public DateOnly? AchBirthDateOriginal { get; set; }
 

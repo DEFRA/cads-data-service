@@ -11,9 +11,9 @@ public partial class CtWgUserAssignment
 
     public decimal? WuaWgpId { get; set; }
 
-    public char? WuaWgContactInd { get; set; }
+    public string? WuaWgContactInd { get; set; }
 
-    public char? WuaFavouredWgInd { get; set; }
+    public string? WuaFavouredWgInd { get; set; }
 
     public string? WuaCurrentUser { get; set; }
 

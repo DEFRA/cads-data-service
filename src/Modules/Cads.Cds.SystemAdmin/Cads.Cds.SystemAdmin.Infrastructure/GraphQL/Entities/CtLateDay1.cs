@@ -9,7 +9,7 @@ public partial class CtLateDay1
 
     public decimal LdaId { get; set; }
 
-    public char? LdaApplicType { get; set; }
+    public string? LdaApplicType { get; set; }
 
     public DateOnly? LdaStartDate { get; set; }
 
