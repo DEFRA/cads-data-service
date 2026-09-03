@@ -29,7 +29,7 @@ public class FileImportWithMessageProcessingTests(ApiContainerFixture apiContain
         var testScenarioUniqueId = new Random().Next(1000, 9999);
         var importFileName
             = $"CTSM_CADS_ENV_BULK_{testScenarioUniqueId}_0001_CT_LOCATIONS_2026-01-01-012345.csv";
-        var importFileKey = $"import/CTSM_CADS_ENV_BULK_{testScenarioUniqueId}_0001_CT_LOCATIONS_2026-01-01-012345/{importFileName}";
+        var importFileKey = $"import/cts/bulk/CTSM_CADS_ENV_BULK_{testScenarioUniqueId}_0001_CT_LOCATIONS_2026-01-01-012345/{importFileName}";
         var locationsDataRow
             = $"D|2|{testScenarioUniqueId}|1|2|88|N|01-JUL-21|17-JAN-23|BC|AH|Row 2 comments|TL 234567|VT|23456789|0202345678|07723456789|0209876543|email2@internal.test|1|m100000|10-JUN-25|29|AC|1|Y";
 
@@ -111,9 +111,10 @@ public class FileImportWithMessageProcessingTests(ApiContainerFixture apiContain
         , group_key
         , import_type
         , failed_attempts
-        , last_error_reason)
+        , last_error_reason
+        , destination_prefix)
          VALUES
-             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), 'ABC', 'BULK', 0, NULL)
+             ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), 'ABC', 'BULK', 0, NULL, 'import/cts/bulk')
         RETURNING cts_file_import_id;";
 
         var testFileImportId = await _postgresDb.ExecuteScalarAsync<long>(
