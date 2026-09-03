@@ -1,7 +1,6 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Contexts;
-using EntityGraphQL.Schema;
-using EntityGraphQL.AspNet;
+using Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Queries;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Setup;
@@ -12,12 +11,13 @@ public static class ServiceCollectionExtensions
     {
         services.RegisterDbContexts();
 
-        // TODO: Uncomment this line when the GraphQL schema is ready to be registered
-        //services.AddGraphQLSchema<GraphQLDbContext>();
-
-        var schema = SchemaBuilder.FromObject<GraphQLDbContext>();
-
-        services.AddSingleton(schema);
+        services
+            .AddGraphQLServer()
+            .AddQueryType<GraphQuery>()
+            .AddProjections()
+            .AddFiltering()
+            .AddSorting()
+            .AddPagingArguments();
 
         return services;
     }

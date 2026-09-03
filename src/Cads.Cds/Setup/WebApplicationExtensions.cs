@@ -1,8 +1,6 @@
 using Cads.Cds.Api.Setup;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.Middleware;
-using Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Contexts;
-using EntityGraphQL.AspNet;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics.CodeAnalysis;
@@ -53,6 +51,8 @@ public static class WebApplicationExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
+        app.MapGraphQL();
+
         app.MapControllers();
 
         app.MapModules();
@@ -60,9 +60,6 @@ public static class WebApplicationExtensions
         app.UseApiSoapEndpoints();
 
         app.MapGet("/", () => "Alive!").AllowAnonymous();
-
-        // TODO: Enable GraphQL endpoint when ready
-        // app.MapGraphQL<GraphQLDbContext>("/graphql");
 
         app.MapHealthChecks("/health", new HealthCheckOptions()
         {

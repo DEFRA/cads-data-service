@@ -23,7 +23,7 @@ public partial class CtValidApplication2
 
     public string? VapCurrentIntendedAction { get; set; }
 
-    public char? VapApplicationType { get; set; }
+    public string? VapApplicationType { get; set; }
 
     public DateOnly? VapReceiptDate { get; set; }
 
@@ -39,7 +39,7 @@ public partial class CtValidApplication2
 
     public string? VapSourceReference { get; set; }
 
-    public char? VapCtsIndicator { get; set; }
+    public string? VapCtsIndicator { get; set; }
 
     public decimal? VapNoOfAnimals { get; set; }
 

@@ -49,7 +49,7 @@ public partial class CtEartag1
 
     public string? EtgOrderLocationRepd { get; set; }
 
-    public char? EtgPpafIndicator { get; set; }
+    public string? EtgPpafIndicator { get; set; }
 
     public decimal? RowNumber { get; set; }
 

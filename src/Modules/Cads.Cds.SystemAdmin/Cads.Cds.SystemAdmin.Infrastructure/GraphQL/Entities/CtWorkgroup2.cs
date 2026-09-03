@@ -21,13 +21,13 @@ public partial class CtWorkgroup2
 
     public string? WgpLongName { get; set; }
 
-    public char? WgpActiveIndicator { get; set; }
+    public string? WgpActiveIndicator { get; set; }
 
     public string? WgpPrinter { get; set; }
 
     public string? WgpSummaryType { get; set; }
 
-    public char? WgpReassignLock { get; set; }
+    public string? WgpReassignLock { get; set; }
 
     public string? WgpCurrentStatus { get; set; }
 

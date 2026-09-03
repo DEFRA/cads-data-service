@@ -21,7 +21,7 @@ public partial class CtCommsAddress1
 
     public string? CoaEmailAddress { get; set; }
 
-    public char? CoaAttachment { get; set; }
+    public string? CoaAttachment { get; set; }
 
     public decimal? RowNumber { get; set; }
 

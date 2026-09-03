@@ -9,9 +9,9 @@ public partial class CtSuspendedAnimal
 
     public decimal? SanWgpId { get; set; }
 
-    public char? SanApplicationType { get; set; }
+    public string? SanApplicationType { get; set; }
 
-    public char? SanCtsIndicator { get; set; }
+    public string? SanCtsIndicator { get; set; }
 
     public DateOnly? SanApplicReceiptDate { get; set; }
 
@@ -27,7 +27,7 @@ public partial class CtSuspendedAnimal
 
     public DateOnly? SanAmendedDatetime { get; set; }
 
-    public char? SanSex { get; set; }
+    public string? SanSex { get; set; }
 
     public string? SanBreed { get; set; }
 
@@ -61,9 +61,9 @@ public partial class CtSuspendedAnimal
 
     public decimal? SanNumberCalfMovts { get; set; }
 
-    public char? SanChrLocationInd { get; set; }
+    public string? SanChrLocationInd { get; set; }
 
-    public char? SanChrCorrectionType { get; set; }
+    public string? SanChrCorrectionType { get; set; }
 
     public DateOnly? SanChangeReceivedDate { get; set; }
 
@@ -73,7 +73,7 @@ public partial class CtSuspendedAnimal
 
     public decimal? SanLocIdRequest { get; set; }
 
-    public char? SanAmendRetagInd { get; set; }
+    public string? SanAmendRetagInd { get; set; }
 
     public string? SanNewEartagType { get; set; }
 

@@ -45,7 +45,7 @@ public partial class CtRegisteredAnimal1
 
     public decimal? RanMovIdRegistration { get; set; }
 
-    public char? RanPassportModFlag { get; set; }
+    public string? RanPassportModFlag { get; set; }
 
     public string? RanPassportVersionNumber { get; set; }
 
