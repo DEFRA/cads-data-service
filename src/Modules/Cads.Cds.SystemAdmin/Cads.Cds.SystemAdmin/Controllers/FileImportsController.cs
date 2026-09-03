@@ -132,6 +132,7 @@ public class FileImportsController(IRequestExecutor executor) : ControllerBase
     {
         var command = new CreateFileImportCommand(
             request.FileName,
+            request.DestinationPrefix,
             request.TotalRowsToProcess ?? 0,
             request.RowsFound ?? 0);
 
