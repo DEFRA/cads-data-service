@@ -1,5 +1,6 @@
 using Cads.Cds.Api.Setup;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -51,10 +52,15 @@ public static class WebApplicationExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema");
-        app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema");
-        app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema");
-        app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema");
+        // Replaced UseEndpoints with top-level MapGraphQL calls
+        app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema")
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema")
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema")
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
 
         app.MapControllers();
 
