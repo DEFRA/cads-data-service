@@ -11,6 +11,10 @@ public sealed class CreateFileImportCommandValidator
             .NotEmpty()
             .WithMessage("File name is required.");
 
+        RuleFor(x => x.DestinationPrefix)
+            .NotEmpty()
+            .WithMessage("Destination prefix is required.");
+
         RuleFor(x => x.TotalRowsToProcess)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Total rows to process must be zero or greater.");

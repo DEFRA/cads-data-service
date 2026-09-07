@@ -4,7 +4,7 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 
 public static class FileImportPostgresDbCommandHelper
 {
-    public static async Task<long> InsertFileImportAsync(this PostgresDb postgresDb, string importFileName, string groupKey, FileImportStatus fileImportStatus, string? lastfilePartImported = null, long rowsImported = 0)
+    public static async Task<long> InsertFileImportAsync(this PostgresDb postgresDb, string importFileName, string groupKey, FileImportStatus fileImportStatus, string? lastfilePartImported = null, long rowsImported = 0, string destinationPrefix = "import/cts/bulk")
     {
         var insertQuery = @"INSERT INTO cads.cts_file_imports(
             destination_table_name
@@ -22,9 +22,10 @@ public static class FileImportPostgresDbCommandHelper
             , failed_attempts
             , last_error_reason
             , last_file_part_imported
-            , rows_imported)
+            , rows_imported
+            , destination_prefix)
                 VALUES
-                    ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), @groupKey, 'BULK', 0, NULL, @lastfilePartImported, @rowsImported)
+                    ('dtn', @fileName, 1, NOW(), @fileImportStatus, 1, 1, NULL, NULL, NOW(), @groupKey, 'BULK', 0, NULL, @lastfilePartImported, @rowsImported, @destinationPrefix)
             ON CONFLICT DO NOTHING
             RETURNING cts_file_import_id;";
 
@@ -37,6 +38,7 @@ public static class FileImportPostgresDbCommandHelper
               cmd.Parameters.AddWithValue("groupKey", groupKey);
               cmd.Parameters.AddWithValue("lastfilePartImported", ((object?)lastfilePartImported) ?? DBNull.Value);
               cmd.Parameters.AddWithValue("rowsImported", rowsImported);
+              cmd.Parameters.AddWithValue("destinationPrefix", destinationPrefix);
           });
 
         return testFileImportId;

@@ -31,7 +31,7 @@ public class CreateFileImportCommandHandlerTests
         // table name so GetDestinationTableName() returns null.
         const string fileName = "CTSM_CADS_PREP_BULK_00001_001_CT_UNKNOWN_TABLE_2026-07-28-094638.csv";
 
-        var command = new CreateFileImportCommand(fileName, TotalRowsToProcess: 100, RowsFound: 50);
+        var command = new CreateFileImportCommand(fileName, DestinationPrefix: "import/cts/bulk/", TotalRowsToProcess: 100, RowsFound: 50);
 
         var sut = CreateSut();
 
@@ -57,7 +57,7 @@ public class CreateFileImportCommandHandlerTests
         // Arrange - valid CTSM filename that resolves to a known destination table.
         const string fileName = "CTSM_CADS_PREP_BULK_00001_001_CT_LOCATIONS_2026-07-28-094638.csv";
 
-        var command = new CreateFileImportCommand(fileName, TotalRowsToProcess: 100, RowsFound: 50);
+        var command = new CreateFileImportCommand(fileName, DestinationPrefix: "import/cts/bulk/", TotalRowsToProcess: 100, RowsFound: 50);
 
         var sut = CreateSut();
 
@@ -67,6 +67,7 @@ public class CreateFileImportCommandHandlerTests
         // Assert
         Assert.Equal(FileImportStatus.Pending, result.ImportStatus);
         Assert.Equal("cts_transactions.ct_locations", result.DestinationTableName);
+        Assert.Equal("import/cts/bulk", result.DestinationPrefix);
         Assert.Null(result.LastErrorReason);
         Assert.Equal(0, result.FailedAttempts);
 

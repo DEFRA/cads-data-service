@@ -43,6 +43,11 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
             .HasColumnType("text")
             .IsRequired();
 
+        builder.Property(x => x.DestinationPrefix)
+            .HasColumnName("destination_prefix")
+            .HasColumnType("text")
+            .IsRequired();
+
         builder.Property(x => x.LastFilePartImported)
           .HasColumnName("last_file_part_imported")
           .HasColumnType("text");
