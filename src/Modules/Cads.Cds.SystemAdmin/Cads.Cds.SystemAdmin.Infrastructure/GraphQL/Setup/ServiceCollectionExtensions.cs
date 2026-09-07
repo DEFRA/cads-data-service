@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddGraphQLServer("CadsSchema")
+            .AddAuthorization()
             .AddQueryType(q => q.Name("Query"))
             .AddTypeExtension<CadsGraphQuery>()
             .AddProjections()
@@ -28,6 +29,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddGraphQLServer("CtsSchema")
+            .AddAuthorization()
             .AddQueryType(q => q.Name("Query"))
             .AddTypeExtension<CtsGraphQuery>()
             .AddProjections()
@@ -37,6 +39,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddGraphQLServer("CtsAuditSchema")
+            .AddAuthorization()
             .AddQueryType(q => q.Name("Query"))
             .AddTypeExtension<CtsAuditGraphQuery>()
             .AddProjections()
@@ -46,6 +49,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddGraphQLServer("CtsTransactionsSchema")
+            .AddAuthorization()
             .AddQueryType(q => q.Name("Query"))
             .AddTypeExtension<CtsTransactionsGraphQuery>()
             .AddProjections()
