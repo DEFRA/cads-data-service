@@ -6,6 +6,7 @@ using Serilog;
 using System.Diagnostics.CodeAnalysis;
 
 var app = CreateWebApplication(args);
+
 await app.RunAsync();
 return;
 

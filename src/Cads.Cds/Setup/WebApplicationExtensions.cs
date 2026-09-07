@@ -1,5 +1,6 @@
 using Cads.Cds.Api.Setup;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
