@@ -1,6 +1,8 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Setup;
 using Cads.Cds.SystemAdmin.Application.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Setup;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,5 +24,13 @@ public sealed class SystemAdminModule : IModule
     /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
+        app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema")
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema")
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema")
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
     }
 }

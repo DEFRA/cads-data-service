@@ -17,11 +17,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HotChocolate" Version="16.6.3" />
-    <PackageReference Include="HotChocolate.AspNetCore" Version="16.6.3" />
-    <PackageReference Include="HotChocolate.Data" Version="16.6.3" />
-    <PackageReference Include="HotChocolate.Types" Version="16.6.3" />
-    <PackageReference Include="HotChocolate.Utilities" Version="16.6.3" />
+    <PackageReference Include="HotChocolate" Version="16.6.4" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="16.6.4" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="16.6.4" />
+    <PackageReference Include="HotChocolate.Authorization" Version="16.6.4" />
+    <PackageReference Include="HotChocolate.Data" Version="16.6.4" />
+    <PackageReference Include="HotChocolate.Types" Version="16.6.4" />
+    <PackageReference Include="HotChocolate.Utilities" Version="16.6.4" />
   </ItemGroup>
   
 </Project>

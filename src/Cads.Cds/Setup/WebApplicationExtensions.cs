@@ -52,16 +52,6 @@ public static class WebApplicationExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // Replaced UseEndpoints with top-level MapGraphQL calls
-        app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-
         app.MapControllers();
 
         app.MapModules();
