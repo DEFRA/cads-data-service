@@ -11,7 +11,7 @@ public static class ServicePostgresDbContextExtensions
     private const int MaxRetryDelaySeconds = 10;
 
     public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services)
-        where TContext : CadsDbContext
+        where TContext : DbContext
     {
         services.AddDbContext<TContext>((sp, options) =>
         {
@@ -33,7 +33,7 @@ public static class ServicePostgresDbContextExtensions
 
     // Overload for modules that need to specify connection identifier
     public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services, string connectionIdentifier)
-        where TContext : CadsDbContext
+        where TContext : DbContext
     {
         services.AddDbContext<TContext>((sp, options) =>
         {
