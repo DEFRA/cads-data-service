@@ -3,6 +3,8 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Repositories;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Persistance.Repositories;
 
@@ -25,7 +27,7 @@ public class SystemAdminFileImportRepository(
                 .SetProperty(l => l.RowsImported,
                     r => rowsImported != null ? rowsImported.Value : r.RowsImported)
                 .SetProperty(l => l.LastFilePartImported,
-                    r => lastFilePartImported != null ? lastFilePartImported : r.LastFilePartImported)
+                    r => lastFilePartImported ?? r.LastFilePartImported)
                 .SetProperty(l => l.ImportStatus,
                     r => importStatus != null ? importStatus.Value : r.ImportStatus)
             );
