@@ -78,6 +78,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Complete_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -103,6 +104,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Bulk_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -128,6 +130,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Delta_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -153,6 +156,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Invalid_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
