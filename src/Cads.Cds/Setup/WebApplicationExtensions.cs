@@ -51,7 +51,10 @@ public static class WebApplicationExtensions
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGraphQL();
+        app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema");
+        app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema");
+        app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema");
+        app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema");
 
         app.MapControllers();
 
