@@ -25,27 +25,28 @@ public class AnimalDetailRepositoryTests
 
         var result = await sut.GetByIdentifierAsync("UK324537113243", TestContext.Current.CancellationToken);
 
-        result.Should().ContainSingle().Which.Identifier.Should().Be("UK324537113243");
+        result.Should().NotBeNull();
+        result!.Identifier.Should().Be("UK324537113243");
     }
 
     [Fact]
-    public async Task GetByIdentifierAsync_WhenNoMatch_ShouldReturnEmpty()
+    public async Task GetByIdentifierAsync_WhenNoMatch_ShouldReturnNull()
     {
         var sut = CreateSut(enabled: true);
 
         var result = await sut.GetByIdentifierAsync("UK999999999999", TestContext.Current.CancellationToken);
 
-        result.Should().BeEmpty();
+        result.Should().BeNull();
     }
 
     [Fact]
-    public async Task GetByIdentifierAsync_WhenStaticDataDisabled_ShouldReturnEmpty()
+    public async Task GetByIdentifierAsync_WhenStaticDataDisabled_ShouldReturnNull()
     {
         var sut = CreateSut(enabled: false);
 
         var result = await sut.GetByIdentifierAsync("UK324537113234", TestContext.Current.CancellationToken);
 
-        result.Should().BeEmpty();
+        result.Should().BeNull();
     }
 
     private static AnimalDetailRepository CreateSut(bool enabled)
