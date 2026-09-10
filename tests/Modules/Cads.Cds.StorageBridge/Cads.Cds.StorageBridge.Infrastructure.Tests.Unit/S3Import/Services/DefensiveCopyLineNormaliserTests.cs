@@ -49,6 +49,26 @@ public class DefensiveCopyLineNormaliserTests
         result.Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData(
+        "D|1500112|2911314|f800702|S|23-NOV-00|42|||41457581||SMC|13-NOV-00|MHF2000318SMC00411|153|MHF2000318SMC00411|153|UK C4491 00206||||||2000-11-13|2000000|23184041657||||Validation Error|N|Determined Movement Type| Location & Move|DLOC|m174006||Submitted|N|1",
+        "D|1500112|2911314|f800702|S|23-NOV-00|42|||41457581||SMC|13-NOV-00|MHF2000318SMC00411|153|MHF2000318SMC00411|153|UK C4491 00206||||||2000-11-13|2000000|23184041657||||Validation Error|N|\"Determined Movement Type| Location & Move\"|DLOC|m174006||Submitted|N|1")]
+    [InlineData(
+        "D|1507093|4091028|f800702|D|17-SEP-01|42|||55514366||OLM|17-SEP-01|||||UK343559700109|SH|5269||7|2001-09-06|2001-09-17|2000025|36|50||||On-line Entry|N|Delete Duplicate Movement||x907151||Deleted|N|1",
+        "D|1507093|4091028|f800702|D|17-SEP-01|42|||55514366||OLM|17-SEP-01|||||UK343559700109|SH|5269||7|2001-09-06|2001-09-17|2000025|36|50|||On-line Entry|N|Delete Duplicate Movement||x907151||Deleted|N|1")]
+    [InlineData(
+        "D|1541757|7499234|f800702|S|04-NOV-02|42|||59640051||SMC|23-NOV-01|MHF2001326SMC00387|157|MHF2001326SMC00387|157|UK W4372 00251|AH|08/395/0043||||2001-11-22|2000000|33266037077||||Validation Error|N|Determined Movement Type| Location & Move|DM3|m174967||Submitted|N|1",
+        "D|1541757|7499234|f800702|S|04-NOV-02|42|||59640051||SMC|23-NOV-01|MHF2001326SMC00387|157|MHF2001326SMC00387|157|UK W4372 00251|AH|08/395/0043||||2001-11-22|2000000|33266037077||||Validation Error|N|\"Determined Movement Type| Location & Move\"|DM3|m174967||Submitted|N|1")]
+    [InlineData(
+        "D|1584651|2912105|f800702|S|23-NOV-00|42|||41482920||SMC|13-NOV-00|MHF2000318SMC00679|25|MHF2000318SMC00679|25|UK A1736 00371||||||2000-11-13|2000000|23181069808||||Validation Error|N|Determined Movement Type| Location & Move|DLOC|m168551||Submitted|N|1",
+        "D|1584651|2912105|f800702|S|23-NOV-00|42|||41482920||SMC|13-NOV-00|MHF2000318SMC00679|25|MHF2000318SMC00679|25|UK A1736 00371||||||2000-11-13|2000000|23181069808||||Validation Error|N|\"Determined Movement Type| Location & Move\"|DLOC|m168551||Submitted|N|1")]
+    public void Normalise_WhentMovtCorrectSummariesRules_ShouldReturnExpectedLine(string input, string expected)
+    {
+        var result = _sut.Normalise(input, ImportDataType.CtMovtCorrectSummaries, Delimiter, CtSuspenseWgAllocRulesColumnCount);
+
+        result.Should().Be(expected);
+    }
+
     [Fact]
     public void Normalise_WhenImportTypeIsUnsupported_ShouldReturnOriginalLine()
     {
