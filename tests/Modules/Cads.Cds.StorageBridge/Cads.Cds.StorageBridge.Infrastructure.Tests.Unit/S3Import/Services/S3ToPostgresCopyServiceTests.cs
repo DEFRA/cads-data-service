@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Text;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Helpers;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.S3Import.Services;
 
@@ -32,6 +33,10 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IStorageService<CadsInternalClient>> _storageService = new();
     private readonly Mock<IS3ImportCommandFactoryProvider> _factoryProvider = new();
     private readonly Mock<IS3ImportCommandFactory> _factory = new();
+    private readonly Mock<IDefensiveCopyLineNormaliser> _normaliser = new();
+    private readonly Mock<StorageBridgeWriteDbContext> _dbContext = new(new DbContextOptions<StorageBridgeWriteDbContext>());
+    private readonly Mock<DbCommand> _dbCommand = new();
+    private readonly Mock<IReadOnlyList<DbCommand>> _actionCommands = new();
     private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
     private readonly Mock<IStorageBridgeFileImportRepository> _fileImportRepository = new();
 
@@ -232,10 +237,10 @@ public class S3ToPostgresCopyServiceTests
             },
             '|',
             _factory.Object,
-            null,
-            null,
-            null,
-            null);
+            _normaliser.Object,
+            _dbContext.Object,
+            _dbCommand.Object,
+            _actionCommands.Object);
         var fileExecutionContext = new FileExecutionContext
         (
             importContext,
@@ -293,10 +298,10 @@ public class S3ToPostgresCopyServiceTests
             },
             '|',
             _factory.Object,
-            null,
-            null,
-            null,
-            null);
+            _normaliser.Object,
+            _dbContext.Object,
+            _dbCommand.Object,
+            _actionCommands.Object);
         var fileExecutionContext = new FileExecutionContext
         (
             importContext,
