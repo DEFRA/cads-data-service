@@ -70,7 +70,7 @@ public static class S3Utils
 
         return !string.IsNullOrEmpty(bucketName) || !string.IsNullOrEmpty(objectKey) || !string.IsNullOrEmpty(fileName);
     }
-    
+
     public static ImportParameters GetImportParameters(this string filename)
     {
         var parsedFilename = CtsmFilenameParser.Parse(filename);
@@ -84,7 +84,7 @@ public static class S3Utils
 
         var importDataType = Enum.GetValues<ImportDataType>()
             .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(parsedFilename?.TableName, StringComparison.InvariantCultureIgnoreCase) == true);
-        
+
         if (importDataType == ImportDataType.None)
         {
             throw new InvalidOperationException($"Failed to extract destination table from filename: {filename}");
@@ -92,7 +92,9 @@ public static class S3Utils
 
         return new ImportParameters
         {
-            ImportDataType = importDataType, ImportActionType = importActionType, SchemaName = schemaName
+            ImportDataType = importDataType,
+            ImportActionType = importActionType,
+            SchemaName = schemaName
         };
     }
 }
