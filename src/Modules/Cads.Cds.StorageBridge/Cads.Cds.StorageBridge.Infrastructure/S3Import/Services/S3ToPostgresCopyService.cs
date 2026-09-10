@@ -38,7 +38,7 @@ public class S3ToPostgresCopyService(
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
         var fileImport = await GetFileImportAsync(job, scope, cancellationToken);
- 
+
         var keys = await GetKeysFromStorage(fileImport, scope, cancellationToken);
 
         if (keys.Count == 0) return 0;
@@ -52,9 +52,9 @@ public class S3ToPostgresCopyService(
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
         var sw = Stopwatch.StartNew();
-        
+
         var totalRowsImported = fileImport.RowsImported;
-        
+
         foreach (var key in keys)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -80,7 +80,7 @@ public class S3ToPostgresCopyService(
                     key, job.JobId, rows, fileSw.Elapsed.TotalMilliseconds);
             }
         }
-        
+
         batchHistogram.Record(sw.Elapsed.TotalMilliseconds);
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -91,7 +91,7 @@ public class S3ToPostgresCopyService(
 
         return totalRowsImported;
     }
-    
+
     private async Task<FileImport> GetFileImportAsync(CreateS3CsvImportJobDto job, AsyncServiceScope scope, CancellationToken cancellationToken)
     {
         var fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
@@ -186,7 +186,7 @@ public class S3ToPostgresCopyService(
         catch (Exception ex)
         {
             await RollbackWithLoggingAsync(transaction, key, LogLevel.Error, "Rollback failed for key {Key}");
-            if(logger.IsEnabled(LogLevel.Error))
+            if (logger.IsEnabled(LogLevel.Error))
             {
                 logger.LogError(ex, "Failed to process file {Key}", key);
             }
@@ -206,7 +206,7 @@ public class S3ToPostgresCopyService(
         }
         catch (Exception rbEx)
         {
-            if(logger.IsEnabled(rollbackFailureLevel))
+            if (logger.IsEnabled(rollbackFailureLevel))
             {
                 logger.Log(rollbackFailureLevel, rbEx, rollbackFailureMessageTemplate, key);
             }
@@ -223,7 +223,7 @@ public class S3ToPostgresCopyService(
 
         var attempt = 0;
         var useDefensiveCopyMode = false;
-        
+
         while (true)
         {
             try
@@ -245,7 +245,7 @@ public class S3ToPostgresCopyService(
                     if (!useDefensiveCopyMode)
                     {
                         useDefensiveCopyMode = true;
-                        if(logger.IsEnabled(LogLevel.Warning))
+                        if (logger.IsEnabled(LogLevel.Warning))
                         {
                             logger.LogWarning(ex, "COPY format issue for key {Key}; retrying once with defensive mode", key);
                         }
@@ -281,7 +281,7 @@ public class S3ToPostgresCopyService(
                 }
                 // Log the transient failure and wait before retrying
                 var delay = BackoffDelay(attempt);
-                if(logger.IsEnabled(LogLevel.Warning))
+                if (logger.IsEnabled(LogLevel.Warning))
                 {
                     logger.LogWarning(ex, "Transient failure on operation {Operation} for key {Key}. Retrying {Attempt}/{MaxAttempts} after {Delay}ms",
                         operationName, key, attempt, MaxRetryAttempts, delay.TotalMilliseconds);
