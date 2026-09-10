@@ -22,6 +22,7 @@ public sealed class DefensiveCopyLineNormaliser : IDefensiveCopyLineNormaliser
         {
             ImportDataType.CtParamValue => NormaliseCtParamValue(lineParts, delimiter, expectedColumnCount),
             ImportDataType.CtSuspenseWgAllocRules => NormaliseCtSuspenseWgAllocRules(lineParts, delimiter, expectedColumnCount),
+            ImportDataType.CtMovtCorrectSummaries => NormaliseCtMovtCorrectSummariesRules(lineParts, delimiter, expectedColumnCount),
             _ => lineParts
         };
         return string.Join(delimiter, lineParts);
@@ -82,5 +83,31 @@ public sealed class DefensiveCopyLineNormaliser : IDefensiveCopyLineNormaliser
         newLineParts.Add($"\"{combinedColumns}\"");
         newLineParts.AddRange(lineParts.Skip(lineParts.Length - stableTailColumnCount));
         return newLineParts.ToArray();
+    }
+    
+    private static string[] NormaliseCtMovtCorrectSummariesRules(string[] lineParts, char delimiter, int expectedColumnCount)
+    {
+        if (lineParts.Length <= expectedColumnCount)
+        {
+            return lineParts;
+        }
+
+        if (lineParts[31] == "Determined Movement Type")
+        {
+            var newLineParts = new List<string>(lineParts.Take(31));
+            var combinedColumns = string.Join(delimiter, lineParts.Skip(31).Take(2));
+            newLineParts.Add($"\"{combinedColumns}\"");
+            newLineParts.AddRange(lineParts.Skip(33));
+            return newLineParts.ToArray();
+        }
+
+        if (lineParts[30] == "On-line Entry")
+        {
+            var newLineParts = new List<string>(lineParts.Take(29));
+            newLineParts.AddRange(lineParts.Skip(30));
+            return newLineParts.ToArray();
+        }
+
+        return lineParts;
     }
 }
