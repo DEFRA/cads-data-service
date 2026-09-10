@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
 
-public class GetAnimalDetailsQueryValidator : AbstractValidator<GetAnimalDetailsQuery>
+public class GetAnimalDetailsByIdentifierValidator : AbstractValidator<GetAnimalDetailsByIdentifier>
 {
-    public GetAnimalDetailsQueryValidator()
+    public GetAnimalDetailsByIdentifierValidator()
     {
         RuleFor(x => x.Identifier).NotEmpty();
     }
