@@ -9,8 +9,6 @@ public class AnimalDetailsQueryAdapter(IAnimalDetailRepository repository)
         GetAnimalDetailsByIdentifier query,
         CancellationToken cancellationToken = default)
     {
-        var animals = await repository.GetByIdentifierAsync(query.Identifier, cancellationToken);
-
-        return animals.SingleOrDefault();
+        return await repository.GetByIdentifierAsync(query.Identifier, cancellationToken);
     }
 }

@@ -14,11 +14,11 @@ public class AnimalDetailRepository(
 {
     public const string FileName = "bovine_animal_details.json";
 
-    public async Task<IEnumerable<AnimalDetailDto>> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default)
+    public async Task<AnimalDetailDto?> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default)
     {
         var data = await GetAllAsync(cancellationToken);
 
-        return data.Where(a => a.Identifier == identifier);
+        return data.SingleOrDefault(a => a.Identifier == identifier);
     }
 
     private async Task<IEnumerable<AnimalDetailDto>> GetAllAsync(CancellationToken cancellationToken)
