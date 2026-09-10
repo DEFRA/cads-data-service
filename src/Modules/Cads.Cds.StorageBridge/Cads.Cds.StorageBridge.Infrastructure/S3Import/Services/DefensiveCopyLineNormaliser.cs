@@ -84,7 +84,7 @@ public sealed class DefensiveCopyLineNormaliser : IDefensiveCopyLineNormaliser
         newLineParts.AddRange(lineParts.Skip(lineParts.Length - stableTailColumnCount));
         return newLineParts.ToArray();
     }
-    
+
     private static string[] NormaliseCtMovtCorrectSummariesRules(string[] lineParts, char delimiter, int expectedColumnCount)
     {
         if (lineParts.Length <= expectedColumnCount)

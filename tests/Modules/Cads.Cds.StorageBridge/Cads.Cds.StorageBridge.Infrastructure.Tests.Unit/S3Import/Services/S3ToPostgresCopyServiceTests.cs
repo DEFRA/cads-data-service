@@ -51,6 +51,8 @@ public class S3ToPostgresCopyServiceTests
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
+        _storageService.Setup(x => x.ListKeysAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<string> { "somekey" });
 
         var job = new CreateS3CsvImportJobDto
         {
@@ -69,6 +71,8 @@ public class S3ToPostgresCopyServiceTests
 
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
+        _storageService.Setup(x => x.ListKeysAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<string> { "somekey" });
 
         var job = new CreateS3CsvImportJobDto
         {
