@@ -1,3 +1,7 @@
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
+using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
+using Cads.Cds.BuildingBlocks.Application.Schema;
+
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Helpers;
 
 public static class S3Utils
@@ -66,4 +70,36 @@ public static class S3Utils
 
         return !string.IsNullOrEmpty(bucketName) || !string.IsNullOrEmpty(objectKey) || !string.IsNullOrEmpty(fileName);
     }
+    
+    public static ImportParameters GetImportParameters(this string filename)
+    {
+        var parsedFilename = CtsmFilenameParser.Parse(filename);
+
+        if (!Enum.TryParse<ImportActionType>(parsedFilename?.Type, true, out var importActionType))
+        {
+            throw new InvalidOperationException($"Invalid ImportActionType '{parsedFilename?.Type}' for file '{filename}'.");
+        }
+
+        var schemaName = importActionType.GetSchemaName();
+
+        var importDataType = Enum.GetValues<ImportDataType>()
+            .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(parsedFilename?.TableName, StringComparison.InvariantCultureIgnoreCase) == true);
+        
+        if (importDataType == ImportDataType.None)
+        {
+            throw new InvalidOperationException($"Failed to extract destination table from filename: {filename}");
+        }
+
+        return new ImportParameters
+        {
+            ImportDataType = importDataType, ImportActionType = importActionType, SchemaName = schemaName
+        };
+    }
+}
+
+public class ImportParameters
+{
+    public ImportDataType ImportDataType { get; set; }
+    public ImportActionType ImportActionType { get; set; }
+    public SchemaName SchemaName { get; set; }
 }
