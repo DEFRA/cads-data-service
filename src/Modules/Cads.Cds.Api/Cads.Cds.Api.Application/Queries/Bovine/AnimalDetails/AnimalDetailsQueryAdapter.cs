@@ -5,10 +5,12 @@ namespace Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
 
 public class AnimalDetailsQueryAdapter(IAnimalDetailRepository repository)
 {
-    public async Task<IEnumerable<AnimalDetailDto>> GetAsync(
-        GetAnimalDetailsQuery query,
+    public async Task<AnimalDetailDto?> GetAsync(
+        GetAnimalDetailsByIdentifier query,
         CancellationToken cancellationToken = default)
     {
-        return await repository.GetByIdentifierAsync(query.Identifier, cancellationToken);
+        var animals = await repository.GetByIdentifierAsync(query.Identifier, cancellationToken);
+
+        return animals.SingleOrDefault();
     }
 }
