@@ -238,7 +238,6 @@ public class S3ToPostgresCopyServiceTests
             ValidTestFileName1
         );
 
-        
         await (Task)method!.Invoke(service,
             [
                 fileExecutionContext,
