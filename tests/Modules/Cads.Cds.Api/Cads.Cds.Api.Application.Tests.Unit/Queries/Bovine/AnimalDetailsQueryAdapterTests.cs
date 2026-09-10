@@ -16,7 +16,7 @@ public class AnimalDetailsQueryAdapterTests
         var repository = new Mock<IAnimalDetailRepository>();
         repository
             .Setup(r => r.GetByIdentifierAsync("UK324537113234", It.IsAny<CancellationToken>()))
-            .ReturnsAsync([expected]);
+            .ReturnsAsync(expected);
 
         var sut = new AnimalDetailsQueryAdapter(repository.Object);
 
@@ -31,7 +31,7 @@ public class AnimalDetailsQueryAdapterTests
         var repository = new Mock<IAnimalDetailRepository>();
         repository
             .Setup(r => r.GetByIdentifierAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync((AnimalDetailDto?)null);
 
         var sut = new AnimalDetailsQueryAdapter(repository.Object);
 
