@@ -1,3 +1,4 @@
+using Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
 using Cads.Cds.Api.Application.Queries.Locations;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,6 +8,7 @@ public static class ServiceCollectionExtensions
 {
     public static void AddQueryAdapters(this IServiceCollection services)
     {
+        services.AddScoped<AnimalDetailsQueryAdapter>();
         services.AddScoped<LocationsQueryAdapter>();
     }
 }
