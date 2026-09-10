@@ -134,36 +134,36 @@ public class S3ToPostgresCopyService(
 
     [ExcludeFromCodeCoverage]
     private async Task<int> ProcessFileOnceAsync(
-        FileExecutionContext context,
+        FileExecutionContext fileExecutionContext,
         bool useDefensiveCopyMode = false,
         CancellationToken cancellationToken = default)
     {
-        var import = context.ImportContext;
-        var key = context.Key;
+        var importExecutionContext = fileExecutionContext.ImportContext;
+        var key = fileExecutionContext.Key;
 
-        var connection = (NpgsqlConnection)await OpenConnectionAsync(import.DbContext, cancellationToken);
+        var connection = (NpgsqlConnection)await OpenConnectionAsync(importExecutionContext.DbContext, cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            import.CreateTempTableCommand.Connection = connection;
-            import.CreateTempTableCommand.Transaction = transaction;
-            await import.CreateTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
+            importExecutionContext.CreateTempTableCommand.Connection = connection;
+            importExecutionContext.CreateTempTableCommand.Transaction = transaction;
+            await importExecutionContext.CreateTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
-            await CopyFileToStagingAsync(context, useDefensiveCopyMode, cancellationToken);
+            await CopyFileToStagingAsync(fileExecutionContext, useDefensiveCopyMode, cancellationToken);
 
-            foreach (var command in import.ActionCommands)
+            foreach (var command in importExecutionContext.ActionCommands)
             {
                 command.Connection = connection;
                 command.Transaction = transaction;
             }
 
-            var rows = await ExecuteActionCommandsAsync(import.ActionCommands, cancellationToken);
+            var rows = await ExecuteActionCommandsAsync(importExecutionContext.ActionCommands, cancellationToken);
 
-            import.FileImport.LastFilePartImported = key;
-            import.FileImport.RowsImported += rows;
+            importExecutionContext.FileImport.LastFilePartImported = key;
+            importExecutionContext.FileImport.RowsImported += rows;
 
-            await import.DbContext.SaveChangesAsync(cancellationToken);
+            await importExecutionContext.DbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
             return rows;
@@ -315,12 +315,12 @@ public class S3ToPostgresCopyService(
     }
 
     private async Task CopyFileToStagingAsync(
-        FileExecutionContext context,
+        FileExecutionContext fileExecutionContext,
         bool useDefensiveCopyMode,
         CancellationToken cancellationToken)
     {
-        var import = context.ImportContext;
-        var key = context.Key;
+        var importExecutionContext = fileExecutionContext.ImportContext;
+        var key = fileExecutionContext.Key;
 
         using var response = await _storageService.GetObjectResponseAsync(key, cancellationToken);
 
@@ -335,23 +335,23 @@ public class S3ToPostgresCopyService(
         var header = await reader.ReadLineAsync(cancellationToken)
                      ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
 
-        var fileColumns = header.Split(import.Delimiter);
+        var fileColumns = header.Split(importExecutionContext.Delimiter);
         var fileColumnCount = fileColumns.Length;
         if (!string.Equals(fileColumns[0], "record_type", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException($"File {key} does not contain a valid header row.");
         }
 
-        var matchedColumns = await import.Factory.FilterColumnsToTableAsync(
-            import.ImportParameters.ImportDataType,
-            import.ImportParameters.SchemaName,
+        var matchedColumns = await importExecutionContext.Factory.FilterColumnsToTableAsync(
+            importExecutionContext.ImportParameters.ImportDataType,
+            importExecutionContext.ImportParameters.SchemaName,
             fileColumns,
             cancellationToken);
 
-        using var writer = import.Factory.CreateTextImport(
-            import.ImportParameters.ImportDataType,
-            import.ImportParameters.SchemaName,
-            import.Delimiter,
+        using var writer = importExecutionContext.Factory.CreateTextImport(
+            importExecutionContext.ImportParameters.ImportDataType,
+            importExecutionContext.ImportParameters.SchemaName,
+            importExecutionContext.Delimiter,
             matchedColumns);
 
         string? line;
@@ -362,10 +362,10 @@ public class S3ToPostgresCopyService(
             line = SanitiseLine(line);
             if (useDefensiveCopyMode)
             {
-                line = import.DefensiveCopyLineNormaliser.Normalise(
+                line = importExecutionContext.DefensiveCopyLineNormaliser.Normalise(
                     line!,
-                    import.ImportParameters.ImportDataType,
-                    import.Delimiter,
+                    importExecutionContext.ImportParameters.ImportDataType,
+                    importExecutionContext.Delimiter,
                     fileColumnCount);
             }
             await writer.WriteLineAsync(line);
