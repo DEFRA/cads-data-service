@@ -4,5 +4,5 @@ namespace Cads.Cds.Api.Core.Domain.Repositories;
 
 public interface IAnimalDetailRepository
 {
-    Task<IEnumerable<AnimalDetailDto>> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default);
+    Task<AnimalDetailDto?> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default);
 }
