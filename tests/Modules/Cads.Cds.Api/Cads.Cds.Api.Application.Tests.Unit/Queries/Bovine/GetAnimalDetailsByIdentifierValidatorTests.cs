@@ -3,7 +3,7 @@ using FluentAssertions;
 
 namespace Cads.Cds.Api.Application.Tests.Unit.Queries.Bovine;
 
-public class GetAnimalDetailsQueryValidatorTests
+public class GetAnimalDetailsByIdentifierValidatorTests
 {
     [Theory]
     [InlineData("", false)]
@@ -11,9 +11,9 @@ public class GetAnimalDetailsQueryValidatorTests
     [InlineData("UK324537113234", true)]
     public void ShouldValidateIdentifierCorrectly(string identifier, bool expectedIsValid)
     {
-        var sut = new GetAnimalDetailsQueryValidator();
+        var sut = new GetAnimalDetailsByIdentifierValidator();
 
-        var result = sut.Validate(new GetAnimalDetailsQuery { Identifier = identifier });
+        var result = sut.Validate(new GetAnimalDetailsByIdentifier { Identifier = identifier });
 
         result.IsValid.Should().Be(expectedIsValid);
     }
