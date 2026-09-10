@@ -36,7 +36,7 @@ public sealed record ImportExecutionContext(
 
         var factoryProvider = serviceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
         var factory = factoryProvider.Create((NpgsqlConnection)connection);
-        
+
         var defensiveCopyLineNormaliser = serviceProvider.GetRequiredService<IDefensiveCopyLineNormaliser>();
 
         var createTempTableCommand = factory.CreateTempTableCommand(
