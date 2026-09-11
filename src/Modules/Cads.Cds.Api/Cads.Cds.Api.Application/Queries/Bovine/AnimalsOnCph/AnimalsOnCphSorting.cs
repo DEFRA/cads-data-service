@@ -25,19 +25,15 @@ public static class AnimalsOnCphSorting
         SortDirection direction)
         => orderBy switch
         {
-            AnimalOrderBy.BirthDate => TieBreak(OrderBy(animals, a => a.BirthDate, direction), direction),
-            AnimalOrderBy.DateOnCPH => TieBreak(OrderBy(animals, a => a.DateOnCph, direction), direction),
-            AnimalOrderBy.Sex => TieBreak(OrderBy(animals, Sex, direction), direction),
-            AnimalOrderBy.BreedCode => TieBreak(OrderBy(animals, BreedCode, direction), direction),
+            AnimalOrderBy.BirthDate => TieBreak(OrderBy(animals, a => a.BirthDate, direction)),
+            AnimalOrderBy.DateOnCPH => TieBreak(OrderBy(animals, a => a.DateOnCph, direction)),
+            AnimalOrderBy.Sex => TieBreak(OrderBy(animals, Sex, direction)),
+            AnimalOrderBy.BreedCode => TieBreak(OrderBy(animals, BreedCode, direction)),
             _ => OrderBy(animals, EarTagNumber, direction)
         };
 
-    private static IOrderedQueryable<AnimalSummaryDto> TieBreak(
-        IOrderedQueryable<AnimalSummaryDto> animals,
-        SortDirection direction)
-        => direction == SortDirection.Desc
-            ? animals.ThenByDescending(EarTagNumber)
-            : animals.ThenBy(EarTagNumber);
+    private static IOrderedQueryable<AnimalSummaryDto> TieBreak(IOrderedQueryable<AnimalSummaryDto> animals)
+        => animals.ThenBy(EarTagNumber);
 
     private static IOrderedQueryable<AnimalSummaryDto> OrderBy<TKey>(
         IQueryable<AnimalSummaryDto> animals,

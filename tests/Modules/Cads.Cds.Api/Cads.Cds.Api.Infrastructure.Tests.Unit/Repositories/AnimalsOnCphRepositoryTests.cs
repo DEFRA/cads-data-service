@@ -1,4 +1,5 @@
 using Cads.Cds.Api.Core.Configuration;
+using Cads.Cds.Api.Core.Domain.Paging;
 using Cads.Cds.Api.Core.DTOs.Bovine;
 using Cads.Cds.Api.Infrastructure.Persistence.Repositories;
 using Cads.Cds.BuildingBlocks.Application.Files.Abstractions;
@@ -17,53 +18,123 @@ public class AnimalsOnCphRepositoryTests
         new()
         {
             Cph = "08/065/0077",
-            Animals = [new AnimalOnCphDto { Identifier = new AnimalIdentifierDto { Identifier = "UK324537113234" } }]
+            Animals =
+            [
+                Animal("UK324537113234"),
+                Animal("UK324537113235"),
+                Animal("UK324537113236")
+            ]
         },
         new() { Cph = "08/065/0078", Animals = [] },
     ];
 
     [Fact]
-    public async Task GetByCphAsync_ShouldReturnOnlyTheMatchingHolding()
+    public async Task HoldingExistsAsync_WhenCphIsRecognised_ShouldReturnTrue()
     {
         var sut = CreateSut(enabled: true);
 
-        var result = await sut.GetByCphAsync("08/065/0077", TestContext.Current.CancellationToken);
+        var result = await sut.HoldingExistsAsync("08/065/0077", TestContext.Current.CancellationToken);
 
-        result.Should().NotBeNull();
-        result!.Cph.Should().Be("08/065/0077");
-        result.Animals.Should().HaveCount(1);
+        result.Should().BeTrue();
     }
 
     [Fact]
-    public async Task GetByCphAsync_WhenTheHoldingHoldsNoAnimals_ShouldReturnTheHoldingWithAnEmptyCollection()
+    public async Task HoldingExistsAsync_WhenTheHoldingHoldsNoAnimals_ShouldReturnTrue()
     {
         var sut = CreateSut(enabled: true);
 
-        var result = await sut.GetByCphAsync("08/065/0078", TestContext.Current.CancellationToken);
+        var result = await sut.HoldingExistsAsync("08/065/0078", TestContext.Current.CancellationToken);
 
-        result.Should().NotBeNull();
-        result!.Animals.Should().BeEmpty();
+        result.Should().BeTrue();
     }
 
     [Fact]
-    public async Task GetByCphAsync_WhenCphIsNotRecognised_ShouldReturnNull()
+    public async Task HoldingExistsAsync_WhenCphIsNotRecognised_ShouldReturnFalse()
     {
         var sut = CreateSut(enabled: true);
 
-        var result = await sut.GetByCphAsync("99/999/9999", TestContext.Current.CancellationToken);
+        var result = await sut.HoldingExistsAsync("99/999/9999", TestContext.Current.CancellationToken);
 
-        result.Should().BeNull();
+        result.Should().BeFalse();
     }
 
     [Fact]
-    public async Task GetByCphAsync_WhenStaticDataDisabled_ShouldReturnNull()
+    public async Task HoldingExistsAsync_WhenStaticDataDisabled_ShouldReturnFalse()
     {
         var sut = CreateSut(enabled: false);
 
-        var result = await sut.GetByCphAsync("08/065/0077", TestContext.Current.CancellationToken);
+        var result = await sut.HoldingExistsAsync("08/065/0077", TestContext.Current.CancellationToken);
 
-        result.Should().BeNull();
+        result.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task QueryAnimalsAsync_ShouldOnlyQueryTheAnimalsOnTheMatchingHolding()
+    {
+        var sut = CreateSut(enabled: true);
+
+        var result = await Query(sut, "08/065/0078");
+
+        result.TotalRecords.Should().Be(0);
+        result.Items.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task QueryAnimalsAsync_ShouldApplyTheSuppliedShapeAndOrder()
+    {
+        var sut = CreateSut(enabled: true);
+
+        var result = await Query(
+            sut,
+            "08/065/0077",
+            shape: animals => animals.Where(a => a.Identifier!.Identifier != "UK324537113235"),
+            order: animals => animals.OrderByDescending(a => a.Identifier!.Identifier));
+
+        result.TotalRecords.Should().Be(2);
+        result.Items.Select(a => a.Identifier!.Identifier)
+            .Should().ContainInOrder("UK324537113236", "UK324537113234");
+    }
+
+    [Fact]
+    public async Task QueryAnimalsAsync_ShouldPageTheShapedResultsAndTotalOverAllOfThem()
+    {
+        var sut = CreateSut(enabled: true);
+
+        var result = await Query(sut, "08/065/0077", page: 2, pageSize: 2);
+
+        result.TotalRecords.Should().Be(3);
+        result.Items.Should().HaveCount(1);
+        result.Items.Single().Identifier!.Identifier.Should().Be("UK324537113236");
+    }
+
+    [Fact]
+    public async Task QueryAnimalsAsync_WhenStaticDataDisabled_ShouldReturnNoAnimals()
+    {
+        var sut = CreateSut(enabled: false);
+
+        var result = await Query(sut, "08/065/0077");
+
+        result.TotalRecords.Should().Be(0);
+        result.Items.Should().BeEmpty();
+    }
+
+    private static Task<PagedResult<AnimalOnCphDto>> Query(
+        AnimalsOnCphRepository sut,
+        string cph,
+        Func<IQueryable<AnimalOnCphDto>, IQueryable<AnimalOnCphDto>>? shape = null,
+        Func<IQueryable<AnimalOnCphDto>, IOrderedQueryable<AnimalOnCphDto>>? order = null,
+        int page = 1,
+        int pageSize = 25)
+        => sut.QueryAnimalsAsync(
+            cph,
+            shape ?? (animals => animals),
+            order ?? (animals => animals.OrderBy(a => a.Identifier!.Identifier)),
+            page,
+            pageSize,
+            TestContext.Current.CancellationToken);
+
+    private static AnimalOnCphDto Animal(string earTag)
+        => new() { Identifier = new AnimalIdentifierDto { Identifier = earTag } };
 
     private static AnimalsOnCphRepository CreateSut(bool enabled)
     {

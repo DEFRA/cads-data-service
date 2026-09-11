@@ -1,9 +1,8 @@
 using Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnCph;
+using Cads.Cds.Api.Application.Tests.Unit.Fakes.Repositories;
 using Cads.Cds.Api.Core.Domain.Bovine;
-using Cads.Cds.Api.Core.Domain.Repositories;
 using Cads.Cds.Api.Core.DTOs.Bovine;
 using FluentAssertions;
-using Moq;
 
 namespace Cads.Cds.Api.Application.Tests.Unit.Queries.Bovine;
 
@@ -398,12 +397,7 @@ public class AnimalsOnCphQueryAdapterTests
         };
 
     private static AnimalsOnCphQueryAdapter CreateSut(AnimalHoldingDto? holding)
-    {
-        var repository = new Mock<IAnimalsOnCphRepository>();
-        repository
-            .Setup(r => r.GetByCphAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(holding);
-
-        return new AnimalsOnCphQueryAdapter(repository.Object);
-    }
+        => new(holding is null
+            ? new FakeAnimalsOnCphRepository()
+            : new FakeAnimalsOnCphRepository(holding));
 }
