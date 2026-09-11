@@ -11,4 +11,5 @@ public static class TestEndpointConstants
     // Bovine
     public const string ApiBovineRoot = ApiRoot + "bovine/";
     public const string ApiBovineAnimalsRoot = ApiBovineRoot + "animals/";
+    public const string ApiBovineAnimals = ApiBovineRoot + "animals";
 }

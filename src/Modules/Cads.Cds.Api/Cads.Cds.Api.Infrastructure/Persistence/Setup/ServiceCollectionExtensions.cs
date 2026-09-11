@@ -58,5 +58,6 @@ public static class ServiceCollectionExtensions
     private static void RegisterStaticDataRepositories(this IServiceCollection services)
     {
         services.AddScoped<IAnimalDetailRepository, AnimalDetailRepository>();
+        services.AddScoped<IAnimalsOnCphRepository, AnimalsOnCphRepository>();
     }
 }
