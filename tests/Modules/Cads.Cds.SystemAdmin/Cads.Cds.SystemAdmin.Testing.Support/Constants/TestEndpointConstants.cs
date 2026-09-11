@@ -45,4 +45,10 @@ public class TestEndpointConstants
 
     // FileImports - Reset
     public const string FileImportsResetEndpoint = SystemAdminFileImportsRoot + "/{0}/reset";
+
+    // Generation route paths
+    public const string SystemAdminGenerationRoot = SystemAdminRoot + "generation";
+
+    // Generation - Create
+    public const string GenerationCreateEndpoint = SystemAdminGenerationRoot;
 }

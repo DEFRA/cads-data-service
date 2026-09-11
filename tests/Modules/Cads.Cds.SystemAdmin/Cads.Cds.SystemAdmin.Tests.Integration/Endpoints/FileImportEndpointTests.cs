@@ -471,7 +471,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        var dto = await FileImportTestClient.ReadDtoAsync<FileImportDto>(
+        var dto = await FileImportTestClient.ReadDtoAsync(
             response,
             TestContext.Current.CancellationToken);
 

@@ -1,0 +1,47 @@
+[
+  {
+    "resourceType": "AnimalDetail",
+    "identifier": "UK324537113234",
+    "eventDateTime": "2026-08-24T12:00:00Z",
+    "source": {
+      "system": "CTS",
+      "schema": "animal_details",
+      "schemaVersion": "1.0"
+    },
+    "animalDetail": {
+      "resourceType": "Animal",
+      "identifier": {
+        "schema": "uk.gov.defra.ear-tag.conventional",
+        "identifier": "UK324537113234"
+      },
+      "species": "Cattle",
+      "sex": "Female",
+      "birthDate": "2023-03-10",
+      "registrationDate": "2023-03-14",
+      "dateOnCph": "2023-03-10",
+      "breedCode": {
+        "schema": "cts.breed",
+        "breedName": "Holstein Friesian",
+        "identifier": "HO"
+      },
+      "parentage": [
+        {
+          "relationship": "GeneticDam",
+          "animalIdentifier": {
+            "schema": "uk.gov.defra.ear-tag.conventional",
+            "identifier": "UK324537113243"
+          }
+        },
+        {
+          "relationship": "Sire",
+          "animalIdentifier": {
+            "schema": "uk.gov.defra.ear-tag.conventional",
+            "identifier": "UK324537110987"
+          }
+        }
+      ],
+      "state": "Alive",
+      "restrictionStatus": "Restricted"
+    }
+  }
+]
