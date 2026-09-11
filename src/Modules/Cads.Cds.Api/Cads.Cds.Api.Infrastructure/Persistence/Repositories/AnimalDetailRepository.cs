@@ -18,7 +18,7 @@ public class AnimalDetailRepository(
     {
         var data = await GetAllAsync(cancellationToken);
 
-        return data.SingleOrDefault(a => a.Identifier == identifier);
+        return data.First();
     }
 
     private async Task<IEnumerable<AnimalDetailDto>> GetAllAsync(CancellationToken cancellationToken)
