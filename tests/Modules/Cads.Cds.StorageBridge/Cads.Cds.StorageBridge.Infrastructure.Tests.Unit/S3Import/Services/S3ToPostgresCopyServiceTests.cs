@@ -19,6 +19,7 @@ using Npgsql;
 using System.Data.Common;
 using System.Reflection;
 using System.Text;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Helpers;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Models;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +38,7 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<StorageBridgeWriteDbContext> _dbContext = new(new DbContextOptions<StorageBridgeWriteDbContext>());
     private readonly Mock<DbCommand> _dbCommand = new();
     private readonly Mock<IReadOnlyList<DbCommand>> _actionCommands = new();
-    private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new();
+    private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new Mock<ILogger<S3ToPostgresCopyService>>().EnableAllLogLevels();
     private readonly Mock<IStorageBridgeFileImportRepository> _fileImportRepository = new();
 
     // Filename template:CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv

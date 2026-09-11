@@ -1,6 +1,10 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
+using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.S3Import.Services;
 
@@ -9,22 +13,26 @@ public class DefensiveCopyLineNormaliserTests
     private const char Delimiter = '|';
     private const int CtParamValueColumnCount = 14;
     private const int CtSuspenseWgAllocRulesColumnCount = 13;
+    private const int CtMovtCorrectSummariesColumnCount = 38;
+    private readonly Mock<ILogger<DefensiveCopyLineNormaliser>> _loggerMock =
+        new Mock<ILogger<DefensiveCopyLineNormaliser>>().EnableAllLogLevels();
+    private readonly DefensiveCopyLineNormaliser _sut;
 
-    private readonly DefensiveCopyLineNormaliser _sut = new();
+    public DefensiveCopyLineNormaliserTests()
+    {
+        _sut = new DefensiveCopyLineNormaliser(_loggerMock.Object);
+    }
 
     [Theory]
     [InlineData(
         "D |292|2019|CP.INF_OLMPRI|410|5|3|Normal Off|5|m165564|1|10-AUG-01||1",
         "D |292|2019|CP.INF_OLMPRI|410|5|3|Normal Off|5|m165564|1|10-AUG-01||1")]
     [InlineData(
-        "D |292|2019|CP.INF_OLMPRI|410|SEO|CHR~GAP~BDR|3|Normal Off|5|m165564|1|10-AUG-01||1",
-        "D |292|2019|CP.INF_OLMPRI|410|\"SEO|CHR~GAP~BDR\"|3|Normal Off|5|m165564|1|10-AUG-01||1")]
-    [InlineData(
-        "D |292|2019|CP.INF_OLMPRI|410|5|3|SEO GAP BDR|SEO GAP BDR OVERRIDE|5|m165564|1|10-AUG-01||1",
-        "D |292|2019|CP.INF_OLMPRI|410|5|3|\"SEO GAP BDR|SEO GAP BDR OVERRIDE\"|5|m165564|1|10-AUG-01||1")]
-    [InlineData(
         "D |292|2019|CP.INF_OLMPRI|410|SEO|CHR~GAP~BDR|3|SEO GAP BDR|SEO GAP BDR OVERRIDE|5|m165564|1|10-AUG-01||1",
         "D |292|2019|CP.INF_OLMPRI|410|\"SEO|CHR~GAP~BDR\"|3|\"SEO GAP BDR|SEO GAP BDR OVERRIDE\"|5|m165564|1|10-AUG-01||1")]
+    [InlineData(
+        "D|2474|20788|CP.LIP_DELTA_JAVA_COMMAND|20401|0||/usr/java7_64/jre/bin/java|-jar|/ctsm/app02/ctsal/external/PRCG/CTS_OWN/BIN/encryptionUtil.jar|-e|-i||x912716|1|17-SEP-20||1",
+        "D|2474|20788|CP.LIP_DELTA_JAVA_COMMAND|20401|0||\"/usr/java7_64/jre/bin/java|-jar|/ctsm/app02/ctsal/external/PRCG/CTS_OWN/BIN/encryptionUtil.jar|-e|-i\"||x912716|1|17-SEP-20||1")]
     public void Normalise_WhenCtParamValue_ShouldReturnExpectedLine(string input, string expected)
     {
         var result = _sut.Normalise(input, ImportDataType.CtParamValue, Delimiter, CtParamValueColumnCount);
@@ -64,7 +72,7 @@ public class DefensiveCopyLineNormaliserTests
         "D|1584651|2912105|f800702|S|23-NOV-00|42|||41482920||SMC|13-NOV-00|MHF2000318SMC00679|25|MHF2000318SMC00679|25|UK A1736 00371||||||2000-11-13|2000000|23181069808||||Validation Error|N|\"Determined Movement Type| Location & Move\"|DLOC|m168551||Submitted|N|1")]
     public void Normalise_WhentMovtCorrectSummariesRules_ShouldReturnExpectedLine(string input, string expected)
     {
-        var result = _sut.Normalise(input, ImportDataType.CtMovtCorrectSummaries, Delimiter, CtSuspenseWgAllocRulesColumnCount);
+        var result = _sut.Normalise(input, ImportDataType.CtMovtCorrectSummaries, Delimiter, CtMovtCorrectSummariesColumnCount);
 
         result.Should().Be(expected);
     }
