@@ -1,6 +1,3 @@
-using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
-using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
-using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
@@ -8,7 +5,6 @@ using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Extensions;
-using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +15,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Models;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
@@ -27,6 +24,7 @@ public class S3ToPostgresCopyService(
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
     private IStorageService<CadsInternalClient> _storageService = null!;
+    private const int MaxRetryAttempts = 3;
 
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
@@ -37,47 +35,24 @@ public class S3ToPostgresCopyService(
     [ExcludeFromCodeCoverage]
     public async Task<long> ExecuteAsync(CreateS3CsvImportJobDto job, CancellationToken cancellationToken = default)
     {
-        const int MaxRetryAttempts = 3;
-
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
-        var fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
+        var fileImport = await GetFileImportAsync(job, scope, cancellationToken);
 
-        var fileImport = await fileImportRepository.GetByIdAsync(job.FileImportId, cancellationToken)
-                ?? throw new InvalidOperationException($"FileImport with ID {job.FileImportId} not found.");
+        var keys = await GetKeysFromStorage(fileImport, scope, cancellationToken);
 
-        var (importDataType, importActionType, schemaName) = GetImportParameters(fileImport.FileName);
+        if (keys.Count == 0) return 0;
 
-        if (importDataType == ImportDataType.None)
-        {
-            throw new InvalidOperationException($"Failed to extract destination table from filename: {fileImport.FileName}");
-        }
-
-        var filePath = GetSplitPartsPrefix(fileImport);
-
-        if (logger.IsEnabled(LogLevel.Debug))
-        {
-            logger.LogDebug("Starting CSV import copy for job {JobId} with key {FilePath}",
-                job.JobId, filePath);
-        }
-
-        _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
-
-        var keys = await _storageService.ListKeysAsync(filePath, fileImport.LastFilePartImported, cancellationToken);
-
-        if (!keys.Any()) return 0;
-
-        var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-        var connection = await OpenConnectionAsync(dbContext, cancellationToken);
-
-        var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
-        var factory = factoryProvider.Create((NpgsqlConnection)connection);
-        var createTempTableCommand = factory.CreateTempTableCommand(importDataType, schemaName, importActionType, fileImport.Id);
-        var actionCommands = await GetCommandsAsync(importDataType, schemaName, importActionType, factory, cancellationToken);
+        var importContext = await ImportExecutionContext.CreateAsync(
+            fileImport,
+            job.Delimiter,
+            scope.ServiceProvider,
+            cancellationToken);
 
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
 
         var sw = Stopwatch.StartNew();
+
         var totalRowsImported = fileImport.RowsImported;
 
         foreach (var key in keys)
@@ -91,18 +66,8 @@ public class S3ToPostgresCopyService(
 
             var fileSw = Stopwatch.StartNew();
 
-            var rows = await ProcessFileAsync(
-                fileImport,
-                key,
-                importDataType,
-                schemaName,
-                job.Delimiter,
-                factory,
-                dbContext,
-                createTempTableCommand,
-                actionCommands,
-                MaxRetryAttempts,
-                cancellationToken);
+            var fileContext = new FileExecutionContext(importContext, key);
+            var rows = await ProcessFileAsync(fileContext, cancellationToken);
 
             totalRowsImported += rows;
             counter.Add(rows);
@@ -127,176 +92,205 @@ public class S3ToPostgresCopyService(
         return totalRowsImported;
     }
 
+    private async Task<FileImport> GetFileImportAsync(CreateS3CsvImportJobDto job, AsyncServiceScope scope, CancellationToken cancellationToken)
+    {
+        var fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
+        var fileImport = await fileImportRepository.GetByIdAsync(job.FileImportId, cancellationToken)
+                ?? throw new InvalidOperationException($"FileImport with ID {job.FileImportId} not found.");
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("Starting CSV import copy for job {JobId} with key {FilePath}",
+                job.JobId, fileImport.FileName);
+        }
+        return fileImport;
+    }
+
+    private async Task<List<string>> GetKeysFromStorage(FileImport fileImport, AsyncServiceScope scope, CancellationToken cancellationToken)
+    {
+        var filePath = GetSplitPartsPrefix(fileImport);
+        _storageService = scope.ServiceProvider.GetRequiredService<IStorageService<CadsInternalClient>>();
+
+        var keys = await _storageService.ListKeysAsync(filePath, fileImport.LastFilePartImported, cancellationToken);
+        return [.. keys];
+    }
+
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
     /// </summary>
-    /// <param name="fileImport"></param>
-    /// <param name="key"></param>
-    /// <param name="importDataType"></param>
-    /// <param name="schemaName"></param>
-    /// <param name="delimiter"></param>
-    /// <param name="factory"></param>
-    /// <param name="dbContext"></param>
-    /// <param name="createTempTableCommand"></param>
-    /// <param name="actionCommands"></param>
-    /// <param name="maxRetryAttempts"></param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
-    private async Task<int> ProcessFileAsync(
-        FileImport fileImport,
-        string key,
-        ImportDataType importDataType,
-        SchemaName schemaName,
-        char delimiter,
-        IS3ImportCommandFactory factory,
-        StorageBridgeWriteDbContext dbContext,
-        DbCommand createTempTableCommand,
-        List<DbCommand> actionCommands,
-        int maxRetryAttempts = 3,
+    private Task<int> ProcessFileAsync(
+        FileExecutionContext context,
         CancellationToken cancellationToken = default)
+    {
+        return ExecuteWithTransientRetryAsync(
+            operation: (useDefensiveCopyMode, ct) => ProcessFileOnceAsync(context, useDefensiveCopyMode, ct),
+            operationName: nameof(ProcessFileAsync),
+            key: context.Key,
+            cancellationToken: cancellationToken);
+    }
+
+    [ExcludeFromCodeCoverage]
+    private async Task<int> ProcessFileOnceAsync(
+        FileExecutionContext fileExecutionContext,
+        bool useDefensiveCopyMode = false,
+        CancellationToken cancellationToken = default)
+    {
+        var importExecutionContext = fileExecutionContext.ImportContext;
+        var key = fileExecutionContext.Key;
+
+        var connection = (NpgsqlConnection)await OpenConnectionAsync(importExecutionContext.DbContext, cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            importExecutionContext.CreateTempTableCommand.Connection = connection;
+            importExecutionContext.CreateTempTableCommand.Transaction = transaction;
+            await importExecutionContext.CreateTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
+
+            await CopyFileToStagingAsync(fileExecutionContext, useDefensiveCopyMode, cancellationToken);
+
+            foreach (var command in importExecutionContext.ActionCommands)
+            {
+                command.Connection = connection;
+                command.Transaction = transaction;
+            }
+
+            var rows = await ExecuteActionCommandsAsync(importExecutionContext.ActionCommands, cancellationToken);
+
+            importExecutionContext.FileImport.LastFilePartImported = key;
+            importExecutionContext.FileImport.RowsImported += rows;
+
+            await importExecutionContext.DbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return rows;
+        }
+        catch (OperationCanceledException)
+        {
+            await RollbackWithLoggingAsync(transaction, key, LogLevel.Warning, "Rollback after cancellation failed for key {Key}");
+            throw;
+        }
+        catch (NpgsqlException ex)
+        {
+            await RollbackWithLoggingAsync(transaction, key, LogLevel.Error, "Rollback failed for key {Key}");
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(ex, "An NpgsqlException has occurred. Current ConnectionState: {ConnectionState}",
+                    connection.State.ToString());
+            }
+            throw;
+        }
+        catch (Exception ex)
+        {
+            await RollbackWithLoggingAsync(transaction, key, LogLevel.Error, "Rollback failed for key {Key}");
+            if (logger.IsEnabled(LogLevel.Error))
+            {
+                logger.LogError(ex, "Failed to process file {Key}", key);
+            }
+            throw;
+        }
+    }
+
+    [ExcludeFromCodeCoverage]
+    private async Task RollbackWithLoggingAsync(
+        NpgsqlTransaction transaction,
+        string key,
+        LogLevel rollbackFailureLevel,
+        string rollbackFailureMessageTemplate)
+    {
+        try
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+        }
+        catch (Exception rbEx)
+        {
+            if (logger.IsEnabled(rollbackFailureLevel))
+            {
+                logger.Log(rollbackFailureLevel, rbEx, rollbackFailureMessageTemplate, key);
+            }
+        }
+    }
+
+    [ExcludeFromCodeCoverage]
+    private async Task<T> ExecuteWithTransientRetryAsync<T>(
+        Func<bool, CancellationToken, Task<T>> operation,
+        string operationName,
+        string key,
+        CancellationToken cancellationToken)
     {
         static TimeSpan BackoffDelay(int attempt) => TimeSpan.FromSeconds(Math.Pow(2, attempt)); // 2s, 4s, 8s
 
-        // Generic retry helper for transient failures
-        async Task<T> RetryAsync<T>(Func<Task<T>> operation, string operationName, int maxAttempts)
+        var attempt = 0;
+        var useDefensiveCopyMode = false;
+
+        while (true)
         {
-            var attempt = 0;
-
-            while (true)
-            {
-                try
-                {
-                    return await operation();
-                }
-                catch (OperationCanceledException)
-                {
-                    // Cancellation should propagate immediately
-                    throw;
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    attempt++;
-
-                    if (!ex.IsTransientPostgresException())
-                    {
-                        logger.LogError(ex, "Operation {Operation} for key {Key} failed with a non-transient error on attempt {Attempt}; not retrying",
-                            operationName, key, attempt);
-                        throw;
-                    }
-
-                    if (attempt >= maxAttempts)
-                    {
-                        logger.LogError(ex, "Operation {Operation} for key {Key} failed permanently after {Attempt} attempts", operationName, key, attempt);
-                        throw;
-                    }
-
-                    var delay = BackoffDelay(attempt);
-                    logger.LogWarning(ex, "Transient failure on operation {Operation} for key {Key}. Retrying {Attempt}/{MaxAttempts} after {Delay}ms",
-                        operationName, key, attempt, maxAttempts, delay.TotalMilliseconds);
-
-                    try
-                    {
-                        await Task.Delay(delay, cancellationToken);
-                    }
-                    catch (OperationCanceledException) { throw; }
-                }
-            }
-        }
-
-        var rows = await RetryAsync(async () =>
-        {
-            var connection = (NpgsqlConnection)await OpenConnectionAsync(dbContext, cancellationToken);
-
-            // Begin transaction and ensure proper rollback on error
-            await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
-
             try
             {
-                // Create temp table (with retries for transient DB issues)
-                createTempTableCommand.Connection = connection;
-                createTempTableCommand.Transaction = transaction;
-
-                await createTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
-
-                // Copy file to staging (may involve network IO; add retry)
-                await CopyFileToStagingAsync(importDataType, schemaName, delimiter, key, factory, cancellationToken);
-
-                // Execute action commands (retry the whole command set if transient)
-                foreach (var command in actionCommands)
-                {
-                    command.Connection = connection;
-                    command.Transaction = transaction;
-                }
-
-                var rows = await ExecuteActionCommandsAsync(actionCommands, cancellationToken);
-
-                // Update the FileImport record with the last file imported and the number of rows imported
-                fileImport.LastFilePartImported = key;
-                fileImport.RowsImported += rows;
-
-                await dbContext.SaveChangesAsync(cancellationToken);
-
-                // Commit once everything succeeds
-                await transaction.CommitAsync(cancellationToken);
-
-                return rows;
+                var result = await operation(useDefensiveCopyMode, cancellationToken);
+                useDefensiveCopyMode = false;
+                return result;
             }
             catch (OperationCanceledException)
             {
-                try
-                {
-                    await transaction.RollbackAsync(CancellationToken.None);
-                }
-                catch (Exception rbEx)
-                {
-                    logger.LogWarning(rbEx, "Rollback after cancellation failed for key {Key}", key);
-                }
-
                 throw;
             }
-            catch (NpgsqlException ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                // Attempt rollback, but do not swallow original exception
-                try
+                attempt++;
+                // Check for COPY format issue (SQLSTATE 22P04) and retry with defensive mode if not already used
+                if (ex is NpgsqlException npg && npg.SqlState == "22P04")
                 {
-                    await transaction.RollbackAsync(CancellationToken.None);
-                }
-                catch (Exception rbEx)
-                {
-                    // Avoid evaluating rbEx.Message unnecessarily; exception is logged already
-                    logger.LogError(rbEx, "Rollback failed for key {Key}", key);
-                }
+                    if (!useDefensiveCopyMode)
+                    {
+                        useDefensiveCopyMode = true;
+                        if (logger.IsEnabled(LogLevel.Warning))
+                        {
+                            logger.LogWarning(ex, "COPY format issue for key {Key}; retrying once with defensive mode", key);
+                        }
+                        continue;
+                    }
 
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.LogInformation(ex, "An NpgsqlException has occurred. Current ConnectionState: {ConnectionState}",
-                        connection.State.ToString());
+                    if (logger.IsEnabled(LogLevel.Error))
+                    {
+                        logger.LogError(ex, "COPY format issue persisted for key {Key} after defensive retry", key);
+                    }
+                    throw;
                 }
-
-                throw;
+                // Check for transient Postgres exceptions and retry if applicable
+                if (!ex.IsTransientPostgresException())
+                {
+                    if (logger.IsEnabled(LogLevel.Error))
+                    {
+                        logger.LogError(ex, "Operation {Operation} for key {Key} failed with a non-transient error on attempt {Attempt}; not retrying",
+                            operationName, key, attempt);
+                    }
+                    throw;
+                }
+                // If we've reached the maximum number of retry attempts, log and rethrow
+                if (attempt >= MaxRetryAttempts)
+                {
+                    if (logger.IsEnabled(LogLevel.Error))
+                    {
+                        logger.LogError(ex,
+                            "Operation {Operation} for key {Key} failed permanently after {Attempt} attempts",
+                            operationName, key, attempt);
+                    }
+                    throw;
+                }
+                // Log the transient failure and wait before retrying
+                var delay = BackoffDelay(attempt);
+                if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    logger.LogWarning(ex, "Transient failure on operation {Operation} for key {Key}. Retrying {Attempt}/{MaxAttempts} after {Delay}ms",
+                        operationName, key, attempt, MaxRetryAttempts, delay.TotalMilliseconds);
+                }
+                await Task.Delay(delay, cancellationToken);
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to process file {Key}", key);
-
-                // Attempt rollback, but do not swallow original exception
-                try
-                {
-                    await transaction.RollbackAsync(CancellationToken.None);
-                }
-                catch (Exception rbEx)
-                {
-                    // Avoid evaluating rbEx.Message unnecessarily; exception is logged already
-                    logger.LogError(rbEx, "Rollback failed for key {Key}", key);
-                }
-
-                throw;
-            }
-
-        }, nameof(ProcessFileAsync), maxRetryAttempts);
-
-        return rows;
+        }
     }
 
     private async Task<int> ExecuteActionCommandsAsync(
@@ -323,13 +317,13 @@ public class S3ToPostgresCopyService(
     }
 
     private async Task CopyFileToStagingAsync(
-        ImportDataType bulkLoadDataType,
-        SchemaName schemaName,
-        char delimiter,
-        string key,
-        IS3ImportCommandFactory factory,
+        FileExecutionContext fileExecutionContext,
+        bool useDefensiveCopyMode,
         CancellationToken cancellationToken)
     {
+        var importExecutionContext = fileExecutionContext.ImportContext;
+        var key = fileExecutionContext.Key;
+
         using var response = await _storageService.GetObjectResponseAsync(key, cancellationToken);
 
         if (response?.ResponseStream is null)
@@ -341,30 +335,42 @@ public class S3ToPostgresCopyService(
         using var reader = new StreamReader(response.ResponseStream);
 
         var header = await reader.ReadLineAsync(cancellationToken)
-            ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
+                     ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
 
-        var fileColumns = header.Split(delimiter);
-
+        var fileColumns = header.Split(importExecutionContext.Delimiter);
+        var fileColumnCount = fileColumns.Length;
         if (!string.Equals(fileColumns[0], "record_type", StringComparison.OrdinalIgnoreCase))
         {
-            throw new InvalidOperationException(
-                $"File {key} does not contain a valid header row.");
+            throw new InvalidOperationException($"File {key} does not contain a valid header row.");
         }
 
-        var matchedColumns = await factory.FilterColumnsToTableAsync(
-            bulkLoadDataType,
-            schemaName,
+        var matchedColumns = await importExecutionContext.Factory.FilterColumnsToTableAsync(
+            importExecutionContext.ImportParameters.ImportDataType,
+            importExecutionContext.ImportParameters.SchemaName,
             fileColumns,
             cancellationToken);
 
-        using var writer = factory.CreateTextImport(bulkLoadDataType, schemaName, delimiter, matchedColumns);
+        using var writer = importExecutionContext.Factory.CreateTextImport(
+            importExecutionContext.ImportParameters.ImportDataType,
+            importExecutionContext.ImportParameters.SchemaName,
+            importExecutionContext.Delimiter,
+            matchedColumns);
 
         string? line;
         while ((line = await reader.ReadLineAsync(cancellationToken)) != null)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (line.StartsWith("T|")) break;
-            await writer.WriteLineAsync(SanitiseLine(line));
+            line = SanitiseLine(line);
+            if (useDefensiveCopyMode)
+            {
+                line = importExecutionContext.DefensiveCopyLineNormaliser.Normalise(
+                    line!,
+                    importExecutionContext.ImportParameters.ImportDataType,
+                    importExecutionContext.Delimiter,
+                    fileColumnCount);
+            }
+            await writer.WriteLineAsync(line);
         }
     }
 
@@ -397,29 +403,6 @@ public class S3ToPostgresCopyService(
         return connection;
     }
 
-    private static async Task<List<DbCommand>> GetCommandsAsync(
-        ImportDataType importDataType,
-        SchemaName schemaName,
-        ImportActionType importActionType,
-        IS3ImportCommandFactory factory,
-        CancellationToken cancellationToken)
-    {
-        var commands = new List<DbCommand>();
-
-        switch (importActionType)
-        {
-            // Both Bulk and Delta currently insert into cts-transactions the same way
-            case ImportActionType.Bulk:
-            case ImportActionType.Delta:
-                commands.Add(await factory.CreateInsertCommandAsync(importDataType, schemaName, cancellationToken));
-                break;
-            default:
-                throw new InvalidOperationException($"Unsupported ImportActionType '{importActionType}'.");
-        }
-
-        return commands;
-    }
-
     public static string GetSplitPartsPrefix(FileImport fileImport)
     {
         if (string.IsNullOrWhiteSpace(fileImport.DestinationPrefix))
@@ -428,22 +411,5 @@ public class S3ToPostgresCopyService(
         }
 
         return $"{fileImport.DestinationPrefix.Trim('/')}/{Path.GetFileNameWithoutExtension(fileImport.FileName)}";
-    }
-
-    private static (ImportDataType ImportDataType, ImportActionType ImportActionType, SchemaName SchemaName) GetImportParameters(string filename)
-    {
-        var parsedFilename = CtsmFilenameParser.Parse(filename);
-
-        if (!Enum.TryParse<ImportActionType>(parsedFilename?.Type, true, out var importActionType))
-        {
-            throw new InvalidOperationException($"Invalid ImportActionType '{parsedFilename?.Type}' for file '{filename}'.");
-        }
-
-        var schemaName = importActionType.GetSchemaName();
-
-        var importDataType = Enum.GetValues<ImportDataType>()
-            .FirstOrDefault(v => v.GetTableName(schemaName)?.Equals(parsedFilename?.TableName, StringComparison.InvariantCultureIgnoreCase) == true);
-
-        return (importDataType, importActionType, schemaName);
     }
 }
