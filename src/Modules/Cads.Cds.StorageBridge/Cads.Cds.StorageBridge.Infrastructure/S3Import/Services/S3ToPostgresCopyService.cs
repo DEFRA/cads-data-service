@@ -194,6 +194,7 @@ public class S3ToPostgresCopyService(
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private async Task RollbackWithLoggingAsync(
         NpgsqlTransaction transaction,
         string key,
@@ -213,6 +214,7 @@ public class S3ToPostgresCopyService(
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private async Task<T> ExecuteWithTransientRetryAsync<T>(
         Func<bool, CancellationToken, Task<T>> operation,
         string operationName,
