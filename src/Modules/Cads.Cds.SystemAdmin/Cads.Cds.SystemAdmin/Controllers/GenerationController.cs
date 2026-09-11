@@ -25,10 +25,10 @@ public class GenerationController(IRequestExecutor executor) : ControllerBase
             request.Table,
             request.Scenario,
             request.RowCount ?? 0,
-            request.Key ?? 0);
+            request.BusinessKey);
 
         var response = await executor.ExecuteCommand(command, cancellationToken);
 
-        return CreatedAtAction(nameof(Create), new { fileName = request.Table, scenario = request.Scenario }, response);
+        return CreatedAtAction(nameof(Create), new { fileName = request.Table, scenario = request.Scenario, rowCount = request.RowCount, businessKey = request.BusinessKey }, response);
     }
 }
