@@ -91,9 +91,9 @@ public class GenerationEndpointTests(SystemAdminTestFixture testFixture) : IClas
         problemDetails.Errors["Scenario"].Should().Contain("Scenario is required.");
         problemDetails.Errors["RowCount"].Should().Contain("Row count must be greater than zero.");
 
-        if(businessKey.HasValue)
+        if (businessKey.HasValue)
         {
             problemDetails.Errors["BusinessKey"].Should().Contain("Business key must be greater than zero.");
-        } 
+        }
     }
 }
