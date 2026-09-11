@@ -7,7 +7,7 @@ public class CreateGenerationCommandHandler : ICommandHandler<CreateGenerationCo
 {
     public async Task<CreateGenerationResponseDto> Handle(CreateGenerationCommand request, CancellationToken cancellationToken)
     {
-        IEnumerable<long> businessKeys = [];
+        IEnumerable<long> businessKeys;
 
         if (request.BusinessKey.HasValue)
         {
