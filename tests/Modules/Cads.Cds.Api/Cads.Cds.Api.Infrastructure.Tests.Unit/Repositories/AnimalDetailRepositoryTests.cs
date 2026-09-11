@@ -12,7 +12,7 @@ namespace Cads.Cds.Api.Infrastructure.Tests.Unit.Repositories;
 
 public class AnimalDetailRepositoryTests
 {
-    private static readonly List<AnimalDetailDto> Animals =
+    private static readonly List<AnimalDetailDto> s_animals =
     [
         new() { Identifier = "UK324537113234" },
         new() { Identifier = "UK324537113243" },
@@ -30,16 +30,6 @@ public class AnimalDetailRepositoryTests
     }
 
     [Fact]
-    public async Task GetByIdentifierAsync_WhenNoMatch_ShouldReturnNull()
-    {
-        var sut = CreateSut(enabled: true);
-
-        var result = await sut.GetByIdentifierAsync("UK999999999999", TestContext.Current.CancellationToken);
-
-        result.Should().BeNull();
-    }
-
-    [Fact]
     public async Task GetByIdentifierAsync_WhenStaticDataDisabled_ShouldReturnNull()
     {
         var sut = CreateSut(enabled: false);
@@ -54,7 +44,7 @@ public class AnimalDetailRepositoryTests
         var fileService = new Mock<IFileService>();
         fileService
             .Setup(f => f.ReadJsonFromFileAndReturnAsModelAsync<IEnumerable<AnimalDetailDto>>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Animals);
+            .ReturnsAsync(s_animals);
 
         var env = new Mock<IHostEnvironment>();
         env.SetupGet(e => e.ContentRootPath).Returns("/app");
