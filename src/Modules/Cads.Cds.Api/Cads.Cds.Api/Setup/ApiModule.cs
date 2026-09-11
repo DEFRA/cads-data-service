@@ -13,7 +13,7 @@ public sealed class ApiModule : IModule
     {
         services.AddApiInfrastructureLayer();
 
-        services.AddApiApplicationLayer();
+        services.AddApiApplicationLayer(config);
     }
 
     /// <summary>
