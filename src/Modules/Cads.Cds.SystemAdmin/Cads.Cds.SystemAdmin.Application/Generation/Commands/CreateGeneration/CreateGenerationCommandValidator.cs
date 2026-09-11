@@ -4,7 +4,7 @@ namespace Cads.Cds.SystemAdmin.Application.Generation.Commands.CreateGeneration;
 
 public sealed class CreateGenerationCommandValidator
     : AbstractValidator<CreateGenerationCommand>
-{ 
+{
     public CreateGenerationCommandValidator()
     {
         RuleFor(x => x.Table)
@@ -16,10 +16,10 @@ public sealed class CreateGenerationCommandValidator
         RuleFor(x => x.RowCount)
             .NotNull().WithMessage("Row count is required.")
             .GreaterThan(0).WithMessage("Row count must be greater than zero.");
-        RuleFor(x => x.Key)
+        RuleFor(x => x.BusinessKey)
             .NotNull()
-            .WithMessage("Key is required.")
+            .WithMessage("Business key is required.")
             .GreaterThan(0)
-            .WithMessage("Key must be greater than zero.");
+            .WithMessage("Business key must be greater than zero.");
     }
 }

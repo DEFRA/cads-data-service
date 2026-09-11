@@ -7,5 +7,5 @@ public sealed record CreateGenerationCommand(
     string Table,
     string Scenario,
     int RowCount,
-    long Key
+    long? BusinessKey
 ) : ISystemAdminCommand<CreateGenerationResponseDto>;

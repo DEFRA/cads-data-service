@@ -18,7 +18,7 @@ public class GenerationEndpointTests(SystemAdminTestFixture testFixture) : IClas
     [InlineData("my-table2", "scenario-b", 20, 11L)]
     [InlineData("my-table3", "scenario-b", 30, 21L)]
     [InlineData("my-table4", "scenario-b", 40, 31L)]
-    public async Task Create_Should_Return_CreatedResult_With_ResponseDto(string table, string scenario, int? rowCount, long? key)
+    public async Task Create_Should_Return_CreatedResult_With_ResponseDto(string table, string scenario, int? rowCount, long? businessKey)
     {
         // Arrange
         var request = new CreateGenerationRequest
@@ -26,7 +26,7 @@ public class GenerationEndpointTests(SystemAdminTestFixture testFixture) : IClas
             Table = table,
             Scenario = scenario,
             RowCount = rowCount,
-            Key = key
+            BusinessKey = businessKey
         };
 
         // Act
@@ -43,17 +43,17 @@ public class GenerationEndpointTests(SystemAdminTestFixture testFixture) : IClas
         Assert.NotNull(dto);
         Assert.Contains($"{request.Table}_{request.Scenario}_", dto.FileName);
         Assert.Equal($"Generated content for table {request.Table} with scenario {request.Scenario} and row count {request.RowCount}.", dto.Content);
-        Assert.True(dto.Keys.Count() == request.RowCount, $"Expected {request.RowCount} keys but got {dto.Keys.Count()}");
+        Assert.True(dto.BusinessKeys.Count() == request.RowCount, $"Expected {request.RowCount} business keys but got {dto.BusinessKeys.Count()}");
 
         for (var rowIndex = 0; rowIndex < request.RowCount; rowIndex++)
         {
-            Assert.Equal(key + rowIndex, dto.Keys.ElementAt(rowIndex));
+            Assert.Equal(request.BusinessKey.GetValueOrDefault() + rowIndex, dto.BusinessKeys.ElementAt(rowIndex));
         }
     }
 
     [Theory]
     [InlineData("", "", 0, 0L)]
-    public async Task GivenInvalidRequest_WhenCreateRequested_ShouldReturnBadRequest(string table, string scenario, int? rowCount, long? key)
+    public async Task GivenInvalidRequest_WhenCreateRequested_ShouldReturnBadRequest(string table, string scenario, int? rowCount, long? businessKey)
     {
         // Arrange
         var request = new CreateGenerationRequest
@@ -61,7 +61,7 @@ public class GenerationEndpointTests(SystemAdminTestFixture testFixture) : IClas
             Table = table,
             Scenario = scenario,
             RowCount = rowCount,
-            Key = key
+            BusinessKey = businessKey
         };
 
         // Act
@@ -81,6 +81,6 @@ public class GenerationEndpointTests(SystemAdminTestFixture testFixture) : IClas
         problemDetails.Errors["Table"].Should().Contain("Table is required.");
         problemDetails.Errors["Scenario"].Should().Contain("Scenario is required.");
         problemDetails.Errors["RowCount"].Should().Contain("Row count must be greater than zero.");
-        problemDetails.Errors["Key"].Should().Contain("Key must be greater than zero.");
+        problemDetails.Errors["BusinessKey"].Should().Contain("Business key must be greater than zero.");
     }
 }
