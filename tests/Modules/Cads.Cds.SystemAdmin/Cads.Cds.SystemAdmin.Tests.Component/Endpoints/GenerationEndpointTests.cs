@@ -53,6 +53,7 @@ public class GenerationEndpointTests(SystemAdminTestFixture testFixture) : IClas
 
     [Theory]
     [InlineData("", "", 0, 0L)]
+    [InlineData("", "", 0, null)]
     public async Task GivenInvalidRequest_WhenCreateRequested_ShouldReturnBadRequest(string table, string scenario, int? rowCount, long? businessKey)
     {
         // Arrange
@@ -77,10 +78,22 @@ public class GenerationEndpointTests(SystemAdminTestFixture testFixture) : IClas
 
         problemDetails.Should().NotBeNull();
 
-        problemDetails.Errors.Should().HaveCount(4);
+        if (businessKey.HasValue)
+        {
+            problemDetails.Errors.Should().HaveCount(4);
+        }
+        else
+        {
+            problemDetails.Errors.Should().HaveCount(3);
+        }
+
         problemDetails.Errors["Table"].Should().Contain("Table is required.");
         problemDetails.Errors["Scenario"].Should().Contain("Scenario is required.");
         problemDetails.Errors["RowCount"].Should().Contain("Row count must be greater than zero.");
-        problemDetails.Errors["BusinessKey"].Should().Contain("Business key must be greater than zero.");
+
+        if(businessKey.HasValue)
+        {
+            problemDetails.Errors["BusinessKey"].Should().Contain("Business key must be greater than zero.");
+        } 
     }
 }

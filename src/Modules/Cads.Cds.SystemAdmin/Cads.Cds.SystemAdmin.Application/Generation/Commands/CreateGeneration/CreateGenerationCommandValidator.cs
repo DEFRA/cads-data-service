@@ -16,10 +16,12 @@ public sealed class CreateGenerationCommandValidator
         RuleFor(x => x.RowCount)
             .NotNull().WithMessage("Row count is required.")
             .GreaterThan(0).WithMessage("Row count must be greater than zero.");
-        RuleFor(x => x.BusinessKey)
-            .NotNull()
-            .WithMessage("Business key is required.")
-            .GreaterThan(0)
-            .WithMessage("Business key must be greater than zero.");
+
+        When(x => x.BusinessKey.HasValue, () => 
+        {
+            RuleFor(x => x.BusinessKey)
+                .GreaterThan(0)
+                .WithMessage("Business key must be greater than zero.");
+        });
     }
 }
