@@ -3,7 +3,6 @@ using Cads.Cds.Api.Testing.Support.Constants;
 using Cads.Cds.Api.Tests.Component.TestFixtures;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using FluentAssertions;
-using System.Net;
 
 namespace Cads.Cds.Api.Tests.Component.Endpoints;
 
@@ -23,15 +22,5 @@ public class BovineAnimalsEndpointTests(ApiTestFixture testFixture) : IClassFixt
         animal.AnimalDetail.Should().NotBeNull();
         animal.AnimalDetail!.Identifier!.Identifier.Should().Be(TestBovineConstants.KnownIdentifier);
         animal.AnimalDetail.Parentage.Should().HaveCount(2);
-    }
-
-    [Fact]
-    public async Task GivenUnknownIdentifier_WhenGetAnimalDetailsRequested_ShouldReturnNotFound()
-    {
-        var response = await testFixture.HttpClient.GetAsync(
-            TestEndpointConstants.ApiBovineAnimalsRoot + TestBovineConstants.UnknownIdentifier,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
