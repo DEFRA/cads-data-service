@@ -24,6 +24,8 @@ public static class ServiceCollectionExtensions
 
         services.RegisterFunctionRepositories();
 
+        services.RegisterStaticDataRepositories();
+
         return services;
     }
 
@@ -51,5 +53,10 @@ public static class ServiceCollectionExtensions
     private static void RegisterFunctionRepositories(this IServiceCollection services)
     {
         services.AddScoped<ILocationSummaryRepository, LocationSummaryRepository>();
+    }
+
+    private static void RegisterStaticDataRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IAnimalDetailRepository, AnimalDetailRepository>();
     }
 }
