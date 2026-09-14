@@ -28,7 +28,7 @@ public class S3ToPostgresCopyService(
     private IStorageService<CadsInternalClient> _storageService = null!;
     private const int MaxRetryAttempts = 3;
 
-    private record ProcessFilesResult(int TotalRowsImported, List<string> AmendedRowIds);
+    private sealed record ProcessFilesResult(int TotalRowsImported, List<string> AmendedRowIds);
 
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
@@ -161,7 +161,6 @@ public class S3ToPostgresCopyService(
     {
         var importExecutionContext = fileExecutionContext.ImportContext;
         var key = fileExecutionContext.Key;
-        var amendedRowIds = new List<string>();
         var connection = (NpgsqlConnection)await OpenConnectionAsync(importExecutionContext.DbContext, cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
@@ -171,7 +170,7 @@ public class S3ToPostgresCopyService(
             importExecutionContext.CreateTempTableCommand.Transaction = transaction;
             await importExecutionContext.CreateTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
-            amendedRowIds = await CopyFileToStagingAsync(fileExecutionContext, useDefensiveCopyMode, cancellationToken);
+            var amendedRowIds = await CopyFileToStagingAsync(fileExecutionContext, useDefensiveCopyMode, cancellationToken);
 
             foreach (var command in importExecutionContext.ActionCommands)
             {
