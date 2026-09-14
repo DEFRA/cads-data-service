@@ -123,7 +123,7 @@ public class S3ToPostgresCopyServiceTests
 
         var result = await service.ExecuteAsync(job, TestContext.Current.CancellationToken);
 
-        result.Should().Be(0);
+        result.TotalRowsProcessed.Should().Be(0);
     }
 
     [Theory]
