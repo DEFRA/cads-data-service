@@ -15,6 +15,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Models;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
@@ -43,10 +44,20 @@ public class S3ToPostgresCopyService(
 
         if (keys.Count == 0) return 0;
 
+        var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
+        var connection = (NpgsqlConnection)await OpenConnectionAsync(dbContext, cancellationToken);
+
+        var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
+        var factory = factoryProvider.Create(connection);
+
+        var defensiveCopyLineNormaliser = scope.ServiceProvider.GetRequiredService<IDefensiveCopyLineNormaliser>();
+
         var importContext = await ImportExecutionContext.CreateAsync(
             fileImport,
+            dbContext,
             job.Delimiter,
-            scope.ServiceProvider,
+            factory,
+            defensiveCopyLineNormaliser,
             cancellationToken);
 
         var (counter, fileHistogram, batchHistogram) = S3ImportMetrics.CreateBulkLoadMetrics();
