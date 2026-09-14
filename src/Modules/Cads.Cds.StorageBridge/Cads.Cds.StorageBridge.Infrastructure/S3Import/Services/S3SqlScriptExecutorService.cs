@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Cads.Cds.StorageBridge.Application.S3Import.Model;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
@@ -27,7 +28,8 @@ public class S3SqlScriptExecutorService(
     private IDataSeedIngestionHistoryRepository _historyRepository = null!;
 
     [ExcludeFromCodeCoverage]
-    public async Task<long> ExecuteAsync(CreateS3SqlImportJobDto job, CancellationToken cancellationToken = default)
+    public async Task<S3ToPostgresResult> ExecuteAsync(CreateS3SqlImportJobDto job,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(job.SourceKey))
         {
@@ -55,7 +57,7 @@ public class S3SqlScriptExecutorService(
             {
                 logger.LogWarning("No SQL script files found under prefix {SourceKey}", job.SourceKey);
             }
-            return 0;
+            return new S3ToPostgresResult { TotalRowsProcessed = 0 };
         }
 
         var successCount = 0;
@@ -76,7 +78,7 @@ public class S3SqlScriptExecutorService(
                 job.SourceKey, successCount, keyList.Count, sw.ElapsedMilliseconds);
         }
 
-        return successCount;
+        return new S3ToPostgresResult { TotalRowsProcessed = successCount };
     }
 
     [ExcludeFromCodeCoverage]
