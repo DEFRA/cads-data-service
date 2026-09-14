@@ -126,7 +126,7 @@ public class FileImport
 
         ImportStatus = FileImportStatus.Completed;
         ImportEndAt = DateTimeOffset.UtcNow;
-        if(amendedRowIds != null && amendedRowIds.Count > 0)
+        if (amendedRowIds != null && amendedRowIds.Count > 0)
         {
             ImportAmendmentsMade = true;
             LastErrorReason = $"Amended rows: {string.Join(", ", amendedRowIds)}";
