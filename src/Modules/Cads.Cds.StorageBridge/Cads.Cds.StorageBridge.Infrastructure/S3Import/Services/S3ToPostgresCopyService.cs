@@ -15,6 +15,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Cads.Cds.StorageBridge.Application.S3Import.Model;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Models;
 
@@ -26,6 +27,8 @@ public class S3ToPostgresCopyService(
 {
     private IStorageService<CadsInternalClient> _storageService = null!;
     private const int MaxRetryAttempts = 3;
+    
+    private record ProcessFilesResult(int TotalRowsImported, List<string> AmendedRowIds);
 
     /// <summary>
     /// Cannot utilise low-level PostgreSQL/Persistence types using In Memory DB.
@@ -34,7 +37,8 @@ public class S3ToPostgresCopyService(
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
-    public async Task<long> ExecuteAsync(CreateS3CsvImportJobDto job, CancellationToken cancellationToken = default)
+    public async Task<S3ToPostgresResult> ExecuteAsync(CreateS3CsvImportJobDto job,
+        CancellationToken cancellationToken = default)
     {
         await using var scope = serviceScopeFactory.CreateAsyncScope();
 
@@ -42,7 +46,7 @@ public class S3ToPostgresCopyService(
 
         var keys = await GetKeysFromStorage(fileImport, scope, cancellationToken);
 
-        if (keys.Count == 0) return 0;
+        if (keys.Count == 0) return new S3ToPostgresResult { TotalRowsProcessed = 0 };
 
         var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
         var connection = (NpgsqlConnection)await OpenConnectionAsync(dbContext, cancellationToken);
@@ -65,6 +69,7 @@ public class S3ToPostgresCopyService(
         var sw = Stopwatch.StartNew();
 
         var totalRowsImported = fileImport.RowsImported;
+        var amendedRowIds = new List<string>();
 
         foreach (var key in keys)
         {
@@ -78,17 +83,18 @@ public class S3ToPostgresCopyService(
             var fileSw = Stopwatch.StartNew();
 
             var fileContext = new FileExecutionContext(importContext, key);
-            var rows = await ProcessFileAsync(fileContext, cancellationToken);
+            var result = await ProcessFileAsync(fileContext, cancellationToken);
 
-            totalRowsImported += rows;
-            counter.Add(rows);
+            totalRowsImported += result.TotalRowsImported;
+            counter.Add(result.TotalRowsImported);
+            amendedRowIds.AddRange(result.AmendedRowIds);
 
             fileHistogram.Record(fileSw.Elapsed.TotalMilliseconds);
 
             if (logger.IsEnabled(LogLevel.Information))
             {
                 logger.LogInformation("Completed processing for file {Key} for CSV import job {JobId}, {TotalRows} records processed in {TotalMilliseconds} ms",
-                    key, job.JobId, rows, fileSw.Elapsed.TotalMilliseconds);
+                    key, job.JobId, result.TotalRowsImported, fileSw.Elapsed.TotalMilliseconds);
             }
         }
 
@@ -100,7 +106,11 @@ public class S3ToPostgresCopyService(
                 job.JobId, fileImport.FileName, totalRowsImported, sw.Elapsed.TotalMilliseconds);
         }
 
-        return totalRowsImported;
+        return new S3ToPostgresResult
+        {
+            TotalRowsProcessed = totalRowsImported,
+            RowsIdAmended = amendedRowIds
+        };
     }
 
     private async Task<FileImport> GetFileImportAsync(CreateS3CsvImportJobDto job, AsyncServiceScope scope, CancellationToken cancellationToken)
@@ -132,7 +142,7 @@ public class S3ToPostgresCopyService(
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [ExcludeFromCodeCoverage]
-    private Task<int> ProcessFileAsync(
+    private Task<ProcessFilesResult> ProcessFileAsync(
         FileExecutionContext context,
         CancellationToken cancellationToken = default)
     {
@@ -144,14 +154,14 @@ public class S3ToPostgresCopyService(
     }
 
     [ExcludeFromCodeCoverage]
-    private async Task<int> ProcessFileOnceAsync(
+    private async Task<ProcessFilesResult> ProcessFileOnceAsync(
         FileExecutionContext fileExecutionContext,
         bool useDefensiveCopyMode = false,
         CancellationToken cancellationToken = default)
     {
         var importExecutionContext = fileExecutionContext.ImportContext;
-        var key = fileExecutionContext.Key;
-
+        var key = fileExecutionContext.Key; 
+        var amendedRowIds = new List<string>();
         var connection = (NpgsqlConnection)await OpenConnectionAsync(importExecutionContext.DbContext, cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
@@ -161,7 +171,7 @@ public class S3ToPostgresCopyService(
             importExecutionContext.CreateTempTableCommand.Transaction = transaction;
             await importExecutionContext.CreateTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
-            await CopyFileToStagingAsync(fileExecutionContext, useDefensiveCopyMode, cancellationToken);
+            amendedRowIds = await CopyFileToStagingAsync(fileExecutionContext, useDefensiveCopyMode, cancellationToken);
 
             foreach (var command in importExecutionContext.ActionCommands)
             {
@@ -177,7 +187,7 @@ public class S3ToPostgresCopyService(
             await importExecutionContext.DbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return rows;
+            return new ProcessFilesResult(rows, amendedRowIds);
         }
         catch (OperationCanceledException)
         {
@@ -327,20 +337,21 @@ public class S3ToPostgresCopyService(
         return total;
     }
 
-    private async Task CopyFileToStagingAsync(
+    private async Task<List<string>> CopyFileToStagingAsync(
         FileExecutionContext fileExecutionContext,
         bool useDefensiveCopyMode,
         CancellationToken cancellationToken)
     {
         var importExecutionContext = fileExecutionContext.ImportContext;
         var key = fileExecutionContext.Key;
+        var amendedRowIds = new List<string>();
 
         using var response = await _storageService.GetObjectResponseAsync(key, cancellationToken);
 
         if (response?.ResponseStream is null)
         {
             logger.LogWarning("Null stream for key {Key}", key);
-            return;
+            return amendedRowIds;
         }
 
         using var reader = new StreamReader(response.ResponseStream);
@@ -375,14 +386,20 @@ public class S3ToPostgresCopyService(
             line = SanitiseLine(line);
             if (useDefensiveCopyMode)
             {
-                line = importExecutionContext.DefensiveCopyLineNormaliser.Normalise(
+                var nomalisedLine = importExecutionContext.DefensiveCopyLineNormaliser.Normalise(
                     line!,
                     importExecutionContext.ImportParameters.ImportDataType,
                     importExecutionContext.Delimiter,
                     fileColumnCount);
+                if(!string.Equals(nomalisedLine, line, StringComparison.Ordinal))
+                {
+                    amendedRowIds.Add(nomalisedLine.Split(importExecutionContext.Delimiter)[1]);
+                    line = nomalisedLine;
+                }
             }
             await writer.WriteLineAsync(line);
         }
+        return amendedRowIds;
     }
 
     private static string? SanitiseLine(string? line)

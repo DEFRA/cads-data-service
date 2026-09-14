@@ -47,8 +47,20 @@ public sealed class DefensiveCopyLineNormaliser : IDefensiveCopyLineNormaliser
     private static string[] NormaliseCtParamValue(string[] lineParts, char delimiter, int expectedColumnCount)
     {
         var linePartsCount = lineParts.Length;
-        // Currently we know of two conditions that fail
-        // 1. 16 columns, where we need to combine columns 6-7 and 9-10 into two quoted columns
+        // Currently we know of three conditions that fail
+        // 1. 15 columns, where we need to combine columns 6-7 only into A quoted column
+        // Example: "D|723|2394|CP.PWDBADCHARS|453|(,-&:).'""/*[]\+?`;#+~|<>^{}|||1|x902791|1|29-DEC-00||1"
+        if (linePartsCount == 15)
+        {
+            var firstGroup = $"\"{string.Join(delimiter, lineParts.Skip(5).Take(2))}\"";
+            return
+            [
+                .. lineParts[..5],
+                firstGroup,
+                .. lineParts[7..]
+            ];
+        }
+        // 2. 16 columns, where we need to combine columns 6-7 and 9-10 into two quoted columns
         // Example: "D|295|1940|CP.GAP_MCMARK|393|SEO|CHR~GAP~BDR|31|SEO GAP BDR|SEO GAP BDR OVERRIDE|1|f800702|1|26-FEB-01||1"
         if (linePartsCount == 16)
         {
@@ -63,7 +75,7 @@ public sealed class DefensiveCopyLineNormaliser : IDefensiveCopyLineNormaliser
                 .. lineParts[10..]
             ];
         }
-        // 2. 18 columns, where we need to combine columns 8-12 into a single quoted column
+        // 3. 18 columns, where we need to combine columns 8-12 into a single quoted column
         // Example: "D|2493|20808|CP.IL_HEAT_JAVA_CMD|20420|0|java encryption cmd|/usr/java7_64/jre/bin/java|-jar|/ctsm/app02/ctsal/external/PRCG/CTS_OWN/BIN/encryptionUtil.jar|-e|-i||CTS_OWN|1|25-FEB-25||1"
         if (linePartsCount == 18)
         {
