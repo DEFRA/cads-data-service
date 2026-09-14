@@ -129,7 +129,7 @@ public class S3SqlImportBackgroundServiceTests
         // The service must not complete until the in-flight job is drained.
         Assert.False(executeTask.IsCompleted);
 
-        releaseJob.SetResult(new S3ToPostgresResult {TotalRowsProcessed = 0});
+        releaseJob.SetResult(new S3ToPostgresResult { TotalRowsProcessed = 0 });
 
         await executeTask;
 
