@@ -87,7 +87,7 @@ public static class S3Utils
 
         if (importDataType == ImportDataType.None)
         {
-            throw new InvalidOperationException($"Failed to extract destination table from filename: {filename}");
+            throw new InvalidOperationException($"Failed to extract destination table from filename: '{filename}'.");
         }
 
         return new ImportParameters
