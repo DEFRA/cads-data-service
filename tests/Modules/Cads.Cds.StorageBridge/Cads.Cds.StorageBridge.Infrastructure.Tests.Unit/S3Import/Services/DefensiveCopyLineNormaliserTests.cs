@@ -25,6 +25,9 @@ public class DefensiveCopyLineNormaliserTests
 
     [Theory]
     [InlineData(
+        "D|723|2394|CP.PWDBADCHARS|453|(,-&:).'\"/*[]\\+?`;#+~|<>^{}|||1|x902791|1|29-DEC-00||1",
+        "D|723|2394|CP.PWDBADCHARS|453|\"(,-&:).'\"/*[]\\+?`;#+~|<>^{}\"|||1|x902791|1|29-DEC-00||1")]
+    [InlineData(
         "D |292|2019|CP.INF_OLMPRI|410|5|3|Normal Off|5|m165564|1|10-AUG-01||1",
         "D |292|2019|CP.INF_OLMPRI|410|5|3|Normal Off|5|m165564|1|10-AUG-01||1")]
     [InlineData(
