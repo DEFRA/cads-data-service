@@ -1,4 +1,3 @@
-using System.Data;
 using System.Data.Common;
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Schema;
@@ -7,9 +6,6 @@ using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Helpers;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Models;
 
@@ -25,19 +21,13 @@ public sealed record ImportExecutionContext(
 {
     public static async Task<ImportExecutionContext> CreateAsync(
         FileImport fileImport,
+        StorageBridgeWriteDbContext dbContext,
         char delimiter,
-        IServiceProvider serviceProvider,
+        IS3ImportCommandFactory factory,
+        IDefensiveCopyLineNormaliser defensiveCopyLineNormaliser,
         CancellationToken cancellationToken)
     {
         var importParameters = fileImport.FileName.GetImportParameters();
-        var dbContext = serviceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-
-        var connection = await OpenConnectionAsync(dbContext, cancellationToken);
-
-        var factoryProvider = serviceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
-        var factory = factoryProvider.Create((NpgsqlConnection)connection);
-
-        var defensiveCopyLineNormaliser = serviceProvider.GetRequiredService<IDefensiveCopyLineNormaliser>();
 
         var createTempTableCommand = factory.CreateTempTableCommand(
             importParameters.ImportDataType,
@@ -61,18 +51,6 @@ public sealed record ImportExecutionContext(
             dbContext,
             createTempTableCommand,
             actionCommands);
-    }
-
-    private static async Task<DbConnection> OpenConnectionAsync(
-        StorageBridgeWriteDbContext dbContext,
-        CancellationToken cancellationToken)
-    {
-        var connection = dbContext.Database.GetDbConnection();
-
-        if (connection.State != ConnectionState.Open)
-            await connection.OpenAsync(cancellationToken);
-
-        return connection;
     }
 
     private static async Task<List<DbCommand>> GetCommandsAsync(
