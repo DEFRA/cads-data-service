@@ -40,7 +40,7 @@ public class S3CsvImportBackgroundService(
                 {
                     var result = await processor.ExecuteAsync(request, cancellationToken);
 
-                    fileImport!.MarkCompleted(result.RowsIdAmended);
+                    fileImport!.MarkCompleted(result.RowIdsAmended);
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception ex)

@@ -14,7 +14,7 @@ public class ImportExecutionContextTests
 {
     private static readonly Mock<StorageBridgeWriteDbContext> s_dbContext = new Mock<StorageBridgeWriteDbContext>(new DbContextOptions<StorageBridgeWriteDbContext>());
     private static readonly IS3ImportCommandFactory s_s3ImportCommandFactory = GetFactory();
-    private static readonly Mock<IDefensiveCopyLineNormaliser> s_defensiveCopyLineNormaliser = new Mock<IDefensiveCopyLineNormaliser>();
+    private static readonly Mock<IDefensiveCopyLineNormaliserService> s_defensiveCopyLineNormaliser = new Mock<IDefensiveCopyLineNormaliserService>();
     private static TestableS3BulkLoadCommandFactory GetFactory() =>
         new(new NpgsqlConnection("Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres"), LocationsHeader.Split('|'));
 
@@ -47,7 +47,7 @@ public class ImportExecutionContextTests
         Assert.Equal(delimiter, result.Delimiter);
         Assert.NotNull(result.ImportParameters);
         Assert.NotNull(result.Factory);
-        Assert.NotNull(result.DefensiveCopyLineNormaliser);
+        Assert.NotNull(result.DefensiveCopyLineNormaliserService);
         Assert.NotNull(result.DbContext);
         Assert.NotNull(result.CreateTempTableCommand);
         Assert.NotNull(result.ActionCommands);
