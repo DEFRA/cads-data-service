@@ -30,6 +30,7 @@
   <property name="jtExtTestEmail" value="SA-O365-CADS-MIP-EXT-TEST-tst@defradev.onmicrosoft.com" context="ext-test"/>
   <property name="jtPerfTestNam" value="SA-O365-CADS-MIP-PERF-TEST" context="perf-test"/>
   <property name="jtPerfTestEmail" value="SA-O365-CADS-MIP-PERF-TEST-tst@defradev.onmicrosoft.com" context="perf-test"/>
+  <include file="0000_000_drop_all_schema_objects.postgresql.sql"/>
   <include file="0000_000_drop_legacy_schema_objects.postgresql.sql"/>
   <include file="0000_001_create_schemas.postgresql.sql"/>
   <include file="0000_002_create_schemas_permissions.postgresql.sql"/>
@@ -71,6 +72,7 @@
   <include file="0002_018_cads_animals_on_holding_routines.postgresql.sql"/>
   <include file="0002_021_cts_pseudonymisation_routine.postgresql.sql"/>
   <include file="0002_030_cts_audit_routines.postgresql.sql"/>
+  <include file="0002_040_cts_parallel_bulk_import.postgresql.sql"/>
   <include file="0004_002_cads_reference_state_seed_data.postgresql.sql"/>
   <include file="0004_003_mi_seed.postgresql.sql"/>
   <include file="0004_004_mi_cattle_import_report_seed.postgresql.sql"/>
@@ -118,4 +120,5 @@
   <include file="0005_000_ct_eartag_reason_flags_seed_data_faker_data.postgresql.sql"/>
   <include file="0005_001_ct_workgroups_seed_data_faker_data.postgresql.sql"/>
   <include file="0005_002_psudeo-anonymisation.postgresql.sql" />
+  <include file="0005_003_psudeo_anonymisation.postgresql.sql"/>
 </databaseChangeLog>

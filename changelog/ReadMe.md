@@ -234,9 +234,10 @@ liquibase diff-changelog
 	--reference-username=<POSTGRES_USER> \
 	--reference-password=<POSTGRES_PASSWORD> \
 	--reference-schemas=cads,cts,cts_audit,cts_transactions
+	--includeSchema=true
 ```
 
-Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff-changelog --changelog-file=<XXXX_NEW_CHANGESET_NAME>.postgresql.sql --schemas=cads,cts,cts_audit,cts_transactions --reference-schemas=cads,cts,cts_audit,cts_transactions`
+Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff-changelog --changelog-file=<XXXX_NEW_CHANGESET_NAME>.postgresql.sql --schemas=cads,cts,cts_audit,cts_transactions --reference-schemas=cads,cts,cts_audit,cts_transactions --includeSchema=true`
 
 Liquibase outputs a migration script containing:
 - addColumn
