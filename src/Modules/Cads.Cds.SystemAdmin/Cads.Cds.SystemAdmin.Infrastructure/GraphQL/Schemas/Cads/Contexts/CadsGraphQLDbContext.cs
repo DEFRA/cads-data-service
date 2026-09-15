@@ -927,6 +927,7 @@ public partial class CadsGraphQLDbContext : DbContext
             entity.Property(e => e.RowsFound).HasColumnName("rows_found");
             entity.Property(e => e.RowsImported).HasColumnName("rows_imported");
             entity.Property(e => e.TotalRowsToProcess).HasColumnName("total_rows_to_process");
+            entity.Property(e => e.ImportAmendmentsMade).HasColumnName("amendments_made_flag");
 
             entity.HasOne(d => d.ImportStatus).WithMany(p => p.CtsFileImports)
                 .HasForeignKey(d => d.ImportStatusId)
