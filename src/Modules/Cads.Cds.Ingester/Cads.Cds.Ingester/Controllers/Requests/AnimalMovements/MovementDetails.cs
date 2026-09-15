@@ -23,7 +23,7 @@ public class MovementDetails
     public string? OffExemptionCode { get; set; }
 
     [JsonPropertyName("ArrivalDate")]
-    public string ArrivalDate { get; set; }
+    public string? ArrivalDate { get; set; }
 
     [JsonPropertyName("DestinationLocation")]
     public string? DestinationLocation { get; set; }
