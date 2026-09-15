@@ -54,7 +54,7 @@ public class S3ToPostgresCopyService(
         var factoryProvider = scope.ServiceProvider.GetRequiredService<IS3ImportCommandFactoryProvider>();
         var factory = factoryProvider.Create(connection);
 
-        var defensiveCopyLineNormaliser = scope.ServiceProvider.GetRequiredService<IDefensiveCopyLineNormaliser>();
+        var defensiveCopyLineNormaliser = scope.ServiceProvider.GetRequiredService<IDefensiveCopyLineNormaliserService>();
 
         var importContext = await ImportExecutionContext.CreateAsync(
             fileImport,
@@ -109,7 +109,7 @@ public class S3ToPostgresCopyService(
         return new S3ToPostgresResult
         {
             TotalRowsProcessed = totalRowsImported,
-            RowsIdAmended = amendedRowIds
+            RowIdsAmended = amendedRowIds
         };
     }
 
@@ -385,7 +385,7 @@ public class S3ToPostgresCopyService(
             line = SanitiseLine(line);
             if (useDefensiveCopyMode)
             {
-                var nomalisedLine = importExecutionContext.DefensiveCopyLineNormaliser.Normalise(
+                var nomalisedLine = importExecutionContext.DefensiveCopyLineNormaliserService.Normalise(
                     line!,
                     importExecutionContext.ImportParameters.ImportDataType,
                     importExecutionContext.Delimiter,
