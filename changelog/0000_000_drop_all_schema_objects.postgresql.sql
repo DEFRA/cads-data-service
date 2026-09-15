@@ -1,5 +1,9 @@
 -- liquibase formatted sql
 
+-- Ensure you manually run:
+-- DELETE FROM databasechangeloglock;
+-- DELETE FROM databasechangelog;
+
 -- changeset schema:0000-000-drop-all-schema-1 objects splitStatements:false
 DROP SCHEMA IF EXISTS cads CASCADE;
 
