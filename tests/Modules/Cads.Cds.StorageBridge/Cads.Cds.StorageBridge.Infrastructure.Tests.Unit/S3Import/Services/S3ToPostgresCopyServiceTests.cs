@@ -34,7 +34,7 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IStorageService<CadsInternalClient>> _storageService = new();
     private readonly Mock<IS3ImportCommandFactoryProvider> _factoryProvider = new();
     private readonly Mock<IS3ImportCommandFactory> _factory = new();
-    private readonly Mock<IDefensiveCopyLineNormaliser> _normaliser = new();
+    private readonly Mock<IDefensiveCopyLineNormaliserService> _normaliser = new();
     private readonly Mock<StorageBridgeWriteDbContext> _dbContext = new(new DbContextOptions<StorageBridgeWriteDbContext>());
     private readonly Mock<DbCommand> _dbCommand = new();
     private readonly Mock<IReadOnlyList<DbCommand>> _actionCommands = new();
