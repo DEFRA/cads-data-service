@@ -14,7 +14,7 @@ public sealed record ImportExecutionContext(
     ImportParameters ImportParameters,
     char Delimiter,
     IS3ImportCommandFactory Factory,
-    IDefensiveCopyLineNormaliser DefensiveCopyLineNormaliser,
+    IDefensiveCopyLineNormaliserService DefensiveCopyLineNormaliserService,
     StorageBridgeWriteDbContext DbContext,
     DbCommand CreateTempTableCommand,
     IReadOnlyList<DbCommand> ActionCommands)
@@ -24,7 +24,7 @@ public sealed record ImportExecutionContext(
         StorageBridgeWriteDbContext dbContext,
         char delimiter,
         IS3ImportCommandFactory factory,
-        IDefensiveCopyLineNormaliser defensiveCopyLineNormaliser,
+        IDefensiveCopyLineNormaliserService defensiveCopyLineNormaliserService,
         CancellationToken cancellationToken)
     {
         var importParameters = fileImport.FileName.GetImportParameters();
@@ -47,7 +47,7 @@ public sealed record ImportExecutionContext(
             importParameters,
             delimiter,
             factory,
-            defensiveCopyLineNormaliser,
+            defensiveCopyLineNormaliserService,
             dbContext,
             createTempTableCommand,
             actionCommands);
