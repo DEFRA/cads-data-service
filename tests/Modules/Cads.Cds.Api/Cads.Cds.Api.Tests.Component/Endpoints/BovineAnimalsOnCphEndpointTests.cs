@@ -1,3 +1,4 @@
+using Cads.Cds.Api.Core.Domain.Bovine;
 using Cads.Cds.Api.Core.DTOs.Bovine;
 using Cads.Cds.Api.Testing.Support.Constants;
 using Cads.Cds.Api.Tests.Component.TestFixtures;
@@ -24,12 +25,12 @@ public class BovineAnimalsOnCphEndpointTests(ApiTestFixture testFixture) : IClas
         first.BirthDate.Should().Be(new DateOnly(2023, 3, 10));
         first.DateOnCph.Should().Be(new DateOnly(2023, 3, 14));
         first.DateOffCph.Should().BeNull();
-        first.Species.Should().Be("Cattle");
-        first.Sex.Should().Be("Female");
+        first.Species.Should().Be(AnimalSpecies.Cattle);
+        first.Sex.Should().Be(AnimalSex.Female);
         first.BreedCode!.Schema.Should().Be("cts.breed");
         first.BreedCode.BreedName.Should().Be("Holstein Friesian");
         first.BreedCode.Identifier.Should().Be("HO");
-        first.Status.Should().Be("Alive");
+        first.Status.Should().Be(AnimalStatus.Alive);
     }
 
     [Fact]

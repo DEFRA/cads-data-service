@@ -15,7 +15,7 @@ public class GetAnimalsOnCph : IQuery<AnimalCollectionDto?>
 
     public IEnumerable<AnimalStatus> Status { get; set; } = [];
 
-    public string? Sex { get; set; }
+    public AnimalSex? Sex { get; set; }
 
     public IEnumerable<string> BreedCode { get; set; } = [];
 
