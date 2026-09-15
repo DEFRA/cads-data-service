@@ -112,9 +112,9 @@ public class AnimalsOnCphQueryAdapterTests
         string expectedFirstEarTag)
     {
         var sut = CreateSut(HoldingWith(
-            Animal("UK0001", birthDate: "2023-03-10", dateOnCph: "2023-06-01", sex: "Male", breedCode: "HO"),
-            Animal("UK0002", birthDate: "2023-01-05", dateOnCph: "2023-05-01", sex: "Female", breedCode: "SH"),
-            Animal("UK0003", birthDate: "2023-09-20", dateOnCph: "2023-04-01", sex: "Male", breedCode: "AA")));
+            Animal("UK0001", birthDate: "2023-03-10", dateOnCph: "2023-06-01", sex: AnimalSex.Male, breedCode: "HO"),
+            Animal("UK0002", birthDate: "2023-01-05", dateOnCph: "2023-05-01", sex: AnimalSex.Female, breedCode: "SH"),
+            Animal("UK0003", birthDate: "2023-09-20", dateOnCph: "2023-04-01", sex: AnimalSex.Male, breedCode: "AA")));
 
         var query = Query();
         query.OrderBy = orderBy;
@@ -194,9 +194,9 @@ public class AnimalsOnCphQueryAdapterTests
     public async Task GetAsync_ShouldFilterByStatus()
     {
         var sut = CreateSut(HoldingWith(
-            Animal("UK0001", status: "Alive"),
-            Animal("UK0002", status: "OffFarm"),
-            Animal("UK0003", status: "Dead")));
+            Animal("UK0001", status: AnimalStatus.Alive),
+            Animal("UK0002", status: AnimalStatus.OffFarm),
+            Animal("UK0003", status: AnimalStatus.Dead)));
 
         var query = Query();
         query.Status = [AnimalStatus.Alive, AnimalStatus.OffFarm];
@@ -210,11 +210,11 @@ public class AnimalsOnCphQueryAdapterTests
     public async Task GetAsync_ShouldFilterBySex()
     {
         var sut = CreateSut(HoldingWith(
-            Animal("UK0001", sex: "Female"),
-            Animal("UK0002", sex: "Male")));
+            Animal("UK0001", sex: AnimalSex.Female),
+            Animal("UK0002", sex: AnimalSex.Male)));
 
         var query = Query();
-        query.Sex = "Female";
+        query.Sex = AnimalSex.Female;
 
         var result = await sut.GetAsync(query, TestContext.Current.CancellationToken);
 
@@ -270,8 +270,8 @@ public class AnimalsOnCphQueryAdapterTests
     public async Task GetAsync_WithSearchTerm_ShouldMatchTheWholeSexAndNotAFragmentOfIt()
     {
         var sut = CreateSut(HoldingWith(
-            Animal("UK0001", sex: "Male"),
-            Animal("UK0002", sex: "Female")));
+            Animal("UK0001", sex: AnimalSex.Male),
+            Animal("UK0002", sex: AnimalSex.Female)));
 
         var query = Query();
         query.Q = "male";
@@ -323,9 +323,9 @@ public class AnimalsOnCphQueryAdapterTests
     public async Task GetAsync_WithSearchTerm_ShouldReturnAnAnimalWhereAnyOneOfTheFieldsMatches()
     {
         var sut = CreateSut(HoldingWith(
-            Animal("UK00HO01", sex: "Female", breedCode: "AA", breedName: "Aberdeen Angus"),
-            Animal("UK0002", sex: "Female", breedCode: "HO", breedName: "Holstein Friesian"),
-            Animal("UK0003", sex: "Female", breedCode: "SH", breedName: "Shorthorn")));
+            Animal("UK00HO01", sex: AnimalSex.Female, breedCode: "AA", breedName: "Aberdeen Angus"),
+            Animal("UK0002", sex: AnimalSex.Female, breedCode: "HO", breedName: "Holstein Friesian"),
+            Animal("UK0003", sex: AnimalSex.Female, breedCode: "SH", breedName: "Shorthorn")));
 
         var query = Query();
         query.Q = "HO";
@@ -338,8 +338,8 @@ public class AnimalsOnCphQueryAdapterTests
     [Fact]
     public async Task GetAsync_WithSearchTerm_ShouldPageAndTotalOverTheMatchingSetOnly()
     {
-        var matching = Enumerable.Range(1, 6).Select(i => Animal(EarTag("UK99", i), sex: "Male")).ToArray();
-        var other = Enumerable.Range(1, 20).Select(i => Animal(EarTag("UK11", i), sex: "Female")).ToArray();
+        var matching = Enumerable.Range(1, 6).Select(i => Animal(EarTag("UK99", i), sex: AnimalSex.Male)).ToArray();
+        var other = Enumerable.Range(1, 20).Select(i => Animal(EarTag("UK11", i), sex: AnimalSex.Female)).ToArray();
 
         var sut = CreateSut(HoldingWith([.. matching, .. other]));
 
@@ -370,8 +370,8 @@ public class AnimalsOnCphQueryAdapterTests
         string earTag,
         string birthDate = "2023-01-01",
         string dateOnCph = "2023-01-02",
-        string sex = "Female",
-        string status = "Alive",
+        AnimalSex sex = AnimalSex.Female,
+        AnimalStatus status = AnimalStatus.Alive,
         string breedCode = "HO",
         string? breedName = "Holstein Friesian")
         => new()
@@ -385,7 +385,7 @@ public class AnimalsOnCphQueryAdapterTests
             MovedOnCph = DateOnly.Parse(dateOnCph),
             RegisteredOnCph = DateOnly.Parse(dateOnCph),
             DateOffCph = null,
-            Species = "Cattle",
+            Species = AnimalSpecies.Cattle,
             Sex = sex,
             Status = status,
             BreedCode = new BreedCodeDto

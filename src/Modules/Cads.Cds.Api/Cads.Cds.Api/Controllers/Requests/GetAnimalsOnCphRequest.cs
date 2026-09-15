@@ -1,5 +1,6 @@
 using Cads.Cds.Api.Core.Domain.Bovine;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace Cads.Cds.Api.Controllers.Requests;
 
@@ -7,11 +8,12 @@ public class GetAnimalsOnCphRequest
 {
     [FromQuery(Name = "CPH")] public string? Cph { get; set; }
 
-    [FromQuery(Name = "holdingAssociation")] public HoldingAssociation? HoldingAssociation { get; set; }
+    [FromQuery(Name = "holdingAssociation")]
+    public HoldingAssociation HoldingAssociation { get; set; }
 
     [FromQuery(Name = "status")] public AnimalStatus[]? Status { get; set; }
 
-    [FromQuery(Name = "sex")] public string? Sex { get; set; }
+    [FromQuery(Name = "sex")] public AnimalSex? Sex { get; set; }
 
     [FromQuery(Name = "breedCode")] public string[]? BreedCode { get; set; }
 

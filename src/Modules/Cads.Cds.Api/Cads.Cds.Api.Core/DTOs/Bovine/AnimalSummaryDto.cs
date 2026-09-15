@@ -1,3 +1,4 @@
+using Cads.Cds.Api.Core.Domain.Bovine;
 using System.Text.Json.Serialization;
 
 namespace Cads.Cds.Api.Core.DTOs.Bovine;
@@ -17,14 +18,14 @@ public class AnimalSummaryDto
     public DateOnly? DateOffCph { get; set; }
 
     [JsonPropertyName("species")]
-    public string? Species { get; set; }
+    public AnimalSpecies? Species { get; set; }
 
     [JsonPropertyName("sex")]
-    public string? Sex { get; set; }
+    public AnimalSex? Sex { get; set; }
 
     [JsonPropertyName("breedCode")]
     public BreedCodeDto? BreedCode { get; set; }
 
     [JsonPropertyName("status")]
-    public string? Status { get; set; }
+    public AnimalStatus? Status { get; set; }
 }

@@ -28,11 +28,9 @@ public class BovineController(IRequestExecutor executor) : ControllerBase
             Cph = request.Cph ?? string.Empty,
             Q = request.Q,
             Sex = request.Sex,
-            DateOnCphFrom = request.DateOnCphFrom
+            DateOnCphFrom = request.DateOnCphFrom,
+            HoldingAssociation = request.HoldingAssociation
         };
-
-        if (request.HoldingAssociation.HasValue)
-            query.HoldingAssociation = request.HoldingAssociation.Value;
 
         if (request.Status is not null)
             query.Status = request.Status;

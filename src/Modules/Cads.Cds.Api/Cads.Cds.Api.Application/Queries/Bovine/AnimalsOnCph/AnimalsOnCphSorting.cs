@@ -11,9 +11,6 @@ public static class AnimalsOnCphSorting
             ? string.Empty
             : a.Identifier.Identifier.ToLower();
 
-    private static readonly Expression<Func<AnimalSummaryDto, string>> Sex =
-        a => a.Sex == null ? string.Empty : a.Sex.ToLower();
-
     private static readonly Expression<Func<AnimalSummaryDto, string>> BreedCode =
         a => a.BreedCode == null || a.BreedCode.Identifier == null
             ? string.Empty
@@ -27,7 +24,7 @@ public static class AnimalsOnCphSorting
         {
             AnimalOrderBy.BirthDate => TieBreak(OrderBy(animals, a => a.BirthDate, direction)),
             AnimalOrderBy.DateOnCPH => TieBreak(OrderBy(animals, a => a.DateOnCph, direction)),
-            AnimalOrderBy.Sex => TieBreak(OrderBy(animals, Sex, direction)),
+            AnimalOrderBy.Sex => TieBreak(OrderBy(animals, a => a.Sex, direction)),
             AnimalOrderBy.BreedCode => TieBreak(OrderBy(animals, BreedCode, direction)),
             _ => OrderBy(animals, EarTagNumber, direction)
         };
