@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
         services.AddTransient<IS3SqlScriptExecutorService, S3SqlScriptExecutorService>();
-        services.AddTransient<IDefensiveCopyLineNormaliser, DefensiveCopyLineNormaliser>();
+        services.AddTransient<IDefensiveCopyLineNormaliserService, DefensiveCopyLineNormaliserService>();
 
         services.AddScoped<IS3ImportCommandFactoryProvider, S3ImportCommandFactoryProvider>();
 

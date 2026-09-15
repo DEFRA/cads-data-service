@@ -8,19 +8,19 @@ using Moq;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.S3Import.Services;
 
-public class DefensiveCopyLineNormaliserTests
+public class DefensiveCopyLineNormaliserServiceTests
 {
     private const char Delimiter = '|';
     private const int CtParamValueColumnCount = 14;
     private const int CtSuspenseWgAllocRulesColumnCount = 13;
     private const int CtMovtCorrectSummariesColumnCount = 38;
-    private readonly Mock<ILogger<DefensiveCopyLineNormaliser>> _loggerMock =
-        new Mock<ILogger<DefensiveCopyLineNormaliser>>().EnableAllLogLevels();
-    private readonly DefensiveCopyLineNormaliser _sut;
+    private readonly Mock<ILogger<DefensiveCopyLineNormaliserService>> _loggerMock =
+        new Mock<ILogger<DefensiveCopyLineNormaliserService>>().EnableAllLogLevels();
+    private readonly DefensiveCopyLineNormaliserService _sut;
 
-    public DefensiveCopyLineNormaliserTests()
+    public DefensiveCopyLineNormaliserServiceTests()
     {
-        _sut = new DefensiveCopyLineNormaliser(_loggerMock.Object);
+        _sut = new DefensiveCopyLineNormaliserService(_loggerMock.Object);
     }
 
     [Theory]
