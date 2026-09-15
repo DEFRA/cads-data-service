@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
-public sealed class DefensiveCopyLineNormaliser : IDefensiveCopyLineNormaliser
+public sealed class DefensiveCopyLineNormaliserService : IDefensiveCopyLineNormaliserService
 {
-    private readonly ILogger<DefensiveCopyLineNormaliser> _logger;
+    private readonly ILogger<DefensiveCopyLineNormaliserService> _logger;
 
-    public DefensiveCopyLineNormaliser(ILogger<DefensiveCopyLineNormaliser> logger)
+    public DefensiveCopyLineNormaliserService(ILogger<DefensiveCopyLineNormaliserService> logger)
     {
         _logger = logger;
     }
