@@ -64,7 +64,7 @@ public class S3SqlScriptExecutorServiceTests
             new CreateS3SqlImportJobDto { SourceKey = TestPrefix },
             TestContext.Current.CancellationToken);
 
-        result.Should().Be(0);
+        result.TotalRowsProcessed.Should().Be(0);
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class S3SqlScriptExecutorServiceTests
             new CreateS3SqlImportJobDto { SourceKey = TestKey },
             TestContext.Current.CancellationToken);
 
-        result.Should().Be(0);
+        result.TotalRowsProcessed.Should().Be(0);
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class S3SqlScriptExecutorServiceTests
             new CreateS3SqlImportJobDto { SourceKey = TestKey },
             TestContext.Current.CancellationToken);
 
-        result.Should().Be(0);
+        result.TotalRowsProcessed.Should().Be(0);
     }
 
     // -----------------------------------------------------------------------
