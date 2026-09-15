@@ -126,6 +126,11 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
             .HasColumnType("timestamptz")
             .IsRequired();
 
+        builder.Property(x => x.ImportAmendmentsMade)
+            .HasColumnName("amendments_made_flag")
+            .HasColumnType("boolean")
+            .IsRequired();
+
         builder.HasIndex(x => x.FileName)
             .HasDatabaseName("cts_file_imports_file_name_idx")
             .IsUnique();
