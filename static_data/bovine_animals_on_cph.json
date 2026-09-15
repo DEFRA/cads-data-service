@@ -1,0 +1,154 @@
+[
+  {
+    "cph": "08/065/0077",
+    "animals": [
+      {
+        "identifier": {
+          "schema": "uk.gov.defra.ear-tag.conventional",
+          "identifier": "UK324537113234"
+        },
+        "birthDate": "2023-03-10",
+        "movedOnCPH": "2023-03-14",
+        "registeredOnCPH": "2023-03-14",
+        "dateOffCPH": null,
+        "species": "Cattle",
+        "sex": "Female",
+        "breedCode": {
+          "schema": "cts.breed",
+          "breedName": "Holstein Friesian",
+          "identifier": "HO"
+        },
+        "status": "Alive"
+      },
+      {
+        "identifier": {
+          "schema": "uk.gov.defra.ear-tag.conventional",
+          "identifier": "UK324537113235"
+        },
+        "birthDate": "2023-03-28",
+        "movedOnCPH": "2023-04-03",
+        "registeredOnCPH": "2023-04-03",
+        "dateOffCPH": null,
+        "species": "Cattle",
+        "sex": "Female",
+        "breedCode": {
+          "schema": "cts.breed",
+          "breedName": "Holstein Friesian",
+          "identifier": "HOX"
+        },
+        "status": "Alive"
+      },
+      {
+        "identifier": {
+          "schema": "uk.gov.defra.ear-tag.conventional",
+          "identifier": "UK324537113236"
+        },
+        "birthDate": "2023-04-15",
+        "movedOnCPH": "2023-04-15",
+        "registeredOnCPH": "2023-04-15",
+        "dateOffCPH": null,
+        "species": "Cattle",
+        "sex": "Male",
+        "breedCode": {
+          "schema": "cts.breed",
+          "breedName": "Holstein Friesian",
+          "identifier": "HO"
+        },
+        "status": "Alive"
+      },
+      {
+        "identifier": {
+          "schema": "uk.gov.defra.ear-tag.conventional",
+          "identifier": "UK324537113237"
+        },
+        "birthDate": "2023-05-02",
+        "movedOnCPH": "2023-05-07",
+        "registeredOnCPH": "2023-05-07",
+        "dateOffCPH": null,
+        "species": "Cattle",
+        "sex": "Male",
+        "breedCode": {
+          "schema": "cts.breed",
+          "identifier": "HOX"
+        },
+        "status": "Alive"
+      },
+      {
+        "identifier": {
+          "schema": "uk.gov.defra.ear-tag.conventional",
+          "identifier": "UK324537113238"
+        },
+        "birthDate": "2023-05-20",
+        "movedOnCPH": "2023-05-21",
+        "registeredOnCPH": "2023-05-21",
+        "dateOffCPH": null,
+        "species": "Cattle",
+        "sex": "Male",
+        "breedCode": {
+          "schema": "cts.breed",
+          "breedName": "Holstein Friesian",
+          "identifier": "HO"
+        },
+        "status": "Alive"
+      },
+      {
+        "identifier": {
+          "schema": "uk.gov.defra.ear-tag.conventional",
+          "identifier": "UK324537113239"
+        },
+        "birthDate": "2023-09-08",
+        "movedOnCPH": "2023-09-09",
+        "registeredOnCPH": "2023-09-09",
+        "dateOffCPH": null,
+        "species": "Cattle",
+        "sex": "Female",
+        "breedCode": {
+          "schema": "cts.breed",
+          "breedName": "Holstein Friesian",
+          "identifier": "HOX"
+        },
+        "status": "Alive"
+      },
+      {
+        "identifier": {
+          "schema": "uk.gov.defra.ear-tag.conventional",
+          "identifier": "UK324537113240"
+        },
+        "birthDate": "2023-09-25",
+        "movedOnCPH": "2023-09-27",
+        "registeredOnCPH": "2023-09-27",
+        "dateOffCPH": null,
+        "species": "Cattle",
+        "sex": "Female",
+        "breedCode": {
+          "schema": "cts.breed",
+          "breedName": "Holstein Friesian",
+          "identifier": "HO"
+        },
+        "status": "Alive"
+      },
+      {
+        "identifier": {
+          "schema": "uk.gov.defra.ear-tag.conventional",
+          "identifier": "UK324537113241"
+        },
+        "birthDate": "2023-10-12",
+        "movedOnCPH": "2023-10-19",
+        "registeredOnCPH": "2023-10-19",
+        "dateOffCPH": null,
+        "species": "Cattle",
+        "sex": "Female",
+        "breedCode": {
+          "schema": "cts.breed",
+          "breedName": "Holstein Friesian",
+          "identifier": "HOX"
+        },
+        "status": "Alive"
+      }
+    ]
+  },
+  {
+    "cph": "08/065/0078",
+    "animals": []
+  }
+]
