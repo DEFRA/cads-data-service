@@ -1,3 +1,4 @@
+using Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnCph;
 using Cads.Cds.Api.Core.Domain.Bovine;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
@@ -9,6 +10,7 @@ public class GetAnimalsOnCphRequest
     [FromQuery(Name = "CPH")] public string? Cph { get; set; }
 
     [FromQuery(Name = "holdingAssociation")]
+    [DefaultValue(HoldingAssociation.MovedOnHolding)]
     public HoldingAssociation HoldingAssociation { get; set; }
 
     [FromQuery(Name = "status")] public AnimalStatus[]? Status { get; set; }
@@ -21,11 +23,19 @@ public class GetAnimalsOnCphRequest
 
     [FromQuery(Name = "q")] public string? Q { get; set; }
 
-    [FromQuery(Name = "page")] public int? Page { get; set; }
+    [FromQuery(Name = "page")]
+    [DefaultValue(GetAnimalsOnCph.DefaultPage)]
+    public int? Page { get; set; }
 
-    [FromQuery(Name = "page-size")] public int? PageSize { get; set; }
+    [FromQuery(Name = "page-size")]
+    [DefaultValue(GetAnimalsOnCph.DefaultPageSize)]
+    public int? PageSize { get; set; }
 
-    [FromQuery(Name = "order-by")] public AnimalOrderBy? OrderBy { get; set; }
+    [FromQuery(Name = "order-by")]
+    [DefaultValue(AnimalOrderBy.Identifier)]
+    public AnimalOrderBy? OrderBy { get; set; }
 
-    [FromQuery(Name = "direction")] public SortDirection? Direction { get; set; }
+    [FromQuery(Name = "direction")]
+    [DefaultValue(SortDirection.Asc)]
+    public SortDirection? Direction { get; set; }
 }
