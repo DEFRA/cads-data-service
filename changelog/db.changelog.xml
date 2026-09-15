@@ -30,6 +30,7 @@
   <property name="jtExtTestEmail" value="SA-O365-CADS-MIP-EXT-TEST-tst@defradev.onmicrosoft.com" context="ext-test"/>
   <property name="jtPerfTestNam" value="SA-O365-CADS-MIP-PERF-TEST" context="perf-test"/>
   <property name="jtPerfTestEmail" value="SA-O365-CADS-MIP-PERF-TEST-tst@defradev.onmicrosoft.com" context="perf-test"/>
+  <include file="0000_000_drop_all_schema_objects.postgresql.sql"/>
   <include file="0000_000_drop_legacy_schema_objects.postgresql.sql"/>
   <include file="0000_001_create_schemas.postgresql.sql"/>
   <include file="0000_002_create_schemas_permissions.postgresql.sql"/>
