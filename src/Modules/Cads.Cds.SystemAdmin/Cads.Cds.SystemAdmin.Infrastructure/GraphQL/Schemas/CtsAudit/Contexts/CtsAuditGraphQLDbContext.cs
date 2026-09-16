@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Schemas.CtsAudit.Entities;
 using Microsoft.EntityFrameworkCore;
 
