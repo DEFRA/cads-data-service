@@ -1,10 +1,13 @@
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
+using Cads.Cds.StorageBridge.Application.S3Import.Model;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.BulkLoad.Metrics;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Extensions;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
+using Cads.Cds.StorageBridge.Infrastructure.S3Import.Models;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,9 +18,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
-using Cads.Cds.StorageBridge.Application.S3Import.Model;
-using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
-using Cads.Cds.StorageBridge.Infrastructure.S3Import.Models;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
