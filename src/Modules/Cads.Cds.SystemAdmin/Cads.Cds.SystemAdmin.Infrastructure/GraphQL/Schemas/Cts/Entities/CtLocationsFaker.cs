@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Schemas.Cts.Entities;
 
 public partial class CtLocationsFaker
