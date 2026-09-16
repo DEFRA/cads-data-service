@@ -1,6 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
-using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
