@@ -1,3 +1,4 @@
+using Cads.Cds.StorageBridge.Endpoints;
 using FluentAssertions;
 
 namespace Cads.Cds.StorageBridge.Tests.Unit.Endpoints;
