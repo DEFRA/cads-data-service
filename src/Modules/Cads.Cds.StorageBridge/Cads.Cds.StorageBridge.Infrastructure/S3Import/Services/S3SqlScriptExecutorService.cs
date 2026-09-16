@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
+using Cads.Cds.StorageBridge.Application.S3Import.Model;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Core.Domain.Entities;
 using Cads.Cds.StorageBridge.Infrastructure.Persistance.Contexts;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Cads.Cds.StorageBridge.Application.S3Import.Model;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 

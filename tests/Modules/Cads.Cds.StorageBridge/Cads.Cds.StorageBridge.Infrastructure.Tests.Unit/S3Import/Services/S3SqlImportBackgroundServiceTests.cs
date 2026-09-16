@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.StorageBridge.Application.S3Import.Model;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using Microsoft.Extensions.Hosting;
@@ -6,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Reflection;
 using System.Threading.Channels;
-using Cads.Cds.StorageBridge.Application.S3Import.Model;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.S3Import.Services;
 
