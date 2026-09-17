@@ -1,13 +1,14 @@
-using Cads.Cds.Api.Core.DTOs.Bovine;
+using Cads.Cds.Api.Application.DTOs.Bovine.Animals;
+using Cads.Cds.Api.Application.Queries.Bovine.Adapters;
 using MediatR;
 
 namespace Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
 
 public class GetAnimalDetailsByIdentifierHandler(AnimalDetailsQueryAdapter adapter)
-    : IRequestHandler<GetAnimalDetailsByIdentifier, AnimalDetailDto?>
+    : IRequestHandler<GetAnimalDetailsByIdentifier, AnimalDetailsDto?>
 {
-    public async Task<AnimalDetailDto?> Handle(GetAnimalDetailsByIdentifier request, CancellationToken cancellationToken)
+    public async Task<AnimalDetailsDto?> Handle(GetAnimalDetailsByIdentifier request, CancellationToken cancellationToken)
     {
-        return await adapter.GetAsync(request, cancellationToken);
+        return await adapter.GetByIdentifierAsync(request, cancellationToken);
     }
 }
