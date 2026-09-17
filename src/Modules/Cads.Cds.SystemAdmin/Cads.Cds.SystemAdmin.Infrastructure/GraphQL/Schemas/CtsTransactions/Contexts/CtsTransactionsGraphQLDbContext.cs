@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Schemas.CtsTransactions.Entities;
 using Microsoft.EntityFrameworkCore;
 

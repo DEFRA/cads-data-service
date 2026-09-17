@@ -5,21 +5,11 @@ using System.Text.Json.Nodes;
 
 namespace Cads.Cds.Setup.Swagger;
 
-/// <summary>
-/// Surfaces [DefaultValue] on query parameters whose schema is a reference, such as enums.
-/// A $ref may not carry sibling keywords, so the reference is wrapped in allOf and the
-/// default applied alongside it.
-/// </summary>
 public class DefaultValueParameterFilter : IParameterFilter
 {
     public void Apply(IOpenApiParameter parameter, ParameterFilterContext context)
     {
-        var defaultValue = context.ParameterInfo?.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true)
-            .Cast<DefaultValueAttribute>()
-            .FirstOrDefault()?.Value
-            ?? context.PropertyInfo?.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true)
-            .Cast<DefaultValueAttribute>()
-            .FirstOrDefault()?.Value;
+        var defaultValue = GetExplicitDefaultValue(context) ?? GetImplicitDefaultValue(context);
 
         if (defaultValue is null
             || parameter is not OpenApiParameter concrete
@@ -31,5 +21,32 @@ public class DefaultValueParameterFilter : IParameterFilter
             AllOf = [reference],
             Default = JsonValue.Create(defaultValue.ToString())
         };
+    }
+
+    private static object? GetExplicitDefaultValue(ParameterFilterContext context)
+    {
+        return context.ParameterInfo?.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true)
+            .Cast<DefaultValueAttribute>()
+            .FirstOrDefault()?.Value
+            ?? context.PropertyInfo?.GetCustomAttributes(typeof(DefaultValueAttribute), inherit: true)
+            .Cast<DefaultValueAttribute>()
+            .FirstOrDefault()?.Value;
+    }
+
+    private static object? GetImplicitDefaultValue(ParameterFilterContext context)
+    {
+        var property = context.PropertyInfo;
+        if (property?.DeclaringType is null)
+            return null;
+
+        try
+        {
+            var instance = Activator.CreateInstance(property.DeclaringType);
+            return property.GetValue(instance);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }
