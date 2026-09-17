@@ -1,4 +1,4 @@
-using Cads.Cds.Api.Core.Domain.Entities;
+using Cads.Cds.Api.Core.Domain.Entities.Holdings;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.Api.Testing.Support.Seeding;
