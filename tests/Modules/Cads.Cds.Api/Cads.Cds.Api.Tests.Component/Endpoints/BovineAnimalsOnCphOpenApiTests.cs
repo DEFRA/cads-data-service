@@ -36,8 +36,8 @@ public class BovineAnimalsOnCphOpenApiTests(ApiTestFixture testFixture) : IClass
     [InlineData("dateOnCPHFrom")]
     [InlineData("q")]
     [InlineData("page")]
-    [InlineData("page-size")]
-    [InlineData("order-by")]
+    [InlineData("pageSize")]
+    [InlineData("orderBy")]
     [InlineData("direction")]
     public async Task WhenTheOpenApiDocumentIsRequested_ShouldPublishTheSupportedQueryParameter(string name)
     {
@@ -48,10 +48,8 @@ public class BovineAnimalsOnCphOpenApiTests(ApiTestFixture testFixture) : IClass
 
     [Theory]
     [InlineData("holdingAssociation", "MovedOnHolding")]
-    [InlineData("order-by", "Identifier")]
+    [InlineData("orderBy", "Identifier")]
     [InlineData("direction", "Asc")]
-    [InlineData("page", "1")]
-    [InlineData("page-size", "25")]
     public async Task WhenTheOpenApiDocumentIsRequested_ShouldDeclareTheParameterDefault(string name, string expected)
     {
         var parameters = await GetParameters();
@@ -65,8 +63,7 @@ public class BovineAnimalsOnCphOpenApiTests(ApiTestFixture testFixture) : IClass
     [InlineData("HoldingAssociation", new[] { "MovedOnHolding", "RegisteredOnHolding" })]
     [InlineData("AnimalStatus", new[] { "Alive", "Dead", "OffFarm", "Unknown" })]
     [InlineData("AnimalSex", new[] { "Female", "Male" })]
-    [InlineData("AnimalSpecies", new[] { "Cattle" })]
-    [InlineData("AnimalOrderBy", new[] { "Identifier", "BirthDate", "DateOnCPH", "Sex", "BreedCode" })]
+    [InlineData("AnimalsOnHoldingOrderBy", new[] { "Identifier", "BirthDate", "DateOnCPH", "Sex", "BreedCode" })]
     [InlineData("SortDirection", new[] { "Asc", "Desc" })]
     public async Task WhenTheOpenApiDocumentIsRequested_ShouldDeclareTheValueSet(string schema, string[] expected)
     {
@@ -107,10 +104,6 @@ public class BovineAnimalsOnCphOpenApiTests(ApiTestFixture testFixture) : IClass
 
     [Theory]
     [InlineData("resourceType")]
-    [InlineData("page")]
-    [InlineData("pageSize")]
-    [InlineData("totalPages")]
-    [InlineData("totalRecords")]
     [InlineData("animals")]
     public async Task WhenTheOpenApiDocumentIsRequested_ShouldDeclareTheCollectionField(string field)
     {
@@ -119,7 +112,7 @@ public class BovineAnimalsOnCphOpenApiTests(ApiTestFixture testFixture) : IClass
         document.RootElement
             .GetProperty("components")
             .GetProperty("schemas")
-            .GetProperty("AnimalCollectionDto")
+            .GetProperty("AnimalsOnHoldingDto")
             .GetProperty("properties")
             .TryGetProperty(field, out _)
             .Should().BeTrue();

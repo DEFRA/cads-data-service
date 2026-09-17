@@ -1,5 +1,5 @@
 using AutoFixture;
-using Cads.Cds.Api.Core.Domain.Entities;
+using Cads.Cds.Api.Core.Domain.Entities.Holdings;
 using Cads.Cds.Api.Testing.Support.Constants;
 using Cads.Cds.Api.Testing.Support.Specimens.Builders;
 

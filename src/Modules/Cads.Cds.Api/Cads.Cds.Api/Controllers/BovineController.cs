@@ -1,7 +1,9 @@
+using Cads.Cds.Api.Application.DTOs.Bovine.Animals;
 using Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
-using Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnCph;
-using Cads.Cds.Api.Controllers.Requests;
-using Cads.Cds.Api.Core.DTOs.Bovine;
+using Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnHolding;
+using Cads.Cds.Api.Controllers.Adapters.Bovine;
+using Cads.Cds.Api.Controllers.Requests.Bovine;
+using Cads.Cds.Api.Controllers.Requests.Common;
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Microsoft.AspNetCore.Authorization;
@@ -15,56 +17,13 @@ namespace Cads.Cds.Api.Controllers;
 [Route("api/v1/bovine")]
 public class BovineController(IRequestExecutor executor) : ControllerBase
 {
-    [HttpGet("animals")]
-    [ProducesResponseType(typeof(AnimalCollectionDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAnimalsOnCph([FromQuery] GetAnimalsOnCphRequest request, CancellationToken cancellationToken)
-    {
-        var query = new GetAnimalsOnCph
-        {
-            Cph = request.Cph ?? string.Empty,
-            Q = request.Q,
-            Sex = request.Sex,
-            DateOnCphFrom = request.DateOnCphFrom,
-            HoldingAssociation = request.HoldingAssociation
-        };
-
-        if (request.Status is not null)
-            query.Status = request.Status;
-
-        if (request.BreedCode is not null)
-            query.BreedCode = request.BreedCode;
-
-        if (request.Page.HasValue)
-            query.Page = request.Page.Value;
-
-        if (request.PageSize.HasValue)
-            query.PageSize = request.PageSize.Value;
-
-        if (request.OrderBy.HasValue)
-            query.OrderBy = request.OrderBy.Value;
-
-        if (request.Direction.HasValue)
-            query.Direction = request.Direction.Value;
-
-        var result = await executor.ExecuteQuery(query, cancellationToken);
-
-        if (result is null)
-            return NotFound();
-
-        return Ok(result);
-    }
-
     [HttpGet("animals/{identifier}")]
-    [ProducesResponseType(typeof(AnimalDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AnimalDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAnimalDetails([FromRoute] string identifier, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAnimalDetailsByIdentifier([FromRoute] string identifier, CancellationToken cancellationToken)
     {
         var result = await executor.ExecuteQuery(new GetAnimalDetailsByIdentifier
         {
@@ -75,5 +34,25 @@ public class BovineController(IRequestExecutor executor) : ControllerBase
             return NotFound();
 
         return Ok(result);
+    }
+
+    [HttpGet("animals")]
+    [ProducesResponseType(typeof(AnimalsOnHoldingDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAnimalsOnHolding(
+        [FromQuery] GetAnimalsOnHoldingRequest request,
+        [FromQuery] AnimalsOnHoldingFilters filters,
+        [FromQuery] PagingOptionsRequest paging,
+        [FromQuery] SortingOptionsRequest<AnimalsOnHoldingOrderBy> sorting,
+        CancellationToken cancellationToken)
+    {
+        var query = AnimalsOnHoldingRequestAdapter.ToQuery(request, filters, paging, sorting);
+
+        var result = await executor.ExecuteQuery(query, cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
     }
 }
