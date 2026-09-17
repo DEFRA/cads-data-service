@@ -1,4 +1,4 @@
-using Cads.Cds.Api.Core.Domain.Entities;
+using Cads.Cds.Api.Core.Domain.Entities.Holdings;
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
