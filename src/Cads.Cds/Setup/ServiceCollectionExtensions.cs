@@ -11,6 +11,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
 using Cads.Cds.Setup.Providers;
+using Cads.Cds.Setup.Swagger;
 using Cads.Cds.StorageBridge.Application;
 using Cads.Cds.SystemAdmin.Application;
 using FluentValidation;
@@ -87,6 +88,8 @@ public static class ServiceCollectionExtensions
                 [new OpenApiSecuritySchemeReference("bearer", document)] = [],
                 [new OpenApiSecuritySchemeReference("basic", document)] = []
             });
+
+            options.ParameterFilter<DefaultValueParameterFilter>();
         });
     }
 
