@@ -1,8 +1,8 @@
 using Cads.Cds.Api.Application.Uow;
-using Cads.Cds.Api.Core.Domain.Repositories;
+using Cads.Cds.Api.Core.Domain.Repositories.Holdings;
 using Cads.Cds.Api.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
-using Cads.Cds.Api.Infrastructure.Persistence.Repositories;
+using Cads.Cds.Api.Infrastructure.Persistence.Repositories.Holdings;
 using Cads.Cds.Api.Infrastructure.Persistence.Uow;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
@@ -23,8 +23,6 @@ public static class ServiceCollectionExtensions
         services.RegisterManualUnitOfWork();
 
         services.RegisterFunctionRepositories();
-
-        services.RegisterStaticDataRepositories();
 
         return services;
     }
@@ -53,10 +51,5 @@ public static class ServiceCollectionExtensions
     private static void RegisterFunctionRepositories(this IServiceCollection services)
     {
         services.AddScoped<ILocationSummaryRepository, LocationSummaryRepository>();
-    }
-
-    private static void RegisterStaticDataRepositories(this IServiceCollection services)
-    {
-        services.AddScoped<IAnimalDetailRepository, AnimalDetailRepository>();
     }
 }

@@ -1,5 +1,5 @@
 using AutoFixture.Kernel;
-using Cads.Cds.Api.Core.Domain.Entities;
+using Cads.Cds.Api.Core.Domain.Entities.Holdings;
 using Cads.Cds.BuildingBlocks.Testing.Support.Specimens.Generators;
 
 namespace Cads.Cds.Api.Testing.Support.Specimens.Builders;
