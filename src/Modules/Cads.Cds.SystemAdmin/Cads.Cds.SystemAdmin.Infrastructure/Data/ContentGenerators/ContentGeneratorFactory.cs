@@ -10,7 +10,7 @@ public class ContentGeneratorFactory
     {
         return tableName switch
         {
-            "CtLocation" => new CtLocationContentGenerator(dbContext),
+            "ct_locations" => new CtLocationContentGenerator(dbContext),
             _ => throw new ArgumentException($"No content generator found for table '{tableName}'.", nameof(tableName)),
         };
     }
