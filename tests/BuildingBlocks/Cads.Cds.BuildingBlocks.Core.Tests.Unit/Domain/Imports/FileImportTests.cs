@@ -148,16 +148,30 @@ public class FileImportTests
     [Fact]
     public void MarkCompleted_FromSplit_SetsCompletedAndEndTime()
     {
-        var fileImport = new FileImport
-        {
-            ImportStatus = FileImportStatus.Split
-        };
+        var fileImport = new FileImport { ImportStatus = FileImportStatus.Split };
 
         fileImport.MarkCompleted();
 
         fileImport.ImportStatus.Should().Be(FileImportStatus.Completed);
         fileImport.ImportEndAt.Should().NotBeNull();
     }
+
+    [Fact]
+    public void MarkCompletedWithAmendments_FromSplit_SetsCompletedAndEndTimeAndAmendedFlag()
+    {
+        var fileImport = new FileImport
+        {
+            ImportStatus = FileImportStatus.Split
+        };
+
+        fileImport.MarkCompleted(new List<string>() { "row1", "row2" });
+
+        fileImport.ImportStatus.Should().Be(FileImportStatus.Completed);
+        fileImport.ImportAmendmentsMade.Should().BeTrue();
+        fileImport.LastErrorReason.Should().Be("Amended rows: row1, row2");
+        fileImport.ImportEndAt.Should().NotBeNull();
+    }
+
 
     [Fact]
     public void MarkCompleted_FromInvalidState_ThrowsBusinessRuleValidationException()
