@@ -1,4 +1,4 @@
-using Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Setup;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Messaging.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Setup;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSystemAdminMessaging(config);
 
-        services.ConfigureSystemAdminGraphQL();
+        services.ConfigureSystemAdminData();
 
         return services;
     }

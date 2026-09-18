@@ -1,0 +1,12 @@
+using System.Collections.Generic;
+
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Entities;
+
+public partial class AnimalPartyRef
+{
+    public int Identifier { get; set; }
+
+    public virtual ICollection<AnimalCollectiveParty> AnimalCollectiveParties { get; set; } = new List<AnimalCollectiveParty>();
+
+    public virtual ICollection<AnimalParty> AnimalParties { get; set; } = new List<AnimalParty>();
+}
