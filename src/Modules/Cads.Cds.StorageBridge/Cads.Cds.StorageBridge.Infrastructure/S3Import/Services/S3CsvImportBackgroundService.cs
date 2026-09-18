@@ -1,4 +1,3 @@
-using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
@@ -38,9 +37,9 @@ public class S3CsvImportBackgroundService(
 
                 try
                 {
-                    await processor.ExecuteAsync(request, cancellationToken);
+                    var result = await processor.ExecuteAsync(request, cancellationToken);
 
-                    fileImport!.SetImportStatus(FileImportStatus.Completed);
+                    fileImport!.MarkCompleted(result.RowIdsAmended);
                     await dbContext.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception ex)

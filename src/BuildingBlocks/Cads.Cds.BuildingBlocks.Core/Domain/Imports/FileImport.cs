@@ -32,6 +32,7 @@ public class FileImport
     public string? GroupKey { get; set; }
     public string? ImportType { get; set; }
     public DateTimeOffset? BatchDate { get; set; }
+    public bool ImportAmendmentsMade { get; set; }
 
     public FileImport()
     {
@@ -86,11 +87,16 @@ public class FileImport
             throw new InvalidOperationException($"Invalid import status transition from {ImportStatus} to Failed. Use MarkFailed(reason) instead.");
         }
 
+        if (status == FileImportStatus.Completed)
+        {
+            MarkCompleted();
+            return;
+        }
+
         (status switch
         {
             FileImportStatus.Transferred => (Action)MarkTransferred,
             FileImportStatus.Split => MarkSplit,
-            FileImportStatus.Completed => MarkCompleted,
             _ => null
         })?.Invoke();
     }
@@ -114,12 +120,17 @@ public class FileImport
         ImportStatus = FileImportStatus.Split;
     }
 
-    public void MarkCompleted()
+    public void MarkCompleted(List<string>? amendedRowIds = null)
     {
         BusinessRuleChecker.CheckRule(new MarkCompletedRule(ImportStatus));
 
         ImportStatus = FileImportStatus.Completed;
         ImportEndAt = DateTimeOffset.UtcNow;
+        if (amendedRowIds != null && amendedRowIds.Count > 0)
+        {
+            ImportAmendmentsMade = true;
+            LastErrorReason = $"Amended rows: {string.Join(", ", amendedRowIds)}";
+        }
     }
 
     public void MarkFailed(string reason, bool isTransient = true)

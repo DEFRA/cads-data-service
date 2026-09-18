@@ -5,7 +5,7 @@ using System;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.ContentGenerators.Schemas.CtsTransactions;
 
-public sealed class CtLocationContentGenerator(DbContext dbContext) 
+public sealed class CtLocationContentGenerator(DbContext dbContext)
     : ContentGenerator<CtLocation>(dbContext), IContentGenerator
 {
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =

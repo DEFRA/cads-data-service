@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Entities;

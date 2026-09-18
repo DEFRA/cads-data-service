@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.StorageBridge.Application.S3Import.Model;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 using Microsoft.Extensions.Hosting;
@@ -104,7 +105,7 @@ public class S3SqlImportBackgroundServiceTests
         var ctx = new S3SqlBulkLoadBackgroundServiceTestContext();
 
         var jobStarted = new TaskCompletionSource();
-        var releaseJob = new TaskCompletionSource<long>();
+        var releaseJob = new TaskCompletionSource<S3ToPostgresResult>();
 
         // Block the in-flight job until we've cancelled the stopping token, so we can
         // prove that the finally/WhenAll still awaits it to completion.
@@ -128,7 +129,7 @@ public class S3SqlImportBackgroundServiceTests
         // The service must not complete until the in-flight job is drained.
         Assert.False(executeTask.IsCompleted);
 
-        releaseJob.SetResult(0);
+        releaseJob.SetResult(new S3ToPostgresResult { TotalRowsProcessed = 0 });
 
         await executeTask;
 
