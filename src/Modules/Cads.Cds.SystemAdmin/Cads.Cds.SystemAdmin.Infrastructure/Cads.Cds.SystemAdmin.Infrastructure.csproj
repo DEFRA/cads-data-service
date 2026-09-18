@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Bogus" Version="35.6.5" />
     <PackageReference Include="HotChocolate" Version="16.6.4" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="16.6.4" />
     <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="16.6.4" />
