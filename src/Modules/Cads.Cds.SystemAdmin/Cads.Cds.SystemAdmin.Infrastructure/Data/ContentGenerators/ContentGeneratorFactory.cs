@@ -8,7 +8,7 @@ public class ContentGeneratorFactory
 {
     public IContentGenerator Create(string tableName, DbContext dbContext)
     {
-        return tableName switch
+        return tableName.ToLowerInvariant() switch
         {
             "ct_locations" => new CtLocationContentGenerator(dbContext),
             _ => throw new ArgumentException($"No content generator found for table '{tableName}'.", nameof(tableName)),
