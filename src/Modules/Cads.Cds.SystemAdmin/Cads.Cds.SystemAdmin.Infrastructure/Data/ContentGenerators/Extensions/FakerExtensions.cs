@@ -26,7 +26,7 @@ public static class RulesRxtensions
             return Math.Round((decimal)faker.Random.Double() * 1000, 2);
 
         if (type == typeof(DateTime))
-            return DateTime.UtcNow.AddDays(-faker.Random.Int(0, 3650));
+            return DateTime.UtcNow.AddDays(-faker.Random.Int(0, 3650)).Date;
 
         if (type == typeof(Guid))
             return faker.Random.Guid();
