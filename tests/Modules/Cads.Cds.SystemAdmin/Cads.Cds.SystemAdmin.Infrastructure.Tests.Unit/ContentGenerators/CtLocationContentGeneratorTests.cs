@@ -144,7 +144,7 @@ public class CtLocationContentGeneratorTests
         Assert.Equal("Y", result["loc_receive_ppaf_flag"] as string);
     }
 
-    private static bool DictionariesEqual(IReadOnlyDictionary<string, object> a, IReadOnlyDictionary<string, object> b)
+    private static bool DictionariesEqual(IReadOnlyDictionary<string, object?> a, IReadOnlyDictionary<string, object?> b)
     {
         if (a == null || b == null) return a == b;
         if (a.Count != b.Count) return false;
