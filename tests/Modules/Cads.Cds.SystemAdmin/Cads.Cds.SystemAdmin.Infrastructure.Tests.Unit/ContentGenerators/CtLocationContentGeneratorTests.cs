@@ -3,7 +3,7 @@ using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.ContentGenerators;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.ContentGenerattors;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.ContentGenerators;
 
 public class CtLocationContentGeneratorTests
 {
@@ -93,7 +93,7 @@ public class CtLocationContentGeneratorTests
         using var db = CreateDbContext("CreateContentGenerator_ReturnsCorrectGenerator");
         var factory = new ContentGeneratorFactory();
 
-        var result = factory.Create("CtLocation", db);
+        var result = factory.Create("ct_Locations", db);
 
         Assert.IsType<CtLocationContentGenerator>(result);
     }
@@ -104,7 +104,7 @@ public class CtLocationContentGeneratorTests
         using var db = CreateDbContext("GenerateBulk_SetsTransTypeToB");
         var factory = new ContentGeneratorFactory();
 
-        var contentCenerator = factory.Create("CtLocation", db);
+        var contentCenerator = factory.Create("ct_Locations", db);
 
         var keys = new List<decimal> { 100m, 101m };
         var results = contentCenerator.GenerateBulk(keys, seed: 123);
@@ -132,7 +132,7 @@ public class CtLocationContentGeneratorTests
         using var db = CreateDbContext("GenerateUpdate_SetsTransTypeToU");
         var factory = new ContentGeneratorFactory();
 
-        var contentCenerator = factory.Create("CtLocation", db);
+        var contentCenerator = factory.Create("ct_Locations", db);
 
         var result = contentCenerator.GenerateUpdate(200m, seed: 456);
 
