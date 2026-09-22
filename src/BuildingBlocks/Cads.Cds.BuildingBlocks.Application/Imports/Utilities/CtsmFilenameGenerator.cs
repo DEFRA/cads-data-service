@@ -64,7 +64,7 @@ public sealed class CtsmFilenameGenerator : ICtsmFilenameGenerator
                $"{tableName.ToUpperInvariant()}_" +
                $"{timestamp}{Extension}";
     }
-    
+
     private int NextBatchId()
     {
         var next = unchecked((uint)Interlocked.Increment(ref _lastBatchId));
