@@ -122,4 +122,5 @@
   <include file="0005_001_ct_workgroups_seed_data_faker_data.postgresql.sql"/>
   <include file="0005_002_psudeo-anonymisation.postgresql.sql" />
   <include file="0005_003_psudeo_anonymisation.postgresql.sql"/>
+  <include file="0005_004_admin_exec_stored_proc.postgresql.sql"/>
 </databaseChangeLog>
