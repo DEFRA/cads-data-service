@@ -109,7 +109,7 @@ public class AwsStsAuthenticationHandler(
         var manager = ConfigManagers.GetOrAdd(issuer, iss => new ConfigurationManager<OpenIdConnectConfiguration>(
             $"{iss.TrimEnd('/')}/.well-known/openid-configuration",
             new OpenIdConnectConfigurationRetriever(),
-            new HttpDocumentRetriever(httpClientFactory.CreateClient("DefaultClient")) { RequireHttps = true }));
+            new HttpDocumentRetriever(httpClientFactory.CreateClient("proxy")) { RequireHttps = true }));
 
         return manager.GetConfigurationAsync(CancellationToken.None);
     }
