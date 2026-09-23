@@ -16,7 +16,9 @@ BEGIN
             RETURN (
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
-                         SELECT state, COUNT(*) AS sessions
+                         SELECT
+                             state,
+                             COUNT(*) AS sessions
                          FROM pg_stat_activity
                          GROUP BY state
                          ORDER BY sessions DESC
@@ -28,9 +30,17 @@ BEGIN
             RETURN (
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
-                         SELECT pid, usename, datname, application_name,
-                                client_addr, state, wait_event_type, wait_event,
-                                now() - query_start AS duration, query
+                         SELECT
+                             pid,
+                             usename,
+                             datname,
+                             application_name,
+                             client_addr,
+                             state,
+                             wait_event_type,
+                             wait_event,
+                             now() - query_start AS duration,
+                             query
                          FROM pg_stat_activity
                          WHERE state <> 'idle'
                          ORDER BY duration DESC
@@ -50,8 +60,11 @@ BEGIN
             RETURN (
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
-                         SELECT datname, xact_commit, xact_rollback,
-                                xact_commit + xact_rollback AS total_transactions
+                         SELECT
+                             datname,
+                             xact_commit,
+                             xact_rollback,
+                             xact_commit + xact_rollback AS total_transactions
                          FROM pg_stat_database
                          ORDER BY total_transactions DESC
                      ) t
@@ -62,8 +75,13 @@ BEGIN
             RETURN (
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
-                         SELECT datname, tup_returned, tup_fetched,
-                                tup_inserted, tup_updated, tup_deleted
+                         SELECT
+                             datname,
+                             tup_returned,
+                             tup_fetched,
+                             tup_inserted,
+                             tup_updated,
+                             tup_deleted
                          FROM pg_stat_database
                          ORDER BY tup_returned DESC
                      ) t
@@ -74,7 +92,9 @@ BEGIN
             RETURN (
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
-                         SELECT datname, blks_hit, blks_read,
+                         SELECT datname,
+                                blks_hit,
+                                blks_read,
                                 ROUND(
                                     100.0 * blks_hit / NULLIF(blks_hit + blks_read, 0),
                                     2
@@ -124,7 +144,10 @@ BEGIN
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
                          SELECT
-                             pid, usename, datname, client_addr,
+                             pid,
+                             usename,
+                             datname,
+                             client_addr,
                              now() - xact_start AS transaction_age,
                              now() - state_change AS idle_duration,
                              query
@@ -139,7 +162,10 @@ BEGIN
             RETURN (
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
-                         SELECT gid, database, owner, prepared,
+                         SELECT gid,
+                                database,
+                                owner,
+                                prepared,
                                 now() - prepared AS age
                          FROM pg_prepared_xacts
                          ORDER BY prepared
@@ -152,12 +178,21 @@ BEGIN
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
                          SELECT
-                             schemaname, relname AS table_name,
-                             seq_scan, seq_tup_read, idx_scan, idx_tup_fetch,
-                             n_tup_ins, n_tup_upd, n_tup_del,
-                             n_live_tup, n_dead_tup,
-                             last_vacuum, last_autovacuum,
-                             last_analyze, last_autoanalyze
+                             schemaname,
+                             relname AS table_name,
+                             seq_scan,
+                             seq_tup_read,
+                             idx_scan,
+                             idx_tup_fetch,
+                             n_tup_ins,
+                             n_tup_upd,
+                             n_tup_del,
+                             n_live_tup,
+                             n_dead_tup,
+                             last_vacuum,
+                             last_autovacuum,
+                             last_analyze,
+                             last_autoanalyze
                          FROM pg_stat_user_tables
                          ORDER BY n_live_tup DESC
                      ) t
@@ -169,9 +204,12 @@ BEGIN
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
                          SELECT
-                             schemaname, relname AS table_name,
+                             schemaname,
+                             relname AS table_name,
                              indexrelname AS index_name,
-                             idx_scan, idx_tup_read, idx_tup_fetch
+                             idx_scan,
+                             idx_tup_read,
+                             idx_tup_fetch
                          FROM pg_stat_user_indexes
                          ORDER BY idx_scan ASC
                      ) t
@@ -183,11 +221,13 @@ BEGIN
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
                          SELECT
-                             schemaname, relname AS table_name,
+                             schemaname,
+                             relname AS table_name,
                              pg_size_pretty(pg_total_relation_size(relid)) AS total_size,
                              pg_size_pretty(pg_relation_size(relid)) AS table_size,
                              pg_size_pretty(pg_total_relation_size(relid) - pg_relation_size(relid)) AS index_size,
-                             n_live_tup, n_dead_tup
+                             n_live_tup,
+                             n_dead_tup
                          FROM pg_stat_user_tables
                          ORDER BY pg_total_relation_size(relid) DESC
                          LIMIT 25
@@ -208,11 +248,13 @@ BEGIN
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
                          SELECT
-                             queryid, calls,
+                             queryid,
+                             calls,
                              ROUND(total_exec_time::numeric, 2) AS total_exec_time_ms,
                              ROUND(mean_exec_time::numeric, 2) AS mean_exec_time_ms,
                              ROUND(max_exec_time::numeric, 2) AS max_exec_time_ms,
-                             rows, query
+                             rows,
+                             query
                          FROM pg_stat_statements
                          ORDER BY total_exec_time DESC
                          LIMIT 20
@@ -233,7 +275,10 @@ BEGIN
                 SELECT jsonb_agg(row_to_json(t))
                 FROM (
                          SELECT
-                             queryid, calls, shared_blks_read, shared_blks_hit,
+                             queryid,
+                             calls,
+                             shared_blks_read,
+                             shared_blks_hit,
                              ROUND(
                                  100.0 * shared_blks_hit / NULLIF(shared_blks_hit + shared_blks_read, 0),
                                  2
