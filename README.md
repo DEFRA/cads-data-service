@@ -501,7 +501,7 @@ The newly generated migration will be placed in the `changelog` directory. Ensur
 
 ### Liquibase Workflow Guide
 
-See detailed `Liquibase Workflow Guide` [here](./changelog/ReadMe.md)
+See detailed `Liquibase Workflow Guide` [here](./changelog/ReadMe.md).
 
 ### About the licence
 
