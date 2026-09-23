@@ -74,7 +74,6 @@
   <include file="0002_030_cts_audit_routines.postgresql.sql"/>
   <include file="0002_040_cts_parallel_bulk_import.postgresql.sql"/>
   <include file="0002_041_cts_parallel_bulk_import.postgresql.sql"/>
-  <include file="0002_042_cts_parallel_bulk_import.postgresql.sql"/>
   <include file="0004_002_cads_reference_state_seed_data.postgresql.sql"/>
   <include file="0004_003_mi_seed.postgresql.sql"/>
   <include file="0004_004_mi_cattle_import_report_seed.postgresql.sql"/>
