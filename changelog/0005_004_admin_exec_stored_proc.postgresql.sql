@@ -168,7 +168,7 @@ BEGIN
                                 prepared,
                                 now() - prepared AS age
                          FROM pg_prepared_xacts
-                         ORDER BY prepared
+                         ORDER BY prepared ASC
                      ) t
             );
 
