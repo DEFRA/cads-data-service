@@ -264,7 +264,7 @@ public static class ServiceCollectionExtensions
                 }
                 policy.RequireAuthenticatedUser();
             })
-            .AddPolicy(AuthenticationConstants.StsOrCognitoPolicyFileImports, policy =>
+            .AddPolicy(AuthenticationConstants.StsOrCognitoPolicyImports, policy =>
             {
                 if (authenticationConfiguration.AwsOutboundFederation.Enabled)
                 {
@@ -275,7 +275,7 @@ public static class ServiceCollectionExtensions
                     policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
                 }
                 policy.RequireAuthenticatedUser();
-                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, ScopeNames.FileImports);
+                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, ScopeNames.Imports);
             });
     }
 }

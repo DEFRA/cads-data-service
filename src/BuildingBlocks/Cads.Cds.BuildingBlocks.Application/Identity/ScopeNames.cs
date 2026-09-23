@@ -9,5 +9,5 @@ public static class ScopeNames
     public const string ReportsRead = "reports.read";
 
     // AWS STS
-    public const string FileImports = "file.imports";
+    public const string Imports = "imports";
 }

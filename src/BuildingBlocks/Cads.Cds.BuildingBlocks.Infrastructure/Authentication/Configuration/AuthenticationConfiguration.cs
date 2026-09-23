@@ -40,7 +40,7 @@ public static class AuthenticationConstants
     public const string ScopeClaimType = "scope";
 
     public const string StsOrCognitoPolicy = "StsOrCognito";
-    public const string StsOrCognitoPolicyFileImports = "StsOrCognitoFileImports";
+    public const string StsOrCognitoPolicyImports = "StsOrCognitoImports";
 
     public const string ApiKeyOrCognitoPolicy = "ApiKeyOrCognito";
     public const string AadReportsReadPolicy = "AadReportsRead";
