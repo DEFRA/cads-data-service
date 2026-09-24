@@ -56,4 +56,20 @@ public static class TestTokenFactory
                 TestAuthConstants.AzureAdCadsCdsScope
             ]
         };
+
+    public static TestTokenRequest DbAdminExecuteToken() =>
+        new()
+        {
+            ClientId = TestAuthConstants.AzureAdTestUserClientId,
+            ClientSecret = TestAuthConstants.AzureAdTestUserClientSecret,
+            Username = TestAuthConstants.AzureAdDbAdminUsername,
+            Password = TestAuthConstants.AzureAdPassword,
+            Scopes =
+            [
+                "openid",
+                "profile",
+                "email",
+                TestAuthConstants.AzureAdCadsCdsDbAdminScope
+            ]
+        };
 }
