@@ -194,7 +194,8 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__MetadataAddress", "");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__RequireHttpsMetadata", "false");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__ValidateIssuer", "false");
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__RoleClaimType", "scope");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__ScopeClaimType", "scope");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__RoleClaimType", "http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
     }
 
     private static void ConfigureDefaultAuthorization(IServiceCollection services)
