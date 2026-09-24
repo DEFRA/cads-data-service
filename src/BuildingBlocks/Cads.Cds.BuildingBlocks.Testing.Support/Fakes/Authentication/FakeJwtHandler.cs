@@ -12,7 +12,8 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 public class FakeJwtHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
-    UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+    UrlEncoder encoder,
+    IOptionsMonitor<AuthenticationConfiguration> authConfig) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
@@ -25,9 +26,21 @@ public class FakeJwtHandler(
 
         if (Scheme.Name == AuthenticationConstants.AzureADSchemeName)
         {
+            var azureAd = authConfig.CurrentValue.AzureAD;
+
             claims.Add(new Claim(CustomClaimTypes.Oid, Guid.NewGuid().ToString()));
             claims.Add(new Claim(CustomClaimTypes.TenantId, "test-aad-tenant"));
-            claims.Add(new Claim("scope", ScopeNames.ReportsRead));
+            claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.ReportsRead));
+
+            var token = Request.Headers.Authorization.ToString().Replace("Bearer ", string.Empty);
+            if (token != TestAuthConstants.FakeJwtMissingDbAdminScope)
+            {
+                claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.DbAdminExecute));
+            }
+            if (token != TestAuthConstants.FakeJwtMissingDbAdminRole)
+            {
+                claims.Add(new Claim(azureAd.RoleClaimType, RoleNames.CadsAdminSuperuser));
+            }
         }
         else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
         {
