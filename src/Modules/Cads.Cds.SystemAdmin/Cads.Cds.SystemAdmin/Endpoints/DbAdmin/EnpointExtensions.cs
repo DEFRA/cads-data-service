@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Requests;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Responses;
@@ -10,7 +11,8 @@ public static class EnpointExtensions
 {
     public static void CreateDbAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/v1/systemadmin/db-admin-execute-command", DbAdminExecuteCommand);
+        app.MapPost("/api/v1/systemadmin/db-admin-execute-command", DbAdminExecuteCommand)
+            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
     }
 
     private static async Task<DbAdminExecuteCommandResponse> DbAdminExecuteCommand(

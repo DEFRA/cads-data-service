@@ -5,7 +5,7 @@ namespace Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Validators;
 
 public sealed class DbAdminExecuteCommandRequestValidator : AbstractValidator<DbAdminExecuteCommandRequest>
 {
-    public readonly string[] AllowedCommands = { 
+    public readonly string[] AllowedCommands = {
         "sessions_by_state",
         "active_queries",
         "cancel_query",

@@ -36,7 +36,7 @@ public sealed class SystemAdminModule : IModule
 
         var config = app.ServiceProvider.GetRequiredService<IConfiguration>();
         var enableDbAdminEndpoints = config.GetValue("Modules:SystemAdmin:EnableDbAdminEndpoints", false);
-        if(enableDbAdminEndpoints)
+        if (enableDbAdminEndpoints)
         {
             app.CreateDbAdminEndpoints();
         }
