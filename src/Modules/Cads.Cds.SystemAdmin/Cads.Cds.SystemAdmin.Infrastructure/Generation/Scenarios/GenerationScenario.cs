@@ -39,32 +39,24 @@ public abstract class GenerationScenario<T>(string name,
 
     public async Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default)
     {
-        try
+        ct.ThrowIfCancellationRequested();
+
+        var contentGenerator = new ContentGenerator<T>(dbContext, OverrideRulesBuilder, Transform);
+        var tableName = contentGenerator.TableName;
+        var businessKeysAllocator = new BusinessKeysAllocator();
+        var businessKeys = await businessKeysAllocator.AllocateAsync(tableName, request.RowCount, ct);
+        var seed = Random.Shared.Next();
+        var rows = contentGenerator.Generate(businessKeys, seed);
+
+        var fileCreatedDateTime = DateTime.UtcNow;
+        var fileName = fileNameGenerator.Create(FileNameApplicationPrefix, FileNameEnvironmentPrefix, _importActionType, FileNameBatchId, tableName, fileCreatedDateTime);
+        var content = fileAssembler.Create(fileName, fileCreatedDateTime, rows);
+
+        return new CreateGenerationResponseDto
         {
-            ct.ThrowIfCancellationRequested();
-
-            var contentGenerator = new ContentGenerator<T>(dbContext, OverrideRulesBuilder, Transform);
-            var tableName = contentGenerator.TableName;
-            var businessKeysAllocator = new BusinessKeysAllocator();
-            var businessKeys = await businessKeysAllocator.AllocateAsync(tableName, request.RowCount, ct);
-            var seed = Random.Shared.Next();
-            var rows = contentGenerator.Generate(businessKeys, seed);
-
-            var fileCreatedDateTime = DateTime.UtcNow;
-            var fileName = fileNameGenerator.Create(FileNameApplicationPrefix, FileNameEnvironmentPrefix, _importActionType, FileNameBatchId, tableName, fileCreatedDateTime);
-            var content = fileAssembler.Create(fileName, fileCreatedDateTime, rows);
-
-            return new CreateGenerationResponseDto
-            {
-                FileName = fileName,
-                Content = System.Text.Json.JsonSerializer.Serialize(content),
-                BusinessKeys = businessKeys
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing generation scenario {ScenarioName}", Name);
-            throw;
-        }
+            FileName = fileName,
+            Content = System.Text.Json.JsonSerializer.Serialize(content),
+            BusinessKeys = businessKeys
+        };
     }
 }
