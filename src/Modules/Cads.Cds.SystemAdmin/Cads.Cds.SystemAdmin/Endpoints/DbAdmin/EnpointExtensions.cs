@@ -25,15 +25,16 @@ public static class EnpointExtensions
         IValidator<DbAdminExecuteCommandRequest> validator,
         IDbAdminExecuteCommandService service,
         HttpContext httpContext,
-        ILogger<DbAdminExecuteCommandRequest> logger)
+        ILogger<DbAdminExecuteCommandRequest> logger,
+        CancellationToken cancellationToken)
     {
-        await validator.ValidateAndThrowAsync(request);
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
         if (logger.IsEnabled(LogLevel.Information))
         {
             var user = httpContext.User.Identity!.Name;
             logger.LogInformation("User {User}: Executing DB Admin command: {Command} with args: {Args}", user, request.Command, request.Args);
         }
-        var result = await service.ExecuteAsync(request.Command, request.Args);
+        var result = await service.ExecuteAsync(request.Command, request.Args, cancellationToken);
 
         return new DbAdminExecuteCommandResponse(
             request.Command,

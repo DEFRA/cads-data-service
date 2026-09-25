@@ -25,7 +25,7 @@ public class SystemAdminWebApplicationFactory(
 {
     private readonly string _dbName = $"SystemAdminDb_{Guid.NewGuid()}";
 
-    private static IDictionary<string, string?> MergeConfigOverrides(IDictionary<string, string?>? overrides)
+    private static Dictionary<string, string?> MergeConfigOverrides(IDictionary<string, string?>? overrides)
     {
         var merged = new Dictionary<string, string?>(overrides ?? new Dictionary<string, string?>());
         // Ensure DB admin endpoints are mapped for tests, since the production default is now false.
