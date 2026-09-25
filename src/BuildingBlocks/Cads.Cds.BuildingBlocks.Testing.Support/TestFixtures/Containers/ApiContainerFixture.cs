@@ -59,6 +59,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsFifoQueueUrl)
           .WithEnvironment("Modules__SystemAdmin__ImportsDeduplication__BucketName", LocalStackFixture.CadsExternalBucketName)
           .WithEnvironment("Modules__SystemAdmin__ImportsDeduplication__EnvironmentName", "PreProd")
+          .WithEnvironment("Modules__SystemAdmin__EnableDbAdminEndpoints", "true")
           .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ReadConnectionString)
@@ -86,7 +87,17 @@ public class ApiContainerFixture : IAsyncLifetime
               .UntilHttpRequestIsSucceeded(req => req.ForPort(5555).ForPath("/health"), o => o.WithTimeout(TimeSpan.FromSeconds(25))))
           .Build();
 
-        await ApiContainer.StartAsync();
+        try
+        {
+            await ApiContainer.StartAsync();
+        }
+        catch (Exception e)
+        {
+            var (stdout, stderr) = await ApiContainer.GetLogsAsync();
+            throw new InvalidOperationException(
+                $"cads_cds container failed to become healthy.{Environment.NewLine}--- stdout ---{Environment.NewLine}{stdout}{Environment.NewLine}--- stderr ---{Environment.NewLine}{stderr}",
+                e);
+        }
 
         HttpClient = new HttpClient { BaseAddress = new Uri($"http://localhost:{ApiContainer.GetMappedPublicPort(5555)}") };
 
