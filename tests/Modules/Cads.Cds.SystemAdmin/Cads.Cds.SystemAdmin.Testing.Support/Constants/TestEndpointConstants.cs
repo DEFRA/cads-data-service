@@ -51,4 +51,7 @@ public class TestEndpointConstants
 
     // Generation - Create
     public const string GenerationCreateEndpoint = SystemAdminGenerationRoot;
+
+    // Generation - Scenarios
+    public const string GenerationGetScenariosEndpoint = SystemAdminGenerationRoot + "/scenarios";
 }
