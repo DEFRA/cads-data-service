@@ -1,0 +1,60 @@
+-- liquibase formatted sql
+
+-- changeset schema:0001-030-cla-transactions-indexes splitStatements:true
+
+-- Supports ordered B/S source reads by transaction id.
+CREATE INDEX IF NOT EXISTS cla_aspnetroles_trans_type_trans_id_idx ON cla_transactions.aspnetroles (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_aspnetuserroles_trans_type_trans_id_idx ON cla_transactions.aspnetuserroles (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_batchmovement_trans_type_trans_id_idx ON cla_transactions.tbl_batchmovement (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_batchmovement_undo_trans_type_trans_id_idx ON cla_transactions.tbl_batchmovement_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_batchnumber_trans_type_trans_id_idx ON cla_transactions.tbl_batchnumber (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_breed_trans_type_trans_id_idx ON cla_transactions.tbl_breed (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_contact_trans_type_trans_id_idx ON cla_transactions.tbl_contact (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_county_trans_type_trans_id_idx ON cla_transactions.tbl_county (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_device_trans_type_trans_id_idx ON cla_transactions.tbl_device (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_deviceattributes_trans_type_trans_id_idx ON cla_transactions.tbl_deviceattributes (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_devicelocation_trans_type_trans_id_idx ON cla_transactions.tbl_devicelocation (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_devicelocationduplicate_trans_type_trans_id_idx ON cla_transactions.tbl_devicelocationduplicate (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_devicelocationduplicate_undo_trans_type_trans_id_idx ON cla_transactions.tbl_devicelocationduplicate_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_devicelocation_undo_trans_type_trans_id_idx ON cla_transactions.tbl_devicelocation_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_device_undo_trans_type_trans_id_idx ON cla_transactions.tbl_device_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_devolvedarea_trans_type_trans_id_idx ON cla_transactions.tbl_devolvedarea (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_gender_trans_type_trans_id_idx ON cla_transactions.tbl_gender (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_ltaterror_trans_type_trans_id_idx ON cla_transactions.tbl_ltaterror (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_ltaterrorinfo_trans_type_trans_id_idx ON cla_transactions.tbl_ltaterrorinfo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_ltaterrortype_trans_type_trans_id_idx ON cla_transactions.tbl_ltaterrortype (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movement_trans_type_trans_id_idx ON cla_transactions.tbl_movement (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementattributes_trans_type_trans_id_idx ON cla_transactions.tbl_movementattributes (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementdocumentcontact_trans_type_trans_id_idx ON cla_transactions.tbl_movementdocumentcontact (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementdocumentnoncompliantdevice_trans_type__ee4f9b68 ON cla_transactions.tbl_movementdocumentnoncompliantdevice (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementdocumenttransportertype_trans_type_trans_id_idx ON cla_transactions.tbl_movementdocumenttransportertype (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementdocumentversion_trans_type_trans_id_idx ON cla_transactions.tbl_movementdocumentversion (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementdocumentversion_undo_trans_type_trans_id_idx ON cla_transactions.tbl_movementdocumentversion_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementreviewstatus_trans_type_trans_id_idx ON cla_transactions.tbl_movementreviewstatus (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementreviewstatus_undo_trans_type_trans_id_idx ON cla_transactions.tbl_movementreviewstatus_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movement_undo_trans_type_trans_id_idx ON cla_transactions.tbl_movement_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_papermovement_trans_type_trans_id_idx ON cla_transactions.tbl_papermovement (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_papermovementbatch_trans_type_trans_id_idx ON cla_transactions.tbl_papermovementbatch (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_papermovementbatch_undo_trans_type_trans_id_idx ON cla_transactions.tbl_papermovementbatch_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_papermovementdevice_trans_type_trans_id_idx ON cla_transactions.tbl_papermovementdevice (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_papermovementdevice_undo_trans_type_trans_id_idx ON cla_transactions.tbl_papermovementdevice_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_papermovement_undo_trans_type_trans_id_idx ON cla_transactions.tbl_papermovement_undo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_pic_trans_type_trans_id_idx ON cla_transactions.tbl_pic (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_picattributes_trans_type_trans_id_idx ON cla_transactions.tbl_picattributes (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_pictoabattoirmhs_trans_type_trans_id_idx ON cla_transactions.tbl_pictoabattoirmhs (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_pictoabattoirmhsheader_trans_type_trans_id_idx ON cla_transactions.tbl_pictoabattoirmhsheader (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_pictype_trans_type_trans_id_idx ON cla_transactions.tbl_pictype (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_processingflag_trans_type_trans_id_idx ON cla_transactions.tbl_processingflag (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_region_trans_type_trans_id_idx ON cla_transactions.tbl_region (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_request_trans_type_trans_id_idx ON cla_transactions.tbl_request (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_requestprocessingflag_trans_type_trans_id_idx ON cla_transactions.tbl_requestprocessingflag (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_sessioninfo_trans_type_trans_id_idx ON cla_transactions.tbl_sessioninfo (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_sessiontorequest_trans_type_trans_id_idx ON cla_transactions.tbl_sessiontorequest (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_software_trans_type_trans_id_idx ON cla_transactions.tbl_software (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_species_trans_type_trans_id_idx ON cla_transactions.tbl_species (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_titemattributes_trans_type_trans_id_idx ON cla_transactions.tbl_titemattributes (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_titem_device_trans_type_trans_id_idx ON cla_transactions.tbl_titem_device (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_title_trans_type_trans_id_idx ON cla_transactions.tbl_title (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementgroup_trans_type_trans_id_idx ON cla_transactions.tbl_movementgroup (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementgroupdevice_trans_type_trans_id_idx ON cla_transactions.tbl_movementgroupdevice (trans_type, trans_id);
+CREATE INDEX IF NOT EXISTS cla_tbl_movementgroup_undo_trans_type_trans_id_idx ON cla_transactions.tbl_movementgroup_undo (trans_type, trans_id);
