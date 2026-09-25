@@ -34,6 +34,8 @@
   <include file="0000_000_drop_legacy_schema_objects.postgresql.sql"/>
   <include file="0000_001_create_schemas.postgresql.sql"/>
   <include file="0000_002_create_schemas_permissions.postgresql.sql"/>
+  <include file="0000_005_cla_create_schemas.postgresql.sql"/>
+  <include file="0000_006_cla_create_schemas_permissions.postgresql.sql"/>
   <include file="0000_004_create_cleanup_functions.postgresql.sql"/>
   <include file="0002_008_cads_pseudonymisation_routine.postgresql.sql"/>
   <include file="0002_009_cads_truncate_all_tables_routine.postgresql.sql"/>
@@ -44,11 +46,14 @@
   <include file="0002_039_cts_audit_truncate_tables_routine.postgresql.sql"/>
   <include file="0000_003_truncate_all_tables.postgresql.sql"/>
   <include file="0000_010_cads_core_tables.postgresql.sql"/>
+  <include file="0000_010_cla_core_tables.postgresql.sql"/>
   <include file="0000_011_cads_mi_tables.postgresql.sql"/>
   <include file="0000_012_create_cts_file_import_monitoring_tables.postgresql.sql"/>
   <include file="0000_020_cts_tables.postgresql.sql"/>
   <include file="0000_030_cts_transactions_tables.postgresql.sql"/>
+  <include file="0000_030_cla_transactions_tables.postgresql.sql"/>
   <include file="0000_040_cts_audit_tables.postgresql.sql"/>
+  <include file="0000_040_cla_audit_tables.postgresql.sql"/>
   <include file="0000_031_cts_transactions_ct_file_layouts_alter.postgresql.sql"/>
   <include file="0000_050_alter_cts_file_import.postgresql.sql"/>
   <include file="0000_051_alter_cts_file_imports_destination_prefix.postgresql.sql"/>
@@ -60,6 +65,7 @@
   <include file="0001_010_cts_animals_on_holding_indexes.postgresql.sql"/>
   <include file="0001_011_cts_ctso_indexes.postgresql.sql"/>
   <include file="0001_016_create_data_seed_injestion_history_table.postgresql.sql"/>
+  <include file="0001_030_cla_transactions_indexes.postgresql.sql"/>
   <include file="0002_003_cads_cts_service_query_functions.postgresql.sql"/>
   <include file="0002_010_cads_import_routines.postgresql.sql"/>
   <include file="0002_011_cads_get_births_summary.postgresql.sql"/>
@@ -74,6 +80,7 @@
   <include file="0002_030_cts_audit_routines.postgresql.sql"/>
   <include file="0002_040_cts_parallel_bulk_import.postgresql.sql"/>
   <include file="0002_041_cts_parallel_bulk_import.postgresql.sql"/>
+  <include file="0002_042_cts_parallel_bulk_import.postgresql.sql"/>
   <include file="0002_050_admin_exec_stored_proc.postgresql.sql"/>
   <include file="0004_002_cads_reference_state_seed_data.postgresql.sql"/>
   <include file="0004_003_mi_seed.postgresql.sql"/>
@@ -121,6 +128,8 @@
   <include file="0003_001_cts_file_imports_integration.postgresql.sql"/>
   <include file="0005_000_ct_eartag_reason_flags_seed_data_faker_data.postgresql.sql"/>
   <include file="0005_001_ct_workgroups_seed_data_faker_data.postgresql.sql"/>
-  <include file="0005_002_psudeo-anonymisation.postgresql.sql" />
-  <include file="0005_003_psudeo_anonymisation.postgresql.sql"/>
+  <include file="0005_002_cads_pseudo_anonymisation.postgresql.sql" />
+  <include file="0005_003_cads_pseudo_anonymisation.postgresql.sql"/>
+  <include file="0005_002_cla_pseudo_anonymisation.postgresql.sql" />
+  <include file="0005_003_cla_pseudo_anonymisation.postgresql.sql"/>
 </databaseChangeLog>
