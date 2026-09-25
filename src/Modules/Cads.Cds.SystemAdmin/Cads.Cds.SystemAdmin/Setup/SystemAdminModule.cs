@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Setup;
 using Cads.Cds.SystemAdmin.Application.Setup;
-using Cads.Cds.SystemAdmin.Generation.Endpoints;
+using Cads.Cds.SystemAdmin.Endpoints.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Setup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;

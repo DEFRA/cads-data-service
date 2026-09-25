@@ -1,4 +1,4 @@
-namespace Cads.Cds.SystemAdmin.Generation.Requests;
+namespace Cads.Cds.SystemAdmin.Endpoints.Generation.Requests;
 
 public class CreateGenerationRequest
 {
