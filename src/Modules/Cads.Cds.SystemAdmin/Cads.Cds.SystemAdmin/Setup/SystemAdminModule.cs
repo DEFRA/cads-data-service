@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Setup;
 using Cads.Cds.SystemAdmin.Application.Setup;
+using Cads.Cds.SystemAdmin.Generation.Endpoints;
 using Cads.Cds.SystemAdmin.Infrastructure.Setup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -32,5 +33,8 @@ public sealed class SystemAdminModule : IModule
             .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
         app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
             .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+
+        app.CreateSystemAdminEndpoints();
+
     }
 }

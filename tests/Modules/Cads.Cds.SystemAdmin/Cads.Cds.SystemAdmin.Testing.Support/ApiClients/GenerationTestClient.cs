@@ -1,9 +1,9 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
-using Cads.Cds.SystemAdmin.Controllers.Requests.Generation;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Testing.Support.Constants;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
+using Cads.Cds.SystemAdmin.Generation.Requests;
 
 namespace Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 
@@ -16,6 +16,14 @@ public static class GenerationTestClient
     {
         var endpoint = TestEndpointConstants.GenerationCreateEndpoint;
         return await client.PostAsJsonAsync(endpoint, request, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> GetScenarios(
+        HttpClient client,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = TestEndpointConstants.GenerationGetScenariosEndpoint;
+        return await client.GetAsync(endpoint, cancellationToken);
     }
 
     public static async Task<CreateGenerationResponseDto?> ReadDtoAsync(
