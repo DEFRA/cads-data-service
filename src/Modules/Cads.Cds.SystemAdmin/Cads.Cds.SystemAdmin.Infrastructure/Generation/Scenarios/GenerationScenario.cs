@@ -2,10 +2,9 @@ using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.SystemAdmin.Application.Generation.Scenarios;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
-using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,8 +14,7 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios;
 public abstract class GenerationScenario<T>(string name,
     ImportActionType importActionType, DbContext dbContext,
     IFileNameGenerator fileNameGenerator,
-    IFileAssembler fileAssembler,
-    ILogger<GenerationScenario<T>> logger) : IGenerationScenario
+    IFileAssembler fileAssembler) : IGenerationScenario
     where T : class, new()
 {
     private const string FileNameApplicationPrefix = "UKV";
@@ -32,8 +30,6 @@ public abstract class GenerationScenario<T>(string name,
     protected virtual Func<T, decimal, T>? Transform { get; init; }
 
     private readonly ImportActionType _importActionType = importActionType;
-
-    private readonly ILogger<GenerationScenario<T>> _logger = logger;
 
     public string TableName => new ContentGenerator<T>(dbContext).TableName;
 

@@ -3,7 +3,6 @@ using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
-using Microsoft.Extensions.Logging;
 using System;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenarios;
@@ -11,9 +10,8 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationSce
 public class CtLocationBulkScenario(
     CtsTransactionsSystemAdminDbContext dbContext,
     IFileNameGenerator fileNameGenerator,
-    IFileAssembler fileAssembler,
-    ILogger<CtLocationBulkScenario> logger)
-    : GenerationScenario<CtLocation>("ct_location_bulk_scenario", ImportActionType.Bulk, dbContext, fileNameGenerator, fileAssembler, logger)
+    IFileAssembler fileAssembler)
+    : GenerationScenario<CtLocation>("ct_location_bulk_scenario", ImportActionType.Bulk, dbContext, fileNameGenerator, fileAssembler)
 {
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =
         new RuleBuilder<CtLocation>([])

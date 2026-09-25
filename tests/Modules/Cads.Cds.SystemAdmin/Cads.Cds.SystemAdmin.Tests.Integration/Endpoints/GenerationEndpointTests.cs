@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
-using Cads.Cds.SystemAdmin.Generation.Requests;
+using Cads.Cds.SystemAdmin.Endpoints.Generation.Requests;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using FluentAssertions;
 

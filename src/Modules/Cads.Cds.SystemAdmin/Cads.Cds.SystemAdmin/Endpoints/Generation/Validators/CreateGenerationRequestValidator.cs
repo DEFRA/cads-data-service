@@ -1,7 +1,7 @@
-using Cads.Cds.SystemAdmin.Generation.Requests;
+using Cads.Cds.SystemAdmin.Endpoints.Generation.Requests;
 using FluentValidation;
 
-namespace Cads.Cds.SystemAdmin.Generation.Validators;
+namespace Cads.Cds.SystemAdmin.Endpoints.Generation.Validators;
 
 public sealed class CreateGenerationRequestValidator
     : AbstractValidator<CreateGenerationRequest>

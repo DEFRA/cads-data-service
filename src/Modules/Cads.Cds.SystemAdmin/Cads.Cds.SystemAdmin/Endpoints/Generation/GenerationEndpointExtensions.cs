@@ -1,13 +1,13 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Generation.Dispatchers;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
-using Cads.Cds.SystemAdmin.Generation.Requests;
+using Cads.Cds.SystemAdmin.Endpoints.Generation.Requests;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Cads.Cds.SystemAdmin.Generation.Endpoints;
+namespace Cads.Cds.SystemAdmin.Endpoints.Generation;
 
 public static class GenerationEndpointExtensions
 {
