@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset MarkGent1:1789532800000-1 splitStatements:false
+-- changeset MarkGent1:1789533600000-1 splitStatements:false
 
 -- Consolidated parallel import, retained-source ledger and worker metrics.
 -- This changeset is rerunnable and never resets an existing import plan.
@@ -50,6 +50,32 @@ ALTER TABLE cts.ct_movt_correct_summaries
     DROP CONSTRAINT IF EXISTS fk_ct_movt_correct_summaries_mcs_smo_id,
     DROP CONSTRAINT IF EXISTS fk_ct_movt_correct_summaries_mcs_rmo_id,
     DROP CONSTRAINT IF EXISTS fk_ct_movt_correct_summaries_mcs_mov_id;
+
+-- Migration stubs for the remaining ct_animal_identifiers deferred rows.
+-- These location parents are absent from cts_transactions and cts, so they
+-- cannot be recovered by the deferred-row resolver.  The S rows are consumed
+-- before the dependent B rows by the normal CTS transaction ordering.
+INSERT INTO cts_transactions.ct_locations (
+    trans_type,
+    loc_id,
+    fake_data
+)
+SELECT
+    'S',
+    v.loc_id,
+    1
+FROM (
+    VALUES
+        (62619::numeric),
+        (281946::numeric),
+        (273056::numeric)
+) AS v(loc_id)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM cts_transactions.ct_locations existing
+    WHERE existing.loc_id = v.loc_id
+      AND existing.trans_type = 'S'
+);
 
 -- Keep the source transaction type on every CTS destination row. Existing CTS
 -- rows are treated as ordinary bulk rows; newly generated stub source rows use
@@ -609,6 +635,7 @@ DECLARE
     v_select_list text;
     v_upsert_set_list text;
     v_pk_select_list text;
+    v_conflict_target text;
     v_order_by_src text;
     v_order_by_x text;
     v_self_reference_predicate text;
@@ -651,11 +678,20 @@ BEGIN
     LOOP
         -- Serialize only admission, never the actual data migration. The count
         -- and claim below are separate statements under READ COMMITTED, so a
-        -- competing claimant sees the preceding committed claim. Locking only
-        -- individual queue rows would allow concurrent counts to exceed a cap.
-        PERFORM pg_advisory_xact_lock(
+        -- competing claimant sees the preceding committed claim. Do not block
+        -- indefinitely behind a slow WAL commit: report this worker as waiting,
+        -- commit that state, and retry on the next loop.
+        IF NOT pg_try_advisory_xact_lock(
             hashtextextended(format('cads.cts_parallel_claim.%s', p_run_id), 0)
-        );
+        ) THEN
+            UPDATE cads.cts_parallel_import_workers
+            SET status = 'waiting', current_work_id = NULL,
+                current_table_name = NULL, heartbeat_at = clock_timestamp()
+            WHERE run_id = p_run_id AND worker_name = p_worker_name;
+            COMMIT;
+            PERFORM pg_sleep(0.25);
+            CONTINUE;
+        END IF;
         -- Release newly eligible child ranges after all parent tables have reached
         -- a bulk terminal state.
         UPDATE cads.cts_parallel_import_work_queue work
@@ -795,8 +831,9 @@ BEGIN
         -- queue/checkpoint identifier only.
         SELECT string_agg(format('src.%I', target_pk.attname), ', ' ORDER BY key_column.ordinality),
                string_agg(format('x.%I', target_pk.attname), ', ' ORDER BY key_column.ordinality),
-               string_agg(format('src.%I', target_pk.attname), ', ' ORDER BY key_column.ordinality)
-        INTO v_order_by_src, v_order_by_x, v_pk_select_list
+               string_agg(format('src.%I', target_pk.attname), ', ' ORDER BY key_column.ordinality),
+               string_agg(format('%I', target_pk.attname), ', ' ORDER BY key_column.ordinality)
+        INTO v_order_by_src, v_order_by_x, v_pk_select_list, v_conflict_target
         FROM pg_index primary_key
         CROSS JOIN LATERAL unnest(primary_key.indkey)
             WITH ORDINALITY AS key_column(attnum, ordinality)
@@ -811,10 +848,15 @@ BEGIN
                 AND source_pk.attname = target_pk.attname
                 AND NOT source_pk.attisdropped
           );
+        -- A small number of legacy tables have no declared CTS primary key.
+        -- They can still be migrated safely in queue order.  Fall back to the
+        -- source transaction identifier for deterministic ordering and use
+        -- DO NOTHING when there is no safe conflict target for an upsert.
         IF v_order_by_src IS NULL THEN
-            RAISE EXCEPTION
-                'Table % has no CTS primary-key equivalent in cts_transactions',
-                v_work.table_name;
+            v_order_by_src := 'src.trans_id';
+            v_order_by_x := 'x.trans_id';
+            v_pk_select_list := 'NULL::bigint AS fallback_order_key';
+            v_conflict_target := NULL;
         END IF;
 
         -- Build one eligibility predicate for every self-referencing FK on this
@@ -889,10 +931,9 @@ BEGIN
             v_effective_size := LEAST(v_effective_size, v_batch_cap);
             v_ids := NULL;
             v_failed := false;
-            -- Acquire row locks INSIDE the rollback scope that modifies them.
-            -- Locking before an EXCEPTION/savepoint and deleting inside it can
-            -- itself create MultiXacts. On failure all row locks and DML in this
-            -- attempt roll back; durable range ownership still excludes peers.
+            -- Queue-range ownership already excludes competing workers. Do not
+            -- lock source rows here: legacy source tables can make FOR UPDATE
+            -- block or fail before the destination insert is attempted.
             BEGIN
                 EXECUTE format(
                     'SELECT array_agg(x.trans_id ORDER BY ' || v_order_by_x || ', x.trans_id) FROM ('
@@ -903,7 +944,7 @@ BEGIN
                     || 'AND NOT EXISTS (SELECT FROM cads.cts_bulk_import_migrated_rows m '
                     || 'WHERE m.table_name = $4 AND m.transaction_row_id = src.trans_id) '
                     || 'AND (%s) '
-                    || 'ORDER BY ' || v_order_by_src || ', src.trans_id LIMIT $5 FOR UPDATE OF src) x',
+                    || 'ORDER BY ' || v_order_by_src || ', src.trans_id LIMIT $5) x',
                     v_work.table_name,
                     v_self_reference_predicate
                 ) INTO v_ids USING v_work.minimum_trans_id, v_work.maximum_trans_id,
@@ -914,8 +955,10 @@ BEGIN
                         'INSERT INTO cts.%I AS target (%s) SELECT %s FROM cts_transactions.%I src '
                         || 'WHERE src.trans_id = ANY($1) AND src.trans_type IN (''B'', ''S'') '
                         || CASE WHEN v_upsert_set_list IS NULL
+                                      OR v_conflict_target IS NULL
                                 THEN 'ON CONFLICT DO NOTHING'
-                                ELSE 'ON CONFLICT DO UPDATE SET ' || v_upsert_set_list
+                                ELSE 'ON CONFLICT (' || v_conflict_target
+                                     || ') DO UPDATE SET ' || v_upsert_set_list
                            END,
                         v_work.table_name, v_column_list, v_select_list, v_work.table_name
                     ) USING v_ids;
