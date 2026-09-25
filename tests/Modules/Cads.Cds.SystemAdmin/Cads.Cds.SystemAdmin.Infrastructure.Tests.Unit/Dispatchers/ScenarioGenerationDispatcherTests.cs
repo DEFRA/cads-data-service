@@ -13,7 +13,7 @@ public class ScenarioGenerationDispatcherTests
     {
         // Arrange
         var dispatcher = new ScenarioGenerationDispatcher(new IGenerationScenario[] { });
-        var request = new CreateGenerationRequestDto { Scenario = "NonExisting", RowCount =1 };
+        var request = new CreateGenerationRequestDto { Scenario = "NonExisting", RowCount = 1 };
 
         // Act & Assert
         await Assert.ThrowsAsync<GenerationValidationException>(() =>

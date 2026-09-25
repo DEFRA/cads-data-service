@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios;
 
-public abstract class GenerationScenario<T>(string name, 
+public abstract class GenerationScenario<T>(string name,
     ImportActionType importActionType, DbContext dbContext,
     IFileNameGenerator fileNameGenerator,
     IFileAssembler fileAssembler,
