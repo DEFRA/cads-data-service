@@ -20,7 +20,10 @@ public class ContentGeneratorFactory
             .FirstOrDefault(e => string.Equals(e.GetTableName(), tableName, StringComparison.OrdinalIgnoreCase)
                                  || string.Equals(e.GetTableName(), tableName.Replace("\"", ""), StringComparison.OrdinalIgnoreCase));
 
-        var clrType = entityType?.ClrType;
+        if (entityType == null)
+            throw new InvalidOperationException($"No entity mapping found for table '{tableName}' in the provided DbContext model.");
+
+        var clrType = entityType.ClrType ?? throw new InvalidOperationException($"Entity for table '{tableName}' has a null CLR type.");
 
         // Call the generic static Create<T>(DbContext) via reflection
         var method = typeof(ContentGeneratorFactory)

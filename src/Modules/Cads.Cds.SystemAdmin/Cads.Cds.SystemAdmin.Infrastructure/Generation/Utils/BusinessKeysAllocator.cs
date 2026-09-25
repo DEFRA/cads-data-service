@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 
-public class BusinessKeysAllocator(DbContext dbContext) : IBusinessKeysAllocator
+public class BusinessKeysAllocator : IBusinessKeysAllocator
 {
     public async Task<IReadOnlyList<decimal>> AllocateAsync(string table, int rowCount, CancellationToken ct = default)
     {
