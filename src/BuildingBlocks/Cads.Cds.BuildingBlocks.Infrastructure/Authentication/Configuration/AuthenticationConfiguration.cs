@@ -25,12 +25,12 @@ public class AuthenticationProviderConfiguration : AuthenticationStateConfigurat
 
 public static class AuthenticationConstants
 {
+    // Scheme names
     public const string ApiKeySchemeName = "Basic";
     public const string CognitoSchemeName = "Cognito";
     public const string AzureADSchemeName = "AzureAd";
 
-    public const string ScopeClaimType = "scope";
-
+    // Policy names
     public const string ApiKeyOrCognitoPolicy = "ApiKeyOrCognito";
     public const string AadReportsReadPolicy = "AadReportsRead";
     public const string AadDbAdminExecutePolicy = "AadDbAdminExecute";

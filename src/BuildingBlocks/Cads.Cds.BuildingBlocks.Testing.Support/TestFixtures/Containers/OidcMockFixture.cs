@@ -101,7 +101,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                   "email",
                   "preferred_username",
                   "name",
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+                  "role"
                 ]
               }
             ]
@@ -116,7 +116,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                     { "Type": "name", "Value": "Test MIP Viewer" },
                     { "Type": "email", "Value": "mip-viewer-user@internal.test" },
                     { "Type": "preferred_username", "Value": "mip-viewer-user" },
-                    { "Type": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Value": "mip-viewer" }
+                    { "Type": "role", "Value": "mip-viewer" }
                 ]
                 },
                 {
@@ -127,7 +127,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                     { "Type": "name", "Value": "Unknown User" },
                     { "Type": "email", "Value": "unknown-user@internal.test" },
                     { "Type": "preferred_username", "Value": "unknown-user" },
-                    { "Type": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Value": "mip-viewer" }
+                    { "Type": "role", "Value": "mip-viewer" }
                 ]
                 },
                 {
@@ -138,7 +138,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                     { "Type": "name", "Value": "Test Db Admin" },
                     { "Type": "email", "Value": "db-admin-user@internal.test" },
                     { "Type": "preferred_username", "Value": "db-admin-user" },
-                    { "Type": "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Value": "cads-admin-superuser" }
+                    { "Type": "role", "Value": "cads-admin-superuser" }
                 ]
                 }
             ]

@@ -74,7 +74,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AuthenticationConfiguration__AzureAD__RequireHttpsMetadata", AzureAdConfig.RequireHttpsMetadata.ToString())
           .WithEnvironment("AuthenticationConfiguration__AzureAD__ValidateIssuer", "false")
           .WithEnvironment("AuthenticationConfiguration__AzureAD__ScopeClaimType", "scope")
-          .WithEnvironment("AuthenticationConfiguration__AzureAD__RoleClaimType", "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
+          .WithEnvironment("AuthenticationConfiguration__AzureAD__RoleClaimType", "role")
           .WithEnvironment("AWS_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_DEFAULT_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
