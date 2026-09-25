@@ -22,6 +22,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.IdentityModel.Tokens.Jwt;
+using Cads.Cds.SystemAdmin;
 
 namespace Cads.Cds.Setup;
 
@@ -110,6 +111,7 @@ public static class ServiceCollectionExtensions
         services.AddValidatorsFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(ISystemAdminApplicationMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(ISystemAdminMarker).Assembly);
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)

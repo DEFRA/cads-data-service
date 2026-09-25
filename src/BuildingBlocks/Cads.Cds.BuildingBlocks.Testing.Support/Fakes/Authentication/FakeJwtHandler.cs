@@ -17,6 +17,12 @@ public class FakeJwtHandler(
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        var authorizationHeader = Request.Headers.Authorization.ToString();
+        if (!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.FromResult(AuthenticateResult.NoResult());
+        }
+
         var claims = new List<Claim>
         {
             new(ClaimTypes.Name, TestAuthConstants.AzureAdUsername),
@@ -32,7 +38,7 @@ public class FakeJwtHandler(
             claims.Add(new Claim(CustomClaimTypes.TenantId, "test-aad-tenant"));
             claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.ReportsRead));
 
-            var token = Request.Headers.Authorization.ToString().Replace("Bearer ", string.Empty);
+            var token = authorizationHeader["Bearer ".Length..];
             if (token != TestAuthConstants.FakeJwtMissingDbAdminScope)
             {
                 claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.DbAdminExecute));
