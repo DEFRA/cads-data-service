@@ -27,6 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Persistence\Configurations\Livestock\" />
   </ItemGroup>
 
