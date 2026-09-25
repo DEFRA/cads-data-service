@@ -19,6 +19,7 @@ services:
       Modules__SystemAdmin__Queues__CadsCds__QueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue.fifo
       Modules__SystemAdmin__ImportsDeduplication__BucketName: cads-external-bucket
       Modules__SystemAdmin__ImportsDeduplication__EnvironmentName: PreProd
+      Modules__SystemAdmin__EnableDbAdminEndpoints: "true"
       IMB_S3_ACCESS_KEY: test
       IMB_S3_ACCESS_SECRET: test
       AuthenticationConfiguration__ApiKey__Enabled: "true"
