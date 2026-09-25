@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Specimens.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
+using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
 using Cads.Cds.SystemAdmin.Application.Uow;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
 using Cads.Cds.SystemAdmin.Testing.Support.Contexts;
@@ -12,16 +13,27 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Moq;
 
 namespace Cads.Cds.SystemAdmin.Tests.Component.TestFixtures;
 
 public class SystemAdminWebApplicationFactory(
     IDictionary<string, string?>? configOverrides = null,
     bool useFakeAuth = false) : WebAppFactoryBase<Program>(
-        configOverrides: configOverrides,
+        configOverrides: MergeConfigOverrides(configOverrides),
         useFakeAuth: useFakeAuth)
 {
     private readonly string _dbName = $"SystemAdminDb_{Guid.NewGuid()}";
+
+    private static Dictionary<string, string?> MergeConfigOverrides(IDictionary<string, string?>? overrides)
+    {
+        var merged = new Dictionary<string, string?>(overrides ?? new Dictionary<string, string?>());
+        // Ensure DB admin endpoints are mapped for tests, since the production default is now false.
+        merged.TryAdd("Modules:SystemAdmin:EnableDbAdminEndpoints", "true");
+        return merged;
+    }
+
+    public Mock<IDbAdminExecuteCommandService> DbAdminExecuteCommandServiceMock { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -30,6 +42,8 @@ public class SystemAdminWebApplicationFactory(
         builder.ConfigureTestServices(services =>
         {
             ConfigurePersistence(services);
+            services.RemoveAll<IDbAdminExecuteCommandService>();
+            services.AddScoped(_ => DbAdminExecuteCommandServiceMock.Object);
         });
     }
 
