@@ -27,7 +27,7 @@ public sealed class ScenarioGenerationDispatcher(IEnumerable<IGenerationScenario
 
             if (results.ContainsKey(request.Scenario))
                 throw new GenerationValidationException($"Duplicate scenario '{request.Scenario}' in batch request.");
-            
+
             var result = await DispatchAsync(request, ct);
 
             results[request.Scenario] = result;

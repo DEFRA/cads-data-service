@@ -9,14 +9,14 @@ using System;
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenarios;
 
 public class CtLocationBulkScenario(
-    CtsTransactionsSystemAdminDbContext dbContext, 
-    IFileNameGenerator fileNameGenerator, 
-    IFileAssembler fileAssembler, 
-    ILogger<CtLocationBulkScenario> logger) 
+    CtsTransactionsSystemAdminDbContext dbContext,
+    IFileNameGenerator fileNameGenerator,
+    IFileAssembler fileAssembler,
+    ILogger<CtLocationBulkScenario> logger)
     : GenerationScenario<CtLocation>("ct_location_bulk_scenario", ImportActionType.Bulk, dbContext, fileNameGenerator, fileAssembler, logger)
 {
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =
-        new RuleBuilder<CtLocation>([])     
+        new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
             .RuleFor(r => r.LocCtyId, () => 1m)

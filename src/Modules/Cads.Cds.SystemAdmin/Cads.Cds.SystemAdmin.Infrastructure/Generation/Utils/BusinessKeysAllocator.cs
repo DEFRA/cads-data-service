@@ -18,7 +18,7 @@ public class BusinessKeysAllocator(DbContext dbContext) : IBusinessKeysAllocator
         {
             keys.Add(i);
         }
-   
+
         return keys;
     }
 }
