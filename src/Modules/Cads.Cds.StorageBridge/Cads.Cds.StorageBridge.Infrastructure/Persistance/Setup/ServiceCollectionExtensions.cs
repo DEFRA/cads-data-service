@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
@@ -29,8 +29,8 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterDbContexts(this IServiceCollection services)
     {
-        services.AddPostgresDbContext<StorageBridgeWriteDbContext>();
-        services.AddPostgresDbContext<StorageBridgeReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.AddPostgresDbContext<StorageBridgeWriteDbContext>(PostgresPools.StorageBridgeWrite);
+        services.AddPostgresDbContext<StorageBridgeReadDbContext>(PostgresPools.StorageBridgeRead);
 
         services.AddScoped<
             IDbContextFactory<StorageBridgeReadDbContext, StorageBridgeWriteDbContext>,

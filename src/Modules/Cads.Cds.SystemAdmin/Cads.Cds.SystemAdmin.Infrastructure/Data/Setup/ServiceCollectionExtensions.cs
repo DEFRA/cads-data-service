@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Contexts;
@@ -21,9 +22,9 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterDbContexts(this IServiceCollection services)
     {
-        services.AddPostgresDbContext<CadsSystemAdminDbContext>();
-        services.AddPostgresDbContext<CtsSystemAdminDbContext>();
-        services.AddPostgresDbContext<CtsAuditSystemAdminDbContext>();
-        services.AddPostgresDbContext<CtsTransactionsSystemAdminDbContext>();
+        services.AddPostgresDbContext<CadsSystemAdminDbContext>(PostgresPools.CadsGraphQLRead);
+        services.AddPostgresDbContext<CtsSystemAdminDbContext>(PostgresPools.CtsGraphQLRead);
+        services.AddPostgresDbContext<CtsAuditSystemAdminDbContext>(PostgresPools.CtsAuditGraphQLRead);
+        services.AddPostgresDbContext<CtsTransactionsSystemAdminDbContext>(PostgresPools.CtsTransactionsGraphQLRead);
     }
 }

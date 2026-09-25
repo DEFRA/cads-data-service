@@ -65,13 +65,24 @@ public static class ServiceCollectionExtensions
             }
         }
 
+        var poolRegistry = new PostgresPoolRegistry();
+        var unknownPools = postgresConfig.Pools.Keys.Where(key => !poolRegistry.IsKnown(key)).ToList();
+        if (unknownPools.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"Unknown Postgres pool(s) configured under '{PostgresConfiguration.SectionName}:Pools': {string.Join(", ", unknownPools)}. " +
+                $"Known pools: {string.Join(", ", poolRegistry.Identifiers)}");
+        }
+
+        services.AddSingleton<IPostgresPoolRegistry>(poolRegistry);
+
         services.AddSingleton<IPostgresDataSourceFactory, PostgresDataSourceFactory>();
     }
 
     private static void RegisterHealthChecks(this IServiceCollection services)
     {
-        services.AddPostgresDbContext<HealthCheckDbContext>();
-        services.AddPostgresDbContext<HealthCheckReadOnlyDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.AddPostgresDbContext<HealthCheckDbContext>(PostgresPools.HealthCheckWrite);
+        services.AddPostgresDbContext<HealthCheckReadOnlyDbContext>(PostgresPools.HealthCheckRead);
         services.AddScoped<PostgresHealthCheck>();
         services.AddScoped<IPostgresStatusService, PostgresStatusService>();
     }
