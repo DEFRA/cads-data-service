@@ -45,7 +45,7 @@ public abstract class GenerationScenario<T>(string name,
 
             var contentGenerator = new ContentGenerator<T>(dbContext, OverrideRulesBuilder, Transform);
             var tableName = contentGenerator.TableName;
-            var businessKeysAllocator = new BusinessKeysAllocator(dbContext);
+            var businessKeysAllocator = new BusinessKeysAllocator();
             var businessKeys = await businessKeysAllocator.AllocateAsync(tableName, request.RowCount, ct);
             var seed = Random.Shared.Next();
             var rows = contentGenerator.Generate(businessKeys, seed);
