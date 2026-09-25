@@ -98,4 +98,3 @@ public class DbAdminExecuteCommandServiceTests
         return new DbAdminExecuteCommandService(_factory.Object);
     }
 }
-
