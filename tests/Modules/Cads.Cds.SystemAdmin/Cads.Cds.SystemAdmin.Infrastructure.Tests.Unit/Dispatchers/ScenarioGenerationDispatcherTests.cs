@@ -12,7 +12,7 @@ public class ScenarioGenerationDispatcherTests
     public async Task DispatchAsync_UnknownScenario_ThrowsGenerationValidationException()
     {
         // Arrange
-        var dispatcher = new ScenarioGenerationDispatcher(new IGenerationScenario[] { });
+        var dispatcher = new ScenarioGenerationDispatcher(Array.Empty<IGenerationScenario>());
         var request = new CreateGenerationRequestDto { Scenario = "NonExisting", RowCount = 1 };
 
         // Act & Assert

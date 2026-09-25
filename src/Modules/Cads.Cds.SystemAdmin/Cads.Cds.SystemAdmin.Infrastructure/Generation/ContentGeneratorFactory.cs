@@ -9,7 +9,7 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Generation;
 
 public class ContentGeneratorFactory
 {
-    public IContentGenerator Create(string tableName, DbContext dbContext)
+    public static IContentGenerator Create(string tableName, DbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
 

@@ -30,8 +30,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient<IGenerationScenario, CtLocationBulkScenario>();
         services.AddTransient<IGenerationScenario, CtLocationUpdateScenario>();
-
-        //services.RegisterAllImplementations<IGenerationScenario>();
     }
 
     private static void RegisterUtils(this IServiceCollection services)
@@ -39,25 +37,5 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IBusinessKeysAllocator, BusinessKeysAllocator>();
         services.AddTransient<IFileAssembler, FileAssembler>();
         services.AddTransient<IFileNameGenerator, FileNameGenerator>();
-    }
-
-    /// <summary>
-    /// Registers all non-abstract classes implementing TInterface found in the current assembly.
-    /// </summary>
-    private static void RegisterAllImplementations<TInterface>(this IServiceCollection services)
-    {
-        var interfaceType = typeof(TInterface);
-
-        // Scan all loaded assemblies (you can limit to specific assemblies if needed)
-        var types = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(t => interfaceType.IsAssignableFrom(t) &&
-                        t.IsClass &&
-                        !t.IsAbstract);
-
-        foreach (var type in types)
-        {
-            services.AddTransient(interfaceType, type);
-        }
     }
 }
