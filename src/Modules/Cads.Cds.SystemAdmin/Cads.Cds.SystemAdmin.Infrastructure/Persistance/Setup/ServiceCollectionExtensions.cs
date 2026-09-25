@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.SystemAdmin.Application.Imports.Repositories;
@@ -29,8 +29,8 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterDbContexts(this IServiceCollection services)
     {
-        services.AddPostgresDbContext<SystemAdminWriteDbContext>();
-        services.AddPostgresDbContext<SystemAdminReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.AddPostgresDbContext<SystemAdminWriteDbContext>(PostgresPools.SystemAdminWrite);
+        services.AddPostgresDbContext<SystemAdminReadDbContext>(PostgresPools.SystemAdminRead);
 
         services.AddScoped<
             IDbContextFactory<SystemAdminReadDbContext, SystemAdminWriteDbContext>,
