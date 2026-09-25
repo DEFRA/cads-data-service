@@ -5,15 +5,18 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
 
-[ExcludeFromCodeCoverage]
-public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPostgresIamTokenGeneratorService? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
+public sealed class PostgresDataSourceFactory(
+    PostgresConfiguration config,
+    IPostgresPoolRegistry poolRegistry,
+    IPostgresIamTokenGeneratorService? iamTokenGenerator = null) : IPostgresDataSourceFactory, IDisposable
 {
     private readonly Dictionary<string, NpgsqlDataSource> _dataSources = [];
+    private readonly Dictionary<string, PostgresPoolConfiguration> _pools = new(config.Pools, StringComparer.OrdinalIgnoreCase);
     private readonly SemaphoreSlim _lock = new(1, 1);
     private bool _disposed;
 
-    public const string DefaultConnectionIdentifier = "Default";
-    public const string ReadOnlyConnectionIdentifier = "ReadOnly";
+    public const string DefaultConnectionIdentifier = PostgresPools.Default;
+    public const string ReadOnlyConnectionIdentifier = PostgresPools.ReadOnly;
 
     public NpgsqlDataSource CreateDataSource(string connectionIdentifier)
     {
@@ -34,16 +37,20 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
                 return existingDataSource;
             }
 
-            NpgsqlDataSource dataSource;
+            var connectionStringBuilder = BuildConnectionStringBuilder(connectionIdentifier);
+            var builder = new NpgsqlDataSourceBuilder(connectionStringBuilder.ConnectionString);
 
             if (config.UseIamAuthentication)
             {
-                dataSource = CreateIamAuthDataSource(connectionIdentifier);
+                // Register password provider that generates IAM tokens
+                builder.UsePeriodicPasswordProvider(
+                    passwordProvider: CreateIamPasswordProvider(connectionStringBuilder.Host!),
+                    successRefreshInterval: TimeSpan.FromMinutes(10), // Refresh every 10 minutes
+                    failureRefreshInterval: TimeSpan.FromSeconds(30)  // Retry after 30 seconds on failure
+                );
             }
-            else
-            {
-                dataSource = CreateStandardDataSource(connectionIdentifier);
-            }
+
+            var dataSource = builder.Build();
 
             _dataSources[connectionIdentifier] = dataSource;
             return dataSource;
@@ -54,57 +61,75 @@ public sealed class PostgresDataSourceFactory(PostgresConfiguration config, IPos
         }
     }
 
-    private NpgsqlDataSource CreateStandardDataSource(string connectionIdentifier)
+    internal NpgsqlConnectionStringBuilder BuildConnectionStringBuilder(string connectionIdentifier)
     {
-        var connectionString = connectionIdentifier switch
-        {
-            DefaultConnectionIdentifier => config.DefaultConnection,
-            ReadOnlyConnectionIdentifier => config.ReadOnlyConnection,
-            _ => throw new ArgumentException($"Unknown connection identifier: {connectionIdentifier}")
-        };
+        var isReadPool = poolRegistry.IsReadPool(connectionIdentifier);
+        var pool = _pools.GetValueOrDefault(connectionIdentifier) ?? new PostgresPoolConfiguration();
 
-        return NpgsqlDataSource.Create(connectionString);
+        if (pool.MaximumPoolSize == 0)
+        {
+            throw new InvalidOperationException(
+                $"Postgres pool '{connectionIdentifier}' is disabled (MaximumPoolSize is 0)");
+        }
+
+        var connectionStringBuilder = config.UseIamAuthentication
+            ? CreateIamConnectionStringBuilder(pool, isReadPool)
+            : CreateStandardConnectionStringBuilder(pool, isReadPool);
+
+        ApplyPoolSettings(connectionStringBuilder, pool);
+
+        return connectionStringBuilder;
     }
 
-    private NpgsqlDataSource CreateIamAuthDataSource(string connectionIdentifier)
+    internal Func<NpgsqlConnectionStringBuilder, CancellationToken, ValueTask<string>> CreateIamPasswordProvider(string host)
     {
-        var host = connectionIdentifier switch
+        return async (_, _) => await iamTokenGenerator!.GenerateAuthTokenAsync(host, config.Port, config.User);
+    }
+
+    private NpgsqlConnectionStringBuilder CreateStandardConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
+    {
+        var connectionString = pool.ConnectionString ?? (isReadPool ? config.ReadOnlyConnection : config.DefaultConnection);
+        var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString);
+
+        if (pool.Host is not null)
         {
-            DefaultConnectionIdentifier => config.DefaultHost,
-            ReadOnlyConnectionIdentifier => config.ReadOnlyHost,
-            _ => throw new ArgumentException($"Unknown connection identifier (host): {connectionIdentifier}")
-        };
+            connectionStringBuilder.Host = pool.Host;
+        }
 
-        var builder = new NpgsqlDataSourceBuilder
+        return connectionStringBuilder;
+    }
+
+    private NpgsqlConnectionStringBuilder CreateIamConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
+    {
+        return new NpgsqlConnectionStringBuilder
         {
-            ConnectionStringBuilder =
-            {
-                Host = host,
-                Port = config.Port,
-                Database = config.Name,
-                Username = config.User,
-                CommandTimeout = 60,
-                TcpKeepAlive = true,
-                TcpKeepAliveTime = 30,
-                SslMode = SslMode.Require // AWS RDS requires SSL
-             }
+            Host = pool.Host ?? (isReadPool ? config.ReadOnlyHost : config.DefaultHost),
+            Port = config.Port,
+            Database = config.Name,
+            Username = config.User,
+            CommandTimeout = 60,
+            TcpKeepAlive = true,
+            TcpKeepAliveTime = 30,
+            SslMode = SslMode.Require // AWS RDS requires SSL
         };
+    }
 
-        // Register password provider that generates IAM tokens
-        builder.UsePeriodicPasswordProvider(
-            passwordProvider: async (_, ct) =>
-            {
-                var token = await iamTokenGenerator!.GenerateAuthTokenAsync(
-                    config.DefaultHost,
-                    config.Port,
-                    config.User);
-                return token;
-            },
-            successRefreshInterval: TimeSpan.FromMinutes(10), // Refresh every 10 minutes
-            failureRefreshInterval: TimeSpan.FromSeconds(30)  // Retry after 30 seconds on failure
-        );
+    private static void ApplyPoolSettings(NpgsqlConnectionStringBuilder connectionStringBuilder, PostgresPoolConfiguration pool)
+    {
+        if (pool.ApplicationName is not null)
+        {
+            connectionStringBuilder.ApplicationName = pool.ApplicationName;
+        }
 
-        return builder.Build();
+        if (pool.MaximumPoolSize.HasValue)
+        {
+            connectionStringBuilder.MaxPoolSize = pool.MaximumPoolSize.Value;
+        }
+
+        if (pool.MinimumPoolSize.HasValue)
+        {
+            connectionStringBuilder.MinPoolSize = pool.MinimumPoolSize.Value;
+        }
     }
 
     [ExcludeFromCodeCoverage]
