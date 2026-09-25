@@ -2,6 +2,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Requests;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Responses;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
@@ -17,8 +18,11 @@ public static class EnpointExtensions
 
     private static async Task<DbAdminExecuteCommandResponse> DbAdminExecuteCommand(
         DbAdminExecuteCommandRequest request,
+        IValidator<DbAdminExecuteCommandRequest> validator,
         IDbAdminExecuteCommandService service)
     {
+        await validator.ValidateAndThrowAsync(request);
+
         var result = await service.ExecuteAsync(request.Command, request.Args);
 
         return new DbAdminExecuteCommandResponse(
