@@ -4,7 +4,7 @@ using Cads.Cds.Api.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 using Cads.Cds.Api.Infrastructure.Persistence.Repositories.Holdings;
 using Cads.Cds.Api.Infrastructure.Persistence.Uow;
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using MediatR;
@@ -29,8 +29,8 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterDbContexts(this IServiceCollection services)
     {
-        services.AddPostgresDbContext<ApiWriteDbContext>();
-        services.AddPostgresDbContext<ApiReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.AddPostgresDbContext<ApiWriteDbContext>(PostgresPools.ApiWrite);
+        services.AddPostgresDbContext<ApiReadDbContext>(PostgresPools.ApiRead);
 
         services.AddScoped<
             IDbContextFactory<ApiReadDbContext, ApiWriteDbContext>,
