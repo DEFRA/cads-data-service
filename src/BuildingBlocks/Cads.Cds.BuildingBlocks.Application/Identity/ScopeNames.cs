@@ -7,4 +7,7 @@ public static class ScopeNames
 
     // Azure AD
     public const string ReportsRead = "reports.read";
+
+    // AWS STS
+    public const string Imports = "imports";
 }

@@ -144,6 +144,11 @@ public static class ServiceCollectionExtensions
             authBuilder.AddApiKeyScheme();
         }
 
+        if (authConfig.AwsOutboundFederation.Enabled)
+        {
+            authBuilder.AddAwsStsScheme();
+        }
+
         if (authConfig.Cognito.Enabled)
         {
             authBuilder.AddCognitoScheme(authConfig.Cognito);
@@ -167,6 +172,12 @@ public static class ServiceCollectionExtensions
     {
         authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
             AuthenticationConstants.ApiKeySchemeName, _ => { });
+    }
+
+    private static void AddAwsStsScheme(this AuthenticationBuilder authenticationBuilder)
+    {
+        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, AwsStsAuthenticationHandler>(
+            AuthenticationConstants.AwsStsSchemeName, _ => { });
     }
 
     private static void AddCognitoScheme(this AuthenticationBuilder authenticationBuilder, AuthenticationProviderConfiguration authenticationProviderConfiguration)
@@ -240,6 +251,31 @@ public static class ServiceCollectionExtensions
                 }
                 policy.RequireAuthenticatedUser();
                 policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, ScopeNames.ReportsRead);
+            })
+            .AddPolicy(AuthenticationConstants.StsOrCognitoPolicy, policy =>
+            {
+                if (authenticationConfiguration.AwsOutboundFederation.Enabled)
+                {
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.AwsStsSchemeName);
+                }
+                if (authenticationConfiguration.Cognito.Enabled)
+                {
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
+                }
+                policy.RequireAuthenticatedUser();
+            })
+            .AddPolicy(AuthenticationConstants.StsOrCognitoPolicyImports, policy =>
+            {
+                if (authenticationConfiguration.AwsOutboundFederation.Enabled)
+                {
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.AwsStsSchemeName);
+                }
+                if (authenticationConfiguration.Cognito.Enabled)
+                {
+                    policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
+                }
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(AuthenticationConstants.ScopeClaimType, ScopeNames.Imports);
             });
     }
 }
