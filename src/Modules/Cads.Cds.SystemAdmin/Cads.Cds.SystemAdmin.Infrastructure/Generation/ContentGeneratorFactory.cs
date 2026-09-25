@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation;
 
-public class ContentGeneratorFactory
+public static class ContentGeneratorFactory
 {
     public static IContentGenerator Create(string tableName, DbContext dbContext)
     {
