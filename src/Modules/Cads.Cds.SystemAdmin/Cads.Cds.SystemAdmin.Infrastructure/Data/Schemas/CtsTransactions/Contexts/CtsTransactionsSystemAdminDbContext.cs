@@ -1,10 +1,12 @@
-using System;
-using System.Collections.Generic;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
 
+[ExcludeFromCodeCoverage]
 public partial class CtsTransactionsSystemAdminDbContext : DbContext
 {
     public CtsTransactionsSystemAdminDbContext(DbContextOptions<CtsTransactionsSystemAdminDbContext> options)
