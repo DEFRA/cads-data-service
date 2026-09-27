@@ -45,7 +45,16 @@ public abstract class GenerationScenario<T>(string name,
         var rows = contentGenerator.Generate(businessKeys, seed);
 
         var fileCreatedDateTime = DateTime.UtcNow;
-        var fileName = fileNameGenerator.Create(FileNameApplicationPrefix, FileNameEnvironmentPrefix, _importActionType, FileNameBatchId, tableName, fileCreatedDateTime);
+        var fileName = fileNameGenerator.Create(
+            new CreateFileNameCommand
+            {
+                App = FileNameApplicationPrefix,
+                Env = FileNameEnvironmentPrefix,
+                Type = _importActionType,
+                BatchId = FileNameBatchId,
+                TableName = tableName,
+                Timestamp = fileCreatedDateTime
+            });
         var content = fileAssembler.Create(fileName, fileCreatedDateTime, rows);
 
         return new CreateGenerationResponseDto

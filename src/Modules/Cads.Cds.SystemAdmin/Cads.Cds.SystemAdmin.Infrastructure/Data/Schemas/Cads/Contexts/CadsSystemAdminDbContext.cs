@@ -2,10 +2,11 @@ using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Contexts;
 
+[ExcludeFromCodeCoverage]
 public partial class CadsSystemAdminDbContext : DbContext
 {
     public CadsSystemAdminDbContext(DbContextOptions<CadsSystemAdminDbContext> options)
