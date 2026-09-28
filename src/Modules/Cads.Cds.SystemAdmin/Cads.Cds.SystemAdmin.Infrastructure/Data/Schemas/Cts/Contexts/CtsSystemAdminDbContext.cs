@@ -1,9 +1,11 @@
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Entities;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Contexts;
 
+[ExcludeFromCodeCoverage]
 public partial class CtsSystemAdminDbContext : DbContext
 {
     public CtsSystemAdminDbContext(DbContextOptions<CtsSystemAdminDbContext> options)
