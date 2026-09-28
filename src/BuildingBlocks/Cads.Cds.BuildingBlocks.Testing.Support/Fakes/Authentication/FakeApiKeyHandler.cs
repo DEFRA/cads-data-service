@@ -23,7 +23,8 @@ public class FakeApiKeyHandler(
             new(ClaimTypes.Email, TestAuthConstants.AzureAdEmail),
             new("name", TestAuthConstants.AzureAdUsername),
             new(CustomClaimTypes.Oid, Guid.NewGuid().ToString()),
-            new(CustomClaimTypes.TenantId, "test-internal-tenant")
+            new(CustomClaimTypes.TenantId, "test-internal-tenant"),
+            new("scope", ScopeNames.ReportsRead)
         };
 
         var identity = new ClaimsIdentity(

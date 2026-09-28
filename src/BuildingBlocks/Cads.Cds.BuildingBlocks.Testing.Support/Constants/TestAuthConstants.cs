@@ -28,8 +28,17 @@ public static class TestAuthConstants
     // Audience & Scopes
     public const string AzureAdCadsCdsAudience = "api://local-cads-cds";
     public const string AzureAdCadsCdsScope = "reports.read";
+    public const string AzureAdCadsCdsDbAdminScope = "db.admin.execute";
+
+    // Db Admin test user (real OIDC mock, for integration tests)
+    public const string AzureAdDbAdminUsername = "db-admin-user";
 
     // Fakes
+
+    // Fakes: bearer token control values (consumed by FakeJwtHandler)
+    public const string FakeJwtDefault = "fake-jwt-token";
+    public const string FakeJwtMissingDbAdminRole = "fake-jwt-token-missing-role";
+    public const string FakeJwtMissingDbAdminScope = "fake-jwt-token-missing-scope";
 
     // Fakes: Cognito
     public const string FakeCongnitoAuthority = "https://cognito-test";
