@@ -55,4 +55,7 @@ public class TestEndpointConstants
     // DbAdmin - ExecuteCommand
     public const string DbAdminExecuteCommandEndpoint = SystemAdminRoot + "db-admin-execute-command";
 
+
+    // Generation - Scenarios
+    public const string GenerationGetScenariosEndpoint = SystemAdminGenerationRoot + "/scenarios";
 }
