@@ -22,6 +22,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.IdentityModel.Tokens.Jwt;
+using Cads.Cds.SystemAdmin;
 
 namespace Cads.Cds.Setup;
 
@@ -110,6 +111,7 @@ public static class ServiceCollectionExtensions
         services.AddValidatorsFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(ISystemAdminApplicationMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(ISystemAdminMarker).Assembly);
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)
@@ -222,10 +224,12 @@ public static class ServiceCollectionExtensions
                 {
                     policy.AddAuthenticationSchemes(AuthenticationConstants.ApiKeySchemeName);
                 }
+
                 if (authenticationConfiguration.Cognito.Enabled)
                 {
                     policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
                 }
+
                 policy.RequireAuthenticatedUser();
             })
             .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy =>
@@ -234,12 +238,21 @@ public static class ServiceCollectionExtensions
                 {
                     policy.AddAuthenticationSchemes(AuthenticationConstants.ApiKeySchemeName);
                 }
+
                 if (authenticationConfiguration.AzureAD.Enabled)
                 {
                     policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
                 }
+
                 policy.RequireAuthenticatedUser();
-                policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, ScopeNames.ReportsRead);
+                policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.ReportsRead);
+            })
+            .AddPolicy(AuthenticationConstants.AadDbAdminExecutePolicy, policy =>
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.DbAdminExecute);
+                policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, RoleNames.CadsAdminSuperuser);
             });
     }
 }
