@@ -19,17 +19,19 @@ public class AuthenticationProviderConfiguration : AuthenticationStateConfigurat
     public string? MetadataAddress { get; set; }
     public bool RequireHttpsMetadata { get; set; } = true;
     public bool ValidateIssuer { get; set; } = true;
-    public string RoleClaimType { get; set; } = "http://schemas.microsoft.com/identity/claims/scope";
+    public string ScopeClaimType { get; set; } = "http://schemas.microsoft.com/identity/claims/scope";
+    public string RoleClaimType { get; set; } = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 }
 
 public static class AuthenticationConstants
 {
+    // Scheme names
     public const string ApiKeySchemeName = "Basic";
     public const string CognitoSchemeName = "Cognito";
     public const string AzureADSchemeName = "AzureAd";
 
-    public const string ScopeClaimType = "scope";
-
+    // Policy names
     public const string ApiKeyOrCognitoPolicy = "ApiKeyOrCognito";
     public const string AadReportsReadPolicy = "AadReportsRead";
+    public const string AadDbAdminExecutePolicy = "AadDbAdminExecute";
 }

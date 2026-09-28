@@ -53,7 +53,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                 "ClientId": "{{TestAuthConstants.AzureAdTestUserClientId}}",
                 "ClientSecrets": ["{{TestAuthConstants.AzureAdTestUserClientSecret}}"],
                 "AllowedGrantTypes": ["password"],
-                "AllowedScopes": ["openid", "profile", "email", "reports.none", "{{TestAuthConstants.AzureAdCadsCdsScope}}"],
+                "AllowedScopes": ["openid", "profile", "email", "reports.none", "{{TestAuthConstants.AzureAdCadsCdsScope}}", "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}"],
                 "AccessTokenType": "Jwt",
                 "AlwaysSendClientClaims": true,
                 "AlwaysIncludeUserClaimsInIdToken": true
@@ -69,6 +69,10 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
               {
                 "Name": "reports.none",
                 "DisplayName": "No report access"
+              },
+              {
+                "Name": "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}",
+                "DisplayName": "Execute DB admin commands"
               }
             ]
             """)
@@ -81,6 +85,10 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
               {
                 "Name": "reports.none",
                 "DisplayName": "No report access"
+              },
+              {
+                "Name": "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}",
+                "DisplayName": "Execute DB admin commands"
               }
             ]
             """)
@@ -88,7 +96,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
             [
               {
                 "Name": "{{TestAuthConstants.AzureAdCadsCdsAudience}}",
-                "Scopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}", "reports.none"],
+                "Scopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}", "reports.none", "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}"],
                 "UserClaims": [
                   "email",
                   "preferred_username",
@@ -120,6 +128,17 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                     { "Type": "email", "Value": "unknown-user@internal.test" },
                     { "Type": "preferred_username", "Value": "unknown-user" },
                     { "Type": "role", "Value": "mip-viewer" }
+                ]
+                },
+                {
+                "SubjectId": "9b6c9b3a-9e1e-4b6a-9d1e-6f1c2a7b5d3e",
+                "Username": "{{TestAuthConstants.AzureAdDbAdminUsername}}",
+                "Password": "{{TestAuthConstants.AzureAdPassword}}",
+                "Claims": [
+                    { "Type": "name", "Value": "Test Db Admin" },
+                    { "Type": "email", "Value": "db-admin-user@internal.test" },
+                    { "Type": "preferred_username", "Value": "db-admin-user" },
+                    { "Type": "role", "Value": "cads-admin-superuser" }
                 ]
                 }
             ]
