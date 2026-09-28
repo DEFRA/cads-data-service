@@ -1,8 +1,10 @@
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsAudit.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsAudit.Contexts;
 
+[ExcludeFromCodeCoverage]
 public partial class CtsAuditSystemAdminDbContext : DbContext
 {
     public CtsAuditSystemAdminDbContext(DbContextOptions<CtsAuditSystemAdminDbContext> options)
