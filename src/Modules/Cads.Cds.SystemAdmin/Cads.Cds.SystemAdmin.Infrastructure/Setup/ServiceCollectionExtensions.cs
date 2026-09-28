@@ -1,5 +1,6 @@
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.DbAdmin.Setup;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Messaging.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Setup;
 using Microsoft.Extensions.Configuration;
@@ -12,12 +13,10 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSystemAdminInfrastructureLayer(this IServiceCollection services, IConfiguration config)
     {
         services.ConfigureSystemAdminPersistence();
-
         services.AddSystemAdminMessaging(config);
-
+        services.ConfigureSystemAdminGeneration();
         services.ConfigureSystemAdminData();
-
-        services.AddSystemAdminDbAdminLayer(config);
+        services.AddSystemAdminDbAdminLayer();
 
         return services;
     }
