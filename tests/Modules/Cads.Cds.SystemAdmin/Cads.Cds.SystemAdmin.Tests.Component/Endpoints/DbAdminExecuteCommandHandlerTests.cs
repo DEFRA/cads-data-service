@@ -75,7 +75,7 @@ public class DbAdminExecuteCommandHandlerTests
     {
         // EnpointExtensions is a static class, so it can't be used as a generic type argument
         // with MethodInfoUtility.GetPrivateStatic<T> - resolve it directly via typeof() instead.
-        var method = typeof(EnpointExtensions).GetMethod(
+        var method = typeof(DbAdminEndpointExtensions).GetMethod(
             "DbAdminExecuteCommand",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
             ?? throw new InvalidOperationException("Method DbAdminExecuteCommand not found");

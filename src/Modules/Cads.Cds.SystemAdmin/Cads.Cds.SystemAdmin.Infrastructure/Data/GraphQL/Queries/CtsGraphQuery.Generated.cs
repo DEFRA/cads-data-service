@@ -6,10 +6,12 @@ using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Entities;
 using HotChocolate;
 using HotChocolate.Data;
 using HotChocolate.Types;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Queries;
 
+[ExcludeFromCodeCoverage]
 [ExtendObjectType("Query")]
 public partial class CtsGraphQuery
 {   
