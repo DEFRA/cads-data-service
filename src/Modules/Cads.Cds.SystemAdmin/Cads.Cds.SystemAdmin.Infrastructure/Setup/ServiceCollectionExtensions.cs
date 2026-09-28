@@ -16,8 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddSystemAdminMessaging(config);
         services.ConfigureSystemAdminGeneration();
         services.ConfigureSystemAdminData();
-
-        services.AddSystemAdminDbAdminLayer(config);
+        services.AddSystemAdminDbAdminLayer();
 
         return services;
     }

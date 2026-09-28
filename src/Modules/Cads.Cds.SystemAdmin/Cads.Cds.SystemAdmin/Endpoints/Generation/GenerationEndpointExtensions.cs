@@ -2,6 +2,8 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Generation.Dispatchers;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Endpoints.Generation.Requests;
+using Cads.Cds.SystemAdmin.Endpoints.Generation.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +24,12 @@ public static class GenerationEndpointExtensions
 
     private static async Task<IResult> Generate(
         [FromBody] CreateGenerationRequest request,
+        IValidator<CreateGenerationRequest> validator,
         IScenarioGenerationDispatcher dispatcher,
         CancellationToken cancellationToken)
     {
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
+
         var createGenerationRequestDto = new CreateGenerationRequestDto
         {
             Scenario = request.Scenario,
