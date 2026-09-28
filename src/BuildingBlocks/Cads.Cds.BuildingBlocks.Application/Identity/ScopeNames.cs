@@ -7,4 +7,5 @@ public static class ScopeNames
 
     // Azure AD
     public const string ReportsRead = "reports.read";
+    public const string DbAdminExecute = "db.admin.execute";
 }
