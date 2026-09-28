@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Cads.Cds.SystemAdmin.Endpoints.DbAdmin;
 
-public static class EnpointExtensions
+public static class DbAdminEndpointExtensions
 {
     public static void CreateDbAdminEndpoints(this IEndpointRouteBuilder app)
     {

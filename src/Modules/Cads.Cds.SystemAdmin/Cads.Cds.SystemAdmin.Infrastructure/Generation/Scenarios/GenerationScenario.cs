@@ -25,13 +25,13 @@ public abstract class GenerationScenario<T>(string name,
 
     public string Name { get; init; } = name;
 
+    public string TableName => new ContentGenerator<T>(dbContext).TableName;
+
     protected virtual RuleBuilder<T>? OverrideRulesBuilder { get; init; }
 
     protected virtual Func<T, decimal, T>? Transform { get; init; }
 
     private readonly ImportActionType _importActionType = importActionType;
-
-    public string TableName => new ContentGenerator<T>(dbContext).TableName;
 
     public async Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default)
     {
