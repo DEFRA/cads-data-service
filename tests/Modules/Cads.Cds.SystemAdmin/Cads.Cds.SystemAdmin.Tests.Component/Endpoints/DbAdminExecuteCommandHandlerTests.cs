@@ -3,7 +3,6 @@ using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Requests;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Responses;
-using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Security.Claims;
 using System.Text.Json;
+using Cads.Cds.SystemAdmin.Core.DTOs.DbAdmin;
 
 namespace Cads.Cds.SystemAdmin.Tests.Component.Endpoints;
 
@@ -27,7 +27,7 @@ public class DbAdminExecuteCommandHandlerTests
             .ReturnsAsync(new ValidationResult());
 
         _service
-            .Setup(x => x.ExecuteAsync(It.IsAny<string>(), It.IsAny<JsonElement?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ExecuteAsync(It.IsAny<DbAdminRequestBaseDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(JsonDocument.Parse("{}"));
     }
 
@@ -71,7 +71,7 @@ public class DbAdminExecuteCommandHandlerTests
             message.Contains("cancel_query") && message.Contains("123"));
     }
 
-    private async Task<DbAdminExecuteCommandResponse> InvokeAsync(DbAdminExecuteCommandRequest request, HttpContext httpContext)
+    private async Task<DbAdminCommandResponse> InvokeAsync(DbAdminExecuteCommandRequest request, HttpContext httpContext)
     {
         // EnpointExtensions is a static class, so it can't be used as a generic type argument
         // with MethodInfoUtility.GetPrivateStatic<T> - resolve it directly via typeof() instead.
@@ -80,9 +80,9 @@ public class DbAdminExecuteCommandHandlerTests
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
             ?? throw new InvalidOperationException("Method DbAdminExecuteCommand not found");
 
-        var task = (Task<DbAdminExecuteCommandResponse>)method.Invoke(
+        var task = (Task<DbAdminCommandResponse>)method.Invoke(
             null,
-            [request, _validator.Object, _service.Object, httpContext, _logger.Object, TestContext.Current.CancellationToken])!;
+            new object?[] { request, _validator.Object, _service.Object, httpContext, _logger.Object, TestContext.Current.CancellationToken })!;
 
         return await task;
     }
