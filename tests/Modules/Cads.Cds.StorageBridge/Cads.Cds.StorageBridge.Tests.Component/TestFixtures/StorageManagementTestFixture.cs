@@ -6,7 +6,7 @@ namespace Cads.Cds.StorageBridge.Tests.Component.TestFixtures;
 public class StorageManagementTestFixture : TestFixtureBase<Program, StorageBridgeWebApplicationFactory>
 {
     public StorageManagementTestFixture()
-        : base(CreateFactory())
+        : base(CreateFactory(), useFakeAuth: true)
     {
     }
 
