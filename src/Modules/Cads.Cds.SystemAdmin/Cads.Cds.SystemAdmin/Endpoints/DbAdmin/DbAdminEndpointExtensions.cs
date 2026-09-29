@@ -46,7 +46,7 @@ public static class DbAdminEndpointExtensions
             result.RootElement
         );
     }
-    
+
     private static async Task<DbAdminCommandResponse> DbAdminCtsImport(
         DbAdminCtsImportRequest request,
         IValidator<DbAdminCtsImportRequest> validator,
