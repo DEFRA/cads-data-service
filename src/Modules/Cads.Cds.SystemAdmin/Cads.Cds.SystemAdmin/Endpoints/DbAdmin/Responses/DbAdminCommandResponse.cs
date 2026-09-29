@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Responses;
 
-public record DbAdminExecuteCommandResponse(
+public record DbAdminCommandResponse(
     string Command,
     JsonElement Result
 );
