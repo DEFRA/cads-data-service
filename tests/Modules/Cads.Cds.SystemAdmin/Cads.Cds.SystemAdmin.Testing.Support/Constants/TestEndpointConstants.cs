@@ -58,4 +58,8 @@ public class TestEndpointConstants
 
     // Generation - Scenarios
     public const string GenerationGetScenariosEndpoint = SystemAdminGenerationRoot + "/scenarios";
+
+    // Generation - Dependencies
+    public const string GenerationDependenciesEndpoint = SystemAdminGenerationRoot + "/{schemaName}/{tableName}/dependencies";
+
 }
