@@ -28,7 +28,7 @@ public static class StorageManagementEndpoints
 
         // Read-only by design: no put/delete routes are exposed.
         var group = app.MapGroup("/api/v1/storage/s3")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy)
+            .RequireAuthorization(AuthenticationConstants.AadS3AdminExecutePolicy)
             .WithTags("StorageManagement");
 
         group.MapGet("/buckets", ListBuckets);
