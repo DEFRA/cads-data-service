@@ -55,6 +55,8 @@ public class TestEndpointConstants
     // DbAdmin - ExecuteCommand
     public const string DbAdminExecuteCommandEndpoint = SystemAdminRoot + "db-admin-execute-command";
 
+    // DbAdmin - CtsImport
+    public const string DbAdminCtsImportEndpoint = SystemAdminRoot + "db-admin-cts-import";
 
     // Generation - Scenarios
     public const string GenerationGetScenariosEndpoint = SystemAdminGenerationRoot + "/scenarios";

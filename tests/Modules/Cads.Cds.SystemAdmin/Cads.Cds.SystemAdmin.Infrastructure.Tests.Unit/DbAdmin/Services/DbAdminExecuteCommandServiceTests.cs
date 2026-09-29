@@ -5,6 +5,7 @@ using FluentAssertions;
 using Moq;
 using Npgsql;
 using System.Text.Json;
+using Cads.Cds.SystemAdmin.Core.DTOs.DbAdmin;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.DbAdmin.Services;
 
@@ -25,7 +26,7 @@ public class DbAdminExecuteCommandServiceTests
 
         await using var _ = dataSource;
 
-        var act = () => sut.ExecuteAsync("sessions_by_state", null, TestContext.Current.CancellationToken);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<Exception>();
 
@@ -39,7 +40,7 @@ public class DbAdminExecuteCommandServiceTests
 
         await using var _ = dataSource;
 
-        var act = () => sut.ExecuteAsync("sessions_by_state", null, TestContext.Current.CancellationToken);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<NpgsqlException>();
     }
@@ -54,7 +55,7 @@ public class DbAdminExecuteCommandServiceTests
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
-        var act = () => sut.ExecuteAsync("sessions_by_state", null, cts.Token);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), cts.Token);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
@@ -68,7 +69,7 @@ public class DbAdminExecuteCommandServiceTests
 
         await using var _ = dataSource;
 
-        var act = () => sut.ExecuteAsync("sessions_by_state", null, TestContext.Current.CancellationToken);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), TestContext.Current.CancellationToken);
 
         await act.Should().NotThrowAsync<NullReferenceException>();
     }
@@ -82,7 +83,7 @@ public class DbAdminExecuteCommandServiceTests
 
         using var argsDoc = JsonDocument.Parse("""{"pid":123}""");
 
-        var act = () => sut.ExecuteAsync("cancel_query", argsDoc.RootElement, TestContext.Current.CancellationToken);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("cancel_query", argsDoc.RootElement), TestContext.Current.CancellationToken);
 
         await act.Should().NotThrowAsync<NullReferenceException>();
     }
