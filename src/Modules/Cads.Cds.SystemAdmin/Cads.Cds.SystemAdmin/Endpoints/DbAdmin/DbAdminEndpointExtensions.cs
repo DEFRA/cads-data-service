@@ -1,7 +1,6 @@
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
+using Cads.Cds.SystemAdmin.Core.DTOs.DbAdmin;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Requests;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Responses;
 using FluentValidation;
@@ -14,13 +13,17 @@ namespace Cads.Cds.SystemAdmin.Endpoints.DbAdmin;
 
 public static class DbAdminEndpointExtensions
 {
+    private const string DbAdminApiRoutePrefix = "/api/v1/systemadmin";
     public static void CreateDbAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/v1/systemadmin/db-admin-execute-command", DbAdminExecuteCommand)
+        app.MapPost($"{DbAdminApiRoutePrefix}/db-admin-execute-command", DbAdminExecuteCommand)
+            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
+
+        app.MapPost($"{DbAdminApiRoutePrefix}/db-admin-cts-import", DbAdminCtsImport)
             .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
     }
 
-    private static async Task<DbAdminExecuteCommandResponse> DbAdminExecuteCommand(
+    private static async Task<DbAdminCommandResponse> DbAdminExecuteCommand(
         DbAdminExecuteCommandRequest request,
         IValidator<DbAdminExecuteCommandRequest> validator,
         IDbAdminExecuteCommandService service,
@@ -34,9 +37,34 @@ public static class DbAdminEndpointExtensions
             var user = httpContext.User.Identity!.Name;
             logger.LogInformation("User {User}: Executing DB Admin command: {Command} with args: {Args}", user, request.Command, request.Args);
         }
-        var result = await service.ExecuteAsync(request.Command, request.Args, cancellationToken);
 
-        return new DbAdminExecuteCommandResponse(
+        var requestDto = new DbAdminExecuteCommandRequestDto(request.Command, request.Args);
+        var result = await service.ExecuteAsync(requestDto, cancellationToken);
+
+        return new DbAdminCommandResponse(
+            request.Command,
+            result.RootElement
+        );
+    }
+    
+    private static async Task<DbAdminCommandResponse> DbAdminCtsImport(
+        DbAdminCtsImportRequest request,
+        IValidator<DbAdminCtsImportRequest> validator,
+        IDbAdminExecuteCommandService service,
+        HttpContext httpContext,
+        ILogger<DbAdminCtsImportRequest> logger,
+        CancellationToken cancellationToken)
+    {
+        await validator.ValidateAndThrowAsync(request, cancellationToken);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            var user = httpContext.User.Identity!.Name;
+            logger.LogInformation("User {User}: Executing DB Admin cts import: {Command} with run id: {Args}", user, request.Command, request.Args);
+        }
+        var requestDto = new DbAdminCtsImportRequestDto(request.Command, request.Args);
+        var result = await service.ExecuteAsync(requestDto, cancellationToken);
+
+        return new DbAdminCommandResponse(
             request.Command,
             result.RootElement
         );
