@@ -26,14 +26,14 @@ public sealed class SystemAdminModule : IModule
     /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema");
+           // .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema");
+           // .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema");
+           // .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema");
+           // .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
 
         var config = app.ServiceProvider.GetRequiredService<IConfiguration>();
         var enableDbAdminEndpoints = config.GetValue("Modules:SystemAdmin:EnableDbAdminEndpoints", false);
@@ -43,6 +43,5 @@ public sealed class SystemAdminModule : IModule
         }
 
         app.CreateSystemAdminEndpoints();
-
     }
 }

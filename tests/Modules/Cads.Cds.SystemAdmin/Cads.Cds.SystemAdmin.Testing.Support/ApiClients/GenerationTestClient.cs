@@ -26,6 +26,13 @@ public static class GenerationTestClient
         return await client.GetAsync(endpoint, cancellationToken);
     }
 
+    public static async Task<HttpResponseMessage> GetDependenciesAsync(HttpClient client, string schemaName, string tableName,
+       CancellationToken cancellationToken)
+    {
+        var endpoint = TestEndpointConstants.SystemAdminGenerationRoot + $"/{schemaName}/{tableName}/dependencies";
+        return await client.GetAsync(endpoint, cancellationToken);
+    }
+
     public static async Task<CreateGenerationResponseDto?> ReadDtoAsync(
         HttpResponseMessage response,
         CancellationToken cancellationToken)

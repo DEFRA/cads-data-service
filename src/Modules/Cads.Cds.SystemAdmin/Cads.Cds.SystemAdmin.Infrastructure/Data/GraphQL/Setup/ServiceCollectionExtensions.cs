@@ -1,4 +1,8 @@
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Queries;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsAudit.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Setup;
@@ -11,6 +15,7 @@ public static class ServiceCollectionExtensions
             .AddGraphQLServer("CadsSchema")
             .AddAuthorization()
             .AddQueryType(q => q.Name("Query"))
+            .AddTypeExtension<ErdQuery<CadsSystemAdminDbContext>>()
             .AddTypeExtension<CadsGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -21,6 +26,7 @@ public static class ServiceCollectionExtensions
             .AddGraphQLServer("CtsSchema")
             .AddAuthorization()
             .AddQueryType(q => q.Name("Query"))
+            .AddTypeExtension<ErdQuery<CtsSystemAdminDbContext>>()
             .AddTypeExtension<CtsGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -31,6 +37,7 @@ public static class ServiceCollectionExtensions
             .AddGraphQLServer("CtsAuditSchema")
             .AddAuthorization()
             .AddQueryType(q => q.Name("Query"))
+            .AddTypeExtension<ErdQuery<CtsAuditSystemAdminDbContext>>()
             .AddTypeExtension<CtsAuditGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -41,6 +48,7 @@ public static class ServiceCollectionExtensions
             .AddGraphQLServer("CtsTransactionsSchema")
             .AddAuthorization()
             .AddQueryType(q => q.Name("Query"))
+            .AddTypeExtension<ErdQuery<CtsTransactionsSystemAdminDbContext>>()
             .AddTypeExtension<CtsTransactionsGraphQuery>()
             .AddProjections()
             .AddFiltering()
