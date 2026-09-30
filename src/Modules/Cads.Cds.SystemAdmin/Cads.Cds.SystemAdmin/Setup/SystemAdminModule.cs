@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Setup;
 using Cads.Cds.SystemAdmin.Application.Setup;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin;
 using Cads.Cds.SystemAdmin.Endpoints.Generation;
+using Cads.Cds.SystemAdmin.Endpoints.SqsAdmin;
 using Cads.Cds.SystemAdmin.Infrastructure.Setup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -36,10 +37,11 @@ public sealed class SystemAdminModule : IModule
             .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
 
         var config = app.ServiceProvider.GetRequiredService<IConfiguration>();
-        var enableDbAdminEndpoints = config.GetValue("Modules:SystemAdmin:EnableDbAdminEndpoints", false);
-        if (enableDbAdminEndpoints)
+        var enableAdminEndpoints = config.GetValue("Modules:SystemAdmin:EnableAdminEndpoints", false);
+        if (enableAdminEndpoints)
         {
             app.CreateDbAdminEndpoints();
+            app.CreateSqsAdminEndpoints();
         }
 
         app.CreateSystemAdminEndpoints();
