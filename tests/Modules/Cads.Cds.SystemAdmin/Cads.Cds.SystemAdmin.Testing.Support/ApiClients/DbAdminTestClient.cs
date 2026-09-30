@@ -31,11 +31,32 @@ public static class DbAdminTestClient
             cancellationToken);
     }
 
-    public static async Task<DbAdminExecuteCommandResponse?> ReadDtoAsync(
+    public static async Task<HttpResponseMessage> ExecuteCtsImportAsync(
+        HttpClient client,
+        string command,
+        object? args,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = TestEndpointConstants.DbAdminCtsImportEndpoint;
+
+        JsonElement? argsElement = args is null
+            ? null
+            : JsonSerializer.SerializeToElement(args, JsonDefaults.DefaultOptionsWithStringEnumConversion);
+
+        var request = new DbAdminCtsImportRequest(command, argsElement);
+
+        return await client.PostAsJsonAsync(
+            endpoint,
+            request,
+            JsonDefaults.DefaultOptionsWithStringEnumConversion,
+            cancellationToken);
+    }
+
+    public static async Task<DbAdminCommandResponse?> ReadDtoAsync(
         HttpResponseMessage response,
         CancellationToken cancellationToken)
     {
-        return await response.Content.ReadFromJsonAsync<DbAdminExecuteCommandResponse>(
+        return await response.Content.ReadFromJsonAsync<DbAdminCommandResponse>(
             JsonDefaults.DefaultOptionsWithStringEnumConversion,
             cancellationToken);
     }
