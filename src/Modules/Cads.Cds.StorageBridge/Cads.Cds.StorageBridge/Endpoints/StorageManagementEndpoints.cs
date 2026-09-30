@@ -19,13 +19,6 @@ public static class StorageManagementEndpoints
 {
     public static IEndpointRouteBuilder MapStorageBridgeStorageManagementEndpoints(this IEndpointRouteBuilder app)
     {
-        var storageConfig = app.ServiceProvider.GetRequiredService<StorageBridgeStorageConfiguration>();
-
-        if (!storageConfig.StorageManager.Enabled)
-        {
-            return app;
-        }
-
         // Read-only by design: no put/delete routes are exposed.
         var group = app.MapGroup("/api/v1/storage/s3")
             .RequireAuthorization(AuthenticationConstants.AadS3AdminExecutePolicy)
