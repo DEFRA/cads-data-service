@@ -12,7 +12,6 @@ public class StorageManagementTestFixture : TestFixtureBase<Program, StorageBrid
 
     private static StorageBridgeWebApplicationFactory CreateFactory()
     {
-        Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__StorageManager__Enabled", "true");
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__StorageManager__Salt", S3StorageConstants.Salt);
 
         return new StorageBridgeWebApplicationFactory(useFakeAuth: true);
