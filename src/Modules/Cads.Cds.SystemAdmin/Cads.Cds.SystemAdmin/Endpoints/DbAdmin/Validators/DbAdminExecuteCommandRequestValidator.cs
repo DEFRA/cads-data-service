@@ -1,11 +1,10 @@
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Requests;
-using FluentValidation;
 
 namespace Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Validators;
 
-public sealed class DbAdminExecuteCommandRequestValidator : AbstractValidator<DbAdminExecuteCommandRequest>
+public sealed class DbAdminExecuteCommandRequestValidator : DbAdminRequestValidatorBase<DbAdminExecuteCommandRequest>
 {
-    public readonly string[] AllowedCommands = {
+    private static readonly string[] AllowedCommands = {
         "sessions_by_state",
         "active_queries",
         "cancel_query",
@@ -23,14 +22,5 @@ public sealed class DbAdminExecuteCommandRequestValidator : AbstractValidator<Db
         "shared_block_reads"
     };
 
-    public DbAdminExecuteCommandRequestValidator()
-    {
-        RuleFor(x => x.Command)
-            .NotEmpty()
-            .WithMessage("Command is required.");
-
-        RuleFor(x => x.Command)
-            .Must(command => AllowedCommands.Contains(command))
-            .WithMessage("Command is not recognised.");
-    }
+    public DbAdminExecuteCommandRequestValidator() : base(AllowedCommands) { }
 }
