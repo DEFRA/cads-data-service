@@ -16,8 +16,8 @@ public class DbAdminExecuteCommandService(IPostgresDataSourceFactory factory) : 
     {
         var storedProcedure = request switch
         {
-            DbAdminExecuteCommandRequestDto => "cads.db_admin_exec_command",
-            DbAdminCtsImportRequestDto => "cads.cts_parallel_import_admin_exec_command",
+            DbAdminExecuteCommandRequestDto => "SELECT cads.db_admin_exec_command(@command, @args)",
+            DbAdminCtsImportRequestDto => "SELECT cads.cts_parallel_import_admin_exec_command(@command, @args)",
             _ => throw new NotSupportedException($"Unsupported request type '{typeof(TRequest).Name}'.")
         };
 
@@ -25,7 +25,7 @@ public class DbAdminExecuteCommandService(IPostgresDataSourceFactory factory) : 
         await using var conn = await dataSource.OpenConnectionAsync(cancellationToken);
         await using var cmd = conn.CreateCommand();
 
-        cmd.CommandText = $"SELECT {storedProcedure}(@command, @args)";
+        cmd.CommandText = storedProcedure;
         cmd.Parameters.AddWithValue("command", request.Command);
         cmd.Parameters.AddWithValue("args", request.Args ?? JsonDocument.Parse("{}").RootElement);
 
