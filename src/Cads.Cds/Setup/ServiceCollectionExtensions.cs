@@ -253,6 +253,13 @@ public static class ServiceCollectionExtensions
                 policy.RequireAuthenticatedUser();
                 policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.DbAdminExecute);
                 policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, RoleNames.CadsAdminSuperuser);
+            })
+            .AddPolicy(AuthenticationConstants.AadSqsAdminExecutePolicy, policy =>
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.SqsAdminManager);
+                policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, RoleNames.CadsAdminSuperuser);
             });
     }
 }
