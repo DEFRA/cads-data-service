@@ -260,6 +260,11 @@ public static class ServiceCollectionExtensions
                 policy.RequireAuthenticatedUser();
                 // Scope requirement disabled for now; re-enable once admin.s3.manager is set up in Azure AD.
                 // policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.AdminS3Manager);
+            .AddPolicy(AuthenticationConstants.AadSqsAdminExecutePolicy, policy =>
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.SqsAdminManager);
                 policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, RoleNames.CadsAdminSuperuser);
             });
     }

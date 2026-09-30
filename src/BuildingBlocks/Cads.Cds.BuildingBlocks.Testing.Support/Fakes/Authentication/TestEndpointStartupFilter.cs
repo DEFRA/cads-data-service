@@ -30,6 +30,8 @@ public class TestEndpointStartupFilter : IStartupFilter
 
                 group.MapGet("/azuread/s3-admin", () => "OK: AzureAD S3AdminExecute")
                     .RequireAuthorization(AuthenticationConstants.AadS3AdminExecutePolicy);
+                group.MapGet("/azuread/sqs-admin", () => "OK: AzureAD SqsAdminManager")
+                    .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
             });
         };
     }
