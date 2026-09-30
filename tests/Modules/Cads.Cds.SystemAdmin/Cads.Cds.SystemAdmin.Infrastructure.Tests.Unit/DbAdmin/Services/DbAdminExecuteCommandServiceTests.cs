@@ -20,13 +20,29 @@ public class DbAdminExecuteCommandServiceTests
         "Host=127.0.0.1;Port=1;Username=test;Password=test;Timeout=2;Command Timeout=2";
 
     [Fact]
-    public async Task ExecuteAsync_ShouldRequestDataSource_UsingDefaultConnectionIdentifier()
+    public async Task ExecuteAsyncWithDbAdminExecuteCommandRequestDto_ShouldRequestDataSource_UsingDefaultConnectionIdentifier()
     {
         var sut = CreateSut(out var dataSource);
 
         await using var _ = dataSource;
 
         var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<Exception>();
+
+        _factory.Verify(x => x.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier), Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsyncWithDbAdminCtsImportRequestDto_ShouldRequestDataSource_UsingDefaultConnectionIdentifier()
+    {
+        var sut = CreateSut(out var dataSource);
+
+        await using var _ = dataSource;
+
+        var args = JsonSerializer.SerializeToElement(new { run_id = 123L });
+
+        var act = () => sut.ExecuteAsync(new DbAdminCtsImportRequestDto("get_cts_parallel_import_deferred_errors", args), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<Exception>();
 
