@@ -70,14 +70,16 @@ public class SqsAdminService(
             {
                 QueueUrl = queueUrl,
                 MaxNumberOfMessages = Math.Clamp(request.MaxMessages, 1, MaxMessagesPerSqsRequest),
-                VisibilityTimeout = request.VisibilityTimeout,
+                // VisibilityTimeout is always 0: this is a peek-only operation, so messages must
+                // never be hidden from other consumers, even momentarily.
+                VisibilityTimeout = 0,
                 MessageAttributeNames = ["All"],
                 MessageSystemAttributeNames = ["All"]
             },
             cancellationToken);
 
-        // Non-destructive peek: messages are never deleted here. They simply become
-        // visible again once VisibilityTimeout elapses, satisfying the "peek" contract.
+        // Non-destructive peek: messages are never deleted and never hidden (VisibilityTimeout=0),
+        // satisfying the "peek" contract.
         return response.Messages
             .Select(MapToQueueMessageDto)
             .ToList();
