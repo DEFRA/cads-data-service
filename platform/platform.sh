@@ -17,7 +17,8 @@ fi
 CDS_DIR="$ROOT_DIR/../cads-data-service"
 CADS_BRIDGE_DIR="$ROOT_DIR/../cads-bridge"
 TOOLS_DIR="$ROOT_DIR"
-UI_DIR="$ROOT_DIR/../cads-mis"
+CADS_MIS_DIR="$ROOT_DIR/../cads-mis"
+CADS_ADMIN_FRONTEND_DIR="$ROOT_DIR/../cads-admin-frontend"
 
 COMMAND="${1:-help}"
 MAC_OVERRIDE=""
@@ -93,16 +94,30 @@ stop_cds() {
   return $?
 }
 
-start_ui() {
-  echo "[platform] Starting UI..."
-  cd "$UI_DIR"
+start_mis() {
+  echo "[platform] Starting mis..."
+  cd "$CADS_MIS_DIR"
   docker compose -p cads -f docker-compose.yml up --build -d
   return $?
 }
 
-stop_ui() {
-  echo "[platform] Stopping UI..."
-  cd "$UI_DIR"
+stop_mis() {
+  echo "[platform] Stopping mis..."
+  cd "$CADS_MIS_DIR"
+  docker compose -p cads -f docker-compose.yml down || true
+  return $?
+}
+
+start_admin() {
+  echo "[platform] Starting admin..."
+  cd "$CADS_ADMIN_FRONTEND_DIR"
+  docker compose -p cads -f docker-compose.yml up --build -d
+  return $?
+}
+
+stop_admin() {
+  echo "[platform] Stopping admin..."
+  cd "$CADS_ADMIN_FRONTEND_DIR"
   docker compose -p cads -f docker-compose.yml down || true
   return $?
 }
@@ -141,18 +156,24 @@ case "$COMMAND" in
     start_tools
     start_bridge
     ;;
-  ui)
+  mis)
     start_tools
-    start_ui
+    start_mis
+    ;;
+  admin)
+    start_tools
+    start_admin
     ;;
   all)
     start_tools
     start_cds
     start_bridge
-    start_ui
+    start_mis
+    start_admin
     ;;
   down)
-    stop_ui
+    stop_mis
+    stop_admin
     stop_bridge
     stop_cds
     stop_tools
@@ -162,8 +183,9 @@ case "$COMMAND" in
     echo "  ./platform.sh tools                # Start shared infra only"
     echo "  ./platform.sh cds [override]       # Start cds + tools"
     echo "  ./platform.sh bridge [override]    # Start bridge + tools"
-    echo "  ./platform.sh ui                   # Start UI + tools"
-    echo "  ./platform.sh all [override]       # Start UI + cds + tools"
+    echo "  ./platform.sh mis                  # Start mis + tools"
+    echo "  ./platform.sh admin                # Start admin + tools"
+    echo "  ./platform.sh all [override]       # Start cds + bridge + mis + admin + tools"
     echo "  ./platform.sh down                 # Stop everything"
     echo ""
     echo "Overrides:"
