@@ -48,10 +48,6 @@ public class FakeJwtHandler(
             {
                 claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.AdminS3Manager));
             }
-            if (token != TestAuthConstants.FakeJwtMissingDbAdminRole)
-            {
-                claims.Add(new Claim(azureAd.RoleClaimType, RoleNames.CadsAdminSuperuser));
-            }
         }
         else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
         {

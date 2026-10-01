@@ -245,8 +245,7 @@ public static class ServiceCollectionExtensions
             builder.AddPolicy(name, policy => policy
                 .AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName)
                 .RequireAuthenticatedUser()
-                .RequireClaim(scopeClaim, scope)
-                .RequireClaim(roleClaim, RoleNames.CadsAdminSuperuser));
+                .RequireClaim(scopeClaim, scope));
         }
     }
 

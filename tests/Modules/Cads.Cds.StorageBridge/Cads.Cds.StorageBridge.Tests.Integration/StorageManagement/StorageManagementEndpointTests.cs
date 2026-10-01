@@ -33,16 +33,6 @@ public class StorageManagementEndpointTests(ApiContainerFixture apiContainerFixt
     }
 
     [Fact]
-    public async Task GivenRoleMissing_WhenBucketsListed_ShouldReturnForbidden()
-    {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestAdminS3ManagerTokenFactory.MissingRoleToken());
-
-        var response = await client.GetAsync(BucketsEndpoint, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
     public async Task GivenScopeMissing_WhenBucketsListed_ShouldReturnForbidden()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestAdminS3ManagerTokenFactory.MissingScopeToken());
