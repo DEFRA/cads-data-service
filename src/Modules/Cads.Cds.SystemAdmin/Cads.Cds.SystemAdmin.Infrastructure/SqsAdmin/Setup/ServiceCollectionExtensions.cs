@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSystemAdminSqsAdminLayer(this IServiceCollection services, IConfiguration config)
     {
         services.Configure<Dictionary<string, SqsAdminQueueOptions>>(
-            config.GetSection(ModuleConfigurationSection.SqsAdminQueuesSectionName));
+            config.GetSection(ModuleConfigurationSection.QueuesSectionName));
 
         services.AddScoped<ISqsAdminService, SqsAdminService>();
 
