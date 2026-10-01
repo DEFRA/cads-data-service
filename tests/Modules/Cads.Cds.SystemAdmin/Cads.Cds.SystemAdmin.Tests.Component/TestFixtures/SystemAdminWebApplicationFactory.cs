@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Specimens.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
+using Cads.Cds.SystemAdmin.Application.SqsAdmin.Services;
 using Cads.Cds.SystemAdmin.Application.Uow;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
 using Cads.Cds.SystemAdmin.Testing.Support.Contexts;
@@ -34,6 +35,7 @@ public class SystemAdminWebApplicationFactory(
     }
 
     public Mock<IDbAdminExecuteCommandService> DbAdminExecuteCommandServiceMock { get; } = new();
+    public Mock<ISqsAdminService> SqsAdminServiceMock { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -44,6 +46,8 @@ public class SystemAdminWebApplicationFactory(
             ConfigurePersistence(services);
             services.RemoveAll<IDbAdminExecuteCommandService>();
             services.AddScoped(_ => DbAdminExecuteCommandServiceMock.Object);
+            services.RemoveAll<ISqsAdminService>();
+            services.AddScoped(_ => SqsAdminServiceMock.Object);
         });
     }
 
