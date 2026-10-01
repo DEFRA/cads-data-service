@@ -65,24 +65,33 @@ public class SqsAdminService(
     {
         var queueUrl = ResolveQueueUrl(request.Queue);
 
+        var response = await GetMessagesFromQueue(queueUrl, request.MaxMessages, cancellationToken: cancellationToken);
+
+        return response.Messages
+            .Select(MapToQueueMessageDto)
+            .ToList();
+    }
+    
+    private async Task<ReceiveMessageResponse> GetMessagesFromQueue(string queueUrl, int maxMessages, int visibilityTimeout = 0, List<string>? systemAttributeNames = null, CancellationToken cancellationToken = default)
+    {
+        // Having a default visibility timeout of 0 allows us to peek at messages without affecting their visibility in the queue.
         var response = await sqs.ReceiveMessageAsync(
             new ReceiveMessageRequest
             {
                 QueueUrl = queueUrl,
-                MaxNumberOfMessages = Math.Clamp(request.MaxMessages, 1, MaxMessagesPerSqsRequest),
-                // VisibilityTimeout is always 0: this is a peek-only operation, so messages must
-                // never be hidden from other consumers, even momentarily.
-                VisibilityTimeout = 0,
+                MaxNumberOfMessages = Math.Clamp(maxMessages, 1, MaxMessagesPerSqsRequest),
+                VisibilityTimeout = visibilityTimeout,
                 MessageAttributeNames = ["All"],
-                MessageSystemAttributeNames = ["All"]
+                MessageSystemAttributeNames = systemAttributeNames ?? ["All"]
             },
             cancellationToken);
 
-        // Non-destructive peek: messages are never deleted and never hidden (VisibilityTimeout=0),
-        // satisfying the "peek" contract.
-        return response.Messages
-            .Select(MapToQueueMessageDto)
-            .ToList();
+        // Some SQS implementations (e.g. certain LocalStack versions) return a null
+        // Messages collection rather than an empty list when the queue has no
+        // (visible) messages. Normalise here so callers can rely on it never being null.
+        response.Messages ??= [];
+
+        return response;
     }
 
     public async Task<ReplayResultDto> ReplayDlqAsync(ReplayDlqRequestDto request, CancellationToken cancellationToken = default)
@@ -105,15 +114,7 @@ public class SqsAdminService(
         {
             var remaining = batchSize - (moved + errors.Count);
 
-            var receiveResponse = await sqs.ReceiveMessageAsync(
-                new ReceiveMessageRequest
-                {
-                    QueueUrl = dlqUrl,
-                    MaxNumberOfMessages = Math.Clamp(remaining, 1, MaxMessagesPerSqsRequest),
-                    MessageAttributeNames = ["All"],
-                    MessageSystemAttributeNames = ["All"]
-                },
-                cancellationToken);
+            var receiveResponse = await GetMessagesFromQueue(dlqUrl, remaining, visibilityTimeout: 30, cancellationToken: cancellationToken);
 
             if (receiveResponse.Messages.Count == 0)
             {
@@ -165,21 +166,14 @@ public class SqsAdminService(
     {
         // SQS has no direct "oldest message age" attribute via GetQueueAttributes, so this is
         // approximated by peeking the head of the queue and inspecting its SentTimestamp.
-        // VisibilityTimeout=0 ensures the peek does not consume/hide the message.
-        var response = await sqs.ReceiveMessageAsync(
-            new ReceiveMessageRequest
-            {
-                QueueUrl = queueUrl,
-                MaxNumberOfMessages = 1,
-                VisibilityTimeout = 0,
-                MessageSystemAttributeNames = ["SentTimestamp"]
-            },
-            cancellationToken);
+        var response = await GetMessagesFromQueue(queueUrl, 1, systemAttributeNames: ["SentTimestamp"], cancellationToken: cancellationToken);
 
         var message = response.Messages.FirstOrDefault();
         if (message == null) return 0;
 
-        if (!message.Attributes.TryGetValue("SentTimestamp", out var sentTimestampRaw) ||
+        var messageAttributes = message.Attributes ?? [];
+
+        if (!messageAttributes.TryGetValue("SentTimestamp", out var sentTimestampRaw) ||
             !long.TryParse(sentTimestampRaw, out var sentTimestampMs))
         {
             return 0;
@@ -193,18 +187,24 @@ public class SqsAdminService(
 
     private static QueueMessageDto MapToQueueMessageDto(Message message)
     {
+        // Some SQS implementations (e.g. certain LocalStack versions) can return a null
+        // Attributes/MessageAttributes dictionary rather than an empty one when no system
+        // attributes were requested/available for a given message.
+        var systemAttributes = message.Attributes ?? [];
+
         DateTimeOffset? sentTimestamp = null;
-        if (message.Attributes.TryGetValue("SentTimestamp", out var sentTimestampRaw) &&
+        if (systemAttributes.TryGetValue("SentTimestamp", out var sentTimestampRaw) &&
             long.TryParse(sentTimestampRaw, out var sentTimestampMs))
         {
             sentTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(sentTimestampMs);
         }
 
-        var attributes = message.Attributes
+        var attributes = systemAttributes
             .ToDictionary(a => a.Key, a => a.Value);
 
         return new QueueMessageDto(message.MessageId, message.Body, attributes, sentTimestamp);
     }
+
 
     private static long GetLongAttribute(IDictionary<string, string> attributes, string key) =>
         attributes.TryGetValue(key, out var value) && long.TryParse(value, out var parsed) ? parsed : 0;

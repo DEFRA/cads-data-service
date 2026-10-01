@@ -48,12 +48,10 @@ public static class SqsAdminEndpointExtensions
 
     private static async Task<IResult> GetMessages(
         [FromRoute] string queue,
-        [FromQuery] int maxMessages,
         ISqsAdminService service,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [FromQuery] int maxMessages = 0)
     {
-        // Messages are always returned non-destructively (peek) with VisibilityTimeout=0,
-        // so they are never hidden from other consumers, even momentarily.
         var request = new PeekMessagesRequestDto(
             queue,
             maxMessages > 0 ? maxMessages : 10);
