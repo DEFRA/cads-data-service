@@ -34,11 +34,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IStorageService<CadsInternalClient>, StorageService<CadsInternalClient>>();
 
         // Register module storage managers
-        if (moduleConfig.StorageManager.Enabled)
-        {
-            services.AddSingleton<IStorageManager<CadsInternalClient>, StorageManager<CadsInternalClient>>();
-            services.AddSingleton<IStorageManager<CadsExternalClient>, StorageManager<CadsExternalClient>>();
-        }
+        services.AddSingleton<IStorageManager<CadsInternalClient>, StorageManager<CadsInternalClient>>();
+        services.AddSingleton<IStorageManager<CadsExternalClient>, StorageManager<CadsExternalClient>>();
 
         if (moduleConfig.CadsInternal.HealthcheckEnabled)
         {
