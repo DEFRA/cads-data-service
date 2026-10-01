@@ -71,7 +71,7 @@ public class SqsAdminService(
             .Select(MapToQueueMessageDto)
             .ToList();
     }
-    
+
     private async Task<ReceiveMessageResponse> GetMessagesFromQueue(string queueUrl, int maxMessages, int visibilityTimeout = 0, List<string>? systemAttributeNames = null, CancellationToken cancellationToken = default)
     {
         // Having a default visibility timeout of 0 allows us to peek at messages without affecting their visibility in the queue.
