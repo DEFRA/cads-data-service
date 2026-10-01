@@ -110,7 +110,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                 password: TestAuthConstants.AzureAdPassword,
                 name: "Test MIP Viewer",
                 email: TestAuthConstants.AzureAdCadsMisEmail,
-                role: "mip-viewer"),            
+                role: "mip-viewer"),
 
             TestUser(
                 subjectId: "9b6c9b3a-9e1e-4b6a-9d1e-6f1c2a7b5d3e",
@@ -227,5 +227,5 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
             new { Type = "preferred_username", Value = username },
             new { Type = "role", Value = role }
         }
-    };
+        };
 }
