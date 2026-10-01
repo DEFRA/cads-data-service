@@ -11,5 +11,5 @@ public class TestEndpointConstants
     public const string StorageBridgeS3SqlImportRoot = StorageBridgeRoot + "s3Import/sql-import";
 
     // StorageManagement
-    public const string StorageBridgeStorageManagementRoot = StorageBridgeRoot + "management";
+    public const string StorageBridgeStorageManagementRoot = StorageBridgeRoot + "s3";
 }
