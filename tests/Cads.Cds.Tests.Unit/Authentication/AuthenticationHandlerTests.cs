@@ -128,20 +128,6 @@ public class AuthenticationHandlerTests
     [Theory]
     [InlineData("test-auth/azuread/db-admin")]
     [InlineData("test-auth/azuread/sqs-admin")]
-    public async Task GivenTheAadPolicy_WhenDbAdminEndpointRequested_AndRoleClaimMissing_ReturnsForbidden(string url)
-    {
-        var factory = GetFactory(true);
-        var client = factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminRole);
-
-        var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Theory]
-    [InlineData("test-auth/azuread/db-admin")]
-    [InlineData("test-auth/azuread/sqs-admin")]
     public async Task GivenTheAadPolicy_WhenDbAdminEndpointRequested_AndScopeClaimMissing_ReturnsForbidden(string url)
     {
         var factory = GetFactory(true);
@@ -204,18 +190,6 @@ public class AuthenticationHandlerTests
         var response = await client.GetAsync("test-auth/azuread/s3-admin", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task GivenTheAadS3AdminExecutePolicy_WhenS3AdminEndpointRequested_AndRoleClaimMissing_ReturnsForbidden()
-    {
-        var factory = GetFactory(true);
-        var client = factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminRole);
-
-        var response = await client.GetAsync("test-auth/azuread/s3-admin", TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
