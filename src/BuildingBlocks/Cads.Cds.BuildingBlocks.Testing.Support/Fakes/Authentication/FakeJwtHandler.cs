@@ -42,6 +42,7 @@ public class FakeJwtHandler(
             if (token != TestAuthConstants.FakeJwtMissingDbAdminScope)
             {
                 claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.DbAdminExecute));
+                claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.SqsAdminManager));
             }
             if (token != TestAuthConstants.FakeJwtMissingS3AdminScope)
             {

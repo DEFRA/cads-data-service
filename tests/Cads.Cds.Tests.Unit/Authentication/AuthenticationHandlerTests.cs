@@ -98,61 +98,71 @@ public class AuthenticationHandlerTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
-    public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_AndNoTokenProvided_ReturnsUnauthorized()
+    [Theory]
+    [InlineData("test-auth/azuread/db-admin")]
+    [InlineData("test-auth/azuread/sqs-admin")]
+    public async Task GivenTheAadPolicy_WhenDbAdminEndpointRequested_AndNoTokenProvided_ReturnsUnauthorized(string url)
     {
         var factory = GetFactory();
         var client = factory.CreateClient();
 
-        var response = await client.GetAsync("test-auth/azuread/db-admin", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
-    public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_AndValidTokenWithRoleAndScopeProvided_ReturnsOk()
+    [Theory]
+    [InlineData("test-auth/azuread/db-admin")]
+    [InlineData("test-auth/azuread/sqs-admin")]
+    public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_AndValidTokenWithRoleAndScopeProvided_ReturnsOk(string url)
     {
         var factory = GetFactory(true);
         var client = factory.CreateClient();
         client.AddJwt();
 
-        var response = await client.GetAsync("test-auth/azuread/db-admin", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
-    public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_AndRoleClaimMissing_ReturnsForbidden()
+    [Theory]
+    [InlineData("test-auth/azuread/db-admin")]
+    [InlineData("test-auth/azuread/sqs-admin")]
+    public async Task GivenTheAadPolicy_WhenDbAdminEndpointRequested_AndRoleClaimMissing_ReturnsForbidden(string url)
     {
         var factory = GetFactory(true);
         var client = factory.CreateClient();
         client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminRole);
 
-        var response = await client.GetAsync("test-auth/azuread/db-admin", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact]
-    public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_AndScopeClaimMissing_ReturnsForbidden()
+    [Theory]
+    [InlineData("test-auth/azuread/db-admin")]
+    [InlineData("test-auth/azuread/sqs-admin")]
+    public async Task GivenTheAadPolicy_WhenDbAdminEndpointRequested_AndScopeClaimMissing_ReturnsForbidden(string url)
     {
         var factory = GetFactory(true);
         var client = factory.CreateClient();
         client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminScope);
 
-        var response = await client.GetAsync("test-auth/azuread/db-admin", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact]
-    public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_WithApiKeyCredentials_ReturnsUnauthorized()
+    [Theory]
+    [InlineData("test-auth/azuread/db-admin")]
+    [InlineData("test-auth/azuread/sqs-admin")]
+    public async Task GivenTheAadPolicy_WhenDbAdminEndpointRequested_WithApiKeyCredentials_ReturnsUnauthorized(string url)
     {
         var factory = GetFactory();
         var client = factory.CreateClient();
         client.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
 
-        var response = await client.GetAsync("test-auth/azuread/db-admin", TestContext.Current.CancellationToken);
+        var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
