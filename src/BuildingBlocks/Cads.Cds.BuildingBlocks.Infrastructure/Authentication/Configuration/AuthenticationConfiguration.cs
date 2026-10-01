@@ -34,5 +34,6 @@ public static class AuthenticationConstants
     public const string ApiKeyOrCognitoPolicy = "ApiKeyOrCognito";
     public const string AadReportsReadPolicy = "AadReportsRead";
     public const string AadDbAdminExecutePolicy = "AadDbAdminExecute";
+    public const string AadSqsAdminExecutePolicy = "AadSqsAdminExecute";
     public const string AadS3AdminExecutePolicy = "AadS3AdminExecute";
 }

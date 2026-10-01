@@ -254,12 +254,18 @@ public static class ServiceCollectionExtensions
                 policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.DbAdminExecute);
                 policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, RoleNames.CadsAdminSuperuser);
             })
+            .AddPolicy(AuthenticationConstants.AadSqsAdminExecutePolicy, policy =>
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.SqsAdminManager);
+                policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, RoleNames.CadsAdminSuperuser);
+            })
             .AddPolicy(AuthenticationConstants.AadS3AdminExecutePolicy, policy =>
             {
                 policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
                 policy.RequireAuthenticatedUser();
-                // Scope requirement disabled for now; re-enable once admin.s3.manager is set up in Azure AD.
-                // policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.AdminS3Manager);
+                policy.RequireClaim(authenticationConfiguration.AzureAD.ScopeClaimType, ScopeNames.AdminS3Manager);
                 policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, RoleNames.CadsAdminSuperuser);
             });
     }

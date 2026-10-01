@@ -9,4 +9,5 @@ public static class ScopeNames
     public const string ReportsRead = "reports.read";
     public const string DbAdminExecute = "db.admin.execute";
     public const string AdminS3Manager = "admin.s3.manager";
+    public const string SqsAdminManager = "admin.queue.manager";
 }
