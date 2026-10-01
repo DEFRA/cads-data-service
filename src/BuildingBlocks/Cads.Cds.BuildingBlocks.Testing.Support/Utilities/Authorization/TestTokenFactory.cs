@@ -108,4 +108,54 @@ public static class TestTokenFactory
                 TestAuthConstants.AzureAdCadsCdsDbAdminScope
             ]
         };
+
+    public static TestTokenRequest S3AdminToken() =>
+        new()
+        {
+            ClientId = TestAuthConstants.AzureAdTestUserClientId,
+            ClientSecret = TestAuthConstants.AzureAdTestUserClientSecret,
+            Username = TestAuthConstants.AzureAdDbAdminUsername,
+            Password = TestAuthConstants.AzureAdPassword,
+            Scopes =
+            [
+                "openid",
+                "profile",
+                "email",
+                TestAuthConstants.AzureAdCadsCdsS3AdminScope
+            ]
+        };
+
+    // Valid role (cads-admin-superuser), but token requests reports.read instead of admin.s3.manager.
+    public static TestTokenRequest S3AdminMissingScopeToken() =>
+        new()
+        {
+            ClientId = TestAuthConstants.AzureAdTestUserClientId,
+            ClientSecret = TestAuthConstants.AzureAdTestUserClientSecret,
+            Username = TestAuthConstants.AzureAdDbAdminUsername,
+            Password = TestAuthConstants.AzureAdPassword,
+            Scopes =
+            [
+                "openid",
+                "profile",
+                "email",
+                TestAuthConstants.AzureAdCadsCdsScope
+            ]
+        };
+
+    // Valid scope, but authenticated as a user without the cads-admin-superuser role claim.
+    public static TestTokenRequest S3AdminMissingRoleToken() =>
+        new()
+        {
+            ClientId = TestAuthConstants.AzureAdTestUserClientId,
+            ClientSecret = TestAuthConstants.AzureAdTestUserClientSecret,
+            Username = TestAuthConstants.AzureAdUsername,
+            Password = TestAuthConstants.AzureAdPassword,
+            Scopes =
+            [
+                "openid",
+                "profile",
+                "email",
+                TestAuthConstants.AzureAdCadsCdsS3AdminScope
+            ]
+        };
 }
