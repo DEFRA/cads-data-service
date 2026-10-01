@@ -224,6 +224,3 @@ public class SqsAdminService(
     private Dictionary<string, SqsAdminQueueOptions> GetConfiguredQueues() =>
         options.CurrentValue;
 }
-
-
-

@@ -5,4 +5,3 @@ public record QueueMessageDto(
     string Body,
     IReadOnlyDictionary<string, string> Attributes,
     DateTimeOffset? SentTimestamp);
-

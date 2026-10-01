@@ -5,4 +5,3 @@ public record QueueMetricsDto(
     long ApproximateNumberOfMessagesNotVisible,
     long ApproximateNumberOfMessagesDelayed,
     long OldestMessageAgeSeconds);
-
