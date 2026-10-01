@@ -108,10 +108,8 @@ public class ApiContainerFixture : IAsyncLifetime
         };
     }
 
-    public async Task<HttpClient> CreateAzureAdClientAsync(TestTokenRequest? request = null)
+    public async Task<HttpClient> CreateAzureAdClientAsync(TestTokenRequest request)
     {
-        request ??= new TestTokenRequest(); // default = client_credentials
-
         var token = await OidcMockFixture.CreateTokenAsync(request);
 
         var client = new HttpClient
