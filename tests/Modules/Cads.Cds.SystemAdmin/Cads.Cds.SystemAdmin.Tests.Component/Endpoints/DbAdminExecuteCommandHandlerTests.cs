@@ -1,9 +1,9 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
 using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
+using Cads.Cds.SystemAdmin.Core.DTOs.DbAdmin;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Requests;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Responses;
-using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Security.Claims;
 using System.Text.Json;
-using Cads.Cds.SystemAdmin.Core.DTOs.DbAdmin;
 
 namespace Cads.Cds.SystemAdmin.Tests.Component.Endpoints;
 

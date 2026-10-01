@@ -1,7 +1,7 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
-using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.StorageBridge.Endpoints.Responses;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
+using Cads.Cds.StorageBridge.Testing.Support.Factories.Authorization;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -16,7 +16,7 @@ public class StorageManagementEndpointTests(ApiContainerFixture apiContainerFixt
     [Fact]
     public async Task GivenValidRoleAndScope_WhenBucketsListed_ShouldReturnConfiguredBuckets()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.S3AdminToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestAdminS3ManagerTokenFactory.ValidUserToken());
 
         var response = await client.GetAsync(BucketsEndpoint, TestContext.Current.CancellationToken);
 
@@ -35,7 +35,7 @@ public class StorageManagementEndpointTests(ApiContainerFixture apiContainerFixt
     [Fact]
     public async Task GivenRoleMissing_WhenBucketsListed_ShouldReturnForbidden()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.S3AdminMissingRoleToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestAdminS3ManagerTokenFactory.MissingRoleToken());
 
         var response = await client.GetAsync(BucketsEndpoint, TestContext.Current.CancellationToken);
 
@@ -45,7 +45,7 @@ public class StorageManagementEndpointTests(ApiContainerFixture apiContainerFixt
     [Fact]
     public async Task GivenScopeMissing_WhenBucketsListed_ShouldReturnForbidden()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.S3AdminMissingScopeToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestAdminS3ManagerTokenFactory.MissingScopeToken());
 
         var response = await client.GetAsync(BucketsEndpoint, TestContext.Current.CancellationToken);
 
