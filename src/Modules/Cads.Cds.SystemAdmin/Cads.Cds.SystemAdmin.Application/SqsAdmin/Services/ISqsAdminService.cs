@@ -1,0 +1,15 @@
+using Cads.Cds.SystemAdmin.Core.DTOs.SqsAdmin;
+
+namespace Cads.Cds.SystemAdmin.Application.SqsAdmin.Services;
+
+public interface ISqsAdminService
+{
+    Task<IReadOnlyList<QueueInfoDto>> GetQueuesAsync(CancellationToken cancellationToken = default);
+
+    Task<QueueMetricsDto> GetMetricsAsync(string queue, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<QueueMessageDto>> PeekMessagesAsync(PeekMessagesRequestDto request, CancellationToken cancellationToken = default);
+
+    Task<ReplayResultDto> ReplayDlqAsync(ReplayDlqRequestDto request, CancellationToken cancellationToken = default);
+}
+
