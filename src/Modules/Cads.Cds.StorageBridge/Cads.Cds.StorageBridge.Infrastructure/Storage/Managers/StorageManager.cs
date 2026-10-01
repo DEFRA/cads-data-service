@@ -70,27 +70,6 @@ public class StorageManager<T>(IS3ClientFactory s3ClientFactory, IStorageReader<
         return keys;
     }
 
-    public async Task PutObjectAsync(string key, Stream content, string? contentType = null, CancellationToken cancellationToken = default)
-    {
-        await _s3Client.PutObjectAsync(new PutObjectRequest
-        {
-            BucketName = BucketName,
-            Key = key,
-            InputStream = content,
-            ContentType = contentType ?? "application/octet-stream",
-            AutoCloseStream = false
-        }, cancellationToken);
-    }
-
-    public async Task DeleteObjectAsync(string key, CancellationToken cancellationToken = default)
-    {
-        await _s3Client.DeleteObjectAsync(new DeleteObjectRequest
-        {
-            BucketName = BucketName,
-            Key = key
-        }, cancellationToken);
-    }
-
     private async IAsyncEnumerable<S3Object> ListAllObjectsAsync(string prefix, string? startAfterKey = null, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var request = new ListObjectsV2Request
