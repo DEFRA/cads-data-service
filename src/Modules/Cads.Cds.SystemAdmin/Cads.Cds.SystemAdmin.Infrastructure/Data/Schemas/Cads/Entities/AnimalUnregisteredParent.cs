@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Entities;
 
 public partial class AnimalUnregisteredParent
