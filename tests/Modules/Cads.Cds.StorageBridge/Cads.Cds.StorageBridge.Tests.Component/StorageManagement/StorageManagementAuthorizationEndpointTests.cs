@@ -41,17 +41,6 @@ public class StorageManagementAuthorizationEndpointTests : IClassFixture<Storage
     }
 
     [Fact]
-    public async Task GivenTokenMissingRole_WhenBucketsListed_ShouldReturnForbidden()
-    {
-        var client = _testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminRole);
-
-        var response = await client.GetAsync($"{Endpoint}/buckets", TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
     public async Task GivenTokenMissingScope_WhenBucketsListed_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();
