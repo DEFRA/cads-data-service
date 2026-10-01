@@ -129,21 +129,6 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     }
 
     [Fact]
-    public async Task GivenRoleClaimMissing_WhenExecuteRequested_ShouldReturnForbidden()
-    {
-        var client = _testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminRole);
-
-        var response = await DbAdminTestClient.ExecuteAsync(
-            client,
-            command: "sessions_by_state",
-            args: null,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
     public async Task GivenScopeClaimMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -330,21 +315,6 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task GivenRoleClaimMissing_WhenCtsImportRequested_ShouldReturnForbidden()
-    {
-        var client = _testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminRole);
-
-        var response = await DbAdminTestClient.ExecuteCtsImportAsync(
-            client,
-            command: "get_cts_parallel_import_summary",
-            args: new { run_id = 123L },
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

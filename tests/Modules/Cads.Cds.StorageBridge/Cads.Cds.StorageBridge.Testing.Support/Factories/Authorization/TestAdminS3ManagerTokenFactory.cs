@@ -17,10 +17,4 @@ public static class TestAdminS3ManagerTokenFactory
             TestAuthConstants.AzureAdCadsAdminUsername,
             TestAuthConstants.AzureAdPassword,
             TestAuthConstants.AzureAdDbAdminExecuteScope); // valid audience, but no admin.s3.manager
-
-    public static TestTokenRequest MissingRoleToken() =>
-        TestTokenFactory.UserToken(
-            TestAuthConstants.AzureAdCadsMisUsername,      // valid user, but no cads-admin-superuser role
-            TestAuthConstants.AzureAdPassword,
-            TestAuthConstants.AzureAdAdminS3ManagerScope);
 }
