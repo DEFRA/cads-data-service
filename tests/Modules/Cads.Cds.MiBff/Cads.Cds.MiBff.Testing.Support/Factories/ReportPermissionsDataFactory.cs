@@ -28,7 +28,7 @@ public class ReportPermissionsDataFactory
     ];
 
     private readonly List<string> _userIdentifiers = [
-        TestAuthConstants.AzureAdEmail,
+        TestAuthConstants.AzureAdCadsMisEmail,
         "test-user-1@internal.test"
     ];
 

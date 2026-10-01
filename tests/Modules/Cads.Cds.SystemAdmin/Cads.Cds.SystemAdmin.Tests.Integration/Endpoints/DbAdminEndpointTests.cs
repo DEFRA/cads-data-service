@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
-using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
+using Cads.Cds.SystemAdmin.Testing.Support.Factories.Authorization;
 using FluentAssertions;
 using System.Net;
 using System.Text.Json;
@@ -13,7 +13,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenValidRoleAndScope_WhenSessionsByStateRequested_ShouldReturnOk()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.DbAdminExecuteToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await DbAdminTestClient.ExecuteAsync(
             client,
@@ -39,7 +39,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenValidRoleAndScope_WhenActiveQueriesRequested_ShouldReturnOk()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.DbAdminExecuteToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await DbAdminTestClient.ExecuteAsync(
             client,
@@ -63,7 +63,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenValidRoleAndScope_WhenCancelQueryRequestedForNonExistentPid_ShouldReturnFalse()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.DbAdminExecuteToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await DbAdminTestClient.ExecuteAsync(
             client,
@@ -84,7 +84,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenRoleMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.DbAdminMissingRoleToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingRoleToken());
 
         var response = await DbAdminTestClient.ExecuteAsync(
             client,
@@ -98,7 +98,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenScopeMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.DbAdminMissingScopeToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingScopeToken());
 
         var response = await DbAdminTestClient.ExecuteAsync(
             client,
