@@ -54,6 +54,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__BucketName", LocalStackFixture.CadsExternalBucketName)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__AccessKeySecretName", "IMB_S3_ACCESS_KEY")
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__SecretKeySecretName", "IMB_S3_SECRET_KEY")
+          .WithEnvironment("Modules__StorageBridge__Storage__StorageManager__Salt", "test-salt")
           .WithEnvironment("Modules__StorageBridge__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsFifoQueueUrl)
           .WithEnvironment("Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsFifoDeadLetterQueueUrl)
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsFifoQueueUrl)
@@ -107,10 +108,8 @@ public class ApiContainerFixture : IAsyncLifetime
         };
     }
 
-    public async Task<HttpClient> CreateAzureAdClientAsync(TestTokenRequest? request = null)
+    public async Task<HttpClient> CreateAzureAdClientAsync(TestTokenRequest request)
     {
-        request ??= new TestTokenRequest(); // default = client_credentials
-
         var token = await OidcMockFixture.CreateTokenAsync(request);
 
         var client = new HttpClient
