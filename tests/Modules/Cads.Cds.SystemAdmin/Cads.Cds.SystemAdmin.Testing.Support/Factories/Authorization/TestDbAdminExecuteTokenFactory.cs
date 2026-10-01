@@ -16,11 +16,5 @@ public static class TestDbAdminExecuteTokenFactory
         TestTokenFactory.UserToken(
             TestAuthConstants.AzureAdCadsAdminUsername,
             TestAuthConstants.AzureAdPassword,
-            TestAuthConstants.AzureAdReportsReadScope);    // valid audience, but no db.admin.execute
-
-    public static TestTokenRequest MissingRoleToken() =>
-        TestTokenFactory.UserToken(
-            TestAuthConstants.AzureAdCadsMisUsername,
-            TestAuthConstants.AzureAdPassword,
-            TestAuthConstants.AzureAdDbAdminExecuteScope); // valid user, but no cads-admin-superuser role
+            TestAuthConstants.AzureAdReportsReadScope);    // valid audience, but no admin.db.execute
 }
