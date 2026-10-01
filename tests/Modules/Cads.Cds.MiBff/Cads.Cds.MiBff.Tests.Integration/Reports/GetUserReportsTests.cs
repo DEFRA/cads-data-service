@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
-using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.MiBff.Testing.Support.Constants;
+using Cads.Cds.MiBff.Testing.Support.Factories.Authorization;
 using FluentAssertions;
 using System.Net;
 
@@ -13,7 +13,7 @@ public class GetUserReportsTests(ApiContainerFixture apiContainerFixture)
     public async Task GivenValidUser_WhenGetUserReportsRequested_ShouldReturnReports()
     {
         var endpoint = TestEndpointConstants.BffMiReportsRoot;
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestReportsReadTokenFactory.ValidUserToken());
 
         var response = await client.GetAsync(endpoint, TestContext.Current.CancellationToken);
         response.EnsureSuccessStatusCode();
@@ -27,17 +27,17 @@ public class GetUserReportsTests(ApiContainerFixture apiContainerFixture)
     public async Task GivenScopeMissing_WhenGetUserReportsRequested_ShouldFailWithUnauthorized()
     {
         var endpoint = TestEndpointConstants.BffMiReportsRoot;
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.MissingScopeToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestReportsReadTokenFactory.MissingScopeToken());
 
         var response = await client.GetAsync(endpoint, TestContext.Current.CancellationToken);
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
     public async Task GivenInvalidScope_WhenGetUserReportsRequested_ShouldFailWithForbidden()
     {
         var endpoint = TestEndpointConstants.BffMiReportsRoot;
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.InvalidScopeToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestReportsReadTokenFactory.InvalidScopeToken());
 
         var response = await client.GetAsync(endpoint, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -47,7 +47,7 @@ public class GetUserReportsTests(ApiContainerFixture apiContainerFixture)
     public async Task GivenUserHasNoReportAccess_WhenGetUserReportsRequested_ShouldReturnEmpty()
     {
         var endpoint = TestEndpointConstants.BffMiReportsRoot;
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestTokenFactory.ForUser("unknown-user"));
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestReportsReadTokenFactory.ForUser("unknown-user"));
 
         var response = await client.GetAsync(endpoint, TestContext.Current.CancellationToken);
         response.EnsureSuccessStatusCode();
