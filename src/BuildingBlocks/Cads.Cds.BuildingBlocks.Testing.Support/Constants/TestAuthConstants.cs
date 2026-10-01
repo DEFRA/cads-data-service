@@ -11,7 +11,7 @@ public static class TestAuthConstants
 
     // # Scopes
     public const string AzureAdReportsReadScope = "reports.read";
-    public const string AzureAdDbAdminExecuteScope = "db.admin.execute";
+    public const string AzureAdDbAdminExecuteScope = "admin.db.execute";
     public const string AzureAdAdminS3ManagerScope = "admin.s3.manager";
     public const string AzureAdAdminQueueManagerScope = "admin.queue.manager";
 
@@ -42,7 +42,6 @@ public static class TestAuthConstants
 
     // ## Fakes: bearer token control values (consumed by FakeJwtHandler)
     public const string FakeJwtDefault = "fake-jwt-token";
-    public const string FakeJwtMissingDbAdminRole = "fake-jwt-token-missing-role";
     public const string FakeJwtMissingDbAdminScope = "fake-jwt-token-missing-scope";
     public const string FakeJwtMissingS3AdminScope = "fake-jwt-token-missing-s3-admin-scope";
 
