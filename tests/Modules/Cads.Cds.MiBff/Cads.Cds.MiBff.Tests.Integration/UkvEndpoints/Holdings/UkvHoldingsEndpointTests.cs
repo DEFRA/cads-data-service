@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.MiBff.Testing.Support.Constants;
+using Cads.Cds.MiBff.Testing.Support.Factories.Authorization;
 using FluentAssertions;
 
 namespace Cads.Cds.MiBff.Tests.Integration.UkvEndpoints.Holdings;
@@ -12,7 +13,7 @@ public class UkvHoldingsEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var cph = "ABC123";
         var endpoint = string.Format(TestEndpointConstants.BffUkvHoldingsByCphEndpoint, cph);
-        var client = await apiContainerFixture.CreateAzureAdClientAsync();
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestReportsReadTokenFactory.ValidUserToken());
 
         var response = await client.GetAsync(endpoint, TestContext.Current.CancellationToken);
         response.EnsureSuccessStatusCode();
