@@ -25,9 +25,9 @@ public class FakeJwtHandler(
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, TestAuthConstants.AzureAdUsername),
-            new(ClaimTypes.Email, TestAuthConstants.AzureAdEmail),
-            new("name", TestAuthConstants.AzureAdUsername)
+            new(ClaimTypes.Name, TestAuthConstants.AzureAdCadsMisUsername),
+            new(ClaimTypes.Email, TestAuthConstants.AzureAdCadsMisEmail),
+            new("name", TestAuthConstants.AzureAdCadsMisUsername)
         };
 
         if (Scheme.Name == AuthenticationConstants.AzureADSchemeName)
