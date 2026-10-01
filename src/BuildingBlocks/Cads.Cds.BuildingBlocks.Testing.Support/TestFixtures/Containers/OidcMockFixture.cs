@@ -53,7 +53,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                 "ClientId": "{{TestAuthConstants.AzureAdTestUserClientId}}",
                 "ClientSecrets": ["{{TestAuthConstants.AzureAdTestUserClientSecret}}"],
                 "AllowedGrantTypes": ["password"],
-                "AllowedScopes": ["openid", "profile", "email", "reports.none", "{{TestAuthConstants.AzureAdCadsCdsScope}}", "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}"],
+                "AllowedScopes": ["openid", "profile", "email", "reports.none", "{{TestAuthConstants.AzureAdCadsCdsScope}}", "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}", "{{TestAuthConstants.AzureAdCadsCdsS3AdminScope}}"],
                 "AccessTokenType": "Jwt",
                 "AlwaysSendClientClaims": true,
                 "AlwaysIncludeUserClaimsInIdToken": true
@@ -73,6 +73,10 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
               {
                 "Name": "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}",
                 "DisplayName": "Execute DB admin commands"
+              },
+              {
+                "Name": "{{TestAuthConstants.AzureAdCadsCdsS3AdminScope}}",
+                "DisplayName": "Manage S3 storage"
               }
             ]
             """)
@@ -89,6 +93,10 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
               {
                 "Name": "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}",
                 "DisplayName": "Execute DB admin commands"
+              },
+              {
+                "Name": "{{TestAuthConstants.AzureAdCadsCdsS3AdminScope}}",
+                "DisplayName": "Manage S3 storage"
               }
             ]
             """)
@@ -96,7 +104,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
             [
               {
                 "Name": "{{TestAuthConstants.AzureAdCadsCdsAudience}}",
-                "Scopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}", "reports.none", "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}"],
+                "Scopes": ["{{TestAuthConstants.AzureAdCadsCdsScope}}", "reports.none", "{{TestAuthConstants.AzureAdCadsCdsDbAdminScope}}", "{{TestAuthConstants.AzureAdCadsCdsS3AdminScope}}"],
                 "UserClaims": [
                   "email",
                   "preferred_username",
