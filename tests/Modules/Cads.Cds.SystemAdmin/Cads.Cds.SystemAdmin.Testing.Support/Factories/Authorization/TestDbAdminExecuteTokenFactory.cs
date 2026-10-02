@@ -12,6 +12,12 @@ public static class TestDbAdminExecuteTokenFactory
             TestAuthConstants.AzureAdPassword,
             TestAuthConstants.AzureAdDbAdminExecuteScope);
 
+    public static TestTokenRequest MissingRoleToken() =>
+        TestTokenFactory.UserToken(
+            TestAuthConstants.AzureAdCadsMisUsername,
+            TestAuthConstants.AzureAdPassword,
+            TestAuthConstants.AzureAdDbAdminExecuteScope); // valid user, but no cads-admin-superuser role
+
     public static TestTokenRequest MissingScopeToken() =>
         TestTokenFactory.UserToken(
             TestAuthConstants.AzureAdCadsAdminUsername,
