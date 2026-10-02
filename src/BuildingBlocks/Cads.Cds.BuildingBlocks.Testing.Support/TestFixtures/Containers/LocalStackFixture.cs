@@ -37,7 +37,7 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
     {
         DockerNetworkHelper.EnsureNetworkExists(networkName);
 
-        LocalStackContainer = new LocalStackBuilder("localstack/localstack:3.4.0")
+        LocalStackContainer = new LocalStackBuilder("localstack/localstack:3.0.2")
             .WithEnvironment("SERVICES", "s3,sqs")
             .WithEnvironment("DEBUG", "1")
             .WithEnvironment("AWS_DEFAULT_REGION", AuthenticationRegion)
