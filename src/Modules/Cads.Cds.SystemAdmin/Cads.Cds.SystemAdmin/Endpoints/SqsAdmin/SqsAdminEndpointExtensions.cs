@@ -17,16 +17,16 @@ public static class SqsAdminEndpointExtensions
     public static void CreateSqsAdminEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues", GetQueues)
-            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
+            .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
         app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/metrics", GetMetrics)
-            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
+            .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
         app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/messages", GetMessages)
-            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
+            .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/replay", ReplayMessagesToQueue)
-            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
+            .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
     }
 
     private static async Task<IResult> GetQueues(
