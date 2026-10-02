@@ -206,7 +206,7 @@ public class SqsAdminService(
     }
 
 
-    private static long GetLongAttribute(IDictionary<string, string> attributes, string key) =>
+    private static long GetLongAttribute(Dictionary<string, string> attributes, string key) =>
         attributes.TryGetValue(key, out var value) && long.TryParse(value, out var parsed) ? parsed : 0;
 
     private string ResolveQueueUrl(string queue) => ResolveQueueOptions(queue).QueueUrl;
