@@ -190,7 +190,7 @@ CREATE INDEX IF NOT EXISTS cts_parallel_import_work_claim_idx
     ON cads.cts_parallel_import_work_queue
        (run_id, state, dependency_depth, table_name, minimum_trans_id);
 
--- These are per-table policies shared by all runs. Missing entries use 25
+-- These are per-table policies shared by all runs. Missing entries use 30
 -- workers and the caller's batch size. A batch_size override is a ceiling, not
 -- permission to exceed the caller's requested size. Stale processing claims
 -- still consume slots until explicitly recovered; never steal live work.
@@ -201,11 +201,34 @@ CREATE TABLE IF NOT EXISTS cads.cts_parallel_import_table_settings
     batch_size integer CHECK (batch_size > 0)
 );
 
--- Default per-table worker cap for the bulk import.
--- Re-deployment must not overwrite operator tuning.
+-- Per-table tuning based on observed worker throughput and wait states.
+-- Registered movements is storage/transaction-I/O bound, so extra workers
+-- reduced contention rather than increasing throughput. Valid applications,
+-- registered animals and animal-correct summaries previously progressed well
+-- with higher concurrency. The identifier/error tables are dependency- and
+-- deferred-row-heavy, so keep their concurrency conservative.
 INSERT INTO cads.cts_parallel_import_table_settings (table_name, max_workers, batch_size)
-VALUES ('ct_valid_applications', 30, 10000)
-ON CONFLICT (table_name) DO NOTHING;
+VALUES
+    ('ct_registered_movements', 15, 100000),
+    ('ct_valid_applications', 30, 10000),
+    ('ct_registered_animals', 30, 100000),
+    ('ct_animal_correct_summaries', 20, 100000),
+    ('ct_animal_identifiers', 15, 100000),
+    ('ct_animal_corr_summ_errors', 4, 100000)
+ON CONFLICT (table_name) DO UPDATE
+SET max_workers = EXCLUDED.max_workers,
+    batch_size = EXCLUDED.batch_size;
+
+CREATE TABLE IF NOT EXISTS cads.cts_parallel_import_constraint_restore_log
+(
+    run_id bigint NOT NULL REFERENCES cads.cts_parallel_import_runs(run_id) ON DELETE CASCADE,
+    table_name text NOT NULL,
+    constraint_name text NOT NULL,
+    status text NOT NULL CHECK (status IN ('restored', 'already present', 'failed', 'skipped')),
+    error_message text,
+    attempted_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+    PRIMARY KEY (run_id, table_name, constraint_name)
+);
 
 CREATE INDEX IF NOT EXISTS cts_parallel_import_processing_table_idx
     ON cads.cts_parallel_import_work_queue (run_id, table_name)
@@ -611,6 +634,142 @@ AS $procedure$
 BEGIN
     CALL cads.prepare_cts_parallel_bulk_import(
         p_delete_source, p_range_size, p_run_id, false
+    );
+END;
+$procedure$;
+
+-- The final worker attempts to restore the constraints removed for the bulk
+-- migration. Each constraint is attempted independently and committed before
+-- the next one, so one invalid constraint does not roll back successful ones.
+-- A normal ADD CONSTRAINT is intentional: failed validation is recorded and
+-- leaves the constraint absent for a later repair attempt.
+CREATE OR REPLACE PROCEDURE cads.try_restore_cts_parallel_constraints(
+    IN p_run_id bigint
+)
+LANGUAGE plpgsql
+AS $procedure$
+DECLARE
+    v_constraint record;
+    v_ok boolean;
+    v_existing_valid boolean;
+    v_status text;
+    v_message text;
+    v_detail text;
+    v_hint text;
+    v_context text;
+BEGIN
+    IF NOT pg_try_advisory_lock(
+        hashtextextended(format('cads.cts_parallel_constraint_restore.%s', p_run_id), 0)
+    ) THEN
+        RETURN;
+    END IF;
+
+    -- Only the last worker may restore constraints. Do not race a live worker
+    -- or restore while any queue range can still be claimed.
+    IF EXISTS (
+        SELECT 1
+        FROM cads.cts_parallel_import_work_queue
+        WHERE run_id = p_run_id
+          AND state NOT IN ('complete', 'complete with deferred rows')
+    ) OR EXISTS (
+        SELECT 1
+        FROM cads.cts_parallel_import_workers
+        WHERE run_id = p_run_id
+          AND status IN ('starting', 'working', 'waiting')
+    ) THEN
+        PERFORM pg_advisory_unlock(
+            hashtextextended(format('cads.cts_parallel_constraint_restore.%s', p_run_id), 0)
+        );
+        RETURN;
+    END IF;
+
+    FOR v_constraint IN
+        SELECT * FROM (VALUES
+            ('ct_animal_identifiers', 'fk_ct_animal_identifiers_aid_aid_id_original', 'aid_aid_id_original', 'ct_animal_identifiers', 'aid_id'),
+            ('ct_animal_identifiers', 'fk_ct_animal_identifiers_aid_aid_id_previous', 'aid_aid_id_previous', 'ct_animal_identifiers', 'aid_id'),
+            ('ct_animal_identifiers', 'fk_ct_animal_identifiers_aid_ran_id', 'aid_ran_id', 'ct_registered_animals', 'ran_id'),
+            ('ct_animal_correct_summaries', 'fk_ct_animal_correct_summaries_acs_ran_id', 'acs_ran_id', 'ct_registered_animals', 'ran_id'),
+            ('ct_animal_correct_summaries', 'fk_ct_animal_correct_summaries_acs_san_id', 'acs_san_id', 'ct_suspended_animals', 'san_id'),
+            ('ct_movt_correct_summaries', 'fk_ct_movt_correct_summaries_mcs_smo_id', 'mcs_smo_id', 'ct_suspended_movements', 'smo_id'),
+            ('ct_movt_correct_summaries', 'fk_ct_movt_correct_summaries_mcs_rmo_id', 'mcs_rmo_id', 'ct_received_movements', 'rmo_id'),
+            ('ct_movt_correct_summaries', 'fk_ct_movt_correct_summaries_mcs_mov_id', 'mcs_mov_id', 'ct_registered_movements', 'mov_id')
+        ) AS x(table_name, constraint_name, child_column, parent_table, parent_column)
+    LOOP
+        SELECT c.convalidated
+        INTO v_existing_valid
+        FROM pg_constraint c
+        WHERE c.conrelid = format('cts.%I', v_constraint.table_name)::regclass
+          AND c.conname = v_constraint.constraint_name;
+
+        IF FOUND AND v_existing_valid THEN
+            v_status := 'already present';
+            v_message := NULL;
+        ELSIF FOUND AND NOT v_existing_valid THEN
+            v_ok := true;
+            v_message := NULL;
+            v_detail := NULL;
+            v_hint := NULL;
+            v_context := NULL;
+            BEGIN
+                EXECUTE format(
+                    'ALTER TABLE cts.%I VALIDATE CONSTRAINT %I',
+                    v_constraint.table_name, v_constraint.constraint_name
+                );
+            EXCEPTION WHEN OTHERS THEN
+                v_ok := false;
+                GET STACKED DIAGNOSTICS
+                    v_message = MESSAGE_TEXT,
+                    v_detail = PG_EXCEPTION_DETAIL,
+                    v_hint = PG_EXCEPTION_HINT,
+                    v_context = PG_EXCEPTION_CONTEXT;
+            END;
+            v_status := CASE WHEN v_ok THEN 'restored' ELSE 'failed' END;
+            IF NOT v_ok THEN
+                v_message := concat_ws(' | ', v_message, nullif(v_detail, ''), nullif(v_hint, ''));
+            END IF;
+        ELSE
+            v_ok := true;
+            v_message := NULL;
+            v_detail := NULL;
+            v_hint := NULL;
+            v_context := NULL;
+            BEGIN
+                EXECUTE format(
+                    'ALTER TABLE cts.%I ADD CONSTRAINT %I FOREIGN KEY (%I) REFERENCES cts.%I(%I)',
+                    v_constraint.table_name, v_constraint.constraint_name,
+                    v_constraint.child_column, v_constraint.parent_table,
+                    v_constraint.parent_column
+                );
+            EXCEPTION WHEN OTHERS THEN
+                v_ok := false;
+                GET STACKED DIAGNOSTICS
+                    v_message = MESSAGE_TEXT,
+                    v_detail = PG_EXCEPTION_DETAIL,
+                    v_hint = PG_EXCEPTION_HINT,
+                    v_context = PG_EXCEPTION_CONTEXT;
+            END;
+            v_status := CASE WHEN v_ok THEN 'restored' ELSE 'failed' END;
+            IF NOT v_ok THEN
+                v_message := concat_ws(' | ', v_message, nullif(v_detail, ''), nullif(v_hint, ''));
+            END IF;
+        END IF;
+
+        INSERT INTO cads.cts_parallel_import_constraint_restore_log
+            (run_id, table_name, constraint_name, status, error_message, attempted_at)
+        VALUES
+            (p_run_id, v_constraint.table_name, v_constraint.constraint_name,
+             v_status, v_message, clock_timestamp())
+        ON CONFLICT (run_id, table_name, constraint_name) DO UPDATE
+        SET status = EXCLUDED.status,
+            error_message = EXCLUDED.error_message,
+            attempted_at = EXCLUDED.attempted_at;
+        COMMIT;
+        RAISE NOTICE 'Constraint % on %: %',
+            v_constraint.constraint_name, v_constraint.table_name, v_status;
+    END LOOP;
+
+    PERFORM pg_advisory_unlock(
+        hashtextextended(format('cads.cts_parallel_constraint_restore.%s', p_run_id), 0)
     );
 END;
 $procedure$;
@@ -1114,6 +1273,10 @@ BEGIN
         heartbeat_at = clock_timestamp(), completed_at = clock_timestamp()
     WHERE run_id = p_run_id AND worker_name = p_worker_name;
     COMMIT;
+    -- Once this worker has committed its completion, the helper will proceed
+    -- only if no other worker or queue range remains active. Constraint restore
+    -- is performed one constraint per transaction by the helper.
+    CALL cads.try_restore_cts_parallel_constraints(p_run_id);
     RAISE NOTICE 'CTS parallel worker % finished run %.', p_worker_name, p_run_id;
 END;
 $procedure$;
