@@ -86,9 +86,8 @@ public class SqsAdminService(
             },
             cancellationToken);
 
-        // Some SQS implementations (e.g. certain LocalStack versions) return a null
-        // Messages collection rather than an empty list when the queue has no
-        // (visible) messages. Normalise here so callers can rely on it never being null.
+        // Normalise here so callers can rely on it never being null.
+        // Required due to localstack's SQS emulation not reliably supporting FIFO queues.
         response.Messages ??= [];
 
         return response;
@@ -164,8 +163,6 @@ public class SqsAdminService(
 
     private async Task<long> GetOldestMessageAgeSecondsAsync(string queueUrl, CancellationToken cancellationToken)
     {
-        // SQS has no direct "oldest message age" attribute via GetQueueAttributes, so this is
-        // approximated by peeking the head of the queue and inspecting its SentTimestamp.
         var response = await GetMessagesFromQueue(queueUrl, 1, systemAttributeNames: ["SentTimestamp"], cancellationToken: cancellationToken);
 
         var message = response.Messages.FirstOrDefault();
@@ -187,9 +184,8 @@ public class SqsAdminService(
 
     private static QueueMessageDto MapToQueueMessageDto(Message message)
     {
-        // Some SQS implementations (e.g. certain LocalStack versions) can return a null
-        // Attributes/MessageAttributes dictionary rather than an empty one when no system
-        // attributes were requested/available for a given message.
+        // Normalise here so callers can rely on it never being null.
+        // Required due to localstack's SQS emulation not reliably supporting FIFO queues.
         var systemAttributes = message.Attributes ?? [];
 
         DateTimeOffset? sentTimestamp = null;
