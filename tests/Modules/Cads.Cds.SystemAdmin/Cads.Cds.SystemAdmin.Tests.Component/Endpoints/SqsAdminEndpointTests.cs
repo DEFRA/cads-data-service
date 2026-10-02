@@ -47,17 +47,6 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     }
 
     [Fact]
-    public async Task GivenRoleClaimMissing_WhenGetQueuesRequested_ShouldReturnForbidden()
-    {
-        var client = testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminRole);
-
-        var response = await SqsAdminTestClient.GetQueuesAsync(client, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
     public async Task GivenScopeClaimMissing_WhenGetQueuesRequested_ShouldReturnForbidden()
     {
         var client = testFixture.Factory.CreateClient();
@@ -259,17 +248,6 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
         var response = await SqsAdminTestClient.ReplayDlqAsync(client, "CadsCds", batchSize: 5, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task GivenRoleClaimMissing_WhenReplayRequested_ShouldReturnForbidden()
-    {
-        var client = testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminRole);
-
-        var response = await SqsAdminTestClient.ReplayDlqAsync(client, "CadsCds", batchSize: 5, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

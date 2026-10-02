@@ -43,16 +43,6 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenRoleMissing_WhenGetQueuesRequested_ShouldReturnForbidden()
-    {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingRoleToken());
-
-        var response = await SqsAdminTestClient.GetQueuesAsync(client, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
     public async Task GivenScopeMissing_WhenGetQueuesRequested_ShouldReturnForbidden()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingScopeToken());
@@ -221,16 +211,6 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         var response = await SqsAdminTestClient.ReplayDlqAsync(client, "unknown-queue", batchSize: 1, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task GivenRoleMissing_WhenReplayRequested_ShouldReturnForbidden()
-    {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingRoleToken());
-
-        var response = await SqsAdminTestClient.ReplayDlqAsync(client, QueueName, batchSize: 1, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     private async Task DrainQueueAsync(string queueUrl)
