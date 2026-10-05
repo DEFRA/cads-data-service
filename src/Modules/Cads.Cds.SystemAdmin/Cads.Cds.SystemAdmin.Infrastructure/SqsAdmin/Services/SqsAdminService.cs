@@ -144,6 +144,8 @@ public class SqsAdminService(
                         new SendMessageRequest
                         {
                             QueueUrl = mainQueueUrl,
+                            MessageGroupId = message.Attributes?.GetValueOrDefault("MessageGroupId"),
+                            MessageDeduplicationId = message.Attributes?.GetValueOrDefault("MessageDeduplicationId"),
                             MessageBody = message.Body,
                             MessageAttributes = message.MessageAttributes
                         },
