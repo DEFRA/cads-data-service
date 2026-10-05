@@ -17,15 +17,11 @@ public static class AnimalsOnHoldingRequestAdapter
         return new GetAnimalsOnHolding
         {
             Cph = request.Cph,
-            HoldingAssociation = request.HoldingAssociation,
 
             Filters = new AnimalsOnHoldingFilters
             {
-                Status = filters.Status,
                 Sex = filters.Sex,
                 BreedCode = filters.BreedCode,
-                DateOnCphFrom = filters.DateOnCphFrom,
-                Query = filters.Query
             },
 
             Paging = new PagingOptions
