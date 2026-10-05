@@ -40,6 +40,10 @@ public class SqsAdminService(
 
     public async Task<QueueMetricsDto> GetMetricsAsync(string queue, CancellationToken cancellationToken = default)
     {
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("[SqsAdminService] Getting metrics for queue {Queue} from attributes", queue);
+        }
         var queueUrl = ResolveQueueUrl(queue);
 
         var attributesResponse = await sqs.GetQueueAttributesAsync(
@@ -50,7 +54,17 @@ public class SqsAdminService(
             },
             cancellationToken);
 
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("[SqsAdminService] Getting oldest message for queue {Queue} from first out message", queue);
+        }
+
         var oldestMessageAgeSeconds = await GetOldestMessageAgeSecondsAsync(queueUrl, cancellationToken);
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("[SqsAdminService] Retrieved metrics for queue {Queue}", queue);
+        }
 
         return new QueueMetricsDto(
             GetLongAttribute(attributesResponse.Attributes, "ApproximateNumberOfMessages"),
