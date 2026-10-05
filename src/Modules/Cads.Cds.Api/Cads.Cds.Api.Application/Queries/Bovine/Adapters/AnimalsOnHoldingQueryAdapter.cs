@@ -26,6 +26,7 @@ public class AnimalsOnHoldingQueryAdapter(IAnimalsOnHoldingReadQuery readQuery)
                 Schema = first?.CphSchema ?? DefaultCphSchema,
                 Identifier = first?.CphNumber ?? query.Cph
             },
+            LocationName = first?.LocationName,
             Animals = data.Items.ToDtoList(),
             TotalRecords = data.TotalCount,
             Page = data.Page,

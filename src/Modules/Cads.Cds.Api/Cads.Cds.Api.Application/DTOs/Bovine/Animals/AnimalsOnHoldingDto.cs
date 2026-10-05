@@ -11,6 +11,9 @@ public class AnimalsOnHoldingDto
     [JsonPropertyName("CPH")]
     public HoldingIdentifierDto? Cph { get; init; }
 
+    [JsonPropertyName("locationName")]
+    public string? LocationName { get; init; }
+
     [JsonPropertyName("animals")]
     public IReadOnlyList<AnimalSummaryDto> Animals { get; init; } = [];
 
