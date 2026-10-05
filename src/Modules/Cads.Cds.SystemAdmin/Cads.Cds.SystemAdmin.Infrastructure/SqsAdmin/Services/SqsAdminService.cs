@@ -89,12 +89,14 @@ public class SqsAdminService(
     private async Task<ReceiveMessageResponse> GetMessagesFromQueue(string queueUrl, int maxMessages, int visibilityTimeout = 0, List<string>? systemAttributeNames = null, CancellationToken cancellationToken = default)
     {
         // Having a default visibility timeout of 0 allows us to peek at messages without affecting their visibility in the queue.
+        // Setting WaitTimeSeconds to 0 ensures that the request returns immediately, even if there are no messages available, which is important for peeking.
         var response = await sqs.ReceiveMessageAsync(
             new ReceiveMessageRequest
             {
                 QueueUrl = queueUrl,
                 MaxNumberOfMessages = Math.Clamp(maxMessages, 1, MaxMessagesPerSqsRequest),
                 VisibilityTimeout = visibilityTimeout,
+                WaitTimeSeconds = 0,
                 MessageAttributeNames = ["All"],
                 MessageSystemAttributeNames = systemAttributeNames ?? ["All"]
             },
