@@ -248,7 +248,7 @@ public static class ServiceCollectionExtensions
                 .RequireScope(scopeClaim, scope));
         }
     }
-    
+
     private static AuthorizationPolicyBuilder RequireScope(
         this AuthorizationPolicyBuilder policy, string scopeClaimType, string scope) =>
         policy.RequireAssertion(ctx => ctx.User.Claims
