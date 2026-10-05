@@ -399,4 +399,45 @@ public class ExceptionHandlingMiddlewareTests
         nextCalled.Should().BeTrue();
         context.Response.StatusCode.Should().Be(200);
     }
+
+
+    [Theory]
+    [InlineData(typeof(Exception), 500)]
+    [InlineData(typeof(NotFoundException), 404)]
+    public async Task InvokeAsync_WhenExceptionThrown_ResponseStatusCodeIsSetBeforeLogging(Type exceptionType, int expectedStatusCode)
+    {
+        // Arrange
+        var context = CreateHttpContext();
+        var logger = new StatusCapturingLogger<ExceptionHandlingMiddleware>(() => context.Response.StatusCode);
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["TraceHeader"] = _traceHeader })
+            .Build();
+        var exception = (Exception)Activator.CreateInstance(exceptionType, "*** Forced Exception ***")!;
+        var middleware = new ExceptionHandlingMiddleware(_ => throw exception, logger, config);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert: status code is set accurately
+        logger.StatusCodesAtLogTime.Should().ContainSingle()
+            .Which.Should().Be(expectedStatusCode);
+    }
+
+    private sealed class StatusCapturingLogger<T>(Func<int> statusCodeAccessor) : ILogger<T>
+    {
+        public List<int> StatusCodesAtLogTime { get; } = [];
+
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+            => StatusCodesAtLogTime.Add(statusCodeAccessor());
+
+        private sealed class NullScope : IDisposable
+        {
+            public static readonly NullScope Instance = new();
+            public void Dispose() { }
+        }
+    }
 }
