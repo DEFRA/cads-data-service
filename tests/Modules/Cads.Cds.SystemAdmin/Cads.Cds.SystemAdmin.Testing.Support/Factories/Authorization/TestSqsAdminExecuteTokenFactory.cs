@@ -11,7 +11,7 @@ public static class TestSqsAdminExecuteTokenFactory
             TestAuthConstants.AzureAdCadsAdminUsername,
             TestAuthConstants.AzureAdPassword,
             TestAuthConstants.AzureAdAdminQueueManagerScope);
-    
+
     public static TestTokenRequest MissingScopeToken() =>
         TestTokenFactory.UserToken(
             TestAuthConstants.AzureAdCadsAdminUsername,
