@@ -24,7 +24,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenValidRoleAndScope_WhenGetQueuesRequested_ShouldReturnConfiguredQueue()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await SqsAdminTestClient.GetQueuesAsync(client, TestContext.Current.CancellationToken);
 
@@ -45,7 +45,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenScopeMissing_WhenGetQueuesRequested_ShouldReturnForbidden()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingScopeToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.MissingScopeToken());
 
         var response = await SqsAdminTestClient.GetQueuesAsync(client, TestContext.Current.CancellationToken);
 
@@ -57,7 +57,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenValidRoleAndScope_WhenGetMetricsRequested_ShouldReturnOk()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await SqsAdminTestClient.GetMetricsAsync(client, QueueName, TestContext.Current.CancellationToken);
 
@@ -72,7 +72,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenUnknownQueue_WhenGetMetricsRequested_ShouldReturnNotFound()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await SqsAdminTestClient.GetMetricsAsync(client, "unknown-queue", TestContext.Current.CancellationToken);
 
@@ -84,7 +84,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenMessageOnQueue_WhenGetMessagesRequested_ShouldReturnMessageWithoutRemovingIt()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
 
         var dedupId = Guid.NewGuid().ToString("N");
         await Sqs.SendMessageAsync(new SendMessageRequest
@@ -133,7 +133,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenUnknownQueue_WhenGetMessagesRequested_ShouldReturnNotFound()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await SqsAdminTestClient.GetMessagesAsync(client, "unknown-queue", maxMessages: null, TestContext.Current.CancellationToken);
 
@@ -145,7 +145,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenMessageOnDlq_WhenReplayRequested_ShouldMoveMessageToMainQueue()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
 
         var dedupId = Guid.NewGuid().ToString("N");
 
@@ -196,7 +196,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenInvalidBatchSize_WhenReplayRequested_ShouldReturnBadRequest()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await SqsAdminTestClient.ReplayDlqAsync(client, QueueName, batchSize: 999, TestContext.Current.CancellationToken);
 
@@ -206,7 +206,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenUnknownQueue_WhenReplayRequested_ShouldReturnNotFound()
     {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
 
         var response = await SqsAdminTestClient.ReplayDlqAsync(client, "unknown-queue", batchSize: 1, TestContext.Current.CancellationToken);
 
