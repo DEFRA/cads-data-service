@@ -30,7 +30,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish database schema with liquibase
-        uses: DEFRA/cdp-build-action/publish-db-migrations@main
+        uses: ./.github/actions/publish-db-migrations
         with:
           path: ./changelog
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -43,3 +43,4 @@ jobs:
 #     uses: ./.github/workflows/sonarcloud.yml
 #     needs: build
 #     secrets: inherit
+
