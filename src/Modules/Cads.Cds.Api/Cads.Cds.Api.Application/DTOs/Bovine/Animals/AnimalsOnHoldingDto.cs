@@ -16,4 +16,13 @@ public class AnimalsOnHoldingDto
 
     [JsonPropertyName("animals")]
     public IReadOnlyList<AnimalSummaryDto> Animals { get; init; } = [];
+
+    [JsonPropertyName("totalRecords")]
+    public long TotalRecords { get; init; }
+
+    [JsonPropertyName("page")]
+    public int Page { get; init; }
+
+    [JsonPropertyName("pageSize")]
+    public int PageSize { get; init; }
 }
