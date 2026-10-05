@@ -36,24 +36,39 @@ public class BovineEndpointTests(ApiTestFixture testFixture) : IClassFixture<Api
     [Fact]
     public async Task GivenValidCph_WhenGetAnimalsOnHoldingRequested_ShouldSucceed()
     {
-        var response = await ExecuteTest(GetAnimalsOnHoldingUrl("12/345/6789"));
+        var response = await ExecuteTest(GetAnimalsOnHoldingUrl(TestBovineConstants.KnownCph));
 
         var result = await HttpResponseMessageUtilities.VerifyOk<AnimalsOnHoldingDto>(response);
 
         result.ResourceType.Should().Be("AnimalCollection");
-        result.Animals.Should().HaveCountGreaterThan(0);
+        result.Cph!.Identifier.Should().Be(TestBovineConstants.KnownCph);
+        result.TotalRecords.Should().Be(TestBovineConstants.KnownCphAnimalCount);
+        result.Animals.Should().HaveCount(25);
     }
 
     [Fact]
     public async Task GivenPopulatedQueryString_WhenGetAnimalsOnHoldingRequested_ShouldSucceed()
     {
-        var response = await ExecuteTest(GetAnimalsOnHoldingUrl("12/345/6789",
-            "holdingAssociation=RegisteredOnHolding&status=Alive&status=OffFarm&sex=Female&breedCode=HO&breedCode=HOX&dateOnCPHFrom=2026-01-01&q=Daisy&page=2&pageSize=50&orderBy=BirthDate&direction=Desc"));
+        var response = await ExecuteTest(GetAnimalsOnHoldingUrl(TestBovineConstants.KnownCph,
+            "sex=Female&breedCode=HO&page=2&pageSize=2&orderBy=BirthDate&direction=Desc"));
 
         var result = await HttpResponseMessageUtilities.VerifyOk<AnimalsOnHoldingDto>(response);
 
-        result.ResourceType.Should().Be("AnimalCollection");
-        result.Animals.Should().HaveCountGreaterThan(0);
+        result.TotalRecords.Should().Be(TestBovineConstants.KnownCphFemaleHoCount);
+        result.Animals.Should().HaveCount(2);
+        result.Animals.Should().OnlyContain(a => a.Sex == "Female" && a.BreedCode!.Identifier == "HO");
+        result.Animals.Should().BeInDescendingOrder(a => a.BirthDate);
+    }
+
+    [Fact]
+    public async Task GivenOtherCph_WhenGetAnimalsOnHoldingRequested_ShouldOnlyReturnThatHolding()
+    {
+        var response = await ExecuteTest(GetAnimalsOnHoldingUrl(TestBovineConstants.OtherCph));
+
+        var result = await HttpResponseMessageUtilities.VerifyOk<AnimalsOnHoldingDto>(response);
+
+        result.TotalRecords.Should().Be(TestBovineConstants.OtherCphAnimalCount);
+        result.LocationName.Should().Be("Elm Farm");
     }
 
     private async Task<HttpResponseMessage> ExecuteTest(string url)

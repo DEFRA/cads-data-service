@@ -8,7 +8,7 @@ namespace Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnHolding;
 public class GetAnimalsOnHolding : IQuery<AnimalsOnHoldingDto>
 {
     public required string Cph { get; init; }
-    public bool IncludeHistorical { get; init; }
+    public bool IncludeHistorical { get; init; } = false;
 
     public AnimalsOnHoldingFilters Filters { get; init; } = new();
     public PagingOptions Paging { get; init; } = new();

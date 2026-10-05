@@ -24,7 +24,7 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : Cads
         string? sortField,
         string? sortDirection,
         string? breedCode,
-        string? sex) 
+        string? sex)
         => FromExpression(() => GetAnimalsOnHolding(
             cph, includeHistorical, rowFrom, rowTo, sortField, sortDirection, breedCode, sex));
 
