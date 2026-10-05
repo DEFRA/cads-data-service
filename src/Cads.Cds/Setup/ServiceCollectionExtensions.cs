@@ -230,7 +230,7 @@ public static class ServiceCollectionExtensions
             .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
             .AddSchemeIf(authenticationConfiguration.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
             .RequireAuthenticatedUser()
-            .RequireClaim(scopeClaim, ScopeNames.ReportsRead));
+            .RequireScope(scopeClaim, ScopeNames.ReportsRead));
 
         // Admin policies all same shape: Azure AD only, a specific scope, and the superuser role
         (string Policy, string Scope)[] adminPolicies =
@@ -245,9 +245,16 @@ public static class ServiceCollectionExtensions
             builder.AddPolicy(name, policy => policy
                 .AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName)
                 .RequireAuthenticatedUser()
-                .RequireClaim(scopeClaim, scope));
+                .RequireScope(scopeClaim, scope));
         }
     }
+    
+    private static AuthorizationPolicyBuilder RequireScope(
+        this AuthorizationPolicyBuilder policy, string scopeClaimType, string scope) =>
+        policy.RequireAssertion(ctx => ctx.User.Claims
+            .Where(c => c.Type == scopeClaimType)
+            .SelectMany(c => c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Contains(scope, StringComparer.Ordinal));
 
     private static AuthorizationPolicyBuilder AddSchemeIf(
         this AuthorizationPolicyBuilder policy, bool enabled, string scheme) =>
