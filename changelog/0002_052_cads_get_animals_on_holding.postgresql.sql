@@ -36,7 +36,7 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_ct_applic_statuses_application_latest
     WHERE aps_vap_id IS NOT NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_ct_applic_statuses_application_latest;
 
--- changeset gary:0002_052_08 splitStatements:false runOnChange:true
+-- changeset gary:0002_052_08 splitStatements:false
 -- Preserve the original holding-selection logic and only add the contract
 -- fields. This prevents the enrichment query from changing the 21-row result
 -- set produced by get_animals_on_holding(text).
@@ -147,7 +147,7 @@ $function$;
 COMMENT ON FUNCTION cads.get_animals_on_holding(text) IS
 'Returns the original current-animal result set with the AnimalCollection contract fields added as columns. This one-argument form is equivalent to include_historical = false and preserves the original row selection.';
 
--- changeset gary:0002_052_09 splitStatements:false runOnChange:true
+-- changeset gary:0002_052_09 splitStatements:false
 DROP FUNCTION IF EXISTS cads.get_animals_on_holding(text, boolean);
 CREATE FUNCTION cads.get_animals_on_holding(
     p_cph_number text,
@@ -276,3 +276,121 @@ $function$;
 
 COMMENT ON FUNCTION cads.get_animals_on_holding(text, boolean) IS
 'Returns the tabular AnimalCollection fields. When p_include_historical is false, preserves the original current-animal result set; when true, returns one row per inbound holding episode and populates date_off_cph from the next outbound movement.';
+
+-- changeset gary:0002_052_10 splitStatements:false
+DROP FUNCTION IF EXISTS cads.get_animals_on_holding(text, boolean, bigint, bigint, text, text, text, text);
+CREATE FUNCTION cads.get_animals_on_holding(
+    p_cph_number text,
+    p_include_historical boolean,
+    p_row_from bigint,
+    p_row_to bigint,
+    p_sort_field text,
+    p_sort_direction text,
+    p_breed_code text,
+    p_sex text
+)
+RETURNS TABLE (
+    cph_number text,
+    animal_id numeric,
+    ear_tag_number text,
+    ear_tag_url_identifier text,
+    date_of_birth date,
+    date_registered date,
+    sex text,
+    breed_code text,
+    breed text,
+    animal_status text,
+    resource_type text,
+    cph_schema text,
+    location_name text,
+    identifier_schema text,
+    date_on_cph date,
+    date_off_cph date,
+    species text,
+    breed_schema text,
+    breed_name text,
+    breed_identifier text,
+    total_count bigint
+)
+LANGUAGE sql
+STABLE
+AS $function$
+WITH filtered AS MATERIALIZED (
+    SELECT *
+    FROM cads.get_animals_on_holding(p_cph_number, p_include_historical) a
+    WHERE (NULLIF(btrim(p_breed_code), '') IS NULL
+           OR a.breed_identifier = p_breed_code)
+      AND (NULLIF(btrim(p_sex), '') IS NULL
+           OR upper(a.sex) = upper(p_sex))
+), numbered AS (
+    SELECT
+        f.*,
+        ROW_NUMBER() OVER (
+            ORDER BY
+                CASE WHEN lower(p_sort_direction) = 'asc'
+                          AND lower(p_sort_field) = 'date_on_cph'
+                     THEN f.date_on_cph END ASC NULLS LAST,
+                CASE WHEN lower(p_sort_direction) = 'desc'
+                          AND lower(p_sort_field) = 'date_on_cph'
+                     THEN f.date_on_cph END DESC NULLS LAST,
+                CASE WHEN lower(p_sort_direction) = 'asc'
+                          AND lower(p_sort_field) = 'date_of_birth'
+                     THEN f.date_of_birth END ASC NULLS LAST,
+                CASE WHEN lower(p_sort_direction) = 'desc'
+                          AND lower(p_sort_field) = 'date_of_birth'
+                     THEN f.date_of_birth END DESC NULLS LAST,
+                CASE WHEN lower(p_sort_direction) = 'asc'
+                          AND lower(p_sort_field) = 'breed_code'
+                     THEN f.breed_identifier END ASC NULLS LAST,
+                CASE WHEN lower(p_sort_direction) = 'desc'
+                          AND lower(p_sort_field) = 'breed_code'
+                     THEN f.breed_identifier END DESC NULLS LAST,
+                CASE WHEN lower(p_sort_direction) = 'asc'
+                          AND lower(p_sort_field) = 'ear_tag_number'
+                     THEN f.ear_tag_number END ASC NULLS LAST,
+                CASE WHEN lower(p_sort_direction) = 'desc'
+                          AND lower(p_sort_field) = 'ear_tag_number'
+                     THEN f.ear_tag_number END DESC NULLS LAST,                
+                CASE WHEN lower(p_sort_direction) = 'asc'
+                          AND lower(p_sort_field) = 'sex'
+                     THEN f.sex END ASC NULLS LAST,
+                CASE WHEN lower(p_sort_direction) = 'desc'
+                          AND lower(p_sort_field) = 'sex'
+                     THEN f.sex END DESC NULLS LAST,
+                f.date_on_cph ASC NULLS LAST,
+                f.ear_tag_number ASC,
+                f.animal_id ASC
+        ) AS result_row,
+        COUNT(*) OVER () AS total_count
+    FROM filtered f
+)
+SELECT
+    n.cph_number,
+    n.animal_id,
+    n.ear_tag_number,
+    n.ear_tag_url_identifier,
+    n.date_of_birth,
+    n.date_registered,
+    n.sex,
+    n.breed_code,
+    n.breed,
+    n.animal_status,
+    n.resource_type,
+    n.cph_schema,
+    n.location_name,
+    n.identifier_schema,
+    n.date_on_cph,
+    n.date_off_cph,
+    n.species,
+    n.breed_schema,
+    n.breed_name,
+    n.breed_identifier,
+    n.total_count
+FROM numbered n
+WHERE n.result_row BETWEEN GREATEST(p_row_from, 1)
+                        AND GREATEST(p_row_to, GREATEST(p_row_from, 1))
+ORDER BY n.result_row;
+$function$;
+
+COMMENT ON FUNCTION cads.get_animals_on_holding(text, boolean, bigint, bigint, text, text, text, text) IS
+'Returns paginated CPH animal rows. Use row_from=1 and row_to=1000 for the default first page; sort_field defaults to date_on_cph, sort_direction to asc, and null/blank breed or sex for no filter.';

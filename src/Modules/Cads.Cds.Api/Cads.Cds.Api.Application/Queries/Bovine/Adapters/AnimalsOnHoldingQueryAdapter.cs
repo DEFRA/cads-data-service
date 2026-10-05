@@ -1,37 +1,35 @@
 using Cads.Cds.Api.Application.DTOs.Bovine.Animals;
+using Cads.Cds.Api.Application.DTOs.Holdings;
 using Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnHolding;
-using Cads.Cds.Api.Core.Configuration;
-using Cads.Cds.BuildingBlocks.Application.Files.Abstractions;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace Cads.Cds.Api.Application.Queries.Bovine.Adapters;
 
-public class AnimalsOnHoldingQueryAdapter(
-    IHostEnvironment env,
-    IFileService fileService,
-    IOptions<ApiModuleConfiguration> options)
+public class AnimalsOnHoldingQueryAdapter(IAnimalsOnHoldingReadQuery readQuery)
 {
-    public const string FileName = "bovine_animals_on_holding.json";
+    private const string DefaultResourceType = "AnimalCollection";
+    private const string DefaultCphSchema = "uk.gov.defra.cph";
 
     public async Task<AnimalsOnHoldingDto?> SearchAsync(
         GetAnimalsOnHolding query,
         CancellationToken cancellationToken = default)
     {
-        var data = await GetAsync(cancellationToken);
+        var data = await readQuery.ExecuteAsync(query, cancellationToken);
 
-        return data;
-    }
+        // With no rows (empty filter result or page past the end) fall back to the request.
+        var first = data.Items.Count > 0 ? data.Items[0] : null;
 
-    private async Task<AnimalsOnHoldingDto?> GetAsync(CancellationToken cancellationToken)
-    {
-        if (!options.Value.StaticData.Enabled)
+        return new AnimalsOnHoldingDto
         {
-            return null;
-        }
-
-        var fullPath = Path.Combine(env.ContentRootPath, options.Value.StaticData.Path, FileName);
-
-        return await fileService.ReadJsonFromFileAndReturnAsModelAsync<AnimalsOnHoldingDto>(fullPath, cancellationToken) ?? null;
+            ResourceType = first?.ResourceType ?? DefaultResourceType,
+            Cph = new HoldingIdentifierDto
+            {
+                Schema = first?.CphSchema ?? DefaultCphSchema,
+                Identifier = first?.CphNumber ?? query.Cph
+            },
+            Animals = data.Items.ToDtoList(),
+            TotalRecords = data.TotalCount,
+            Page = data.Page,
+            PageSize = data.PageSize
+        };
     }
 }
