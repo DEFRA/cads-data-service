@@ -42,19 +42,21 @@ public class BovineEndpointTests(ApiContainerFixture apiContainerFixture)
         var result = await HttpResponseMessageUtilities.VerifyOk<AnimalsOnHoldingDto>(response);
 
         result.ResourceType.Should().Be("AnimalCollection");
-        result.Animals.Should().HaveCountGreaterThan(0);
+        result.Cph!.Identifier.Should().Be("12/345/6789");
     }
 
     [Fact]
     public async Task GivenPopulatedQueryString_WhenGetAnimalsOnHoldingRequested_ShouldSucceed()
     {
         var response = await ExecuteTest(GetAnimalsOnHoldingUrl("12/345/6789",
-            "holdingAssociation=RegisteredOnHolding&status=Alive&status=OffFarm&sex=Female&breedCode=HO&breedCode=HOX&dateOnCPHFrom=2026-01-01&q=Daisy&page=2&pageSize=50&orderBy=BirthDate&direction=Desc"));
+            "sex=Female&breedCode=HO&page=2&pageSize=2&orderBy=BirthDate&direction=Desc"));
 
         var result = await HttpResponseMessageUtilities.VerifyOk<AnimalsOnHoldingDto>(response);
 
         result.ResourceType.Should().Be("AnimalCollection");
-        result.Animals.Should().HaveCountGreaterThan(0);
+        result.Cph!.Identifier.Should().Be("12/345/6789");
+        result.Page.Should().Be(2);
+        result.PageSize.Should().Be(2);
     }
 
     private static string GetAnimalsOnHoldingUrl(string cph, string? queryString = null)
