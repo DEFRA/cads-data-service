@@ -118,6 +118,215 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
+    [Fact]
+    public async Task GivenValidQueue_WhenGetMetricsRequested_ShouldNotCallGetDlqMetrics()
+    {
+        testFixture.Factory.SqsAdminServiceMock
+            .Setup(x => x.GetMetricsAsync("MainOnlyQueue", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueueMetricsDto(3, 1, 0, 42));
+
+        var response = await SqsAdminTestClient.GetMetricsAsync(_httpClient, "MainOnlyQueue", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        testFixture.Factory.SqsAdminServiceMock.Verify(x => x.GetDlqMetricsAsync(
+            "MainOnlyQueue",
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    // GetDlqMetrics
+
+    [Fact]
+    public async Task GivenQueueWithDlq_WhenGetDlqMetricsRequested_ShouldReturnOk()
+    {
+        testFixture.Factory.SqsAdminServiceMock
+            .Setup(x => x.GetDlqMetricsAsync("WithDlq", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new QueueMetricsDto(9, 0, 0, 100));
+
+        var response = await SqsAdminTestClient.GetDlqMetricsAsync(_httpClient, "WithDlq", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var dto = await SqsAdminTestClient.ReadMetricsDtoAsync(response, TestContext.Current.CancellationToken);
+        dto.Should().NotBeNull();
+        dto!.Queue.Should().Be("WithDlq");
+        dto.Metrics.ApproximateNumberOfMessages.Should().Be(9);
+        dto.Metrics.OldestMessageAgeSeconds.Should().Be(100);
+    }
+
+    [Fact]
+    public async Task GivenUnknownQueue_WhenGetDlqMetricsRequested_ShouldReturnNotFound()
+    {
+        testFixture.Factory.SqsAdminServiceMock
+            .Setup(x => x.GetDlqMetricsAsync("unknown-queue", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Cads.Cds.BuildingBlocks.Core.Exceptions.NotFoundException("Queue", "unknown-queue"));
+
+        var response = await SqsAdminTestClient.GetDlqMetricsAsync(_httpClient, "unknown-queue", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GivenQueueWithoutDlq_WhenGetDlqMetricsRequested_ShouldReturnUnprocessable()
+    {
+        testFixture.Factory.SqsAdminServiceMock
+            .Setup(x => x.GetDlqMetricsAsync("NoDlq", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Cads.Cds.BuildingBlocks.Core.Exceptions.UnprocessableException("Queue 'NoDlq' does not have a configured DLQ."));
+
+        var response = await SqsAdminTestClient.GetDlqMetricsAsync(_httpClient, "NoDlq", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+    }
+
+    [Fact]
+    public async Task GivenNoToken_WhenGetDlqMetricsRequested_ShouldReturnUnauthorized()
+    {
+        var client = testFixture.Factory.CreateClient();
+
+        var response = await SqsAdminTestClient.GetDlqMetricsAsync(client, "CadsCds", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GivenScopeClaimMissing_WhenGetDlqMetricsRequested_ShouldReturnForbidden()
+    {
+        var client = testFixture.Factory.CreateClient();
+        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminScope);
+
+        var response = await SqsAdminTestClient.GetDlqMetricsAsync(client, "CadsCds", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task GivenSqsAdminEndpointsDisabled_WhenGetDlqMetricsRequested_ShouldReturnNotFound()
+    {
+        await using var factory = new SystemAdminWebApplicationFactory(
+            configOverrides: new Dictionary<string, string?>
+            {
+                ["Modules:SystemAdmin:EnableAdminEndpoints"] = "false"
+            },
+            useFakeAuth: true);
+
+        var client = factory.CreateClient();
+        client.AddJwt();
+
+        var response = await SqsAdminTestClient.GetDlqMetricsAsync(client, "CadsCds", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    // GetDlqMessages
+
+    [Fact]
+    public async Task GivenValidQueue_WhenGetDlqMessagesRequested_ShouldReturnOkWithDefaultMax()
+    {
+        var messages = new List<QueueMessageDto>
+        {
+            new("dlq-1", "{\"foo\":1}", new Dictionary<string, string>(), DateTimeOffset.UtcNow)
+        };
+
+        testFixture.Factory.SqsAdminServiceMock
+            .Setup(x => x.PeekDlqMessagesAsync(
+                It.Is<PeekMessagesRequestDto>(r => r.Queue == "CadsCds" && r.MaxMessages == 10),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(messages);
+
+        var response = await SqsAdminTestClient.GetDlqMessagesAsync(_httpClient, "CadsCds", maxMessages: null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var dto = await SqsAdminTestClient.ReadMessagesDtoAsync(response, TestContext.Current.CancellationToken);
+        dto.Should().NotBeNull();
+        dto!.Messages.Should().ContainSingle(m => m.MessageId == "dlq-1");
+    }
+
+    [Fact]
+    public async Task GivenMaxMessagesSupplied_WhenGetDlqMessagesRequested_ShouldPassThroughToService()
+    {
+        testFixture.Factory.SqsAdminServiceMock
+            .Setup(x => x.PeekDlqMessagesAsync(
+                It.Is<PeekMessagesRequestDto>(r => r.Queue == "CadsCds" && r.MaxMessages == 3),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var response = await SqsAdminTestClient.GetDlqMessagesAsync(_httpClient, "CadsCds", maxMessages: 3, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        testFixture.Factory.SqsAdminServiceMock.Verify(x => x.PeekDlqMessagesAsync(
+            It.Is<PeekMessagesRequestDto>(r => r.MaxMessages == 3),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GivenUnknownQueue_WhenGetDlqMessagesRequested_ShouldReturnNotFound()
+    {
+        testFixture.Factory.SqsAdminServiceMock
+            .Setup(x => x.PeekDlqMessagesAsync(
+                It.Is<PeekMessagesRequestDto>(r => r.Queue == "unknown-queue"),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Cads.Cds.BuildingBlocks.Core.Exceptions.NotFoundException("Queue", "unknown-queue"));
+
+        var response = await SqsAdminTestClient.GetDlqMessagesAsync(_httpClient, "unknown-queue", maxMessages: null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GivenQueueWithoutDlq_WhenGetDlqMessagesRequested_ShouldReturnUnprocessable()
+    {
+        testFixture.Factory.SqsAdminServiceMock
+            .Setup(x => x.PeekDlqMessagesAsync(
+                It.Is<PeekMessagesRequestDto>(r => r.Queue == "NoDlq"),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Cads.Cds.BuildingBlocks.Core.Exceptions.UnprocessableException("Queue 'NoDlq' does not have a configured DLQ."));
+
+        var response = await SqsAdminTestClient.GetDlqMessagesAsync(_httpClient, "NoDlq", maxMessages: null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+    }
+
+    [Fact]
+    public async Task GivenNoToken_WhenGetDlqMessagesRequested_ShouldReturnUnauthorized()
+    {
+        var client = testFixture.Factory.CreateClient();
+
+        var response = await SqsAdminTestClient.GetDlqMessagesAsync(client, "CadsCds", maxMessages: null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GivenScopeClaimMissing_WhenGetDlqMessagesRequested_ShouldReturnForbidden()
+    {
+        var client = testFixture.Factory.CreateClient();
+        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminScope);
+
+        var response = await SqsAdminTestClient.GetDlqMessagesAsync(client, "CadsCds", maxMessages: null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task GivenSqsAdminEndpointsDisabled_WhenGetDlqMessagesRequested_ShouldReturnNotFound()
+    {
+        await using var factory = new SystemAdminWebApplicationFactory(
+            configOverrides: new Dictionary<string, string?>
+            {
+                ["Modules:SystemAdmin:EnableAdminEndpoints"] = "false"
+            },
+            useFakeAuth: true);
+
+        var client = factory.CreateClient();
+        client.AddJwt();
+
+        var response = await SqsAdminTestClient.GetDlqMessagesAsync(client, "CadsCds", maxMessages: null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     // GetMessages
 
     [Fact]

@@ -193,6 +193,160 @@ public class SqsAdminServiceTests
         await action.Should().ThrowAsync<NotFoundException>();
     }
 
+    [Fact]
+    public async Task MainQueueOperations_ShouldNeverCallDlqUrl()
+    {
+        var sut = CreateSut();
+
+        _sqsMock
+            .Setup(x => x.GetQueueAttributesAsync(It.IsAny<GetQueueAttributesRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetQueueAttributesResponse { Attributes = new Dictionary<string, string>() });
+        _sqsMock
+            .Setup(x => x.ReceiveMessageAsync(It.IsAny<ReceiveMessageRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReceiveMessageResponse { Messages = [] });
+
+        await sut.GetMetricsAsync(QueueName, CancellationToken.None);
+        await sut.PeekMessagesAsync(new PeekMessagesRequestDto(QueueName, 5), CancellationToken.None);
+
+        _sqsMock.Verify(x => x.GetQueueAttributesAsync(
+            It.Is<GetQueueAttributesRequest>(r => r.QueueUrl == DlqUrl),
+            It.IsAny<CancellationToken>()), Times.Never);
+        _sqsMock.Verify(x => x.ReceiveMessageAsync(
+            It.Is<ReceiveMessageRequest>(r => r.QueueUrl == DlqUrl),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    // GetDlqMetricsAsync
+
+    [Fact]
+    public async Task GetDlqMetricsAsync_ShouldReturnMetrics_UsingDlqUrl()
+    {
+        var sut = CreateSut();
+
+        _sqsMock
+            .Setup(x => x.GetQueueAttributesAsync(
+                It.Is<GetQueueAttributesRequest>(r => r.QueueUrl == DlqUrl),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetQueueAttributesResponse
+            {
+                Attributes = new Dictionary<string, string>
+                {
+                    ["ApproximateNumberOfMessages"] = "7",
+                    ["ApproximateNumberOfMessagesNotVisible"] = "1",
+                    ["ApproximateNumberOfMessagesDelayed"] = "0"
+                }
+            });
+
+        _sqsMock
+            .Setup(x => x.ReceiveMessageAsync(
+                It.Is<ReceiveMessageRequest>(r => r.QueueUrl == DlqUrl),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReceiveMessageResponse { Messages = [] });
+
+        var result = await sut.GetDlqMetricsAsync(QueueName, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.ApproximateNumberOfMessages.Should().Be(7);
+        result.ApproximateNumberOfMessagesNotVisible.Should().Be(1);
+        result.ApproximateNumberOfMessagesDelayed.Should().Be(0);
+        result.OldestMessageAgeSeconds.Should().Be(0);
+
+        _sqsMock.Verify(x => x.GetQueueAttributesAsync(
+            It.Is<GetQueueAttributesRequest>(r => r.QueueUrl == QueueUrl),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetDlqMetricsAsync_ShouldThrowUnprocessableException_WhenNoDlqConfigured()
+    {
+        _queues = new Dictionary<string, SqsAdminQueueOptions>
+        {
+            [QueueName] = new() { QueueUrl = QueueUrl, DlqQueueUrl = null }
+        };
+        var sut = CreateSut();
+
+        var action = () => sut.GetDlqMetricsAsync(QueueName, CancellationToken.None);
+
+        await action.Should().ThrowAsync<UnprocessableException>();
+        _sqsMock.Verify(x => x.GetQueueAttributesAsync(It.IsAny<GetQueueAttributesRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetDlqMetricsAsync_ShouldThrowNotFoundException_WhenQueueNotConfigured()
+    {
+        var sut = CreateSut();
+
+        var action = () => sut.GetDlqMetricsAsync("unknown-queue", CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>();
+    }
+
+    // PeekDlqMessagesAsync
+
+    [Fact]
+    public async Task PeekDlqMessagesAsync_ShouldReadFromDlq_WithoutAffectingVisibility()
+    {
+        var sut = CreateSut();
+
+        _sqsMock
+            .Setup(x => x.ReceiveMessageAsync(
+                It.Is<ReceiveMessageRequest>(r =>
+                    r.QueueUrl == DlqUrl && r.VisibilityTimeout == 0 && r.WaitTimeSeconds == 0),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReceiveMessageResponse
+            {
+                Messages = [new Message { MessageId = "dlq-1", Body = "dead" }]
+            });
+
+        var result = await sut.PeekDlqMessagesAsync(new PeekMessagesRequestDto(QueueName, 5), CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].MessageId.Should().Be("dlq-1");
+        result[0].Body.Should().Be("dead");
+    }
+
+    [Fact]
+    public async Task PeekDlqMessagesAsync_ShouldClampMaxMessages_ToSqsLimit()
+    {
+        var sut = CreateSut();
+
+        _sqsMock
+            .Setup(x => x.ReceiveMessageAsync(
+                It.Is<ReceiveMessageRequest>(r => r.QueueUrl == DlqUrl && r.MaxNumberOfMessages == 10),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReceiveMessageResponse { Messages = [] });
+
+        await sut.PeekDlqMessagesAsync(new PeekMessagesRequestDto(QueueName, 999), CancellationToken.None);
+
+        _sqsMock.Verify(x => x.ReceiveMessageAsync(
+            It.Is<ReceiveMessageRequest>(r => r.QueueUrl == DlqUrl && r.MaxNumberOfMessages == 10),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task PeekDlqMessagesAsync_ShouldThrowUnprocessableException_WhenNoDlqConfigured()
+    {
+        _queues = new Dictionary<string, SqsAdminQueueOptions>
+        {
+            [QueueName] = new() { QueueUrl = QueueUrl, DlqQueueUrl = null }
+        };
+        var sut = CreateSut();
+
+        var action = () => sut.PeekDlqMessagesAsync(new PeekMessagesRequestDto(QueueName, 5), CancellationToken.None);
+
+        await action.Should().ThrowAsync<UnprocessableException>();
+    }
+
+    [Fact]
+    public async Task PeekDlqMessagesAsync_ShouldThrowNotFoundException_WhenQueueNotConfigured()
+    {
+        var sut = CreateSut();
+
+        var action = () => sut.PeekDlqMessagesAsync(new PeekMessagesRequestDto("unknown-queue", 5), CancellationToken.None);
+
+        await action.Should().ThrowAsync<NotFoundException>();
+    }
+
     // ReplayDlqAsync
 
     [Fact]
