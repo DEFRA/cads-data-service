@@ -12,22 +12,42 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 public class FakeJwtHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
-    UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+    UrlEncoder encoder,
+    IOptionsMonitor<AuthenticationConfiguration> authConfig) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        var authorizationHeader = Request.Headers.Authorization.ToString();
+        if (!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.FromResult(AuthenticateResult.NoResult());
+        }
+
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, TestAuthConstants.AzureAdUsername),
-            new(ClaimTypes.Email, TestAuthConstants.AzureAdEmail),
-            new("name", TestAuthConstants.AzureAdUsername)
+            new(ClaimTypes.Name, TestAuthConstants.AzureAdCadsMisUsername),
+            new(ClaimTypes.Email, TestAuthConstants.AzureAdCadsMisEmail),
+            new("name", TestAuthConstants.AzureAdCadsMisUsername)
         };
 
         if (Scheme.Name == AuthenticationConstants.AzureADSchemeName)
         {
+            var azureAd = authConfig.CurrentValue.AzureAD;
+
             claims.Add(new Claim(CustomClaimTypes.Oid, Guid.NewGuid().ToString()));
             claims.Add(new Claim(CustomClaimTypes.TenantId, "test-aad-tenant"));
-            claims.Add(new Claim("scope", ScopeNames.ReportsRead));
+            claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.ReportsRead));
+
+            var token = authorizationHeader["Bearer ".Length..];
+            if (token != TestAuthConstants.FakeJwtMissingDbAdminScope)
+            {
+                claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.DbAdminExecute));
+                claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.SqsAdminManager));
+            }
+            if (token != TestAuthConstants.FakeJwtMissingS3AdminScope)
+            {
+                claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.AdminS3Manager));
+            }
         }
         else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
         {

@@ -1,4 +1,3 @@
-using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application.Commands;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Core.Domain.BusinessRules;
@@ -25,6 +24,7 @@ public sealed class CreateFileImportCommandHandler(
         var fileImport = new FileImport
         {
             FileName = command.FileName.NormalizeToUpper()!,
+            DestinationPrefix = command.DestinationPrefix.Trim('/'),
             DestinationTableName = destinationTableName ?? "UNKNOWN",
             TotalRowsToProcess = command.TotalRowsToProcess,
             RowsFound = command.RowsFound,
@@ -36,7 +36,7 @@ public sealed class CreateFileImportCommandHandler(
 
         if (destinationTableName is null)
         {
-            fileImport.SetImportStatus(FileImportStatus.Failed);
+            fileImport.MarkFailed($"Import failed: Unable to determine destination table name from file name '{command.FileName}'");
         }
 
         await fileImportRepository.AddAsync(fileImport, cancellationToken);

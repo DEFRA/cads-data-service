@@ -1,4 +1,4 @@
-using Cads.Cds.Api.Core.DTOs;
+using Cads.Cds.Api.Application.DTOs.Holdings;
 using Cads.Cds.Api.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;

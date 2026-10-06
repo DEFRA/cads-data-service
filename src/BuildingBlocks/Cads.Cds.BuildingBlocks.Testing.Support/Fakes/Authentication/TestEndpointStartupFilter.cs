@@ -24,6 +24,15 @@ public class TestEndpointStartupFilter : IStartupFilter
 
                 group.MapGet("/azuread/reports", () => "OK: AzureAD ReportsRead")
                     .RequireAuthorization(AuthenticationConstants.AadReportsReadPolicy);
+
+                group.MapGet("/azuread/db-admin", () => "OK: AzureAD DbAdminExecute")
+                    .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
+
+                group.MapGet("/azuread/s3-admin", () => "OK: AzureAD S3AdminExecute")
+                    .RequireAuthorization(AuthenticationConstants.AadS3AdminExecutePolicy);
+
+                group.MapGet("/azuread/sqs-admin", () => "OK: AzureAD SqsAdminManager")
+                    .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
             });
         };
     }
