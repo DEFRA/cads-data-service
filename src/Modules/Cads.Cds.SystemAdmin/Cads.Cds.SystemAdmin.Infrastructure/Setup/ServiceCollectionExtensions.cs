@@ -3,6 +3,7 @@ using Cads.Cds.SystemAdmin.Infrastructure.DbAdmin.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Messaging.Setup;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Setup;
+using Cads.Cds.SystemAdmin.Infrastructure.SqsAdmin.Setup;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.ConfigureSystemAdminGeneration();
         services.ConfigureSystemAdminData();
         services.AddSystemAdminDbAdminLayer();
+        services.AddSystemAdminSqsAdminLayer(config);
 
         return services;
     }

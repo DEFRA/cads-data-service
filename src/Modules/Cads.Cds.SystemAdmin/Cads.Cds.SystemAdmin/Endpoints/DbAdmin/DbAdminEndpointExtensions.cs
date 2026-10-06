@@ -13,13 +13,12 @@ namespace Cads.Cds.SystemAdmin.Endpoints.DbAdmin;
 
 public static class DbAdminEndpointExtensions
 {
-    private const string DbAdminApiRoutePrefix = "/api/v1/systemadmin";
     public static void CreateDbAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost($"{DbAdminApiRoutePrefix}/db-admin-execute-command", DbAdminExecuteCommand)
+        app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-execute-command", DbAdminExecuteCommand)
             .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
 
-        app.MapPost($"{DbAdminApiRoutePrefix}/db-admin-cts-import", DbAdminCtsImport)
+        app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-cts-import", DbAdminCtsImport)
             .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
     }
 
