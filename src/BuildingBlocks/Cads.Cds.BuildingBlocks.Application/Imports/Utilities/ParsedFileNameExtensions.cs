@@ -11,14 +11,14 @@ public static class ParsedFileNameExtensions
     {
         if (Enum.TryParse<ImportActionType>(parsedFileName?.Type ?? string.Empty, true, out var importActionType) == false)
         {
-            throw new UnprocessableException($"Invalid import action type '{parsedFileName!.Type}' derived from file name '{parsedFileName!}'.");
+            throw new UnprocessableException($"Invalid import action type '{parsedFileName!.Type}' derived from file name '{parsedFileName}'.");
         }
 
         var schemaName = importActionType.GetSchemaName();
 
         if (schemaName == SchemaName.NotDefined)
         {
-            throw new UnprocessableException($"Invalid import action type '{parsedFileName!.Type}' derived from file name '{parsedFileName!}'.");
+            throw new UnprocessableException($"Invalid import action type '{parsedFileName!.Type}' derived from file name '{parsedFileName}'.");
         }
 
         var importDataType = Enum.GetValues<ImportDataType>()
