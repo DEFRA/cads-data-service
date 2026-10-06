@@ -38,13 +38,27 @@ public class SqsAdminService(
         return Task.FromResult(queues);
     }
 
-    public async Task<QueueMetricsDto> GetMetricsAsync(string queue, CancellationToken cancellationToken = default)
+    public Task<QueueMetricsDto> GetMetricsAsync(string queue, CancellationToken cancellationToken = default) =>
+        GetMetricsForUrlAsync(ResolveQueueUrl(queue), queue, cancellationToken);
+
+    public async Task<QueueMetricsDto> GetDlqMetricsAsync(string queue, CancellationToken cancellationToken = default)
+    {
+        var queueOptions = ResolveQueueOptions(queue);
+
+        if (string.IsNullOrWhiteSpace(queueOptions.DlqQueueUrl))
+        {
+            throw new UnprocessableException($"Queue '{queue}' does not have a configured DLQ.");
+        }
+
+        return await GetMetricsForUrlAsync(queueOptions.DlqQueueUrl, $"{queue} DLQ", cancellationToken);
+    }
+
+    private async Task<QueueMetricsDto> GetMetricsForUrlAsync(string queueUrl, string queue, CancellationToken cancellationToken)
     {
         if (logger.IsEnabled(LogLevel.Debug))
         {
             logger.LogDebug("[SqsAdminService] Getting metrics for queue {Queue} from attributes", queue);
         }
-        var queueUrl = ResolveQueueUrl(queue);
 
         var attributesResponse = await sqs.GetQueueAttributesAsync(
             new GetQueueAttributesRequest
@@ -73,13 +87,33 @@ public class SqsAdminService(
             oldestMessageAgeSeconds);
     }
 
-    public async Task<IReadOnlyList<QueueMessageDto>> PeekMessagesAsync(
+    public Task<IReadOnlyList<QueueMessageDto>> PeekMessagesAsync(
+        PeekMessagesRequestDto request,
+        CancellationToken cancellationToken = default) =>
+        PeekFromUrlAsync(ResolveQueueUrl(request.Queue), request.MaxMessages, cancellationToken);
+
+    public async Task<IReadOnlyList<QueueMessageDto>> PeekDlqMessagesAsync(
         PeekMessagesRequestDto request,
         CancellationToken cancellationToken = default)
     {
-        var queueUrl = ResolveQueueUrl(request.Queue);
+        var queueOptions = ResolveQueueOptions(request.Queue);
 
-        var response = await GetMessagesFromQueue(queueUrl, request.MaxMessages, cancellationToken: cancellationToken);
+        if (string.IsNullOrWhiteSpace(queueOptions.DlqQueueUrl))
+        {
+            throw new UnprocessableException($"Queue '{request.Queue}' does not have a configured DLQ.");
+        }
+
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            logger.LogDebug("[SqsAdminService] Peeking DLQ messages for queue {Queue}", request.Queue);
+        }
+
+        return await PeekFromUrlAsync(queueOptions.DlqQueueUrl, request.MaxMessages, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<QueueMessageDto>> PeekFromUrlAsync(string queueUrl, int maxMessages, CancellationToken cancellationToken)
+    {
+        var response = await GetMessagesFromQueue(queueUrl, maxMessages, cancellationToken: cancellationToken);
 
         return response.Messages
             .Select(MapToQueueMessageDto)

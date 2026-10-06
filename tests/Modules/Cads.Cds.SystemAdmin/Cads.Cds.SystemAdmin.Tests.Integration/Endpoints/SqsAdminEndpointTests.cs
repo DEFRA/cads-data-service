@@ -79,6 +79,100 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    // GetDlqMetrics
+
+    [Fact]
+    public async Task GivenMessageOnDlq_WhenGetDlqMetricsRequested_ShouldReturnDlqMetricsAndLeaveMainMetricsUnchanged()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
+
+        await DrainQueueAsync(MainQueueUrl);
+        await DrainQueueAsync(DlqUrl);
+
+        await Sqs.SendMessageAsync(new SendMessageRequest
+        {
+            QueueUrl = DlqUrl,
+            MessageBody = JsonSerializer.Serialize(new { test = Guid.NewGuid().ToString("N") })
+        }, TestContext.Current.CancellationToken);
+
+        var dlqDto = await PollUntilAsync(
+            async () =>
+            {
+                var response = await SqsAdminTestClient.GetDlqMetricsAsync(client, QueueName, TestContext.Current.CancellationToken);
+                response.IsSuccessStatusCode.Should().BeTrue();
+                return await SqsAdminTestClient.ReadMetricsDtoAsync(response, TestContext.Current.CancellationToken);
+            },
+            result => result?.Metrics.ApproximateNumberOfMessages >= 1);
+
+        dlqDto.Should().NotBeNull();
+        dlqDto!.Metrics.ApproximateNumberOfMessages.Should().BeGreaterThanOrEqualTo(1);
+
+        var mainResponse = await SqsAdminTestClient.GetMetricsAsync(client, QueueName, TestContext.Current.CancellationToken);
+        mainResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var mainDto = await SqsAdminTestClient.ReadMetricsDtoAsync(mainResponse, TestContext.Current.CancellationToken);
+        mainDto!.Metrics.ApproximateNumberOfMessages.Should().Be(0);
+
+        await DrainQueueAsync(DlqUrl);
+    }
+
+    [Fact]
+    public async Task GivenUnknownQueue_WhenGetDlqMetricsRequested_ShouldReturnNotFound()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
+
+        var response = await SqsAdminTestClient.GetDlqMetricsAsync(client, "unknown-queue", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    // GetDlqMessages
+
+    [Fact]
+    public async Task GivenMessageOnDlq_WhenGetDlqMessagesRequested_ShouldReturnMessageWithoutRemovingIt()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
+
+        var dedupId = Guid.NewGuid().ToString("N");
+        await Sqs.SendMessageAsync(new SendMessageRequest
+        {
+            QueueUrl = DlqUrl,
+            MessageBody = JsonSerializer.Serialize(new { test = dedupId })
+        }, TestContext.Current.CancellationToken);
+
+        var dto = await PollUntilAsync(
+            async () =>
+            {
+                var response = await SqsAdminTestClient.GetDlqMessagesAsync(client, QueueName, maxMessages: 10, TestContext.Current.CancellationToken);
+                response.IsSuccessStatusCode.Should().BeTrue();
+                return await SqsAdminTestClient.ReadMessagesDtoAsync(response, TestContext.Current.CancellationToken);
+            },
+            result => result?.Messages.Any(m => m.Body.Contains(dedupId)) == true);
+
+        dto.Should().NotBeNull();
+        dto!.Messages.Should().Contain(m => m.Body.Contains(dedupId));
+
+        // Peek must not consume the message - confirm it is still on the DLQ via attributes.
+        var attributes = await Sqs.GetQueueAttributesAsync(new GetQueueAttributesRequest
+        {
+            QueueUrl = DlqUrl,
+            AttributeNames = ["ApproximateNumberOfMessages"]
+        }, TestContext.Current.CancellationToken);
+
+        attributes.ApproximateNumberOfMessages.Should().BeGreaterThanOrEqualTo(1);
+
+        await DrainQueueAsync(DlqUrl);
+    }
+
+    [Fact]
+    public async Task GivenUnknownQueue_WhenGetDlqMessagesRequested_ShouldReturnNotFound()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestSqsAdminExecuteTokenFactory.ValidUserToken());
+
+        var response = await SqsAdminTestClient.GetDlqMessagesAsync(client, "unknown-queue", maxMessages: null, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     // GetMessages
 
     [Fact]

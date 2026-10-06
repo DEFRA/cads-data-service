@@ -25,6 +25,12 @@ public static class SqsAdminEndpointExtensions
         app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/messages", GetMessages)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
+        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/messages", GetDlqMessages)
+            .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
+
+        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/metrics", GetDlqMetrics)
+            .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
+
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/replay", ReplayMessagesToQueue)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
     }
@@ -62,6 +68,47 @@ public static class SqsAdminEndpointExtensions
             logger.LogInformation("[API SqsAdminEndpoint]: Retrieved metrics for queue {Queue}", queue);
         }
         return Results.Ok(new GetQueueMetricsResponse(queue, metrics));
+    }
+
+    private static async Task<IResult> GetDlqMetrics(
+        [FromRoute] string queue,
+        ISqsAdminService service,
+        ILogger<GetQueuesResponse> logger,
+        CancellationToken cancellationToken)
+    {
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("[API SqsAdminEndpoint]: Getting DLQ metrics for queue {Queue}", queue);
+        }
+        var metrics = await service.GetDlqMetricsAsync(queue, cancellationToken);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("[API SqsAdminEndpoint]: Retrieved DLQ metrics for queue {Queue}", queue);
+        }
+        return Results.Ok(new GetQueueMetricsResponse(queue, metrics));
+    }
+
+    private static async Task<IResult> GetDlqMessages(
+        [FromRoute] string queue,
+        ISqsAdminService service,
+        ILogger<GetQueuesResponse> logger,
+        CancellationToken cancellationToken,
+        [FromQuery] int maxMessages = 0)
+    {
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("[API SqsAdminEndpoint]: Getting DLQ messages for queue {Queue}", queue);
+        }
+        var request = new PeekMessagesRequestDto(
+            queue,
+            maxMessages > 0 ? maxMessages : 10);
+
+        var messages = await service.PeekDlqMessagesAsync(request, cancellationToken);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("[API SqsAdminEndpoint]: Retrieved {MessageCount} DLQ messages for queue {Queue}", messages.Count, queue);
+        }
+        return Results.Ok(new GetQueueMessagesResponse(queue, messages));
     }
 
     private static async Task<IResult> GetMessages(
