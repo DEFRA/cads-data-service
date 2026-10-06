@@ -208,12 +208,14 @@ liquibase diff \
 	--url=jdbc:postgresql://localhost:5432/cads_data_service \
 	--username=<POSTGRES_USER> \
 	--password=<POSTGRES_PASSWORD> \
+	--schemas=cads,cts,cts_audit,cts_transactions \
 	--reference-url=jdbc:postgresql://localhost:54432/reference_schema \
 	--reference-username=<POSTGRES_USER> \
-	--reference-password=<POSTGRES_PASSWORD>
+	--reference-password=<POSTGRES_PASSWORD> \
+	--reference-schemas=cads,cts,cts_audit,cts_transactions
 ```
 
-Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff`
+Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff --schemas=cads,cts,cts_audit,cts_transactions --reference-schemas=cads,cts,cts_audit,cts_transactions`
 
 This shows what changed between:
 - reference_schema
@@ -227,12 +229,15 @@ liquibase diff-changelog
 	--url=jdbc:postgresql://localhost:5432/cads_data_service  \
 	--username=<POSTGRES_USER> \
 	--password=<POSTGRES_PASSWORD> \
+	--schemas=cads,cts,cts_audit,cts_transactions \
 	--reference-url=jdbc:postgresql://localhost:54432/reference_schema  \
 	--reference-username=<POSTGRES_USER> \
-	--reference-password=<POSTGRES_PASSWORD>
+	--reference-password=<POSTGRES_PASSWORD> \
+	--reference-schemas=cads,cts,cts_audit,cts_transactions
+	--includeSchema=true
 ```
 
-Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff-changelog --changelog-file=<XXXX_NEW_CHANGESET_NAME>.postgresql.sql`
+Note. If you run this command from the `changelog` folder with your liquibase.properties set up you only need to use `liquibase diff-changelog --changelog-file=<XXXX_NEW_CHANGESET_NAME>.postgresql.sql --schemas=cads,cts,cts_audit,cts_transactions --reference-schemas=cads,cts,cts_audit,cts_transactions --includeSchema=true`
 
 Liquibase outputs a migration script containing:
 - addColumn
@@ -264,6 +269,19 @@ Examples:
 0003_001_cts_file_imports_integration.postgresql.sql
 0004_019_ct_sublocation_types_seed_data.postgresql.sql
 0005_001_ct_workgroups_seed_data_faker_data.postgresql.sql
+```
+
+**Naming conventions for CADS DB:**
+
+```
+Had to reorganise the complete Liquibase changelog into the following structure:
+
+0000 — table DDL, split by cads, cts, cts_transactions, and cts_audit
+0001 — indexes, split by schema
+0002 — functions and stored procedures, held centrally in the cads schema
+0003 — integrations
+0004 — ordinary DEV database seed data
+0005 — fake data
 ```
 
 ### Step 5
