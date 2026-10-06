@@ -58,9 +58,17 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Modules__StorageBridge__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsFifoQueueUrl)
           .WithEnvironment("Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsFifoDeadLetterQueueUrl)
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCds__QueueUrl", LocalStackFixture.CadsFifoQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsFifoDeadLetterQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsCdsStandard__QueueUrl", LocalStackFixture.CadsStandardQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsCdsStandard__DlqQueueUrl", LocalStackFixture.CadsStandardDeadLetterQueueUrl)
+          // "Name" is required by QueuePublisherOptions, which binds against this same
+          // "Modules:SystemAdmin:Queues" section (shared with SqsAdminQueueOptions).
+          // Without it, config binding for this entry throws at startup, breaking the
+          // SystemAdmin FIFO queue publisher used elsewhere (e.g. FileImport processing).
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsCdsStandard__Name", "CadsCdsStandardTestClient")
           .WithEnvironment("Modules__SystemAdmin__ImportsDeduplication__BucketName", LocalStackFixture.CadsExternalBucketName)
           .WithEnvironment("Modules__SystemAdmin__ImportsDeduplication__EnvironmentName", "PreProd")
-          .WithEnvironment("Modules__SystemAdmin__EnableDbAdminEndpoints", "true")
+          .WithEnvironment("Modules__SystemAdmin__EnableAdminEndpoints", "true")
           .WithEnvironment("LOCALSTACK_ENDPOINT", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Postgres__DefaultConnection", PostgresFixture.ConnectionString)
           .WithEnvironment("Postgres__ReadOnlyConnection", PostgresFixture.ReadConnectionString)
