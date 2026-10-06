@@ -19,6 +19,8 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
     public string? SqsEndpoint { get; private set; }
     public string? CadsFifoQueueUrl { get; private set; }
     public string? CadsFifoDeadLetterQueueUrl { get; private set; }
+    public string? CadsStandardQueueUrl { get; private set; }
+    public string? CadsStandardDeadLetterQueueUrl { get; private set; }
 
     public string ServiceUrl => $"http://localhost:{LocalStackContainer!.GetMappedPublicPort(TestContainerConstants.LocalStackPort)}";
     public static string NetworkServiceUrl => $"http://{TestContainerConstants.NetworkAlias}:{TestContainerConstants.LocalStackPort}";
@@ -138,6 +140,35 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
                 { "RedrivePolicy", redrivePolicy }
             }
         });
+
+        // Standard (non-FIFO) queue + DLQ, dedicated to SqsAdmin integration tests.
+        var standardDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest
+        {
+            QueueName = TestSqsConstants.CadsStandardDeadLetterQueueName
+        });
+        var standardDlqAttr = await SqsClient.GetQueueAttributesAsync(new GetQueueAttributesRequest
+        {
+            QueueUrl = standardDlqCreated.QueueUrl,
+            AttributeNames = ["QueueArn"]
+        });
+
+        var standardQueueCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest
+        {
+            QueueName = TestSqsConstants.CadsStandardQueueName
+        });
+
+        CadsStandardQueueUrl = standardQueueCreated.QueueUrl;
+        CadsStandardDeadLetterQueueUrl = standardDlqCreated.QueueUrl;
+
+        var standardRedrivePolicy = $"{{\"deadLetterTargetArn\":\"{standardDlqAttr.QueueARN}\",\"maxReceiveCount\":\"3\"}}";
+        await SqsClient.SetQueueAttributesAsync(new SetQueueAttributesRequest
+        {
+            QueueUrl = CadsStandardQueueUrl,
+            Attributes = new Dictionary<string, string>
+            {
+                { "RedrivePolicy", standardRedrivePolicy }
+            }
+        });
     }
 
     private async Task VerifyResourcesAsync()
@@ -149,5 +180,7 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
 
         await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsFifoDeadLetterQueueName, ["All"], CancellationToken.None);
         await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsFifoQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsStandardDeadLetterQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsStandardQueueName, ["All"], CancellationToken.None);
     }
 }
