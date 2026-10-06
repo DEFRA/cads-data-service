@@ -17,6 +17,23 @@ namespace Cads.Cds.Api.Controllers;
 [Route("api/v1/[controller]")]
 public class BovineController(IRequestExecutor executor) : ControllerBase
 {
+    /// <summary>
+    /// Returns the details of a single animal, identified by its ear tag.
+    /// </summary>
+    /// <remarks>
+    /// The response includes the animal's species, sex, birth and registration dates, date on CPH,
+    /// breed, state (for example <c>Alive</c> or <c>Dead</c>), restriction status and parentage.
+    /// <c>parentage</c> contains only the parents that are recorded (genetic dam and/or sire) and
+    /// is an empty list if neither is known.
+    /// </remarks>
+    /// <param name="identifier">The animal's ear tag, for example <c>UK324537113234</c>.</param>
+    /// <param name="cancellationToken">Token used to cancel the request.</param>
+    /// <returns>
+    /// <c>200 OK</c> with the animal's details;
+    /// <c>400 Bad Request</c> if the identifier is empty or invalid;
+    /// <c>401 Unauthorized</c> if the caller is not authenticated;
+    /// <c>404 Not Found</c> if no animal matches the identifier.
+    /// </returns>
     [HttpGet("animals/{identifier}")]
     [ProducesResponseType(typeof(AnimalDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
