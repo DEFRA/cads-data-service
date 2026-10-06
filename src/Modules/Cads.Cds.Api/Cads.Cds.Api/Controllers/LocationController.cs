@@ -1,6 +1,6 @@
+using Cads.Cds.Api.Application.DTOs.Holdings;
 using Cads.Cds.Api.Application.Queries.Locations;
-using Cads.Cds.Api.Controllers.Requests;
-using Cads.Cds.Api.Core.DTOs;
+using Cads.Cds.Api.Controllers.Requests.Locations;
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Application.Queries.Pagination;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;

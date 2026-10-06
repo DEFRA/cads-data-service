@@ -1,4 +1,4 @@
-using Cads.Cds.Api.Core.DTOs;
+using Cads.Cds.Api.Application.DTOs.Holdings;
 using Cads.Cds.BuildingBlocks.Application.Queries;
 
 namespace Cads.Cds.Api.Application.Queries.Locations;

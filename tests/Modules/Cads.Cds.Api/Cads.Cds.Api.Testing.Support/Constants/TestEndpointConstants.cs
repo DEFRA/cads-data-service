@@ -7,4 +7,9 @@ public static class TestEndpointConstants
 
     // Locations
     public const string ApiLocationRoot = ApiRoot + "location/";
+
+    // Bovine
+    public const string ApiBovineRoot = ApiRoot + "bovine/";
+    public const string ApiBovineAnimalsRoot = ApiBovineRoot + "animals/";
+    public const string ApiBovineAnimals = ApiBovineRoot + "animals";
 }

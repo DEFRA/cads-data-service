@@ -53,6 +53,8 @@ public static class WebApplicationExtensions
 
         app.MapControllers();
 
+        app.MapModules();
+
         app.UseApiSoapEndpoints();
 
         app.MapGet("/", () => "Alive!").AllowAnonymous();
