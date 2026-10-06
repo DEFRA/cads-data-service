@@ -25,6 +25,15 @@ public static class SqsAdminTestClient
         return await client.GetAsync(endpoint, cancellationToken);
     }
 
+    public static async Task<HttpResponseMessage> GetDlqMetricsAsync(
+        HttpClient client,
+        string queue,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.SqsAdminGetDlqMetricsEndpoint, queue);
+        return await client.GetAsync(endpoint, cancellationToken);
+    }
+
     public static async Task<HttpResponseMessage> GetMessagesAsync(
         HttpClient client,
         string queue,
@@ -32,6 +41,22 @@ public static class SqsAdminTestClient
         CancellationToken cancellationToken)
     {
         var endpoint = string.Format(TestEndpointConstants.SqsAdminGetMessagesEndpoint, queue);
+
+        if (maxMessages.HasValue)
+        {
+            endpoint += $"?maxMessages={maxMessages.Value}";
+        }
+
+        return await client.GetAsync(endpoint, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> GetDlqMessagesAsync(
+        HttpClient client,
+        string queue,
+        int? maxMessages,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.SqsAdminGetDlqMessagesEndpoint, queue);
 
         if (maxMessages.HasValue)
         {
