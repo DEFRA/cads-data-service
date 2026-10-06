@@ -221,6 +221,17 @@ public class BovineEndpointTests(ApiContainerFixture apiContainerFixture)
             dates.Should().BeInDescendingOrder();
     }
 
+    [Fact]
+    public async Task GivenIdentifierWithSurroundingWhitespace_WhenGetAnimalDetailsByIdentifierRequested_ShouldSucceed()
+    {
+        var response = await ExecuteTest(
+            TestEndpointConstants.ApiBovineAnimalsRoot + Uri.EscapeDataString($" {TestBovineConstants.KnownIdentifier} "));
+
+        var result = await HttpResponseMessageUtilities.VerifyOk<AnimalDetailsDto>(response);
+
+        result.AnimalDetail!.Identifier!.Identifier.Should().Be(TestBovineConstants.KnownIdentifier);
+    }
+
     private static string GetAnimalsOnHoldingUrl(string cph, string? queryString = null)
     {
         var url = $"{TestEndpointConstants.ApiBovineAnimals}?CPH={Uri.EscapeDataString(cph)}";

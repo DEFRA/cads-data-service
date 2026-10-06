@@ -8,6 +8,9 @@ public class GetAnimalDetailsByIdentifierValidatorTests
     [Theory]
     [InlineData("", false)]
     [InlineData(" ", false)]
+    [InlineData("  ", false)]
+    [InlineData("UK3245371 13234", true)]
+    [InlineData("UK 3245371 13234", true)]
     [InlineData("UK324537113234", true)]
     public void ShouldValidateIdentifierCorrectly(string identifier, bool expectedIsValid)
     {
