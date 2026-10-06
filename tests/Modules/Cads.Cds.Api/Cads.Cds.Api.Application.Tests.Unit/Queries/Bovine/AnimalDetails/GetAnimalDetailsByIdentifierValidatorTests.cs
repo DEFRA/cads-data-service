@@ -1,7 +1,7 @@
 using Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
 using FluentAssertions;
 
-namespace Cads.Cds.Api.Application.Tests.Unit.Queries.Bovine;
+namespace Cads.Cds.Api.Application.Tests.Unit.Queries.Bovine.AnimalDetails;
 
 public class GetAnimalDetailsByIdentifierValidatorTests
 {
