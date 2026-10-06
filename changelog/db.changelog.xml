@@ -82,6 +82,7 @@
   <include file="0002_041_cts_parallel_bulk_import.postgresql.sql"/>
   <include file="0002_050_admin_exec_stored_proc.postgresql.sql"/>
   <include file="0002_051_cts_parallel_bulk_import_admin_exec_stored_proc.postgresql.sql"/>
+  <include file="0002_052_cads_get_animals_on_holding.postgresql.sql"/>
   <include file="0004_002_cads_reference_state_seed_data.postgresql.sql"/>
   <include file="0004_003_mi_seed.postgresql.sql"/>
   <include file="0004_004_mi_cattle_import_report_seed.postgresql.sql"/>
