@@ -192,7 +192,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         await using var factory = new SystemAdminWebApplicationFactory(
             configOverrides: new Dictionary<string, string?>
             {
-                ["Modules:SystemAdmin:EnableDbAdminEndpoints"] = "false"
+                ["Modules:SystemAdmin:EnableAdminEndpoints"] = "false"
             },
             useFakeAuth: true);
 
@@ -365,7 +365,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         await using var factory = new SystemAdminWebApplicationFactory(
             configOverrides: new Dictionary<string, string?>
             {
-                ["Modules:SystemAdmin:EnableDbAdminEndpoints"] = "false"
+                ["Modules:SystemAdmin:EnableAdminEndpoints"] = "false"
             },
             useFakeAuth: true);
 
