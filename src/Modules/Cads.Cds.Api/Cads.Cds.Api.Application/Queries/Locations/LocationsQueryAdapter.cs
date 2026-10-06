@@ -1,5 +1,5 @@
-using Cads.Cds.Api.Core.Domain.Repositories;
-using Cads.Cds.Api.Core.DTOs;
+using Cads.Cds.Api.Application.DTOs.Holdings;
+using Cads.Cds.Api.Core.Domain.Repositories.Holdings;
 
 namespace Cads.Cds.Api.Application.Queries.Locations;
 

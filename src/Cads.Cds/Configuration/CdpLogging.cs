@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Logging.Enrichers;
+using Elastic.Serilog.Enrichers.Web;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
 
@@ -7,21 +7,15 @@ namespace Cads.Cds.Configuration;
 public static class CdpLogging
 {
     [ExcludeFromCodeCoverage]
-    public static void Configuration(HostBuilderContext ctx, LoggerConfiguration config)
+    public static void Configuration(HostBuilderContext ctx, IHttpContextAccessor httpAccessor, LoggerConfiguration config)
     {
-        var traceIdHeader = ctx.Configuration.GetValue<string>("TraceHeader");
         var serviceVersion = Environment.GetEnvironmentVariable("SERVICE_VERSION") ?? "";
 
         config
             .ReadFrom.Configuration(ctx.Configuration)
             .Enrich.FromLogContext()
-            .Enrich.With(new HttpContextEnricher(new HttpContextAccessor()))
+            .Enrich.WithEcsHttpContext(httpAccessor)
             .Enrich.With<BuildingBlocks.Core.Correlation.CorrelationIdEnricher>()
             .Enrich.WithProperty("service.version", serviceVersion);
-
-        if (!string.IsNullOrWhiteSpace(traceIdHeader))
-        {
-            config.Enrich.WithCorrelationId(traceIdHeader);
-        }
     }
 }

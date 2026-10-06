@@ -78,6 +78,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Complete_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -103,6 +104,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Bulk_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -128,6 +130,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Delta_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -153,6 +156,7 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Invalid_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -186,7 +190,9 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         {
             TotalRowsToProcess = 100,
             RowsFound = 0,
-            ImportStatus = FileImportStatus.Transferred
+            ImportStatus = FileImportStatus.Transferred,
+            LastFilePartImported = "part-0001",
+            RowsImported = 100
         };
 
         var response = await FileImportTestClient.UpdateAsync(
@@ -224,11 +230,36 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
+    [Fact]
+    public async Task GivenRequestToStatusFailed_WhenUpdateRequested_ShouldThrowInvalidOpException()
+    {
+        var id = await FileImportTestClient.GetIdByFileNameAsync(
+            _httpClient,
+            TestFileScenarioConstants.New_Scenario_Pending_FileName,
+            TestContext.Current.CancellationToken);
+
+        var request = new UpdateFileImportRequest
+        {
+            TotalRowsToProcess = 220,
+            RowsFound = 210,
+            ImportStatus = FileImportStatus.Failed
+        };
+
+        var response = await FileImportTestClient.UpdateAsync(
+            _httpClient,
+            id,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     [Theory]
     [InlineData(TestFileScenarioConstants.New_Scenario_Pending_Update_Transferred_FileName, FileImportStatus.Transferred)]
     [InlineData(TestFileScenarioConstants.New_Scenario_Transferred_Update_Split_FileName, FileImportStatus.Split)]
-    [InlineData(TestFileScenarioConstants.New_Scenario_Transferred_Update_Failed_FileName, FileImportStatus.Failed)]
-    public async Task GivenValidRequest_WhenUpdateRequested_ShouldSucceed(string fileName, FileImportStatus importStatus)
+    [InlineData(TestFileScenarioConstants.New_Scenario_Transferred_Update_Split_FileName, FileImportStatus.Split, "part-0001", 100)]
+    [InlineData(TestFileScenarioConstants.New_Scenario_Transferred_Update_Split_FileName, FileImportStatus.Split, "part-0002", 200)]
+    public async Task GivenValidRequest_WhenUpdateRequested_ShouldSucceed(string fileName, FileImportStatus importStatus, string? lastFilePartImported = null, long rowsImported = 0)
     {
         var id = await FileImportTestClient.GetIdByFileNameAsync(
             _httpClient,
@@ -239,7 +270,9 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
         {
             TotalRowsToProcess = 220,
             RowsFound = 210,
-            ImportStatus = importStatus
+            ImportStatus = importStatus,
+            LastFilePartImported = lastFilePartImported,
+            RowsImported = rowsImported
         };
 
         var response = await FileImportTestClient.UpdateAsync(
@@ -264,6 +297,8 @@ public class FileImportEndpointTests(SystemAdminTestFixture testFixture) : IClas
                     FileImportAssertions.ShouldBeUpdated(dto, importStatus);
                     FileImportAssertions.ShouldBeTotalRowsToProcess(dto, 220);
                     FileImportAssertions.ShouldBeRowsFound(dto, 210);
+                    dto.LastFilePartImported.Should().Be(lastFilePartImported);
+                    dto.RowsImported.Should().Be(rowsImported);
                 }
             },
             TestContext.Current.CancellationToken);
