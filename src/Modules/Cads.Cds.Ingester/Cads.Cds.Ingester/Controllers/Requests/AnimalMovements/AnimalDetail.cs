@@ -20,5 +20,5 @@ public class AnimalDetail
     public string? TagIssueNumber { get; set; }
 
     [JsonPropertyName("DOA")]
-    public bool Doa { get; set; }
+    public bool? Doa { get; set; }
 }

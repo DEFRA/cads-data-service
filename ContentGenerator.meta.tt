@@ -1,0 +1,296 @@
+<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="System.Runtime.Loader" #>
+<#@ import namespace="System.Reflection.MetadataLoadContext" #>
+
+<#
+/*
+  ContentGenerator.Metadata.tt
+
+  - Purpose:
+    Inspect the compiled DbContext class (no runtime EF model instantiation) using MetadataLoadContext,
+    discover DbSet<TEntity> properties and entity CLR types, and generate Bogus-based content generator
+    classes for each entity type.
+
+  - Advantages:
+    * Does not instantiate DbContext or call EF Core APIs.
+    * Avoids loading EF/Npgsql runtime into the template host.
+    * Safer for Visual Studio T4 host and for dotnet-t4 execution.
+
+  - Usage:
+    1) Build the solution so the target assembly exists:
+         dotnet build C:\Projects\DEFRA\cads-data-service\Cads.Cds.sln -c Debug
+    2) From the template folder:
+         cd src\Modules\Cads.Cds.SystemAdmin\Cads.Cds.SystemAdmin.Infrastructure\Faker
+         dotnet t4 ContentGenerator.Metadata.tt
+
+  - Notes:
+    * Adjust `configuredDbContextFullName` if you want a specific DbContext type.
+    * The template only inspects CLR types/properties (no EF annotations or relationships).
+*/
+
+string configuredDbContextFullName = "Cads.Cds.SystemAdmin.Infrastructure.GraphQL.Schemas.Cads.Contexts.CadsGraphQLDbContext";
+// Fallback: if not present, the template will pick a type named "*CadsGraphQLDbContext" or the single DbContext-derived type.
+string outputNamespace = "Cads.Cds.SystemAdmin.Infrastructure.Faker.Data";
+
+// Resolve helper (relative to template file)
+string TemplateFolder() => Path.GetDirectoryName(Host.ResolvePath(".")) ?? Directory.GetCurrentDirectory();
+string ResolveRelative(string rel) => Path.GetFullPath(Path.Combine(TemplateFolder(), rel));
+
+// Find solution root (walk up until a .sln found)
+string FindSolutionRoot()
+{
+    var dir = TemplateFolder();
+    for (int i = 0; i < 12; i++)
+    {
+        if (Directory.EnumerateFiles(dir, "*.sln").Any()) return dir;
+        var parent = Directory.GetParent(dir);
+        if (parent == null) break;
+        dir = parent.FullName;
+    }
+    // best-effort fallback
+    return Path.GetFullPath(Path.Combine(TemplateFolder(), "..", "..", "..", ".."));
+}
+
+var solutionRoot = FindSolutionRoot();
+
+// Collect probe directories (bin\Debug\net10.0 under solution)
+var probeDirs = Directory.EnumerateDirectories(solutionRoot, "net10.0", SearchOption.AllDirectories)
+                .Where(d => d.IndexOf(Path.Combine("bin", "Debug", "net10.0"), StringComparison.OrdinalIgnoreCase) >= 0)
+                .Select(Path.GetFullPath)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+// include this project's bin
+var localBin = ResolveRelative("..\\bin\\Debug\\net10.0");
+if (Directory.Exists(localBin) && !probeDirs.Contains(localBin, StringComparer.OrdinalIgnoreCase))
+    probeDirs.Add(localBin);
+
+// Target assembly path (adjust if your build places it elsewhere)
+var targetAssemblyPath = ResolveRelative("..\\bin\\Debug\\net10.0\\Cads.Cds.SystemAdmin.Infrastructure.dll");
+if (!File.Exists(targetAssemblyPath))
+    throw new InvalidOperationException($"Target assembly not found: {targetAssemblyPath}. Build the solution before running this template.");
+
+// Build list of candidate assembly paths for MetadataLoadContext resolver
+var assemblyFiles = new List<string>();
+
+// Add core runtime assemblies used by the loader
+assemblyFiles.Add(typeof(object).Assembly.Location); // core
+assemblyFiles.Add(typeof(Enumerable).Assembly.Location); // System.Linq
+assemblyFiles.Add(typeof(List<>).Assembly.Location); // System.Collections
+
+// Add all DLLs found in probe directories (helps resolve referenced project assemblies)
+foreach (var dir in probeDirs)
+{
+    try
+    {
+        foreach (var dll in Directory.EnumerateFiles(dir, "*.dll"))
+        {
+            if (!assemblyFiles.Contains(dll, StringComparer.OrdinalIgnoreCase))
+                assemblyFiles.Add(dll);
+        }
+    }
+    catch { /* ignore permission or access issues */ }
+}
+
+// Ensure target assembly is included
+if (!assemblyFiles.Contains(targetAssemblyPath, StringComparer.OrdinalIgnoreCase))
+    assemblyFiles.Add(targetAssemblyPath);
+
+// Create PathAssemblyResolver and MetadataLoadContext
+var resolver = new PathAssemblyResolver(assemblyFiles);
+using var mlc = new MetadataLoadContext(resolver);
+
+// Load target assembly into MetadataLoadContext (metadata-only)
+var targetAssembly = mlc.LoadFromAssemblyPath(targetAssemblyPath);
+
+// Helper to find a DbContext-derived type in the metadata assembly
+Type? FindDbContextType(Assembly asm)
+{
+    // Try configured full name first
+    var t = asm.GetType(configuredDbContextFullName, throwOnError: false, ignoreCase: false);
+    if (t != null) return t;
+
+    // Prefer types named "*CadsGraphQLDbContext"
+    var byName = asm.GetTypes().Where(x => x.IsClass && !x.IsAbstract && x.Name.EndsWith("CadsGraphQLDbContext", StringComparison.Ordinal)).ToList();
+    if (byName.Count == 1) return byName[0];
+
+    // Fallback: find types assignable to EF Core DbContext (by name)
+    var candidates = new List<Type>();
+    foreach (var type in asm.GetTypes())
+    {
+        if (!type.IsClass || type.IsAbstract) continue;
+
+        var baseType = type.BaseType;
+        while (baseType != null)
+        {
+            if (baseType.Name.Equals("DbContext", StringComparison.OrdinalIgnoreCase))
+            {
+                candidates.Add(type);
+                break;
+            }
+            baseType = baseType.BaseType;
+        }
+    }
+
+    if (candidates.Count == 1) return candidates[0];
+    if (candidates.Count > 1)
+        throw new InvalidOperationException($"Multiple DbContext-derived types found in {targetAssemblyPath}: {string.Join(", ", candidates.Select(tt => tt.FullName))}. Set `configuredDbContextFullName` to the exact type.");
+    return null;
+}
+
+var dbContextType = FindDbContextType(targetAssembly) ?? throw new InvalidOperationException($"DbContext type '{configuredDbContextFullName}' not found in {targetAssemblyPath}.");
+
+// Discover DbSet<TEntity> properties on the DbContext type
+var dbSetProps = dbContextType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+    .Where(p =>
+    {
+        var pt = p.PropertyType;
+        if (!pt.IsGenericType) return false;
+        var genericName = pt.GetGenericTypeDefinition().Name; // typically "DbSet`1"
+        return genericName.Equals("DbSet`1", StringComparison.Ordinal) || genericName.Equals("DbSet`1", StringComparison.OrdinalIgnoreCase);
+    })
+    .ToList();
+
+// If there are no DbSet properties, attempt to look for properties returning types that implement IEnumerable<TEntity>
+if (!dbSetProps.Any())
+{
+    dbSetProps = dbContextType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+        .Where(p => p.PropertyType.IsGenericType && p.PropertyType.GetInterfaces().Any(i => i.Name.StartsWith("IEnumerable`")))
+        .ToList();
+}
+
+// Build entity types list from DbSet generic type arguments
+var entityTypes = new List<Type>();
+foreach (var p in dbSetProps)
+{
+    var gp = p.PropertyType.GetGenericArguments().FirstOrDefault();
+    if (gp != null && !entityTypes.Contains(gp))
+        entityTypes.Add(gp);
+}
+
+// If still empty, try scanning assembly for simple entity-like POCOs (heuristic: public class with at least one property)
+if (!entityTypes.Any())
+{
+    entityTypes = targetAssembly.GetTypes()
+        .Where(t => t.IsClass && !t.IsAbstract && t.GetProperties(BindingFlags.Public | BindingFlags.Instance).Length > 0)
+        .ToList();
+}
+
+// Helper to map property Type to faker rule snippet
+string RuleForForProperty(PropertyInfo prop)
+{
+    var propType = prop.PropertyType;
+    var typeName = propType.Name;
+    if (typeName == "String" || propType == typeof(string))
+        return $".RuleFor(p => p.{prop.Name}, f => f.Lorem.Word())";
+    if (typeName == "DateTime" || propType == typeof(DateTime))
+        return $".RuleFor(p => p.{prop.Name}, f => f.Date.Past(20))";
+    if (typeName == "Decimal" || propType == typeof(decimal))
+        return $".RuleFor(p => p.{prop.Name}, f => f.Random.Decimal(1, 1000))";
+    if (typeName == "Int32" || propType == typeof(int))
+        return $".RuleFor(p => p.{prop.Name}, f => f.Random.Int(1, 100))";
+    // fallback: use string conversion of random word
+    return $".RuleFor(p => p.{prop.Name}, f => f.Lorem.Word())";
+}
+
+// Begin generating the C# source text
+#>
+// <auto-generated>
+// This file was generated by a T4 template (ContentGenerator.Metadata.tt).
+// It inspects the DbContext class metadata (no EF runtime) and generates Bogus-based content generators.
+// DbContext: <#= dbContextType.FullName #>
+// Namespace: <#= outputNamespace #>
+// </auto-generated>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Bogus;
+
+namespace <#= outputNamespace #>
+{
+    public interface IContentGenerator
+    {
+        string Table { get; }
+        IReadOnlyList<Dictionary<string, object>> GenerateBulk(IReadOnlyList<decimal> businessKeys, int seed);
+        IReadOnlyDictionary<string, object> GenerateUpdate(decimal businessKey, int seed);
+    }
+
+<#
+    // Generate one content generator per entity type discovered
+    foreach (var clrType in entityTypes)
+    {
+        var props = clrType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var tableName = clrType.Name; // cannot know EF table mapping from metadata-only scan
+        // Build faker rule snippets
+        var fakerRules = props.Select(p => RuleForForProperty(p)).ToList();
+#>
+    public partial class <#= clrType.Name #>ContentGenerator : IContentGenerator
+    {
+        public string Table => "<#= tableName #>";
+
+        protected virtual void ConfigureFaker(Faker<<#= clrType.Name #>> faker)
+        {
+            // Override in partial class for bespoke rules
+        }
+
+        public IReadOnlyList<Dictionary<string, object>> GenerateBulk(IReadOnlyList<decimal> businessKeys, int seed)
+        {
+            var faker = new Faker<<#= clrType.Name #>>(locale: "en")
+                .UseSeed(seed)
+<#= string.Join(Environment.NewLine + "                ", fakerRules) #>
+                ;
+
+            ConfigureFaker(faker);
+
+            var results = new List<Dictionary<string, object>>();
+            foreach (var key in businessKeys)
+            {
+                var entity = faker.Generate();
+                var dict = new Dictionary<string, object> { ["BusinessKey"] = key };
+<#
+        foreach (var p in props)
+        {
+#>
+                dict["<#= p.Name #>"] = entity.<#= p.Name #>;
+<#
+        }
+#>
+                results.Add(dict);
+            }
+            return results;
+        }
+
+        public IReadOnlyDictionary<string, object> GenerateUpdate(decimal businessKey, int seed)
+        {
+            var faker = new Faker<<#= clrType.Name #>>(locale: "en")
+                .UseSeed(seed)
+<#= string.Join(Environment.NewLine + "                ", fakerRules) #>
+                ;
+
+            ConfigureFaker(faker);
+
+            var entity = faker.Generate();
+            var dict = new Dictionary<string, object> { ["BusinessKey"] = businessKey };
+<#
+        foreach (var p in props)
+        {
+#>
+            dict["<#= p.Name #>"] = entity.<#= p.Name #>;
+<#
+        }
+#>
+            return dict;
+        }
+    }
+
+<#
+    } // end foreach entity
+#>
+}

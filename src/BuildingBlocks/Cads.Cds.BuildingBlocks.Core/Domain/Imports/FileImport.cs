@@ -13,8 +13,12 @@ public class FileImport
     public string DestinationTableName { get; set; } = default!;
     public string FileName { get; set; } = default!;
 
+    public string DestinationPrefix { get; set; } = default!;
+    public string? LastFilePartImported { get; set; }
+
     public long TotalRowsToProcess { get; set; }
     public long RowsFound { get; set; }
+    public long RowsImported { get; set; }
 
     public FileImportStatus ImportStatus { get; set; } = FileImportStatus.Pending;
     public FileProcessingStatus ProcessingStatus { get; set; } = FileProcessingStatus.Pending;
@@ -28,10 +32,10 @@ public class FileImport
     public string? GroupKey { get; set; }
     public string? ImportType { get; set; }
     public DateTimeOffset? BatchDate { get; set; }
+    public bool ImportAmendmentsMade { get; set; }
 
     public FileImport()
     {
-
     }
 
     private FileImport(
@@ -80,7 +84,12 @@ public class FileImport
 
         if (status == FileImportStatus.Failed)
         {
-            MarkFailed("Import failed.");
+            throw new InvalidOperationException($"Invalid import status transition from {ImportStatus} to Failed. Use MarkFailed(reason) instead.");
+        }
+
+        if (status == FileImportStatus.Completed)
+        {
+            MarkCompleted();
             return;
         }
 
@@ -88,7 +97,6 @@ public class FileImport
         {
             FileImportStatus.Transferred => (Action)MarkTransferred,
             FileImportStatus.Split => MarkSplit,
-            FileImportStatus.Completed => MarkCompleted,
             _ => null
         })?.Invoke();
     }
@@ -112,15 +120,20 @@ public class FileImport
         ImportStatus = FileImportStatus.Split;
     }
 
-    public void MarkCompleted()
+    public void MarkCompleted(List<string>? amendedRowIds = null)
     {
         BusinessRuleChecker.CheckRule(new MarkCompletedRule(ImportStatus));
 
         ImportStatus = FileImportStatus.Completed;
         ImportEndAt = DateTimeOffset.UtcNow;
+        if (amendedRowIds != null && amendedRowIds.Count > 0)
+        {
+            ImportAmendmentsMade = true;
+            LastErrorReason = $"Amended rows: {string.Join(", ", amendedRowIds)}";
+        }
     }
 
-    public void MarkFailed(string reason)
+    public void MarkFailed(string reason, bool isTransient = true)
     {
         BusinessRuleChecker.CheckRule(new MarkFailedRule(ImportStatus));
 
@@ -129,7 +142,7 @@ public class FileImport
         ImportEndAt = DateTimeOffset.UtcNow;
 
         LastErrorReason = reason;
-        FailedAttempts++;
+        FailedAttempts = isTransient ? FailedAttempts + 1 : 3;
     }
 
     // -----------------------------
@@ -178,8 +191,11 @@ public class FileImport
         ImportEndAt = null;
         ProcessingStartAt = null;
         ProcessingEndAt = null;
+    }
 
-        FailedAttempts = 0;
-        LastErrorReason = string.Empty;
+    public void ForceResetImportStatus(FileImportStatus importStatus)
+    {
+        ImportStatus = importStatus;
+        ProcessingStatus = FileProcessingStatus.Pending;
     }
 }

@@ -81,6 +81,32 @@ public class S3CsvImportBackgroundServiceTests
             Times.Exactly(3));
     }
 
+    [Fact]
+    public async Task ProcessJob_WhenCancelledDuringShutdown_PersistsFailedStatusWithNonCancelledToken()
+    {
+        var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
+
+        // Simulate the host shutdown token being cancelled while the long-running
+        // import is in progress.
+        using var stoppingCts = new CancellationTokenSource();
+        await stoppingCts.CancelAsync();
+
+        ctx.CopyService
+            .Setup(s => s.ExecuteAsync(It.IsAny<CreateS3CsvImportJobDto>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        var service = ctx.CreateService();
+        var job = new CreateS3CsvImportJobDto { JobId = Guid.NewGuid(), FileImportId = 1 };
+
+        await S3CsvBulkLoadBackgroundServiceTestContext.InvokeProcessJobAsync(service, job, stoppingCts.Token);
+
+        // The failure status must be persisted using a token that is NOT the cancelled
+        // shutdown token, otherwise the status update fails and the import is stranded.
+        ctx.DbContext.Verify(
+            db => db.SaveChangesAsync(It.Is<CancellationToken>(t => !t.IsCancellationRequested)),
+            Times.Once);
+    }
+
     public class S3CsvBulkLoadBackgroundServiceTestContext
     {
         private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
@@ -88,8 +114,9 @@ public class S3CsvImportBackgroundServiceTests
         private readonly Mock<IServiceProvider> _provider = new();
         private readonly Mock<IStorageBridgeFileImportRepository> _fileImportRepository = new();
 
-        // DbContext is not exercised in unit tests, but is referenced
-        private readonly StorageBridgeWriteDbContext _dbContext = new(new DbContextOptions<StorageBridgeWriteDbContext>());
+        // DbContext is mocked so SaveChangesAsync can be controlled/verified.
+        public Mock<StorageBridgeWriteDbContext> DbContext { get; } =
+            new(new DbContextOptions<StorageBridgeWriteDbContext>());
 
         public Mock<ILogger<S3CsvImportBackgroundService>> Logger { get; } = new();
         public Mock<IS3ToPostgresCopyService> CopyService { get; } = new();
@@ -108,11 +135,14 @@ public class S3CsvImportBackgroundServiceTests
             _scope.Setup(x => x.ServiceProvider)
                 .Returns(_provider.Object);
             _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
-                .Returns(_dbContext);
+                .Returns(DbContext.Object);
             _provider.Setup(x => x.GetService(typeof(IStorageBridgeFileImportRepository)))
                 .Returns(_fileImportRepository.Object);
             _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new FileImport());
+
+            DbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
 
             Logger.Setup(l => l.IsEnabled(LogLevel.Error))
                 .Returns(true);
@@ -127,6 +157,17 @@ public class S3CsvImportBackgroundServiceTests
                 .GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
             return (Task)method!.Invoke(service, [CancellationToken.None])!;
+        }
+
+        public static Task InvokeProcessJobAsync(
+            S3CsvImportBackgroundService service,
+            CreateS3CsvImportJobDto job,
+            CancellationToken cancellationToken)
+        {
+            var method = typeof(S3ImportBackgroundService<CreateS3CsvImportJobDto>)
+                .GetMethod("ProcessJobAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            return (Task)method!.Invoke(service, [job, new SemaphoreSlim(1), cancellationToken])!;
         }
 
         public static Task GetExecuteTask(BackgroundService service)

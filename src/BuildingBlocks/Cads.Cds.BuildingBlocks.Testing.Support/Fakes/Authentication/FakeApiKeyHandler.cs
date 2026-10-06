@@ -19,11 +19,12 @@ public class FakeApiKeyHandler(
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, TestAuthConstants.AzureAdUsername),
-            new(ClaimTypes.Email, TestAuthConstants.AzureAdEmail),
-            new("name", TestAuthConstants.AzureAdUsername),
+            new(ClaimTypes.Name, TestAuthConstants.AzureAdCadsMisUsername),
+            new(ClaimTypes.Email, TestAuthConstants.AzureAdCadsMisEmail),
+            new("name", TestAuthConstants.AzureAdCadsMisUsername),
             new(CustomClaimTypes.Oid, Guid.NewGuid().ToString()),
-            new(CustomClaimTypes.TenantId, "test-internal-tenant")
+            new(CustomClaimTypes.TenantId, "test-internal-tenant"),
+            new("scope", ScopeNames.ReportsRead)
         };
 
         var identity = new ClaimsIdentity(

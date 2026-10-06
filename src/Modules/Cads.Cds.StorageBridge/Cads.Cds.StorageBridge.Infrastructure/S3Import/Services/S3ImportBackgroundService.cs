@@ -21,13 +21,25 @@ public abstract class S3ImportBackgroundService<T>(
         var semaphore = new SemaphoreSlim(_maxParallelImports);
         var tasks = new ConcurrentBag<Task>();
 
-        await foreach (var request in channel.Reader.ReadAllAsync(stoppingToken))
+        try
         {
-            await semaphore.WaitAsync(stoppingToken);
-            tasks.Add(ProcessJobAsync(request, semaphore, stoppingToken));
+            await foreach (var request in channel.Reader.ReadAllAsync(stoppingToken))
+            {
+                await semaphore.WaitAsync(stoppingToken);
+                tasks.Add(ProcessJobAsync(request, semaphore, stoppingToken));
+            }
         }
-
-        await Task.WhenAll(tasks);
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Graceful shutdown requested - stop accepting new jobs but still allow
+            // in-flight jobs (and their status-update cleanup) to complete below.
+        }
+        finally
+        {
+            // Await in-flight jobs so their failure/interruption status is persisted
+            // within the host shutdown timeout window.
+            await Task.WhenAll(tasks);
+        }
     }
 
     protected virtual async Task ProcessJobAsync(

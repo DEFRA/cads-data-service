@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Cads.Cds.StorageBridge.Tests.Unit" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Cads.Cds.StorageBridge.Infrastructure\Cads.Cds.StorageBridge.Infrastructure.csproj" />
   </ItemGroup>
 

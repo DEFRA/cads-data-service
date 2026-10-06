@@ -5,6 +5,7 @@ namespace Cads.Cds.SystemAdmin.Application.Imports.Commands.CreateFileImport;
 
 public sealed record CreateFileImportCommand(
     string FileName,
+    string DestinationPrefix,
     long TotalRowsToProcess,
     long RowsFound
 ) : ISystemAdminCommand<FileImport>, ITransactionalCommand;

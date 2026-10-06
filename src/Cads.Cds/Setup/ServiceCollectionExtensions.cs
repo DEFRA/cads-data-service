@@ -11,11 +11,14 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
 using Cads.Cds.Setup.Providers;
+using Cads.Cds.Setup.Swagger;
 using Cads.Cds.StorageBridge.Application;
+using Cads.Cds.SystemAdmin;
 using Cads.Cds.SystemAdmin.Application;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -87,6 +90,8 @@ public static class ServiceCollectionExtensions
                 [new OpenApiSecuritySchemeReference("bearer", document)] = [],
                 [new OpenApiSecuritySchemeReference("basic", document)] = []
             });
+
+            options.ParameterFilter<DefaultValueParameterFilter>();
         });
     }
 
@@ -107,6 +112,7 @@ public static class ServiceCollectionExtensions
         services.AddValidatorsFromAssembly(typeof(IMiBffApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(IStorageBridgeApplicationMarker).Assembly);
         services.AddValidatorsFromAssembly(typeof(ISystemAdminApplicationMarker).Assembly);
+        services.AddValidatorsFromAssembly(typeof(ISystemAdminMarker).Assembly);
     }
 
     private static void ConfigureHealthChecks(this IServiceCollection services)
@@ -212,31 +218,45 @@ public static class ServiceCollectionExtensions
 
     private static void AddAuthorisationPolicies(this IServiceCollection services, AuthenticationConfiguration authenticationConfiguration)
     {
-        services.AddAuthorizationBuilder()
-            .AddPolicy(AuthenticationConstants.ApiKeyOrCognitoPolicy, policy =>
-            {
-                if (authenticationConfiguration.ApiKey.Enabled)
-                {
-                    policy.AddAuthenticationSchemes(AuthenticationConstants.ApiKeySchemeName);
-                }
-                if (authenticationConfiguration.Cognito.Enabled)
-                {
-                    policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
-                }
-                policy.RequireAuthenticatedUser();
-            })
-            .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy =>
-            {
-                if (authenticationConfiguration.ApiKey.Enabled)
-                {
-                    policy.AddAuthenticationSchemes(AuthenticationConstants.ApiKeySchemeName);
-                }
-                if (authenticationConfiguration.AzureAD.Enabled)
-                {
-                    policy.AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName);
-                }
-                policy.RequireAuthenticatedUser();
-                policy.RequireClaim(authenticationConfiguration.AzureAD.RoleClaimType, ScopeNames.ReportsRead);
-            });
+        var scopeClaim = authenticationConfiguration.AzureAD.ScopeClaimType;
+        var roleClaim = authenticationConfiguration.AzureAD.RoleClaimType;
+
+        var builder = services.AddAuthorizationBuilder()
+            .AddPolicy(AuthenticationConstants.ApiKeyOrCognitoPolicy, policy => policy
+            .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
+            .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
+            .RequireAuthenticatedUser())
+        .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy => policy
+            .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
+            .AddSchemeIf(authenticationConfiguration.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
+            .RequireAuthenticatedUser()
+            .RequireScope(scopeClaim, ScopeNames.ReportsRead));
+
+        // Admin policies all same shape: Azure AD only, a specific scope, and the superuser role
+        (string Policy, string Scope)[] adminPolicies =
+        [
+            (AuthenticationConstants.AadDbAdminExecutePolicy, ScopeNames.DbAdminExecute),
+            (AuthenticationConstants.AadSqsAdminExecutePolicy, ScopeNames.SqsAdminManager),
+            (AuthenticationConstants.AadS3AdminExecutePolicy, ScopeNames.AdminS3Manager)
+        ];
+
+        foreach (var (name, scope) in adminPolicies)
+        {
+            builder.AddPolicy(name, policy => policy
+                .AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName)
+                .RequireAuthenticatedUser()
+                .RequireScope(scopeClaim, scope));
+        }
     }
+
+    private static AuthorizationPolicyBuilder RequireScope(
+        this AuthorizationPolicyBuilder policy, string scopeClaimType, string scope) =>
+        policy.RequireAssertion(ctx => ctx.User.Claims
+            .Where(c => c.Type == scopeClaimType)
+            .SelectMany(c => c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Contains(scope, StringComparer.Ordinal));
+
+    private static AuthorizationPolicyBuilder AddSchemeIf(
+        this AuthorizationPolicyBuilder policy, bool enabled, string scheme) =>
+        enabled ? policy.AddAuthenticationSchemes(scheme) : policy;
 }

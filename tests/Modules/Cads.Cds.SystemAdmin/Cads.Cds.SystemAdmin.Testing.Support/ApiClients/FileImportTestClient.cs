@@ -26,6 +26,55 @@ public static class FileImportTestClient
         return await client.GetAsync(endpoint, cancellationToken);
     }
 
+    public static async Task<HttpResponseMessage> GetAllAsync(
+       HttpClient client,
+       string groupKey,
+       FileImportStatus? fileImportStatus = null,
+       FileProcessingStatus? fileProcessingStatus = null,
+       CancellationToken cancellationToken = default)
+    {
+        var endpoint = TestEndpointConstants.FileImportsGetAllEndpoint;
+
+        endpoint += "?groupKey=" + HttpUtility.UrlEncode(groupKey);
+
+        if (!string.IsNullOrWhiteSpace(fileImportStatus?.ToString()))
+        {
+            endpoint += "&fileImportStatus=" + HttpUtility.UrlEncode(fileImportStatus.ToString());
+        }
+
+        if (fileImportStatus != null)
+        {
+            endpoint += "&fileImportStatus=" + HttpUtility.UrlEncode(fileImportStatus.ToString());
+        }
+
+        if (fileProcessingStatus != null)
+        {
+            endpoint += "&fileProcessingStatus=" + HttpUtility.UrlEncode(fileProcessingStatus.ToString());
+        }
+
+        return await client.GetAsync(endpoint, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> GetByIdAsync(
+        HttpClient client,
+        long id,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.FileImportsGetByIdEndpoint, id);
+
+        return await client.GetAsync(endpoint, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> GetByIdWithSiblingsAsync(
+        HttpClient client,
+        long id,
+        CancellationToken cancellationToken)
+    {
+        var endpoint = string.Format(TestEndpointConstants.FileImportsGetByIdWithSiblingsEndpoint, id);
+
+        return await client.GetAsync(endpoint, cancellationToken);
+    }
+
     public static async Task<HttpResponseMessage> CreateAsync(
         HttpClient client,
         CreateFileImportRequest? request,
@@ -42,6 +91,15 @@ public static class FileImportTestClient
         CancellationToken cancellationToken)
     {
         var endpoint = string.Format(TestEndpointConstants.FileImportsUpdateEndpoint, id);
+        return await client.PutAsJsonAsync(endpoint, request, cancellationToken);
+    }
+
+    public static async Task<HttpResponseMessage> BatchUpdateAsync(
+       HttpClient client,
+       BatchUpdateFileImportRequest? request,
+       CancellationToken cancellationToken)
+    {
+        var endpoint = TestEndpointConstants.FileImportsBatchUpdateEndpoint;
         return await client.PutAsJsonAsync(endpoint, request, cancellationToken);
     }
 
@@ -81,12 +139,19 @@ public static class FileImportTestClient
         var response = await GetByFileNameAsync(client, fileName, cancellationToken);
 
         response.IsSuccessStatusCode.Should().BeTrue(
-            $"GET /file-imports?fileName={fileName} should return 200 OK");
+            $"GET /fileimports?fileName={fileName} should return 200 OK");
 
         var dto = await ReadDtoAsync(response, cancellationToken);
-        dto.Should().NotBeNull($"GET /file-imports returned no DTO for fileName={fileName}");
+        dto.Should().NotBeNull($"GET /fileimports returned no DTO for fileName={fileName}");
 
         return dto;
+    }
+
+    public static async Task<string> GetRawJsonAsync(
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
+        return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
     public static async Task<FileImportDto?> ReadDtoAsync(
@@ -94,6 +159,15 @@ public static class FileImportTestClient
         CancellationToken cancellationToken)
     {
         return await response.Content.ReadFromJsonAsync<FileImportDto>(
+            JsonDefaults.DefaultOptionsWithStringEnumConversion,
+            cancellationToken);
+    }
+
+    public static async Task<T?> ReadDtoAsync<T>(
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
+        return await response.Content.ReadFromJsonAsync<T>(
             JsonDefaults.DefaultOptionsWithStringEnumConversion,
             cancellationToken);
     }

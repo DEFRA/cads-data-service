@@ -5,55 +5,18 @@ namespace Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 
 public static class TestTokenFactory
 {
-    public static TestTokenRequest ValidUserToken() =>
-        new()
-        {
-            ClientId = TestAuthConstants.AzureAdTestUserClientId,
-            ClientSecret = TestAuthConstants.AzureAdTestUserClientSecret,
-            Username = TestAuthConstants.AzureAdUsername,
-            Password = TestAuthConstants.AzureAdPassword,
-            Scopes =
-            [
-                "openid",
-                "profile",
-                "email",
-                TestAuthConstants.AzureAdCadsCdsScope
-            ]
-        };
+    private static readonly string[] s_baseScopes = ["openid", "profile", "email"];
 
-    public static TestTokenRequest MissingScopeToken() =>
-        new()
-        {
-            ClientId = TestAuthConstants.AzureAdTestUserClientId,
-            ClientSecret = TestAuthConstants.AzureAdTestUserClientSecret,
-            Username = TestAuthConstants.AzureAdUsername,
-            Password = TestAuthConstants.AzureAdPassword,
-            Scopes = ["openid", "profile", "email"]
-        };
-
-    public static TestTokenRequest InvalidScopeToken() =>
-        new()
-        {
-            ClientId = TestAuthConstants.AzureAdTestUserClientId,
-            ClientSecret = TestAuthConstants.AzureAdTestUserClientSecret,
-            Username = TestAuthConstants.AzureAdUsername,
-            Password = TestAuthConstants.AzureAdPassword,
-            Scopes = ["openid", "profile", "email", "reports.none"]
-        };
-
-    public static TestTokenRequest ForUser(string username) =>
+    public static TestTokenRequest UserToken(
+        string username,
+        string password,
+        params string[] scopes) =>
         new()
         {
             ClientId = TestAuthConstants.AzureAdTestUserClientId,
             ClientSecret = TestAuthConstants.AzureAdTestUserClientSecret,
             Username = username,
-            Password = TestAuthConstants.AzureAdPassword,
-            Scopes =
-            [
-                "openid",
-                "profile",
-                "email",
-                TestAuthConstants.AzureAdCadsCdsScope
-            ]
+            Password = password,
+            Scopes = [.. s_baseScopes, .. scopes]
         };
 }

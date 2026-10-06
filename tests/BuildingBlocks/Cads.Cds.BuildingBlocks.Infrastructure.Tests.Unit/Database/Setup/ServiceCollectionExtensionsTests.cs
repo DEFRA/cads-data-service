@@ -10,6 +10,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Database.Setup;
 
@@ -53,7 +54,7 @@ public class ServiceCollectionExtensionsTests
         var provider = services.BuildServiceProvider();
 
         var act = () => provider.GetRequiredService<TestDbContext>();
-        act.Should().Throw<ArgumentException>().WithMessage("Unknown connection identifier: invalidConnectionIdentifier");
+        act.Should().Throw<ArgumentException>().WithMessage("Unknown Postgres pool identifier 'invalidConnectionIdentifier'*");
     }
 
     private class TestDbContext(DbContextOptions<TestDbContext> options) : CadsDbContext(options)
@@ -211,5 +212,68 @@ public class ServiceCollectionExtensionsTests
 
         var connection = context.Database.GetDbConnection();
         connection.ConnectionString.Should().Be("Host=localhost;Database=test");
+    }
+
+    [Fact]
+    public void Throws_When_Unknown_Pool_Is_Configured()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:Pools:ApiRead:MaximumPoolSize"] = "10",
+            ["Postgres:Pools:ApiReed:MaximumPoolSize"] = "10"
+        };
+
+        Action act = () => BuildProvider(config);
+
+        act.Should()
+            .Throw<InvalidOperationException>()
+            .WithMessage("Unknown Postgres pool(s) configured under 'Postgres:Pools': ApiReed*");
+    }
+
+    [Fact]
+    public void Binds_Pool_Configuration()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "Host=localhost;Database=test;",
+            ["Postgres:Pools:ApiRead:ApplicationName"] = "cads-api-read",
+            ["Postgres:Pools:ApiRead:MaximumPoolSize"] = "40",
+            ["Postgres:Pools:ApiRead:MinimumPoolSize"] = "4"
+        };
+
+        var provider = BuildProvider(config);
+
+        var pool = provider.GetRequiredService<PostgresConfiguration>().Pools[PostgresPools.ApiRead];
+        pool.ApplicationName.Should().Be("cads-api-read");
+        pool.MaximumPoolSize.Should().Be(40);
+        pool.MinimumPoolSize.Should().Be(4);
+        pool.Host.Should().BeNull();
+    }
+
+    [Fact]
+    public void Health_Check_Contexts_Use_Configured_Pools()
+    {
+        var config = new Dictionary<string, string>
+        {
+            ["Postgres:DefaultConnection"] = "Host=writer;Database=test;",
+            ["Postgres:ReadOnlyConnection"] = "Host=reader;Database=test;",
+            ["Postgres:Pools:HealthCheckWrite:ApplicationName"] = "cads-health-write",
+            ["Postgres:Pools:HealthCheckRead:ApplicationName"] = "cads-health-read"
+        };
+
+        var provider = BuildProvider(config);
+
+        var write = new NpgsqlConnectionStringBuilder(
+            provider.GetRequiredService<HealthCheckDbContext>().Database.GetDbConnection().ConnectionString);
+        var read = new NpgsqlConnectionStringBuilder(
+            provider.GetRequiredService<HealthCheckReadOnlyDbContext>().Database.GetDbConnection().ConnectionString);
+
+        write.Host.Should().Be("writer");
+        write.ApplicationName.Should().Be("cads-health-write");
+        read.Host.Should().Be("reader");
+        read.ApplicationName.Should().Be("cads-health-read");
     }
 }

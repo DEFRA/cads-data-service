@@ -1,14 +1,18 @@
 using Cads.Cds.Api.Application.Queries.Setup;
 using Cads.Cds.Api.Application.Soap.ServiceContracts;
+using Cads.Cds.Api.Core.Configuration;
 using CoreWCF.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.Api.Application.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddApiApplicationLayer(this IServiceCollection services)
+    public static IServiceCollection AddApiApplicationLayer(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<ApiModuleConfiguration>(configuration.GetSection(ModuleConfigurationSection.ModuleSectionName));
+
         // Register SOAP services
         services.AddServiceModelServices();
 

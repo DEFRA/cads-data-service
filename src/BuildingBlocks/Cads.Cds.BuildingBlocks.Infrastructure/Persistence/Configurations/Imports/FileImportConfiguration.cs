@@ -43,6 +43,15 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
             .HasColumnType("text")
             .IsRequired();
 
+        builder.Property(x => x.DestinationPrefix)
+            .HasColumnName("destination_prefix")
+            .HasColumnType("text")
+            .IsRequired();
+
+        builder.Property(x => x.LastFilePartImported)
+          .HasColumnName("last_file_part_imported")
+          .HasColumnType("text");
+
         builder.Property(x => x.TotalRowsToProcess)
             .HasColumnName("total_rows_to_process")
             .HasColumnType("bigint")
@@ -53,6 +62,12 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
             .HasColumnType("bigint")
             .HasDefaultValue(0)
             .IsRequired();
+
+        builder.Property(x => x.RowsImported)
+           .HasColumnName("rows_imported")
+           .HasColumnType("bigint")
+           .HasDefaultValue(0)
+           .IsRequired();
 
         // Status fields
         builder.Property(x => x.ImportStatus)
@@ -109,6 +124,11 @@ public class FileImportConfiguration : IEntityTypeConfiguration<FileImport>
         builder.Property(x => x.BatchDate)
             .HasColumnName("batch_date")
             .HasColumnType("timestamptz")
+            .IsRequired();
+
+        builder.Property(x => x.ImportAmendmentsMade)
+            .HasColumnName("amendments_made_flag")
+            .HasColumnType("boolean")
             .IsRequired();
 
         builder.HasIndex(x => x.FileName)

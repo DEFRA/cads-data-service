@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
+using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
@@ -21,8 +21,8 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterDbContexts(this IServiceCollection services)
     {
-        services.AddPostgresDbContext<MiBffWriteDbContext>();
-        services.AddPostgresDbContext<MiBffReadDbContext>(PostgresDataSourceFactory.ReadOnlyConnectionIdentifier);
+        services.AddPostgresDbContext<MiBffWriteDbContext>(PostgresPools.MiBffWrite);
+        services.AddPostgresDbContext<MiBffReadDbContext>(PostgresPools.MiBffRead);
 
         services.AddScoped<
             IDbContextFactory<MiBffReadDbContext, MiBffWriteDbContext>,

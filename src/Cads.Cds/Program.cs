@@ -6,6 +6,7 @@ using Serilog;
 using System.Diagnostics.CodeAnalysis;
 
 var app = CreateWebApplication(args);
+
 await app.RunAsync();
 return;
 
@@ -27,12 +28,18 @@ static void ConfigureBuilder(WebApplicationBuilder builder)
 {
     builder.Configuration.AddEnvironmentVariables();
 
-    // Load certificates into Trust Store - Note must happen before Mongo and Http client connections.
+    // Give hosted background services time to gracefully finalise in-flight long-running processes
+    var shutdownTimeoutSeconds = builder.Configuration.GetValue("Host:ShutdownTimeoutSeconds", 25);
+    builder.Services.Configure<HostOptions>(options =>
+        options.ShutdownTimeout = TimeSpan.FromSeconds(shutdownTimeoutSeconds));
+
+    // Load certificates into Trust Store - Note must happen before Mongo and Http client connections
     builder.Services.AddCustomTrustStore();
 
     // Configure logging to use the CDP Platform standards.
     builder.Services.AddHttpContextAccessor();
-    builder.Host.UseSerilog(CdpLogging.Configuration);
+    builder.Host.UseSerilog((context, services, config) =>
+        CdpLogging.Configuration(context, services.GetRequiredService<IHttpContextAccessor>(), config));
 
     // Default HTTP Client
     builder.Services

@@ -1,6 +1,7 @@
 using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using FluentAssertions;
@@ -13,7 +14,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 {
     private HttpClient _httpClient => apiContainerFixture.CreateBasicClient();
 
-    // FileImports - GetByFileName
+    private readonly PostgresDb _postgresDb = new(apiContainerFixture.PostgresFixture.HostConnectionString);
 
     [Fact]
     public async Task GivenInvalidRequest_WhenGetByFileNameRequested_ShouldReturnBadRequest()
@@ -76,6 +77,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Complete_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -101,6 +103,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Bulk_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -128,6 +131,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Delta_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -154,6 +158,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_NoDestinationTable_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -180,6 +185,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
         var request = new CreateFileImportRequest
         {
             FileName = TestFileScenarioConstants.New_Scenario_Create_Invalid_FileName,
+            DestinationPrefix = "import/cts/bulk",
             TotalRowsToProcess = 100,
             RowsFound = 0
         };
@@ -252,10 +258,12 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenValidRequest_WhenUpdateRequested_ShouldSucceed()
     {
-        var id = await FileImportTestClient.GetIdByFileNameAsync(
-            _httpClient,
-            TestFileScenarioConstants.New_Scenario_Transferred_FileName,
-            TestContext.Current.CancellationToken);
+        var testGroupKey = "CTSM_CADS_PROD_BULK_555_CT_LOCATIONS";
+        var testFileName = "CTSM_CADS_PROD_BULK_555_0001_CT_LOCATIONS_2026-01-01-012345.CSV";
+
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
+
+        var recordId = await _postgresDb.InsertFileImportAsync(testFileName, testGroupKey, FileImportStatus.Pending);
 
         var request = new UpdateFileImportRequest
         {
@@ -266,7 +274,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         var response = await FileImportTestClient.UpdateAsync(
             _httpClient,
-            id,
+            recordId,
             request,
             TestContext.Current.CancellationToken);
 
@@ -274,7 +282,7 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
 
         await FileImportTestClient.VerifyFileImportAsync(
             _httpClient,
-            fileName: TestFileScenarioConstants.New_Scenario_Transferred_FileName,
+            fileName: testFileName,
             dto =>
             {
                 FileImportAssertions.ShouldBeTransferred(dto);
@@ -282,6 +290,60 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
                 FileImportAssertions.ShouldBeRowsFound(dto, 210);
             },
             TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task GivenValidRequest_WhenBatchUpdateRequested_ShouldSucceed()
+    {
+        var testGroupKey = "CTSM_CADS_PROD_BULK_666_CT_LOCATIONS";
+        var testFileNameTemplateWithIndex = "CTSM_CADS_PROD_BULK_666_{0:D4}_CT_LOCATIONS_2026-01-01-012345.CSV";
+        var testFileImportCount = 10;
+
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
+
+        var recordIds = await AddFileImportRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
+
+        var request = new BatchUpdateFileImportRequest
+        {
+            GroupKey = testGroupKey,
+            TotalRowsToProcess = 220,
+            RowsFound = 210,
+            ImportStatus = FileImportStatus.Transferred
+        };
+
+        var response = await FileImportTestClient.BatchUpdateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await _postgresDb.ExecuteQueryAsync("SELECT * FROM cads.cts_file_imports WHERE group_key = @groupKey",
+            reader => new FileImportDto
+            {
+                Id = (Int64)reader["cts_file_import_id"],
+                DestinationTableName = (string)reader["destination_table_name"],
+                FileName = (string)reader["file_name"],
+                GroupKey = (string)reader["group_key"],
+                TotalRowsToProcess = (Int64)reader["total_rows_to_process"],
+                RowsFound = (Int64)reader["rows_found"],
+                ImportStatus = (FileImportStatus)(Int16)reader["import_status_id"]
+            }, cmd => cmd.Parameters.AddWithValue("groupKey", testGroupKey));
+
+        dto.Should().NotBeNull();
+        dto.Should().HaveCount(testFileImportCount);
+
+        var index = 0;
+
+        foreach (var item in dto)
+        {
+            index++;
+            item.GroupKey.Should().Be(testGroupKey);
+            item.FileName.Should().Be(string.Format(testFileNameTemplateWithIndex, index));
+            item.ImportStatus.Should().Be(FileImportStatus.Transferred);
+            FileImportAssertions.ShouldBeTotalRowsToProcess(item, 220);
+            FileImportAssertions.ShouldBeRowsFound(item, 210);
+        }
     }
 
     // FileImports - MarkFailed
@@ -378,27 +440,161 @@ public class FileImportEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
-    public async Task GivenValidRequest_WhenResetRequested_ShouldSucceed()
+    public async Task GivenValidRequest_WhenGetByIdRequested_ShouldSucceed()
     {
-        var id = await FileImportTestClient.GetIdByFileNameAsync(
+        var testFileNameTemplateWithIndex = "CTSM_CADS_PROD_BULK_777_{0:D4}_CT_LOCATIONS_2026-01-01-012345.CSV";
+        var testGroupKey = "CTSM_CADS_PROD_BULK_777_CT_LOCATIONS";
+        var testFileImportCount = 1;
+
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
+
+        var recordIds = await AddFileImportRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
+
+        // Reset records to Split status for testing GetByIdAsync
+        var request = new BatchUpdateFileImportRequest
+        {
+            GroupKey = testGroupKey,
+            TotalRowsToProcess = 0,
+            RowsFound = 0,
+            ImportStatus = FileImportStatus.Split
+        };
+
+        var batchResponse = await FileImportTestClient.BatchUpdateAsync(
             _httpClient,
-            TestFileScenarioConstants.New_Scenario_Reset_FileName,
+            request,
             TestContext.Current.CancellationToken);
 
-        var response = await FileImportTestClient.ResetAsync(
+        var response = await FileImportTestClient.GetByIdAsync(
             _httpClient,
-            id,
-            TestContext.Current.CancellationToken);
+            id: recordIds[0],
+            cancellationToken: TestContext.Current.CancellationToken);
 
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        await FileImportTestClient.VerifyFileImportAsync(
-            _httpClient,
-            fileName: TestFileScenarioConstants.New_Scenario_Reset_FileName,
-            dto =>
-            {
-                FileImportAssertions.ShouldBeReset(dto);
-            },
+        var dto = await FileImportTestClient.ReadDtoAsync(
+            response,
             TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto.Id.Should().Be(recordIds[0]);
+        dto.GroupKey.Should().Be(testGroupKey);
+        dto.FileName.Should().Be(string.Format(testFileNameTemplateWithIndex, 1));
+        dto.ImportStatus.Should().Be(FileImportStatus.Split);
+    }
+
+    [Fact]
+    public async Task GivenValidRequest_WhenGetByIdWithSiblingsRequested_ShouldSucceed()
+    {
+        var testFileNameTemplateWithIndex = "CTSM_CADS_PROD_BULK_888_{0:D4}_CT_LOCATIONS_2026-01-01-012345.CSV";
+        var testGroupKey = "CTSM_CADS_PROD_BULK_888_CT_LOCATIONS";
+        var testFileImportCount = 10;
+
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
+
+        var recordIds = await AddFileImportRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
+
+        // Reset records to Split status for testing GetByIdWithSiblingsAsync
+        var request = new BatchUpdateFileImportRequest
+        {
+            GroupKey = testGroupKey,
+            TotalRowsToProcess = 0,
+            RowsFound = 0,
+            ImportStatus = FileImportStatus.Split
+        };
+
+        var batchResponse = await FileImportTestClient.BatchUpdateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        var response = await FileImportTestClient.GetByIdWithSiblingsAsync(
+            _httpClient,
+            id: recordIds[0],
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await FileImportTestClient.ReadDtoAsync<List<FileImportDto>>(
+            response,
+            TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto.Should().HaveCount(testFileImportCount);
+
+        var index = 0;
+
+        foreach (var item in dto)
+        {
+            index++;
+            item.GroupKey.Should().Be(testGroupKey);
+            item.FileName.Should().Be(string.Format(testFileNameTemplateWithIndex, index));
+            item.ImportStatus.Should().Be(FileImportStatus.Split);
+        }
+    }
+
+    [Fact]
+    public async Task GivenValidGroupedFiles_WhenGetAllRequested_ShouldSucceed()
+    {
+        var testFileNameTemplateWithIndex = "CTSM_CADS_PROD_BULK_999_{0:D4}_CT_LOCATIONS_2026-01-01-012345.CSV";
+        var testGroupKey = "CTSM_CADS_PROD_BULK_999_CT_LOCATIONS";
+        var testFileImportCount = 10;
+
+        await _postgresDb.DeleteFileImportByGroupKeyAsync(testGroupKey);
+
+        var recordIds = await AddFileImportRecordsAsync(testFileImportCount, testFileNameTemplateWithIndex, testGroupKey, FileImportStatus.Pending);
+
+        // Reset records to Split status for testing GetAllAsync
+        var request = new BatchUpdateFileImportRequest
+        {
+            GroupKey = testGroupKey,
+            TotalRowsToProcess = 0,
+            RowsFound = 0,
+            ImportStatus = FileImportStatus.Split
+        };
+
+        var batchResponse = await FileImportTestClient.BatchUpdateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        var response = await FileImportTestClient.GetAllAsync(
+            _httpClient,
+            groupKey: testGroupKey,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var dataset = await _postgresDb.GetFileImportDataSetByGroupKey(testGroupKey);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await FileImportTestClient.ReadDtoAsync<List<FileImportDto>>(
+            response,
+            TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto.Should().HaveCount(testFileImportCount);
+
+        var index = 0;
+
+        foreach (var item in dto)
+        {
+            index++;
+            item.GroupKey.Should().Be(testGroupKey);
+            item.FileName.Should().Be(string.Format(testFileNameTemplateWithIndex, index));
+            item.ImportStatus.Should().Be(FileImportStatus.Split);
+        }
+    }
+
+    private async Task<List<long>> AddFileImportRecordsAsync(int range, string filenameTemplate, string testGroupKey, FileImportStatus fileImportStatus, string? lastFilePartImported = null, long rowsImported = 0)
+    {
+        var list = new List<long>();
+
+        for (var index = 1; index <= range; index++)
+        {
+            var testFilename = string.Format(filenameTemplate, index);
+            var id = await _postgresDb.InsertFileImportAsync(testFilename, testGroupKey, fileImportStatus, lastFilePartImported, rowsImported);
+            list.Add(id);
+        }
+
+        return list;
     }
 }

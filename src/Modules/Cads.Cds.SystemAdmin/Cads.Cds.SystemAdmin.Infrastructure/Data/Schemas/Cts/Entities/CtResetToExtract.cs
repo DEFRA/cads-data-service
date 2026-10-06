@@ -1,0 +1,16 @@
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Entities;
+
+public partial class CtResetToExtract
+{
+    public decimal RteId { get; set; }
+
+    public string? RteTableName { get; set; }
+
+    public string? RteStatus { get; set; }
+
+    public decimal? RteBatch { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long? TransId { get; set; }
+}

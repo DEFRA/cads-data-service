@@ -1,30 +1,53 @@
-using Cads.Cds.Api.Core.Domain.Entities;
+using Cads.Cds.Api.Core.Domain.Entities.Animals;
+using Cads.Cds.Api.Core.Domain.Entities.Holdings;
 using Cads.Cds.BuildingBlocks.Application.Extensions;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.Api.Infrastructure.Persistence.Contexts;
 
-[ExcludeFromCodeCoverage]
 public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : CadsDbContext(options)
 {
-    // Module-specific entities
+    // # Module-specific entities
 
-    // Tables
+    // # Tables
 
-    // Functions
+    // # Functions
+
+    // ## Animals
+    public virtual IQueryable<AnimalOnHolding> GetAnimalsOnHolding(
+        string cph,
+        bool includeHistorical,
+        long rowFrom,
+        long rowTo,
+        string? sortField,
+        string? sortDirection,
+        string? breedCode,
+        string? sex)
+        => FromExpression(() => GetAnimalsOnHolding(
+            cph, includeHistorical, rowFrom, rowTo, sortField, sortDirection, breedCode, sex));
+
+    // ## Holdings
     public virtual IQueryable<LocationSummary> GetLocationsSummary(string? cph, DateOnly? lastModifiedDate)
         => FromExpression(() => GetLocationsSummary(cph, lastModifiedDate));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Import module-specific entities
+        // # Import module-specific entities
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ApiReadDbContext).Assembly
         );
 
+        // # Functions
+
+        // ## Animals
+        modelBuilder.HasDbFunction(
+            GetType().GetMethod(nameof(GetAnimalsOnHolding))!)
+            .HasName("get_animals_on_holding")
+            .HasSchema(SchemaName.Cads.GetDescription());
+
+        // ## Holdings
         modelBuilder.HasDbFunction(
             GetType().GetMethod(nameof(GetLocationsSummary))!)
             .HasName("get_locations")

@@ -1,4 +1,5 @@
-using Cads.Cds.Api.Core.Domain.Entities;
+using Cads.Cds.Api.Core.Domain.Entities.Animals;
+using Cads.Cds.Api.Core.Domain.Entities.Holdings;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.Api.Testing.Support.Seeding;
@@ -12,5 +13,10 @@ public static class TestApiDataSeeder
     public static void Seed(DbContext context, List<LocationSummary> locationSummaries)
     {
         context.AddRange(locationSummaries);
+    }
+
+    public static void Seed(DbContext context, List<AnimalOnHolding> animalsOnHolding)
+    {
+        context.AddRange(animalsOnHolding);
     }
 }

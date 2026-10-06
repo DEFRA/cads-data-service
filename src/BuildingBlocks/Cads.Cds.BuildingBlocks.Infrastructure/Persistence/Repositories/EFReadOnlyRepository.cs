@@ -12,7 +12,7 @@ public abstract class EFReadOnlyRepository<TEntity, TDbContext>(TDbContext dbCon
 {
     protected TDbContext DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
-    protected virtual IQueryable<TEntity> Query(bool asNoTracking = true)
+    public virtual IQueryable<TEntity> Query(bool asNoTracking = true)
     {
         var query = DbContext.Set<TEntity>().AsQueryable();
 
