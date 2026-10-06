@@ -1,0 +1,10 @@
+using System.Collections.Generic;
+
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Entities;
+
+public partial class LocationSiteIdentifierType
+{
+    public string Type { get; set; } = null!;
+
+    public virtual ICollection<LocationSiteIdentifier> LocationSiteIdentifiers { get; set; } = new List<LocationSiteIdentifier>();
+}
