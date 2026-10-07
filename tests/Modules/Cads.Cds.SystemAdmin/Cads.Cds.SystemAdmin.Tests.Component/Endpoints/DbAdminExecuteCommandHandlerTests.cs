@@ -92,21 +92,21 @@ public class DbAdminExecuteCommandHandlerTests
         _ctsImportLogger.EnableAllLogLevels();
 
         using var argsDoc = JsonDocument.Parse("""{"run_id":123}""");
-        var request = new DbAdminCtsImportRequest("get_cts_parallel_import_summary", argsDoc.RootElement);
+        var request = new DbAdminCtsImportRequest("summary", argsDoc.RootElement);
         var httpContext = CreateHttpContext("test-db-admin-user");
 
         await InvokeAsync(
             "DbAdminCtsImport", request, _ctsImportValidator.Object, _ctsImportLogger.Object, httpContext);
 
         VerifyLog(_ctsImportLogger, LogLevel.Information, Times.Once(), message =>
-            message.Contains("test-db-admin-user") && message.Contains("get_cts_parallel_import_summary"));
+            message.Contains("test-db-admin-user") && message.Contains("summary"));
     }
 
     [Fact]
     public async Task GivenInformationLoggingDisabled_WhenCtsImportExecuted_ShouldNotLog()
     {
         using var argsDoc = JsonDocument.Parse("""{"run_id":123}""");
-        var request = new DbAdminCtsImportRequest("get_cts_parallel_import_summary", argsDoc.RootElement);
+        var request = new DbAdminCtsImportRequest("summary", argsDoc.RootElement);
         var httpContext = CreateHttpContext("test-db-admin-user");
 
         await InvokeAsync(
@@ -121,14 +121,14 @@ public class DbAdminExecuteCommandHandlerTests
         _ctsImportLogger.EnableAllLogLevels();
 
         using var argsDoc = JsonDocument.Parse("""{"run_id":456}""");
-        var request = new DbAdminCtsImportRequest("get_cts_parallel_import_plan", argsDoc.RootElement);
+        var request = new DbAdminCtsImportRequest("plan", argsDoc.RootElement);
         var httpContext = CreateHttpContext("test-db-admin-user");
 
         await InvokeAsync(
             "DbAdminCtsImport", request, _ctsImportValidator.Object, _ctsImportLogger.Object, httpContext);
 
         VerifyLog(_ctsImportLogger, LogLevel.Information, Times.Once(), message =>
-            message.Contains("get_cts_parallel_import_plan") && message.Contains("456"));
+            message.Contains("plan") && message.Contains("456"));
     }
 
     private async Task<DbAdminCommandResponse> InvokeAsync<TRequest>(
