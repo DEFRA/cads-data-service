@@ -217,13 +217,13 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
         _testFixture.Factory.DbAdminExecuteCommandServiceMock
             .Setup(x => x.ExecuteAsync(
-                It.Is<DbAdminCtsImportRequestDto>(r => r.Command == "get_cts_parallel_import_summary"),
+                It.Is<DbAdminCtsImportRequestDto>(r => r.Command == "summary"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResult);
 
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             _httpClient,
-            command: "get_cts_parallel_import_summary",
+            command: "summary",
             args: new { run_id = 123L },
             TestContext.Current.CancellationToken);
 
@@ -232,7 +232,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         var dto = await DbAdminTestClient.ReadDtoAsync(response, TestContext.Current.CancellationToken);
 
         dto.Should().NotBeNull();
-        dto!.Command.Should().Be("get_cts_parallel_import_summary");
+        dto!.Command.Should().Be("summary");
         dto.Result[0].GetProperty("count").GetInt32().Should().Be(3);
     }
 
@@ -270,7 +270,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     {
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             _httpClient,
-            command: "get_cts_parallel_import_plan",
+            command: "plan",
             args: null,
             TestContext.Current.CancellationToken);
 
@@ -282,7 +282,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     {
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             _httpClient,
-            command: "get_cts_parallel_import_plan",
+            command: "plan",
             args: new { some_other_field = 1 },
             TestContext.Current.CancellationToken);
 
@@ -294,7 +294,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     {
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             _httpClient,
-            command: "get_cts_parallel_import_plan",
+            command: "plan",
             args: new { run_id = "not-a-number" },
             TestContext.Current.CancellationToken);
 
@@ -310,7 +310,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             client,
-            command: "get_cts_parallel_import_summary",
+            command: "summary",
             args: new { run_id = 123L },
             TestContext.Current.CancellationToken);
 
@@ -325,7 +325,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             client,
-            command: "get_cts_parallel_import_summary",
+            command: "summary",
             args: new { run_id = 123L },
             TestContext.Current.CancellationToken);
 
@@ -339,13 +339,13 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     {
         _testFixture.Factory.DbAdminExecuteCommandServiceMock
             .Setup(x => x.ExecuteAsync(
-                It.Is<DbAdminCtsImportRequestDto>(r => r.Command == "get_cts_parallel_import_deferred_errors"),
+                It.Is<DbAdminCtsImportRequestDto>(r => r.Command == "deferred_errors"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(JsonDocument.Parse("[]"));
 
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             _httpClient,
-            command: "get_cts_parallel_import_deferred_errors",
+            command: "deferred_errors",
             args: new { run_id = 456L },
             TestContext.Current.CancellationToken);
 
@@ -353,7 +353,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
         _testFixture.Factory.DbAdminExecuteCommandServiceMock.Verify(x => x.ExecuteAsync(
             It.Is<DbAdminCtsImportRequestDto>(r =>
-                r.Command == "get_cts_parallel_import_deferred_errors"
+                r.Command == "deferred_errors"
                 && r.Args.HasValue
                 && r.Args.Value.GetProperty("run_id").GetInt64() == 456L),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -374,9 +374,78 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             client,
-            command: "get_cts_parallel_import_summary",
+            command: "summary",
             args: new { run_id = 123L },
             TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    // CTS import runs
+
+    [Fact]
+    public async Task GivenRunsExist_WhenCtsImportRunsRequested_ShouldReturnRuns()
+    {
+        var createdAt = new DateTimeOffset(2026, 10, 1, 9, 30, 0, TimeSpan.Zero);
+        var completedAt = createdAt.AddHours(2);
+
+        _testFixture.Factory.DbAdminExecuteCommandServiceMock
+            .Setup(x => x.GetCtsImportRunsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new CtsImportRunDto(2, "processing bulk", createdAt, null, null),
+                new CtsImportRunDto(1, "complete", createdAt, completedAt, completedAt)
+            ]);
+
+        var response = await DbAdminTestClient.GetCtsImportRunsAsync(_httpClient, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var dto = await DbAdminTestClient.ReadRunsAsync(response, TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto!.Runs.Should().HaveCount(2);
+        dto.Runs[0].RunId.Should().Be(2);
+        dto.Runs[0].Status.Should().Be("processing bulk");
+        dto.Runs[0].CompletedAt.Should().BeNull();
+        dto.Runs[1].CompletedAt.Should().Be(completedAt);
+    }
+
+    [Fact]
+    public async Task GivenNoToken_WhenCtsImportRunsRequested_ShouldReturnUnauthorized()
+    {
+        var client = _testFixture.Factory.CreateClient();
+
+        var response = await DbAdminTestClient.GetCtsImportRunsAsync(client, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GivenScopeClaimMissing_WhenCtsImportRunsRequested_ShouldReturnForbidden()
+    {
+        var client = _testFixture.Factory.CreateClient();
+        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminScope);
+
+        var response = await DbAdminTestClient.GetCtsImportRunsAsync(client, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task GivenDbAdminEndpointsDisabled_WhenCtsImportRunsRequested_ShouldReturnNotFound()
+    {
+        await using var factory = new SystemAdminWebApplicationFactory(
+            configOverrides: new Dictionary<string, string?>
+            {
+                ["Modules:SystemAdmin:EnableAdminEndpoints"] = "false"
+            },
+            useFakeAuth: true);
+
+        var client = factory.CreateClient();
+        client.AddJwt();
+
+        var response = await DbAdminTestClient.GetCtsImportRunsAsync(client, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
