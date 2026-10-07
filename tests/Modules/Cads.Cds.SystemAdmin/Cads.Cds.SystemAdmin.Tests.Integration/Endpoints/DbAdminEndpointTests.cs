@@ -82,6 +82,45 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
+    public async Task GivenValidRoleAndScope_WhenCtsImportRunsRequested_ShouldReturnOk()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+
+        var response = await DbAdminTestClient.GetCtsImportRunsAsync(client, TestContext.Current.CancellationToken);
+
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        response.IsSuccessStatusCode.Should().BeTrue($"status={(int)response.StatusCode} body={body}");
+
+        var dto = await DbAdminTestClient.ReadRunsAsync(response, TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto!.Runs.Should().NotBeNull();
+    }
+
+    [Theory]
+    [InlineData("deferred_errors")]
+    [InlineData("plan")]
+    [InlineData("summary")]
+    public async Task GivenValidRoleAndScope_WhenCtsImportRequestedForRunWithNoRows_ShouldReturnOk(string command)
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+
+        var response = await DbAdminTestClient.ExecuteCtsImportAsync(
+            client,
+            command,
+            args: new { run_id = long.MaxValue },
+            TestContext.Current.CancellationToken);
+
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        response.IsSuccessStatusCode.Should().BeTrue($"status={(int)response.StatusCode} body={body}");
+
+        var dto = await DbAdminTestClient.ReadDtoAsync(response, TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto!.Command.Should().Be(command);
+    }
+
+    [Fact]
     public async Task GivenScopeMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingScopeToken());

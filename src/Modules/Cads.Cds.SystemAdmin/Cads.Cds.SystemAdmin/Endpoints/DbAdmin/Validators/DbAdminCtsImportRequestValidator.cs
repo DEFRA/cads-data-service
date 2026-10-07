@@ -8,9 +8,9 @@ public class DbAdminCtsImportRequestValidator : DbAdminRequestValidatorBase<DbAd
 {
     private static readonly string[] AllowedCommands =
     {
-        "get_cts_parallel_import_deferred_errors",
-        "get_cts_parallel_import_plan",
-        "get_cts_parallel_import_summary"
+        "deferred_errors",
+        "plan",
+        "summary"
     };
 
     public DbAdminCtsImportRequestValidator() : base(AllowedCommands)
