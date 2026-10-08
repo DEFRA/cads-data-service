@@ -17,62 +17,65 @@ public class S3CsvImportBackgroundService(
     IS3ToPostgresCopyService processor
 ) : S3ImportBackgroundService<CreateS3CsvImportJobDto>(channel, logger, processor)
 {
-    private static readonly TimeSpan CleanupTimeout = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan s_cleanupTimeout = TimeSpan.FromSeconds(10);
 
     protected override async Task ProcessJobAsync(
         CreateS3CsvImportJobDto request,
         SemaphoreSlim semaphore,
         CancellationToken cancellationToken)
     {
-        await using var scope = serviceScopeFactory.CreateAsyncScope();
-
-        using (CorrelationScope.Begin(request.CorrelationId))
+        try
         {
-            try
+            await using var scope = serviceScopeFactory.CreateAsyncScope();
+
+            using (CorrelationScope.Begin(request.CorrelationId))
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
-                var fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
-
-                var fileImport = await fileImportRepository.GetByIdAsync(request.FileImportId, cancellationToken);
-
                 try
                 {
-                    var result = await processor.ExecuteAsync(request, cancellationToken);
+                    var dbContext = scope.ServiceProvider.GetRequiredService<StorageBridgeWriteDbContext>();
+                    var fileImportRepository = scope.ServiceProvider.GetRequiredService<IStorageBridgeFileImportRepository>();
 
-                    fileImport!.MarkCompleted(result.RowIdsAmended);
-                    await dbContext.SaveChangesAsync(cancellationToken);
+                    var fileImport = await fileImportRepository.GetByIdAsync(request.FileImportId, cancellationToken);
+
+                    try
+                    {
+                        var result = await processor.ExecuteAsync(request, cancellationToken);
+
+                        fileImport!.MarkCompleted(result.RowIdsAmended);
+                        await dbContext.SaveChangesAsync(cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        // IMPORTANT: never use the (possibly cancelled) shutdown token to
+                        // persist the failure status, otherwise SaveChanges fails immediately
+                        // and the import is left in an unstable state.
+                        using var cleanupCts = new CancellationTokenSource(s_cleanupTimeout);
+
+                        var reason = ex is OperationCanceledException
+                            ? "Import interrupted by service shutdown"
+                            : $"Import failed: {ex.Message}";
+
+                        if (logger.IsEnabled(LogLevel.Error))
+                        {
+                            logger.LogError(ex, "Failed to process bulk load job {JobId}. {Reason}", request.JobId, reason);
+                        }
+
+                        fileImport!.MarkFailed(reason, ex.IsTransientPostgresException());
+                        await dbContext.SaveChangesAsync(cleanupCts.Token);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    // IMPORTANT: never use the (possibly cancelled) shutdown token to
-                    // persist the failure status, otherwise SaveChanges fails immediately
-                    // and the import is left in an unstable state.
-                    using var cleanupCts = new CancellationTokenSource(CleanupTimeout);
-
-                    var reason = ex is OperationCanceledException
-                        ? "Import interrupted by service shutdown"
-                        : $"Import failed: {ex.Message}";
-
                     if (logger.IsEnabled(LogLevel.Error))
                     {
-                        logger.LogError(ex, "Failed to process bulk load job {JobId}. {Reason}", request.JobId, reason);
+                        logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
                     }
-
-                    fileImport!.MarkFailed(reason, ex.IsTransientPostgresException());
-                    await dbContext.SaveChangesAsync(cleanupCts.Token);
-                }
-                finally
-                {
-                    semaphore.Release();
                 }
             }
-            catch (Exception ex)
-            {
-                if (logger.IsEnabled(LogLevel.Error))
-                {
-                    logger.LogError(ex, "Failed to process bulk load job {JobId}", request.JobId);
-                }
-            }
+        }
+        finally
+        {
+            semaphore.Release();
         }
     }
 }
