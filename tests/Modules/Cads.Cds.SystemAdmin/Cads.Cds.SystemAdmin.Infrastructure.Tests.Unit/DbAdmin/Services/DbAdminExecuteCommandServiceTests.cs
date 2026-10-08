@@ -104,6 +104,35 @@ public class DbAdminExecuteCommandServiceTests
         await act.Should().NotThrowAsync<NullReferenceException>();
     }
 
+    [Fact]
+    public async Task GetCtsImportRunsAsync_ShouldRequestDataSource_UsingDefaultConnectionIdentifier()
+    {
+        var sut = CreateSut(out var dataSource);
+
+        await using var _ = dataSource;
+
+        var act = () => sut.GetCtsImportRunsAsync(TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<NpgsqlException>();
+
+        _factory.Verify(x => x.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetCtsImportRunsAsync_ShouldThrowOperationCanceledException_WhenCancellationTokenIsAlreadyCancelled()
+    {
+        var sut = CreateSut(out var dataSource);
+
+        await using var _ = dataSource;
+
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        var act = () => sut.GetCtsImportRunsAsync(cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
     private DbAdminExecuteCommandService CreateSut(out NpgsqlDataSource dataSource)
     {
         dataSource = NpgsqlDataSource.Create(UnreachableConnectionString);

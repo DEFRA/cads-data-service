@@ -103,10 +103,10 @@ Rollbacks are handled be redeploying the previous version through the CDP Portal
 ### Authentication/Authorization
 
 ### API Gateway Client Credentials
- - **Recycling client secrets**: The team can request for the client secret to be recycled by the CDP team. The CDP team can rotate the credentials by creating a new one and then expiring the old one after confirmationo that the new one is in use. CDP do not enforce any fixed rotation period.
+ - **Recycling client secrets**: The team can request for the client secret to be recycled by the CDP team. The CDP team can rotate the credentials by creating a new one and then expiring the old one after confirmation that the new one is in use. CDP do not enforce any fixed rotation period.
 
 ### Data Classification
-- **PII**: Contains personal information of livestock keepers
+- **PII**: Contains no PII data
 - **Business Critical**: Essential for livestock traceability
 - **Retention**: Follow DEFRA data retention policies
 
