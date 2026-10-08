@@ -8,8 +8,13 @@ public static class TestBovineConstants
     public const string KnownIdentifier = "UK324537113234";
     public const string UnknownIdentifier = "UK999999999999";
 
-    // Seeded by AnimalOnHoldingDataFactory (known CPH)
+    // # Seeded by AnimalOnHoldingDataFactory (known CPH)
     public const int KnownCphAnimalCount = 30;       // even index = Female (15), index % 3 == 0 = HO (10)
     public const int KnownCphFemaleHoCount = 5;      // index % 6 == 0
     public const int OtherCphAnimalCount = 5;
+
+    // # Seeded by AnimalDetailDataFactory
+    public const string KnownDamIdentifier = "UK324537113243";
+    public const string KnownSireIdentifier = "UK324537110987";
+    public const string KnownIdentifierNoParents = "UK324537113250";   // dead, unrestricted, no parents
 }
