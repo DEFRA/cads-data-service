@@ -128,6 +128,8 @@ public static class ServiceCollectionExtensions
 
     public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
+        var schemes = new List<string>();
+
         var authConfig = configuration.GetSection(nameof(AuthenticationConfiguration)).Get<AuthenticationConfiguration>()!;
 
         services.Configure<AclOptions>(
@@ -145,19 +147,22 @@ public static class ServiceCollectionExtensions
         if (authConfig.ApiKey.Enabled)
         {
             authBuilder.AddApiKeyScheme();
+            schemes.Add(AuthenticationConstants.ApiKeySchemeName);
         }
 
         if (authConfig.Cognito.Enabled)
         {
             authBuilder.AddCognitoScheme(authConfig.Cognito);
+            schemes.Add(AuthenticationConstants.CognitoSchemeName);
         }
 
         if (authConfig.AzureAD.Enabled)
         {
             authBuilder.AddAzureADScheme(authConfig.AzureAD);
+            schemes.Add(AuthenticationConstants.AzureADSchemeName);
         }
 
-        services.AddAuthorisationPolicies(authConfig);
+        services.AddAuthorisationPolicies(authConfig, schemes);
         services.AddUserContext();
     }
 
@@ -216,7 +221,10 @@ public static class ServiceCollectionExtensions
         });
     }
 
-    private static void AddAuthorisationPolicies(this IServiceCollection services, AuthenticationConfiguration authenticationConfiguration)
+    private static void AddAuthorisationPolicies(
+        this IServiceCollection services,
+        AuthenticationConfiguration authenticationConfiguration,
+        List<string> schemes)
     {
         var scopeClaim = authenticationConfiguration.AzureAD.ScopeClaimType;
         var roleClaim = authenticationConfiguration.AzureAD.RoleClaimType;
@@ -247,6 +255,15 @@ public static class ServiceCollectionExtensions
                 .RequireAuthenticatedUser()
                 .RequireScope(scopeClaim, scope));
         }
+
+        builder.AddPolicy(AuthenticationConstants.DiagnosticsPolicyName, p => p
+            .AddAuthenticationSchemes([.. schemes])
+            .RequireAuthenticatedUser());
+
+        builder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
+            .AddAuthenticationSchemes([.. schemes])
+            .RequireAuthenticatedUser()
+            .Build());
     }
 
     private static AuthorizationPolicyBuilder RequireScope(
