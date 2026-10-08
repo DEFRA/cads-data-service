@@ -57,7 +57,8 @@ public class ApiWebApplicationFactory(
         var readDb = scope.ServiceProvider.GetRequiredService<ApiReadDbContext>();
 
         // Seeds
-        TestApiDataSeeder.Seed(readDb, new AnimalOnHoldingDataFactory().CreateMockData());
+        TestApiDataSeeder.Seed(readDb, AnimalDetailDataFactory.CreateMockData());
+        TestApiDataSeeder.Seed(readDb, AnimalOnHoldingDataFactory.CreateMockData());
         TestApiDataSeeder.Seed(readDb, new LocationSummaryDataFactory().CreateMockData());
 
         readDb.SaveChanges();
