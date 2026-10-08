@@ -8,6 +8,7 @@ public class DbAdminCtsImportRequestValidator : DbAdminRequestValidatorBase<DbAd
 {
     private static readonly string[] AllowedCommands =
     {
+        "runs",
         "deferred_errors",
         "plan",
         "summary"
@@ -20,6 +21,7 @@ public class DbAdminCtsImportRequestValidator : DbAdminRequestValidatorBase<DbAd
                           && args.Value.TryGetProperty("run_id", out var runId)
                           && runId.ValueKind == JsonValueKind.Number
                           && runId.TryGetInt64(out _))
-            .WithMessage("Args must contain a numeric 'run_id' property.");
+            .WithMessage("Args must contain a numeric 'run_id' property.")
+            .When(x => x.Command != "runs");
     }
 }
