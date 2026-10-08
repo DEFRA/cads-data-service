@@ -9,8 +9,8 @@ public class HealthcheckEndpointTests(ApiContainerFixture apiContainerFixture)
     [Fact]
     public async Task GivenValidHttpHealthCheckRequest_ShouldSucceed()
     {
-        var client = apiContainerFixture.CreateClient();
-        var response = await client.GetAsync("health", TestContext.Current.CancellationToken);
+        var client = apiContainerFixture.CreateBasicClient();
+        var response = await client.GetAsync("health/details", TestContext.Current.CancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         response.EnsureSuccessStatusCode();
