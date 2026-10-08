@@ -1,13 +1,16 @@
 using Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
 using FluentAssertions;
 
-namespace Cads.Cds.Api.Application.Tests.Unit.Queries.Bovine;
+namespace Cads.Cds.Api.Application.Tests.Unit.Queries.Bovine.AnimalDetails;
 
 public class GetAnimalDetailsByIdentifierValidatorTests
 {
     [Theory]
     [InlineData("", false)]
     [InlineData(" ", false)]
+    [InlineData("  ", false)]
+    [InlineData("UK3245371 13234", true)]
+    [InlineData("UK 3245371 13234", true)]
     [InlineData("UK324537113234", true)]
     public void ShouldValidateIdentifierCorrectly(string identifier, bool expectedIsValid)
     {
