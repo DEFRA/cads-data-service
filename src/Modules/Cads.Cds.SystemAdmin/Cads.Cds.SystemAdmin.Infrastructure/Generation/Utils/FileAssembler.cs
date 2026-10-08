@@ -1,6 +1,7 @@
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -11,21 +12,23 @@ public class FileAssembler : IFileAssembler
     // The sample file format is as follows:
     // H|CTSM_UKV_PROD_BULK_######_CT_ANIMAL_RELATIONSHIPS_2026-02-22-074603.csv|22022026 07:46:03
     // C|RECORD_TYPE|RECORD_COUNT|AAR_ID|AAR_REL_TYPE|AAR_LOC_ID|AAR_CONFIDENCE_INDICATOR|AAR_EFFECTIVE_FROM_DATE|AAR_EFFECTIVE_TO_DATE|AAR_RAN_ID_CHILD|AAR_RAN_ID_PARENT|AAR_PARENT_IDENTIFIER|AAR_PARENT_IDENTIFIER_TYPE|AAR_CANCELLED_REASON|AAR_CURRENT_USER|AAR_CURRENT_STATUS|AAR_CURRENT_MODIFIED_DATE|AAR_CURRENT_PID|AAR_VERSION
-    // T | CTSM_UKV_PROD_BULK_######_CT_ANIMAL_RELATIONSHIPS_2026-02-22-074603.csv|22022026 10:16:02|149721673
+    // T|CTSM_UKV_PROD_BULK_######_CT_ANIMAL_RELATIONSHIPS_2026-02-22-074603.csv|22022026 10:16:02|149721673
 
     private const char Separator = '|';
 
-    private const char HeaderPrefix = 'H';
+    private const string HeaderPrefix = "H";
 
-    private const char ContentPrefix = 'C';
-
-    private const char FooterPrefix = 'T';
-
-    private const string RecordType = "RECORD_TYPE";
+    private const string ContentPrefix = "C";
 
     private const string DataPrefix = "D";
 
+    private const string FooterPrefix = "T";
+
+    private const string RecordType = "RECORD_TYPE";
+
     private const string DateTimeFormat = "ddMMyyyy HH:mm:ss";
+
+    private const string FieldDateOnlyFormat = "dd-MMM-yy";
 
     public string Create(string fileName, DateTime fileCreatedDateTime, IReadOnlyList<IReadOnlyDictionary<string, object?>> data)
     {
@@ -45,21 +48,20 @@ public class FileAssembler : IFileAssembler
         // Add any necessary footer information
         var footer = RenderFooter(fileName, data.Count, fileCreatedDateTime);
 
-        var fileSb = new StringBuilder();
-
         // Combine header, content and return
-        fileSb.Append(header);
-        fileSb.Append(content);
-        fileSb.Append(footer);
+        var fileSb = new StringBuilder()
+            .Append(header)
+            .Append(content)
+            .Append(footer);
 
         return fileSb.ToString();
     }
 
     private static string RenderHeader(string fileName, IReadOnlyDictionary<string, object?> row, DateTime dateTime)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine(HeaderPrefix + Separator + fileName + Separator + dateTime.ToString(DateTimeFormat));
-        sb.AppendLine(ContentPrefix + Separator + RecordType + Separator + string.Join(Separator, row.Keys.Select(i => i.ToUpper())));
+        var sb = new StringBuilder()
+            .AppendLine(HeaderPrefix + Separator + fileName + Separator + dateTime.ToString(DateTimeFormat))
+            .AppendLine(ContentPrefix + Separator + RecordType + Separator + string.Join(Separator, row.Keys.Select(i => i.ToUpper())));
 
         return sb.ToString().TrimEnd(Separator);
     }
@@ -70,7 +72,15 @@ public class FileAssembler : IFileAssembler
 
         for (var i = 0; i < data.Count; i++)
         {
-            sb.AppendLine(DataPrefix + Separator + $"{i + 1}{Separator}" + string.Join(Separator, data[i].Values));
+            var formattedValues = data[i].Values.Select(v =>
+            {
+                if (v == null) return string.Empty;
+                if (v is DateTime dt) return dt.ToString(FieldDateOnlyFormat, CultureInfo.InvariantCulture);
+                if (v is DateTimeOffset dto) return dto.ToString(FieldDateOnlyFormat, CultureInfo.InvariantCulture);
+                return v.ToString() ?? string.Empty;
+            });
+
+            sb.AppendLine(DataPrefix + Separator + $"{i + 1}{Separator}" + string.Join(Separator, formattedValues));
         }
 
         return sb.ToString().TrimEnd(Separator);
@@ -78,8 +88,8 @@ public class FileAssembler : IFileAssembler
 
     private static string RenderFooter(string fileName, long recordCount, DateTime dateTime)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine(FooterPrefix + Separator + fileName + Separator + dateTime.ToString(DateTimeFormat) + Separator + recordCount);
+        var sb = new StringBuilder()
+            .Append(FooterPrefix + Separator + fileName + Separator + dateTime.ToString(DateTimeFormat) + Separator + recordCount);
 
         return sb.ToString();
     }
