@@ -6,6 +6,9 @@ public class GetAnimalDetailsByIdentifierValidator : AbstractValidator<GetAnimal
 {
     public GetAnimalDetailsByIdentifierValidator()
     {
-        RuleFor(x => x.Identifier).NotEmpty();
+        RuleFor(x => x.Identifier.Trim())
+          .NotEmpty()
+          .MaximumLength(20)
+          .Matches("^[A-Za-z0-9 ]+$");
     }
 }
