@@ -1,20 +1,17 @@
-using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
-using Cads.Cds.BuildingBlocks.Infrastructure.Json;
-using Cads.Cds.Ingester.Application.Commands.AnimalMovements;
 using Cads.Cds.Ingester.Controllers.Requests.AnimalMovements;
 using Cads.Cds.Ingester.Core.Domain.Enums;
+using Cads.Cds.Ingester.Core.DTOs.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace Cads.Cds.Ingester.Controllers;
 
 [ApiController]
 [Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
 [Route("api/v1/nation/{nation}/animal-movements")]
-public class AnimalMovementsController(IRequestExecutor executor, ILogger<AnimalMovementsController> logger) : ControllerBase
+public class AnimalMovementsController(ILogger<AnimalMovementsController> logger) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> PostAnimalMovements(
@@ -26,15 +23,10 @@ public class AnimalMovementsController(IRequestExecutor executor, ILogger<Animal
             logger.LogDebug("Received animal movements request for {Nation} at {Timestamp}", nation, DateTime.UtcNow);
         }
 
-        var payload = JsonSerializer.Serialize<AnimalMovementsRequest>(request, JsonDefaults.DefaultOptionsWithIndented);
-        var command = new AnimalMovementByNationCommand(nation, payload);
-        var response = await executor.ExecuteCommand(command);
-
-        if (logger.IsEnabled(LogLevel.Debug))
+        return Accepted(new IngestionDto
         {
-            logger.LogDebug("Animal movements request in storage at {IngestionId} and completed at {Timestamp}", response.IngestionId, DateTime.UtcNow);
-        }
-
-        return Accepted(response);
+            IngestionId = nation.ToString().ToLower(),
+            RecordCount = 1
+        });
     }
 }
