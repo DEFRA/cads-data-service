@@ -4,23 +4,54 @@ using Cads.Cds.Api.Tests.Component.TestFixtures;
 using Cads.Cds.BuildingBlocks.Testing.Support.ProblemDetails;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using FluentAssertions;
+using System.Net;
 
 namespace Cads.Cds.Api.Tests.Component.Endpoints;
 
 public class BovineEndpointTests(ApiTestFixture testFixture) : IClassFixture<ApiTestFixture>
 {
     // GetAnimalDetailsByIdentifier
-
     [Fact]
-    public async Task GivenValidIdentifier_WhenGetAnimalDetailsByIdentifierRequested_ShouldSucceed()
+    public async Task GivenKnownIdentifier_WhenGetAnimalDetailsRequested_ShouldReturnFullContractShape()
     {
         var response = await ExecuteTest(TestEndpointConstants.ApiBovineAnimalsRoot + TestBovineConstants.KnownIdentifier);
 
         var result = await HttpResponseMessageUtilities.VerifyOk<AnimalDetailsDto>(response);
 
-        result.Identifier.Should().Be(TestBovineConstants.KnownIdentifier);
-        result.AnimalDetail.Should().NotBeNull();
-        result.AnimalDetail!.Identifier!.Identifier.Should().Be(TestBovineConstants.KnownIdentifier);
+        result.ResourceType.Should().Be("AnimalDetail");
+        result.EventDateTime.Should().Be(new DateTime(2026, 08, 24, 12, 0, 0, DateTimeKind.Utc));
+        result.Source!.System.Should().Be("CTS");
+
+        var animal = result.AnimalDetail!;
+        animal.Sex.Should().Be("Female");
+        animal.State.Should().Be("Alive");
+        animal.RestrictionStatus.Should().Be("Restricted");
+        animal.BreedCode!.Identifier.Should().Be("HO");
+        animal.BreedCode.BreedName.Should().Be("Holstein Friesian");
+        animal.Parentage.Should().BeEquivalentTo(
+        [
+            new { Relationship = "GeneticDam", AnimalIdentifier = new { Identifier = TestBovineConstants.KnownDamIdentifier } },
+            new { Relationship = "Sire", AnimalIdentifier = new { Identifier = TestBovineConstants.KnownSireIdentifier } }
+        ], o => o.ExcludingMissingMembers());
+    }
+
+    [Fact]
+    public async Task GivenAnimalWithNoParents_WhenGetAnimalDetailsRequested_ShouldReturnEmptyParentage()
+    {
+        var response = await ExecuteTest(TestEndpointConstants.ApiBovineAnimalsRoot + TestBovineConstants.KnownIdentifierNoParents);
+
+        var result = await HttpResponseMessageUtilities.VerifyOk<AnimalDetailsDto>(response);
+
+        result.AnimalDetail!.Parentage.Should().BeEmpty();
+        result.AnimalDetail.State.Should().Be("Dead");
+    }
+
+    [Fact]
+    public async Task GivenUnknownIdentifier_WhenGetAnimalDetailsRequested_ShouldReturnNotFound()
+    {
+        var response = await ExecuteTest(TestEndpointConstants.ApiBovineAnimalsRoot + TestBovineConstants.UnknownIdentifier);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     // GetAnimalsOnHolding
