@@ -1,7 +1,10 @@
+using Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
+using Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnHolding;
 using Cads.Cds.Api.Application.Uow;
 using Cads.Cds.Api.Core.Domain.Repositories.Holdings;
 using Cads.Cds.Api.Infrastructure.Persistence.Behaviours;
 using Cads.Cds.Api.Infrastructure.Persistence.Contexts;
+using Cads.Cds.Api.Infrastructure.Persistence.Queries.Animals;
 using Cads.Cds.Api.Infrastructure.Persistence.Repositories.Holdings;
 using Cads.Cds.Api.Infrastructure.Persistence.Uow;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
@@ -23,6 +26,8 @@ public static class ServiceCollectionExtensions
         services.RegisterManualUnitOfWork();
 
         services.RegisterFunctionRepositories();
+
+        services.RegisterFunctionQueries();
 
         return services;
     }
@@ -51,5 +56,11 @@ public static class ServiceCollectionExtensions
     private static void RegisterFunctionRepositories(this IServiceCollection services)
     {
         services.AddScoped<ILocationSummaryRepository, LocationSummaryRepository>();
+    }
+
+    private static void RegisterFunctionQueries(this IServiceCollection services)
+    {
+        services.AddScoped<IAnimalsOnHoldingReadQuery, AnimalsOnHoldingReadQuery>();
+        services.AddScoped<IAnimalDetailReadQuery, AnimalDetailReadQuery>();
     }
 }
