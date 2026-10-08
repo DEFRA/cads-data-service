@@ -1,3 +1,4 @@
+using Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
 using Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnHolding;
 using Cads.Cds.Api.Application.Uow;
 using Cads.Cds.Api.Core.Domain.Repositories.Holdings;
@@ -60,5 +61,6 @@ public static class ServiceCollectionExtensions
     private static void RegisterFunctionQueries(this IServiceCollection services)
     {
         services.AddScoped<IAnimalsOnHoldingReadQuery, AnimalsOnHoldingReadQuery>();
+        services.AddScoped<IAnimalDetailReadQuery, AnimalDetailReadQuery>();
     }
 }
