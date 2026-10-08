@@ -381,72 +381,27 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    // CTS import runs
+    // CTS import: runs command
 
     [Fact]
-    public async Task GivenRunsExist_WhenCtsImportRunsRequested_ShouldReturnRuns()
+    public async Task GivenRunsCommandWithoutArgs_WhenCtsImportRequested_ShouldInvokeServiceAndReturnOk()
     {
-        var createdAt = new DateTimeOffset(2026, 10, 1, 9, 30, 0, TimeSpan.Zero);
-        var completedAt = createdAt.AddHours(2);
-
         _testFixture.Factory.DbAdminExecuteCommandServiceMock
-            .Setup(x => x.GetCtsImportRunsAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new CtsImportRunDto(2, "processing bulk", createdAt, null, null),
-                new CtsImportRunDto(1, "complete", createdAt, completedAt, completedAt)
-            ]);
+            .Setup(x => x.ExecuteAsync(
+                It.Is<DbAdminCtsImportRequestDto>(r => r.Command == "runs"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(JsonDocument.Parse("[]"));
 
-        var response = await DbAdminTestClient.GetCtsImportRunsAsync(_httpClient, TestContext.Current.CancellationToken);
+        var response = await DbAdminTestClient.ExecuteCtsImportAsync(
+            _httpClient,
+            command: "runs",
+            args: null,
+            TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var dto = await DbAdminTestClient.ReadRunsAsync(response, TestContext.Current.CancellationToken);
-
-        dto.Should().NotBeNull();
-        dto!.Runs.Should().HaveCount(2);
-        dto.Runs[0].RunId.Should().Be(2);
-        dto.Runs[0].Status.Should().Be("processing bulk");
-        dto.Runs[0].CompletedAt.Should().BeNull();
-        dto.Runs[1].CompletedAt.Should().Be(completedAt);
-    }
-
-    [Fact]
-    public async Task GivenNoToken_WhenCtsImportRunsRequested_ShouldReturnUnauthorized()
-    {
-        var client = _testFixture.Factory.CreateClient();
-
-        var response = await DbAdminTestClient.GetCtsImportRunsAsync(client, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task GivenScopeClaimMissing_WhenCtsImportRunsRequested_ShouldReturnForbidden()
-    {
-        var client = _testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminScope);
-
-        var response = await DbAdminTestClient.GetCtsImportRunsAsync(client, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
-    public async Task GivenDbAdminEndpointsDisabled_WhenCtsImportRunsRequested_ShouldReturnNotFound()
-    {
-        await using var factory = new SystemAdminWebApplicationFactory(
-            configOverrides: new Dictionary<string, string?>
-            {
-                ["Modules:SystemAdmin:EnableAdminEndpoints"] = "false"
-            },
-            useFakeAuth: true);
-
-        var client = factory.CreateClient();
-        client.AddJwt();
-
-        var response = await DbAdminTestClient.GetCtsImportRunsAsync(client, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        _testFixture.Factory.DbAdminExecuteCommandServiceMock.Verify(x => x.ExecuteAsync(
+            It.Is<DbAdminCtsImportRequestDto>(r => r.Command == "runs"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }

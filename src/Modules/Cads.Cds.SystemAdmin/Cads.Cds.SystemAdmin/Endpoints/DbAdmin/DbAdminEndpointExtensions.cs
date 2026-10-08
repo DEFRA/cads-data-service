@@ -20,26 +20,6 @@ public static class DbAdminEndpointExtensions
 
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-cts-import", DbAdminCtsImport)
             .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
-
-        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-cts-import/runs", GetCtsImportRuns)
-            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
-    }
-
-    private static async Task<GetCtsImportRunsResponse> GetCtsImportRuns(
-        IDbAdminExecuteCommandService service,
-        HttpContext httpContext,
-        ILogger<GetCtsImportRunsResponse> logger,
-        CancellationToken cancellationToken)
-    {
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            var user = httpContext.User.Identity!.Name;
-            logger.LogInformation("User {User}: Getting DB Admin cts import runs", user);
-        }
-
-        var runs = await service.GetCtsImportRunsAsync(cancellationToken);
-
-        return new GetCtsImportRunsResponse(runs);
     }
 
     private static async Task<DbAdminCommandResponse> DbAdminExecuteCommand(

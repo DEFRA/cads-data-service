@@ -7,6 +7,4 @@ public interface IDbAdminExecuteCommandService
 {
     Task<JsonDocument> ExecuteAsync<TRequest>(TRequest request, CancellationToken cancellationToken = default)
         where TRequest : DbAdminRequestBaseDto;
-
-    Task<IReadOnlyList<CtsImportRunDto>> GetCtsImportRunsAsync(CancellationToken cancellationToken = default);
 }
