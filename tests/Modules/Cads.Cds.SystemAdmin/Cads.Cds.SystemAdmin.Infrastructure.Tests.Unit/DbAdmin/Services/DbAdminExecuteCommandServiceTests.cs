@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Factories;
+using Cads.Cds.SystemAdmin.Core.DTOs.DbAdmin;
 using Cads.Cds.SystemAdmin.Infrastructure.DbAdmin.Services;
 using FluentAssertions;
 using Moq;
@@ -19,13 +20,29 @@ public class DbAdminExecuteCommandServiceTests
         "Host=127.0.0.1;Port=1;Username=test;Password=test;Timeout=2;Command Timeout=2";
 
     [Fact]
-    public async Task ExecuteAsync_ShouldRequestDataSource_UsingDefaultConnectionIdentifier()
+    public async Task ExecuteAsyncWithDbAdminExecuteCommandRequestDto_ShouldRequestDataSource_UsingDefaultConnectionIdentifier()
     {
         var sut = CreateSut(out var dataSource);
 
         await using var _ = dataSource;
 
-        var act = () => sut.ExecuteAsync("sessions_by_state", null, TestContext.Current.CancellationToken);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<Exception>();
+
+        _factory.Verify(x => x.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier), Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsyncWithDbAdminCtsImportRequestDto_ShouldRequestDataSource_UsingDefaultConnectionIdentifier()
+    {
+        var sut = CreateSut(out var dataSource);
+
+        await using var _ = dataSource;
+
+        var args = JsonSerializer.SerializeToElement(new { run_id = 123L });
+
+        var act = () => sut.ExecuteAsync(new DbAdminCtsImportRequestDto("deferred_errors", args), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<Exception>();
 
@@ -39,7 +56,7 @@ public class DbAdminExecuteCommandServiceTests
 
         await using var _ = dataSource;
 
-        var act = () => sut.ExecuteAsync("sessions_by_state", null, TestContext.Current.CancellationToken);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<NpgsqlException>();
     }
@@ -54,7 +71,7 @@ public class DbAdminExecuteCommandServiceTests
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
-        var act = () => sut.ExecuteAsync("sessions_by_state", null, cts.Token);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), cts.Token);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
@@ -68,7 +85,7 @@ public class DbAdminExecuteCommandServiceTests
 
         await using var _ = dataSource;
 
-        var act = () => sut.ExecuteAsync("sessions_by_state", null, TestContext.Current.CancellationToken);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("sessions_by_state", null), TestContext.Current.CancellationToken);
 
         await act.Should().NotThrowAsync<NullReferenceException>();
     }
@@ -82,9 +99,38 @@ public class DbAdminExecuteCommandServiceTests
 
         using var argsDoc = JsonDocument.Parse("""{"pid":123}""");
 
-        var act = () => sut.ExecuteAsync("cancel_query", argsDoc.RootElement, TestContext.Current.CancellationToken);
+        var act = () => sut.ExecuteAsync(new DbAdminExecuteCommandRequestDto("cancel_query", argsDoc.RootElement), TestContext.Current.CancellationToken);
 
         await act.Should().NotThrowAsync<NullReferenceException>();
+    }
+
+    [Fact]
+    public async Task GetCtsImportRunsAsync_ShouldRequestDataSource_UsingDefaultConnectionIdentifier()
+    {
+        var sut = CreateSut(out var dataSource);
+
+        await using var _ = dataSource;
+
+        var act = () => sut.GetCtsImportRunsAsync(TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<NpgsqlException>();
+
+        _factory.Verify(x => x.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetCtsImportRunsAsync_ShouldThrowOperationCanceledException_WhenCancellationTokenIsAlreadyCancelled()
+    {
+        var sut = CreateSut(out var dataSource);
+
+        await using var _ = dataSource;
+
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        var act = () => sut.GetCtsImportRunsAsync(cts.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
     }
 
     private DbAdminExecuteCommandService CreateSut(out NpgsqlDataSource dataSource)

@@ -73,7 +73,9 @@ public class StorageBridgeFifoQueueAdminService(
             {
                 QueueUrl = dlqQueueUrl,
                 MessageBody = message.Body,
-                MessageAttributes = attributes
+                MessageAttributes = attributes,
+                MessageGroupId = (message.Attributes ?? []).GetValueOrDefault("MessageGroupId", "dlq"),
+                MessageDeduplicationId = message.MessageId
             };
 
             var sendResponse = await sqs.SendMessageAsync(sendRequest, cancellationToken);

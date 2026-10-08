@@ -5,19 +5,17 @@
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Project Structure](#project-structure)
+- [Authentication](#authentication)
 - [Getting Started](#getting-started)
-  - [Local Development Setup](#local-development-setup)
+  - [Repository Layout](#repository-layout)
+  - [Backend setup](#backend-setup)
   - [Running the Application](#running-the-application)
+- [Accessing Services](#accessing-services)
+- [Verifying Everything Is Running](#verifying-everything-is-running)
 - [Testing](#testing)
 - [Development](#development) 
   - [Database](#database)
-  - [Building](#building)
-  - [Code Quality](#code-quality)
-  - [Contributing](#contributing)
-- [Deployment](#deployment)
-  - [CDP Environments](#cdp-environments)
-- [Architecture](#architecture)
-- [Licence](#licence)
+  - [Liquibase Workflow Guide](#liquibase-workflow-guide)
 
 ## Overview
 
@@ -36,7 +34,6 @@ Objectives:
 - .NET 10
 - ASP.NET Core
 - PostgreSQL
-- Redis
 - AWS S3
 - AWS SQS
 - AWS (LocalStack for local development)
@@ -48,7 +45,9 @@ Objectives:
 - **Docker & Docker Compose** - [Download](https://www.docker.com/products/docker-desktop)
 - **Git** - [Download](https://git-scm.com/)
 - **CADS Tools** - [CADS Tools](https://github.com/DEFRA/cads-tools)
-- **CADS DATA SEED** - [CADS DATA SEED](https://github.com/DEFRA/cads-data-seed)
+- **CADS Data Seed** - [CADS DATA SEED](https://github.com/DEFRA/cads-data-seed)
+- **CADS Bridge** - [CADS Tools](https://github.com/DEFRA/cads-bridge)
+- **CADS Admin Frontend** - [CADS MIS](https://github.com/DEFRA/cads-admin-frontend)
 - **CADS MIS (optional)** - [CADS MIS](https://github.com/DEFRA/cads-mis)
 - **AWS CLI** - [Download](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
 
@@ -239,6 +238,9 @@ This structure ensures clarity, isolation, and high coverage.
 ### API Key
 Used for internal service‑to‑service calls.
 
+### AWS STS
+Used for internal service‑to‑service calls.
+
 ### Cognito
 Used for external user authentication (e.g., mobile/web).
 
@@ -256,7 +258,9 @@ Your local workspace should contain all three repos side‑by‑side:
 
 ```
 D:\git\cads-data-service      # Backend (this repo)
-D:\git\cads-mis               # UI
+D:\git\cads-bridge            # Cads Bridge Backend
+D:\git\cads-mis               # Cads MIP Frontend
+D:\git\cads-admin-frontend    # Cads Admin Frontend
 D:\git\cads-tools             # Shared infra, OIDC mock, harness scripts
 D:\git\cads-data-seed         # Private repository containing pseudo-anonymised reference data for testing
 ```
@@ -265,7 +269,9 @@ Clone them like this:
 
 ```
 git clone https://github.com/DEFRA/cads-data-service.git
+git clone https://github.com/DEFRA/cads-bridge.git
 git clone https://github.com/DEFRA/cads-mis.git
+git clone https://github.com/DEFRA/cads-admin-frontend.git
 git clone https://github.com/DEFRA/cads-tools.git
 git clone https://github.com/DEFRA/cads-data-seed.git
 ```
@@ -290,15 +296,13 @@ POSTGRES_DB=cads_data_service
 POSTGRES_REF_DB=reference_schema
 PGADMIN_EMAIL=pgadmin@pgadmin.com
 PGADMIN_PASSWORD=*****
-STORAGE_MANAGER_ENABLED=true
 STORAGE_MANAGER_SALT=*****
 ```
 
 Passwords can be anything for local development.
 
-`STORAGE_MANAGER_ENABLED` toggles the StorageBridge storage-management endpoints
-(defaults to `false` when unset). `STORAGE_MANAGER_SALT` must match cads-bridge's
-`DataLoad__Salt` so both services decrypt the same CTSM files.
+`STORAGE_MANAGER_SALT` must match cads-bridge's `DataLoad__Salt` so both services
+decrypt the same CTSM files.
 
 ### Running the Application
 
@@ -312,8 +316,8 @@ This script starts:
 
 - Shared infra (Postgres, Redis, LocalStack, OIDC mock)
 - Imports reference data from `cads-data-seed` into the s3 bucket in LocalStack
-- Backend (CADS CDS + pgAdmin + Reference postgres database)
-- UI (CADS MIS)
+- Backend projects (`cads-data-service`, `cads-bridge`)
+- Frontend projects (`cads-mis`, `cads-admin-frontend`)
 - Or any combination you want
 
 It delegates infra to `cads-tools/harness/run-harness.sh`.
@@ -333,25 +337,40 @@ Starts:
 - Imports reference data from `cads-data-seed` into the s3 bucket in LocalStack
 - OIDC mock
 
-**Start backend + shared infra**
+**Start 'cads-data-service' + shared infra**
 
 ```
-./platform/platform.sh backend
+./platform/platform.sh cds
 ```
 
 Starts:
-- CADS CDS
+- cads-data-service
 - pgAdmin
 - Liquibase migration
 - Reference postgres database
 
-**Start UI + shared infra**
+**Start 'cads-bridge' + shared infra**
 
 ```
-./platform/platform.sh ui
+./platform/platform.sh bridge
 ```
 
-**Start everything (UI + backend + infra)**
+Starts:
+- cads-bridge
+
+**Start 'cads-mis' + shared infra**
+
+```
+./platform/platform.sh mis
+```
+
+**Start 'cads-admin-frontend' + shared infra**
+
+```
+./platform/platform.sh admin
+```
+
+**Start everything (all frontends / backends + infra)**
 
 ```
 ./platform/platform.sh all
@@ -369,8 +388,10 @@ To remove the postgresql data volume and start with a clean slate, use the `--cl
 ```
 
 This stops:
-- UI
-- Backend
+- cads-data-service
+- cads-bridge
+- cads-mis
+- cads-admin-frontend
 - Shared infra
 
 #### Mac Users — Architecture Override
@@ -389,7 +410,7 @@ Mac developers must specify their architecture when starting the backend or full
 ./platform/platform.sh backend --mac-arm
 ```
 
-**Full platform (UI + backend + infra)**
+**Full platform (all frontends / backends + infra)**
 
 ```
 ./platform/platform.sh all --mac-arm
@@ -409,11 +430,17 @@ This is an optional flag and if not used the syncing of the data seed scripts in
 
 ## Accessing Services
 
-**Backend API**
+**'cads-data-service'**
 http://localhost:5555
 
-**UI**
+**'cads-bridge'**
+http://localhost:5550
+
+**'cads-mis'**
 http://localhost:3000
+
+**'cads-admin-frontend'**
+http://localhost:3010
 
 **pgAdmin**
 http://localhost:16543
@@ -429,6 +456,24 @@ docker compose ps
 ```
 
 Or use Docker Desktop.
+
+## Get a token from the oidc
+
+Signs in through the browser using the authorization code flow and prints the tokens.
+
+```
+./platform/get-token.ps1                # cads-mis (default)
+./platform/get-token.ps1 -App mis       # cads-mis
+./platform/get-token.ps1 -App admin     # cads-admin-frontend
+```
+
+| App     | Client                      | Test user         | Default scopes                                                                         |
+|---------|-----------------------------|-------------------|----------------------------------------------------------------------------------------|
+| `mis`   | `local-cads-mis`            | `mip-viewer-user` | `reports.read`                                                                         |
+| `admin` | `local-cads-admin-frontend` | `cads-admin-user` | `admin.db.execute`, `admin.s3.manager`, `admin.queue.manager`                          |
+
+Both use the password `password`. Use `-Scopes "openid profile email ..."` to override the scopes.
+Client details must match `oidc/config/clients.yml`.
 
 ### Testing
 

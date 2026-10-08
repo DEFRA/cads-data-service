@@ -25,9 +25,9 @@ public class FakeJwtHandler(
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, TestAuthConstants.AzureAdUsername),
-            new(ClaimTypes.Email, TestAuthConstants.AzureAdEmail),
-            new("name", TestAuthConstants.AzureAdUsername)
+            new(ClaimTypes.Name, TestAuthConstants.AzureAdCadsMisUsername),
+            new(ClaimTypes.Email, TestAuthConstants.AzureAdCadsMisEmail),
+            new("name", TestAuthConstants.AzureAdCadsMisUsername)
         };
 
         if (Scheme.Name == AuthenticationConstants.AzureADSchemeName)
@@ -42,10 +42,11 @@ public class FakeJwtHandler(
             if (token != TestAuthConstants.FakeJwtMissingDbAdminScope)
             {
                 claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.DbAdminExecute));
+                claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.SqsAdminManager));
             }
-            if (token != TestAuthConstants.FakeJwtMissingDbAdminRole)
+            if (token != TestAuthConstants.FakeJwtMissingS3AdminScope)
             {
-                claims.Add(new Claim(azureAd.RoleClaimType, RoleNames.CadsAdminSuperuser));
+                claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.AdminS3Manager));
             }
         }
         else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
