@@ -107,12 +107,35 @@ public class S3CsvImportBackgroundServiceTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task ProcessJob_WhenSetupThrowsBeforeProcessing_StillReleasesSemaphore()
+    {
+        var ctx = new S3CsvBulkLoadBackgroundServiceTestContext();
+        var service = ctx.CreateService();
+
+        // Make GetByIdAsync throw, i.e. fail before the inner try is reached.
+        ctx.FileImportRepository
+            .Setup(x => x.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("db down"));
+
+        var semaphore = new SemaphoreSlim(1, 1);
+        await semaphore.WaitAsync(TestContext.Current.CancellationToken); // simulate the base class taking a permit
+
+        var method = typeof(S3ImportBackgroundService<CreateS3CsvImportJobDto>)
+            .GetMethod("ProcessJobAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+        var job = new CreateS3CsvImportJobDto { JobId = Guid.NewGuid(), FileImportId = 1 };
+
+        await (Task)method!.Invoke(service, [job, semaphore, CancellationToken.None])!;
+
+        Assert.Equal(1, semaphore.CurrentCount);
+    }
+
     public class S3CsvBulkLoadBackgroundServiceTestContext
     {
         private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
         private readonly Mock<IServiceScope> _scope = new();
         private readonly Mock<IServiceProvider> _provider = new();
-        private readonly Mock<IStorageBridgeFileImportRepository> _fileImportRepository = new();
+        public readonly Mock<IStorageBridgeFileImportRepository> FileImportRepository = new();
 
         // DbContext is mocked so SaveChangesAsync can be controlled/verified.
         public Mock<StorageBridgeWriteDbContext> DbContext { get; } =
@@ -137,8 +160,8 @@ public class S3CsvImportBackgroundServiceTests
             _provider.Setup(x => x.GetService(typeof(StorageBridgeWriteDbContext)))
                 .Returns(DbContext.Object);
             _provider.Setup(x => x.GetService(typeof(IStorageBridgeFileImportRepository)))
-                .Returns(_fileImportRepository.Object);
-            _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .Returns(FileImportRepository.Object);
+            FileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new FileImport());
 
             DbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
