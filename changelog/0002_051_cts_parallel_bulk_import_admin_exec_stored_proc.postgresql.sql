@@ -11,11 +11,27 @@ DECLARE
 BEGIN
     v_run_id := (args->>'run_id')::bigint;
 
-    IF v_run_id IS NULL THEN
+    IF command_name <> 'runs' AND v_run_id IS NULL THEN
         RAISE EXCEPTION 'run_id is required in args';
     END IF;
 
     CASE command_name
+
+        -- 0. All import runs, newest first
+        WHEN 'runs' THEN
+            RETURN (
+                SELECT jsonb_agg(row_to_json(t))
+                FROM (
+                         SELECT
+                             run_id,
+                             status,
+                             created_at,
+                             bulk_completed_at,
+                             completed_at
+                         FROM cads.cts_parallel_import_runs
+                         ORDER BY run_id DESC
+                     ) t
+            );
 
         -- 1. Deferred-row error breakdown for a run
         WHEN 'deferred_errors' THEN

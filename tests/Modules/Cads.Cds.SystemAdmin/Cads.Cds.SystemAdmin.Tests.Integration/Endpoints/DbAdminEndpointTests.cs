@@ -86,15 +86,19 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
 
-        var response = await DbAdminTestClient.GetCtsImportRunsAsync(client, TestContext.Current.CancellationToken);
+        var response = await DbAdminTestClient.ExecuteCtsImportAsync(
+            client,
+            command: "runs",
+            args: null,
+            TestContext.Current.CancellationToken);
 
         var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         response.IsSuccessStatusCode.Should().BeTrue($"status={(int)response.StatusCode} body={body}");
 
-        var dto = await DbAdminTestClient.ReadRunsAsync(response, TestContext.Current.CancellationToken);
+        var dto = await DbAdminTestClient.ReadDtoAsync(response, TestContext.Current.CancellationToken);
 
         dto.Should().NotBeNull();
-        dto!.Runs.Should().NotBeNull();
+        dto!.Command.Should().Be("runs");
     }
 
     [Theory]
