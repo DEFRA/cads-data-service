@@ -36,7 +36,6 @@ Objectives:
 - .NET 10
 - ASP.NET Core
 - PostgreSQL
-- Redis
 - AWS S3
 - AWS SQS
 - AWS (LocalStack for local development)
@@ -48,7 +47,9 @@ Objectives:
 - **Docker & Docker Compose** - [Download](https://www.docker.com/products/docker-desktop)
 - **Git** - [Download](https://git-scm.com/)
 - **CADS Tools** - [CADS Tools](https://github.com/DEFRA/cads-tools)
-- **CADS DATA SEED** - [CADS DATA SEED](https://github.com/DEFRA/cads-data-seed)
+- **CADS Data Seed** - [CADS DATA SEED](https://github.com/DEFRA/cads-data-seed)
+- **CADS Bridge** - [CADS Tools](https://github.com/DEFRA/cads-bridge)
+- **CADS Admin Frontend** - [CADS MIS](https://github.com/DEFRA/cads-admin-frontend)
 - **CADS MIS (optional)** - [CADS MIS](https://github.com/DEFRA/cads-mis)
 - **AWS CLI** - [Download](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html)
 
@@ -237,6 +238,9 @@ This structure ensures clarity, isolation, and high coverage.
 ## Authentication
 
 ### API Key
+Used for internal service‑to‑service calls.
+
+### AWS STS
 Used for internal service‑to‑service calls.
 
 ### Cognito
