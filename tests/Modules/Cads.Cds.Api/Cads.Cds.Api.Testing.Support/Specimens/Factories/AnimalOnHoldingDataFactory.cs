@@ -7,7 +7,7 @@ namespace Cads.Cds.Api.Testing.Support.Specimens.Factories;
 
 public class AnimalOnHoldingDataFactory
 {
-    public List<AnimalOnHolding> CreateMockData()
+    public static List<AnimalOnHolding> CreateMockData()
     {
         var animals = new List<AnimalOnHolding>();
 

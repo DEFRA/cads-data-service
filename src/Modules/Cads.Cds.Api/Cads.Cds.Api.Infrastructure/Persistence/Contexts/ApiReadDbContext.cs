@@ -16,6 +16,9 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : Cads
     // # Functions
 
     // ## Animals
+    public virtual IQueryable<AnimalDetail> GetAnimalDetail(string eartag)
+        => FromExpression(() => GetAnimalDetail(eartag));
+
     public virtual IQueryable<AnimalOnHolding> GetAnimalsOnHolding(
         string cph,
         bool includeHistorical,
@@ -42,6 +45,11 @@ public class ApiReadDbContext(DbContextOptions<ApiReadDbContext> options) : Cads
         // # Functions
 
         // ## Animals
+        modelBuilder.HasDbFunction(
+            GetType().GetMethod(nameof(GetAnimalDetail))!)
+            .HasName("get_animal_detail")
+            .HasSchema(SchemaName.Cads.GetDescription());
+
         modelBuilder.HasDbFunction(
             GetType().GetMethod(nameof(GetAnimalsOnHolding))!)
             .HasName("get_animals_on_holding")
