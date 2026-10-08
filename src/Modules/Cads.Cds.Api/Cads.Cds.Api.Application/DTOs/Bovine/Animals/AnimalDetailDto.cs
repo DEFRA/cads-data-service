@@ -23,7 +23,7 @@ public class AnimalDetailDto
     [JsonPropertyName("registrationDate")]
     public DateOnly? RegistrationDate { get; set; }
 
-    [JsonPropertyName("dateOnCph")]
+    [JsonPropertyName("dateOnCPH")]
     public DateOnly? DateOnCph { get; set; }
 
     [JsonPropertyName("breedCode")]
