@@ -12,7 +12,7 @@ public class HealthcheckEndpointTests(CdsTestFixture appTestFixture) : IClassFix
     {
         _appTestFixture.AppWebApplicationFactory.ResetMocks();
 
-        var response = await _appTestFixture.HttpClient.GetAsync("health", TestContext.Current.CancellationToken);
+        var response = await _appTestFixture.HttpClient.GetAsync("health/details", TestContext.Current.CancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         response.EnsureSuccessStatusCode();
