@@ -19,4 +19,9 @@ public static class TestApiDataSeeder
     {
         context.AddRange(animalsOnHolding);
     }
+
+    public static void Seed(DbContext context, List<AnimalDetail> animalDetails)
+    {
+        context.AddRange(animalDetails);
+    }
 }
