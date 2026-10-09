@@ -45,6 +45,5 @@ public sealed class SystemAdminModule : IModule
         }
 
         app.CreateSystemAdminEndpoints();
-
     }
 }
