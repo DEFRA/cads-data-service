@@ -84,4 +84,8 @@ public class TestEndpointConstants
 
     // SqsAdmin - ReplayDlq
     public const string SqsAdminReplayDlqEndpoint = SqsAdminQueuesRoot + "/{0}/dlq/replay";
+
+    // Generation - Dependencies
+    public const string GenerationDependenciesEndpoint = SystemAdminGenerationRoot + "/{schemaName}/{tableName}/dependencies";
+
 }

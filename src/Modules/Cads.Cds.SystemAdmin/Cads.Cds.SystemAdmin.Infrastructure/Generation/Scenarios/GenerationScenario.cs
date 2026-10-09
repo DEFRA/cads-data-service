@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios;
 
 public abstract class GenerationScenario<T>(string name,
-    ImportActionType importActionType, DbContext dbContext,
+    ImportActionType importActionType,
+    DbContext dbContext,
     IFileNameGenerator fileNameGenerator,
     IFileAssembler fileAssembler) : IGenerationScenario
     where T : class, new()
@@ -31,8 +32,6 @@ public abstract class GenerationScenario<T>(string name,
 
     protected virtual Func<T, decimal, T>? Transform { get; init; }
 
-    private readonly ImportActionType _importActionType = importActionType;
-
     public async Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
@@ -50,7 +49,7 @@ public abstract class GenerationScenario<T>(string name,
             {
                 App = FileNameApplicationPrefix,
                 Env = FileNameEnvironmentPrefix,
-                Type = _importActionType,
+                Type = importActionType,
                 BatchId = FileNameBatchId,
                 TableName = tableName,
                 Timestamp = fileCreatedDateTime
@@ -60,7 +59,7 @@ public abstract class GenerationScenario<T>(string name,
         return new CreateGenerationResponseDto
         {
             FileName = fileName,
-            Content = System.Text.Json.JsonSerializer.Serialize(content),
+            Content = content,
             BusinessKeys = businessKeys
         };
     }
