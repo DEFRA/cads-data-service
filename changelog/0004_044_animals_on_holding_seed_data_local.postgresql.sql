@@ -184,5 +184,5 @@ INSERT INTO cts.ct_animal_relationships (
 ) VALUES
     (934000001, 'CG', 930000001, '2023-03-10', NULL, 931000001, NULL, 'UK324537113243', 'ET', 'seed', 'L', '2026-04-23', 1, 1),
     (934000002, 'CS', 930000001, '2023-03-10', NULL, 931000001, NULL, 'UK324537110987', 'ET', 'seed', 'L', '2026-04-23', 1, 2);
- 
+
 DROP TABLE seed_animals;
