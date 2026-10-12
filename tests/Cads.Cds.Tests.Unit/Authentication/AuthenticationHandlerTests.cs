@@ -139,6 +139,44 @@ public class AuthenticationHandlerTests
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_AndSuperuserRoleMissing_ReturnsForbidden()
+    {
+        var factory = GetFactory(true);
+        var client = factory.CreateClient();
+        client.AddJwt(TestAuthConstants.FakeJwtMissingSuperuserRole);
+
+        var response = await client.GetAsync("test-auth/azuread/db-admin", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_AndSuperuserRoleInAzureAdRolesClaim_ReturnsOk()
+    {
+        var factory = GetFactory(true);
+        var client = factory.CreateClient();
+        client.AddJwt(TestAuthConstants.FakeJwtAzureAdRolesClaim);
+
+        var response = await client.GetAsync("test-auth/azuread/db-admin", TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Theory]
+    [InlineData("test-auth/azuread/sqs-admin")]
+    [InlineData("test-auth/azuread/s3-admin")]
+    public async Task GivenScopeOnlyAdminPolicy_WhenEndpointRequested_AndSuperuserRoleMissing_ReturnsOk(string url)
+    {
+        var factory = GetFactory(true);
+        var client = factory.CreateClient();
+        client.AddJwt(TestAuthConstants.FakeJwtMissingSuperuserRole);
+
+        var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
     [Theory]
     [InlineData("test-auth/azuread/db-admin")]
     [InlineData("test-auth/azuread/sqs-admin")]

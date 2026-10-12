@@ -1,5 +1,6 @@
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
+using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 using DotNet.Testcontainers.Builders;
@@ -118,7 +119,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                 password: TestAuthConstants.AzureAdPassword,
                 name: "Test Cads Admin",
                 email: TestAuthConstants.AzureAdCadsAdminEmail,
-                role: "cads-admin-superuser")
+                role: RoleNames.CadsAdminSuperuser)
         });
 
         OidcContainer = new ContainerBuilder("ghcr.io/soluto/oidc-server-mock:0.6.0")
