@@ -182,7 +182,7 @@ INSERT INTO cts.ct_animal_relationships (
     aar_ran_id_child, aar_ran_id_parent, aar_parent_identifier, aar_parent_identifier_type,
     aar_current_user, aar_current_status, aar_current_modified_date, aar_version, row_number
 ) VALUES
-    (934000001, 'G', 930000001, '2023-03-10', NULL, 931000001, NULL, 'UK324537113243', 'ET', 'seed', '1', '2026-04-23', 1, 1),
-    (934000002, 'S', 930000001, '2023-03-10', NULL, 931000001, NULL, 'UK324537110987', 'ET', 'seed', '1', '2026-04-23', 1, 2);
+    (934000001, 'CG', 930000001, '2023-03-10', NULL, 931000001, NULL, 'UK324537113243', 'ET', 'seed', 'L', '2026-04-23', 1, 1),
+    (934000002, 'CS', 930000001, '2023-03-10', NULL, 931000001, NULL, 'UK324537110987', 'ET', 'seed', 'L', '2026-04-23', 1, 2);
  
 DROP TABLE seed_animals;

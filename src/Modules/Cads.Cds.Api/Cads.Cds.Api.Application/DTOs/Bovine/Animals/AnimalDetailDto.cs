@@ -26,6 +26,15 @@ public class AnimalDetailDto
     [JsonPropertyName("dateOnCPH")]
     public DateOnly? DateOnCph { get; set; }
 
+    [JsonPropertyName("currentLocation")]
+    public AnimalLocationDto? CurrentLocation { get; set; }
+    
+    [JsonPropertyName("registeredLocation")]
+    public AnimalLocationDto? RegisteredLocation { get; set; }
+
+    [JsonPropertyName("deathLocation")]
+    public AnimalLocationDto? DeathLocation { get; set; }
+
     [JsonPropertyName("breedCode")]
     public BreedCodeDto? BreedCode { get; set; }
 
