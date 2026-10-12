@@ -32,7 +32,7 @@ public class AnimalDetail
     public string? RegisteredFullIdentifier { get; init; }
     public string? RegisteredName { get; init; }
     public string? RegisteredPremisesType { get; init; }
-    
+
     // Death location
     public string? DeathIdentifier { get; init; }
     public string? DeathSubIdentifier { get; init; }
