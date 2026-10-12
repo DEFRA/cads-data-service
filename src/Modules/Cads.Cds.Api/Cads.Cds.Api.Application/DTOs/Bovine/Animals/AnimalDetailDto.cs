@@ -28,7 +28,7 @@ public class AnimalDetailDto
 
     [JsonPropertyName("currentLocation")]
     public AnimalLocationDto? CurrentLocation { get; set; }
-    
+
     [JsonPropertyName("registeredLocation")]
     public AnimalLocationDto? RegisteredLocation { get; set; }
 
