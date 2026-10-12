@@ -19,6 +19,27 @@ public class AnimalDetail
     public DateOnly? RegistrationDate { get; init; }
     public DateOnly? DateOnCph { get; init; }
 
+    // Current location
+    public string? CurrentIdentifier { get; init; }
+    public string? CurrentSubIdentifier { get; init; }
+    public string? CurrentFullIdentifier { get; init; }
+    public string? CurrentName { get; init; }
+    public string? CurrentPremisesType { get; init; }
+
+    // Registered location
+    public string? RegisteredIdentifier { get; init; }
+    public string? RegisteredSubIdentifier { get; init; }
+    public string? RegisteredFullIdentifier { get; init; }
+    public string? RegisteredName { get; init; }
+    public string? RegisteredPremisesType { get; init; }
+    
+    // Death location
+    public string? DeathIdentifier { get; init; }
+    public string? DeathSubIdentifier { get; init; }
+    public string? DeathFullIdentifier { get; init; }
+    public string? DeathName { get; init; }
+    public string? DeathPremisesType { get; init; }
+
     // Breed
     public string? BreedSchema { get; init; }
     public string? BreedCode { get; init; }
