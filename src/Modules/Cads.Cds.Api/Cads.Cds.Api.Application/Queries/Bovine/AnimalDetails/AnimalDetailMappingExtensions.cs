@@ -33,6 +33,30 @@ public static class AnimalDetailMappingExtensions
             BirthDate = s.BirthDate,
             RegistrationDate = s.RegistrationDate,
             DateOnCph = s.DateOnCph,
+            CurrentLocation = new AnimalLocationDto
+            {
+                Identifier = s.CurrentIdentifier,
+                SubIdentifier = s.CurrentSubIdentifier,
+                FullIdentifier = s.CurrentFullIdentifier,
+                Name = s.CurrentName,
+                PremisesType = s.CurrentPremisesType
+            },
+            RegisteredLocation = new AnimalLocationDto
+            {
+                Identifier = s.RegisteredIdentifier,
+                SubIdentifier = s.RegisteredSubIdentifier,
+                FullIdentifier = s.RegisteredFullIdentifier,
+                Name = s.RegisteredName,
+                PremisesType = s.RegisteredPremisesType
+            },
+            DeathLocation = new AnimalLocationDto
+            {
+                Identifier = s.DeathIdentifier,
+                SubIdentifier = s.DeathSubIdentifier,
+                FullIdentifier = s.DeathFullIdentifier,
+                Name = s.DeathName,
+                PremisesType = s.DeathPremisesType
+            },
             BreedCode = s.BreedCode is null
                 ? null
                 : new BreedCodeDto
