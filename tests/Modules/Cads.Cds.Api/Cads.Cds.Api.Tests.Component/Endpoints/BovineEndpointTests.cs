@@ -74,7 +74,7 @@ public class BovineEndpointTests(ApiTestFixture testFixture) : IClassFixture<Api
         result.ResourceType.Should().Be("AnimalCollection");
         result.Cph!.Identifier.Should().Be(TestBovineConstants.KnownCph);
         result.TotalRecords.Should().Be(TestBovineConstants.KnownCphAnimalCount);
-        result.Animals.Should().HaveCount(25);
+        result.Animals.Should().HaveCount(TestBovineConstants.KnownCphAnimalCount);
     }
 
     [Fact]
