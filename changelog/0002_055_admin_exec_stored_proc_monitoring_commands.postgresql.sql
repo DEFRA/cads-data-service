@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset james-grafton:0002_054_01 splitStatements:false
+-- changeset james-grafton:0002_055_01 splitStatements:false
 -- Supersedes the definition in 0002_050_admin_exec_stored_proc.postgresql.sql:
 --   * adds 'database_size' and 'reset_pg_stat_statements'
 --   * list-returning commands return [] (not NULL) when there are no rows
