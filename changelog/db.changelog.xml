@@ -139,4 +139,5 @@
   <include file="0005_002_cla_pseudo_anonymisation.postgresql.sql" />
   <include file="0005_003_cla_pseudo_anonymisation.postgresql.sql"/>
   <include file="0005_004_cads_pseudo_anonymisation.postgresql.sql"/>
+  <include file="0005_005_cla_pseudo_anonymisation.postgresql.sql"/>
 </databaseChangeLog>
