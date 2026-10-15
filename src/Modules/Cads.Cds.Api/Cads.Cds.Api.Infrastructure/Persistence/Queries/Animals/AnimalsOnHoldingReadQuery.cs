@@ -8,7 +8,7 @@ namespace Cads.Cds.Api.Infrastructure.Persistence.Queries.Animals;
 
 public class AnimalsOnHoldingReadQuery(ApiReadDbContext dbContext) : IAnimalsOnHoldingReadQuery
 {
-    private const int MaxPageSize = 100;
+    private const int MaxPageSize = 1000;
 
     public async Task<AnimalsOnHoldingResult> ExecuteAsync(
         GetAnimalsOnHolding query,
