@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset schema:0000-006-cla-create-schemas-permissions splitStatements:true context:dev,test,ext-test,perf-test
+-- changeset schema:0000-006-cla-create-schemas-permissions splitStatements:true context:dev,test,ext-test,perf-test,prod
 
 GRANT USAGE, CREATE ON SCHEMA cla, cla_audit, cla_transactions TO cads_data_service;
 
