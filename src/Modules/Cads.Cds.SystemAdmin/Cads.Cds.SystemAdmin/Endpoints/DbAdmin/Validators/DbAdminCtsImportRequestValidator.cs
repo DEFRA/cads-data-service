@@ -6,15 +6,15 @@ namespace Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Validators;
 
 public class DbAdminCtsImportRequestValidator : DbAdminRequestValidatorBase<DbAdminCtsImportRequest>
 {
-    private static readonly string[] AllowedCommands =
-    {
+    private static readonly string[] s_allowedCommands =
+    [
         "runs",
         "deferred_errors",
         "plan",
         "summary"
-    };
+    ];
 
-    public DbAdminCtsImportRequestValidator() : base(AllowedCommands)
+    public DbAdminCtsImportRequestValidator() : base(s_allowedCommands)
     {
         RuleFor(x => x.Args)
             .Must(args => args.HasValue
