@@ -8,7 +8,6 @@ public class DbAdminCtsImportRequestValidator : DbAdminRequestValidatorBase<DbAd
 {
     private static readonly string[] s_allowedCommands =
     [
-        "prepare",
         "runs",
         "summary",
         "plan",
