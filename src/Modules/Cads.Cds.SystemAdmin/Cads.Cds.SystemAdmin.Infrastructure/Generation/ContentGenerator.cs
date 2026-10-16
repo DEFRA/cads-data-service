@@ -52,17 +52,16 @@ public class ContentGenerator<T>(DbContext dbContext, RuleBuilder<T>? rulesBuild
         return faker;
     }
 
-    public IReadOnlyList<IReadOnlyDictionary<string, object?>> Generate(IReadOnlyList<decimal> businessKeys, int seed)
+    public IReadOnlyList<IReadOnlyDictionary<string, object?>> Generate(IEnumerable<decimal> businessKeys, int seed)
     {
         var faker = CreateFaker(seed);
-        return businessKeys
+        return [.. businessKeys
             .Select(key =>
             {
                 var entity = faker.Generate();
                 if (Transform != null)
                     entity = Transform(entity, key);
                 return entity.ToDictionary(dbContext);
-            })
-            .ToList();
+            })];
     }
 }

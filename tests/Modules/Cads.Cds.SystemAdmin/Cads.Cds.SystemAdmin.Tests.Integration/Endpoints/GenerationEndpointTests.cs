@@ -138,6 +138,62 @@ public class GenerationEndpointTests(ApiContainerFixture apiContainerFixture)
     }
 
     [Fact]
+    public async Task GivenValidUpdateGenerationRequest_SetBusinessKeys_WhenCreateRequested_ShouldSucceed()
+    {
+        var request = new CreateGenerationRequest
+        {
+            Scenario = "ct_location_update_scenario",
+            BusinessKeys = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        };
+
+        var response = await GenerationTestClient.CreateAsync(
+            _httpClient,
+            request,
+            TestContext.Current.CancellationToken);
+
+        response.IsSuccessStatusCode.Should().BeTrue();
+
+        var dto = await GenerationTestClient.ReadDtoAsync(
+            response,
+            TestContext.Current.CancellationToken);
+
+
+        dto.Should().NotBeNull();
+        dto.FileName.Should().NotBeNullOrEmpty();
+        dto.FileName.Should().Contain("CT_LOCATIONS");
+        dto.FileName.Should().Contain("DEV");
+
+        dto.BusinessKeys.Should().NotBeNull();
+        dto.BusinessKeys.Should().HaveCount(10);
+
+        var content = dto.Content.Split("\n");
+
+        content.Should().NotBeNull();
+        content.Length.Should().Be(13);
+
+        var header = content[0];
+        header.Should().NotBeNullOrEmpty();
+        header.Should().Contain("H|");
+
+        var columnHeader = content[1];
+        columnHeader.Should().NotBeNullOrEmpty();
+        columnHeader.Should().Contain("C|");
+
+        var data = content.Where(i => i.StartsWith("D|"));
+        data.Should().NotBeNullOrEmpty();
+        data.Count().Should().Be(10);
+
+        var columnHeaders = columnHeader.Split("|");
+        var dataHeaders = content[2].Split("|");
+
+        columnHeaders.Length.Should().Be(dataHeaders.Length);
+
+        var footer = content[12];
+        footer.Should().NotBeNullOrEmpty();
+        footer.Should().Contain("T|");
+    }
+
+    [Fact]
     public async Task GivenInvalidUpdateGenerationRequest_WhenCreateRequested_ShouldFail()
     {
         var request = new CreateGenerationRequest
