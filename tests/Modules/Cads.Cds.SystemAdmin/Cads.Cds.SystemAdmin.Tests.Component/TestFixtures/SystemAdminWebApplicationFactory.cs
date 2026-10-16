@@ -36,6 +36,7 @@ public class SystemAdminWebApplicationFactory(
 
     public Mock<IDbAdminExecuteCommandService> DbAdminExecuteCommandServiceMock { get; } = new();
     public Mock<ISqsAdminService> SqsAdminServiceMock { get; } = new();
+    public Mock<ICtsImportPrepareJobQueue> CtsImportPrepareJobQueueMock { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -46,6 +47,8 @@ public class SystemAdminWebApplicationFactory(
             ConfigurePersistence(services);
             services.RemoveAll<IDbAdminExecuteCommandService>();
             services.AddScoped(_ => DbAdminExecuteCommandServiceMock.Object);
+            services.RemoveAll<ICtsImportPrepareJobQueue>();
+            services.AddSingleton(_ => CtsImportPrepareJobQueueMock.Object);
             services.RemoveAll<ISqsAdminService>();
             services.AddScoped(_ => SqsAdminServiceMock.Object);
         });
