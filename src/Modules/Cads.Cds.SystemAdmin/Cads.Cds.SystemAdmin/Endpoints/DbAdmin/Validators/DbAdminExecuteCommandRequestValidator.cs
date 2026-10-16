@@ -4,7 +4,7 @@ namespace Cads.Cds.SystemAdmin.Endpoints.DbAdmin.Validators;
 
 public sealed class DbAdminExecuteCommandRequestValidator : DbAdminRequestValidatorBase<DbAdminExecuteCommandRequest>
 {
-    private static readonly string[] AllowedCommands = {
+    private static readonly string[] s_allowedCommands = [
         "sessions_by_state",
         "active_queries",
         "cancel_query",
@@ -20,7 +20,7 @@ public sealed class DbAdminExecuteCommandRequestValidator : DbAdminRequestValida
         "largest_tables",
         "slow_queries",
         "shared_block_reads"
-    };
+    ];
 
-    public DbAdminExecuteCommandRequestValidator() : base(AllowedCommands) { }
+    public DbAdminExecuteCommandRequestValidator() : base(s_allowedCommands) { }
 }
