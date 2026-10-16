@@ -231,14 +231,17 @@ public static class ServiceCollectionExtensions
 
         var builder = services.AddAuthorizationBuilder()
             .AddPolicy(AuthenticationConstants.ApiKeyOrCognitoPolicy, policy => policy
-            .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
-            .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
-            .RequireAuthenticatedUser())
-        .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy => policy
-            .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
-            .AddSchemeIf(authenticationConfiguration.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
-            .RequireAuthenticatedUser()
-            .RequireScope(scopeClaim, ScopeNames.ReportsRead));
+                .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
+                .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
+                .RequireAuthenticatedUser())
+            .AddPolicy(AuthenticationConstants.CognitoPolicy, policy => policy
+                .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
+                .RequireAuthenticatedUser())
+            .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy => policy
+                .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
+                .AddSchemeIf(authenticationConfiguration.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
+                .RequireAuthenticatedUser()
+                .RequireScope(scopeClaim, ScopeNames.ReportsRead));
 
         // Admin policies all same shape: Azure AD only, a specific scope, and the superuser role
         (string Policy, string Scope)[] adminPolicies =

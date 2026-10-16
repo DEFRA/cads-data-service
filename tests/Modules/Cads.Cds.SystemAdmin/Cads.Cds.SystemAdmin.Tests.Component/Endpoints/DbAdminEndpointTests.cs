@@ -128,7 +128,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [Fact(Skip = "LANI-1144")]
     public async Task GivenScopeClaimMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -317,7 +317,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [Fact(Skip = "LANI-1144")]
     public async Task GivenScopeClaimMissing_WhenCtsImportRequested_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();

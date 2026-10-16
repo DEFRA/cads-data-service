@@ -8,10 +8,15 @@ public class DbAdminCtsImportRequestValidator : DbAdminRequestValidatorBase<DbAd
 {
     private static readonly string[] s_allowedCommands =
     [
+        "prepare",
         "runs",
-        "deferred_errors",
+        "summary",
         "plan",
-        "summary"
+        "status",
+        "progress",
+        "workers",
+        "tasks",
+        "deferred_errors"
     ];
 
     public DbAdminCtsImportRequestValidator() : base(s_allowedCommands)
