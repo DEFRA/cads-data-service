@@ -16,10 +16,13 @@ public static class DbAdminEndpointExtensions
     public static void CreateDbAdminEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-execute-command", DbAdminExecuteCommand)
-            .RequireAuthorization(AuthenticationConstants.CognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
 
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-cts-import", DbAdminCtsImport)
-            .RequireAuthorization(AuthenticationConstants.CognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
+
+        app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-prepare-cts-import", DbAdminPrepareCtsImport)
+            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
     }
 
     private static async Task<DbAdminCommandResponse> DbAdminExecuteCommand(
@@ -67,5 +70,37 @@ public static class DbAdminEndpointExtensions
             request.Command,
             result.RootElement
         );
+    }
+
+    private static IResult DbAdminPrepareCtsImport(
+        ICtsImportPrepareJobQueue queue,
+        HttpContext httpContext,
+        ILogger<DbAdminCtsImportRequest> logger)
+    {
+        // Cognito client-credentials access tokens have no name claim, so identify the caller by client_id.
+        var user = httpContext.User.FindFirst("client_id")?.Value
+                   ?? httpContext.User.FindFirst("sub")?.Value;
+
+        if (!queue.TryEnqueue(user))
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning("User {User}: DB Admin prepare cts import rejected, a prepare is already queued or running", user);
+            }
+
+            return Results.Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "CTS import prepare already in progress",
+                detail: "A CTS import prepare is already queued or running. Check the 'runs' command on db-admin-cts-import for the outcome.");
+        }
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("User {User}: Queued DB Admin prepare cts import", user);
+        }
+
+        return Results.Accepted(value: new DbAdminPrepareCtsImportResponse(
+            "Accepted",
+            "CTS import prepare started. This can take 20-30 minutes. Poll the 'runs' command on db-admin-cts-import; the new run appears with status 'ready' when planning completes."));
     }
 }
