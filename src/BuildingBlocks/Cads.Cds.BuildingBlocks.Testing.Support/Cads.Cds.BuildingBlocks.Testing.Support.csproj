@@ -24,7 +24,7 @@
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.13" />
     <PackageReference Include="Testcontainers.LocalStack" Version="4.16.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.16.0" />
-    <PackageReference Include="xunit.v3.extensibility.core" Version="4.0.2" />
+    <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.2" />
   </ItemGroup>
 
   <ItemGroup>
