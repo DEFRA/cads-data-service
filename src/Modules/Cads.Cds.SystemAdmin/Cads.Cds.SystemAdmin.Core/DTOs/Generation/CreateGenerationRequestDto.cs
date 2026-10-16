@@ -4,5 +4,7 @@ public class CreateGenerationRequestDto
 {
     public required string Scenario { get; set; }
 
-    public required int RowCount { get; set; }
+    public int? RowCount { get; set; }
+
+    public IEnumerable<decimal>? BusinessKeys { get; set; }
 }
