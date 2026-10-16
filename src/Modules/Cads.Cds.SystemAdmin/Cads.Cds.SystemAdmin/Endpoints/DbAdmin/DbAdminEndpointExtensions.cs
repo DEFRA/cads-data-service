@@ -16,13 +16,13 @@ public static class DbAdminEndpointExtensions
     public static void CreateDbAdminEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-execute-command", DbAdminExecuteCommand)
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
+            .RequireAuthorization(AuthenticationConstants.CognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
 
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-cts-import", DbAdminCtsImport)
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
+            .RequireAuthorization(AuthenticationConstants.CognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
 
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-prepare-cts-import", DbAdminPrepareCtsImport)
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
+            .RequireAuthorization(AuthenticationConstants.CognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
     }
 
     private static async Task<DbAdminCommandResponse> DbAdminExecuteCommand(

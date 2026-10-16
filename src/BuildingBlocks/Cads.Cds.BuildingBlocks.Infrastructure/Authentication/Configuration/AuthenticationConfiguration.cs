@@ -32,6 +32,7 @@ public static class AuthenticationConstants
     public const string AzureADSchemeName = "AzureAd";
 
     // Policy names
+    public const string CognitoPolicy = "Cognito";
     public const string ApiKeyOrCognitoPolicy = "ApiKeyOrCognito";
     public const string AadReportsReadPolicy = "AadReportsRead";
     public const string AadDbAdminExecutePolicy = "AadDbAdminExecute";
