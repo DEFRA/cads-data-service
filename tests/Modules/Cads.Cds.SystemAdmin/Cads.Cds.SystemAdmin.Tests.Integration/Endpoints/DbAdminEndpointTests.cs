@@ -55,9 +55,110 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         dto.Should().NotBeNull();
         dto!.Command.Should().Be("active_queries");
 
-        // Result may be an array (active sessions found, including this request's own connection)
-        // or an empty object {} (jsonb_agg returned NULL because no rows matched).
-        dto.Result.ValueKind.Should().BeOneOf(JsonValueKind.Array, JsonValueKind.Object);
+        // List commands always return an array; it may be empty if no non-idle sessions matched.
+        dto.Result.ValueKind.Should().Be(JsonValueKind.Array);
+    }
+
+    [Fact]
+    public async Task GivenValidRoleAndScope_WhenDatabaseSizeRequested_ShouldReturnNonEmptyArrayOrderedBySize()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+
+        var response = await DbAdminTestClient.ExecuteAsync(
+            client,
+            command: "database_size",
+            args: null,
+            TestContext.Current.CancellationToken);
+
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        response.IsSuccessStatusCode.Should().BeTrue($"status={(int)response.StatusCode} body={body}");
+
+        var dto = await DbAdminTestClient.ReadDtoAsync(response, TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto!.Command.Should().Be("database_size");
+        dto.Result.ValueKind.Should().Be(JsonValueKind.Array);
+        dto.Result.GetArrayLength().Should().BeGreaterThan(0);
+
+        var sizes = new List<long>();
+        foreach (var row in dto.Result.EnumerateArray())
+        {
+            row.GetProperty("datname").ValueKind.Should().Be(JsonValueKind.String);
+            row.GetProperty("size_bytes").ValueKind.Should().Be(JsonValueKind.Number);
+            row.GetProperty("size_pretty").ValueKind.Should().Be(JsonValueKind.String);
+            sizes.Add(row.GetProperty("size_bytes").GetInt64());
+        }
+
+        sizes.Should().BeInDescendingOrder();
+        dto.Result.EnumerateArray().Select(r => r.GetProperty("datname").GetString())
+            .Should().NotContain("template0").And.NotContain("template1");
+    }
+
+    [Fact]
+    public async Task GivenValidRoleAndScope_WhenResetPgStatStatementsRequested_ShouldResetOrReportExtensionNotInstalled()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+
+        var response = await DbAdminTestClient.ExecuteAsync(
+            client,
+            command: "reset_pg_stat_statements",
+            args: null,
+            TestContext.Current.CancellationToken);
+
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var dto = await DbAdminTestClient.ReadDtoAsync(response, TestContext.Current.CancellationToken);
+            dto!.Command.Should().Be("reset_pg_stat_statements");
+            dto.Result.ValueKind.Should().Be(JsonValueKind.True);
+        }
+        else
+        {
+            // The plain postgres test image does not install pg_stat_statements, so the function raises,
+            // the same as slow_queries / shared_block_reads.
+            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError, body);
+            body.Should().Contain("pg_stat_statements extension is not installed");
+        }
+    }
+
+    [Fact]
+    public async Task GivenValidRoleAndScope_WhenPreparedTransactionsRequestedWithNoRows_ShouldReturnEmptyArray()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+
+        var response = await DbAdminTestClient.ExecuteAsync(
+            client,
+            command: "prepared_transactions",
+            args: null,
+            TestContext.Current.CancellationToken);
+
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        response.IsSuccessStatusCode.Should().BeTrue($"status={(int)response.StatusCode} body={body}");
+
+        var dto = await DbAdminTestClient.ReadDtoAsync(response, TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto!.Command.Should().Be("prepared_transactions");
+        dto.Result.ValueKind.Should().Be(JsonValueKind.Array);
+        dto.Result.GetArrayLength().Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GivenValidRoleAndScope_WhenCancelQueryRequestedWithNonIntegerPid_ShouldReturnBadRequest()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
+
+        var response = await DbAdminTestClient.ExecuteAsync(
+            client,
+            command: "cancel_query",
+            args: new { pid = "not-a-pid" },
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var problemDetails = await DbAdminTestClient.ReadProblemDetailsAsync(response, TestContext.Current.CancellationToken);
+        problemDetails!.Extensions.Should().ContainKey("errors");
     }
 
     [Fact]
@@ -122,6 +223,34 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
 
         dto.Should().NotBeNull();
         dto!.Command.Should().Be(command);
+    }
+
+    [Fact]
+    public async Task GivenScopeButNoSuperuserRole_WhenExecuteRequested_ShouldReturnForbidden()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingRoleToken());
+
+        var response = await DbAdminTestClient.ExecuteAsync(
+            client,
+            command: "sessions_by_state",
+            args: null,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task GivenScopeButNoSuperuserRole_WhenCtsImportRequested_ShouldReturnForbidden()
+    {
+        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingRoleToken());
+
+        var response = await DbAdminTestClient.ExecuteCtsImportAsync(
+            client,
+            command: "runs",
+            args: null,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

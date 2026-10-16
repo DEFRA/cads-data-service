@@ -44,6 +44,8 @@ public static class TestAuthConstants
     public const string FakeJwtDefault = "fake-jwt-token";
     public const string FakeJwtMissingDbAdminScope = "fake-jwt-token-missing-scope";
     public const string FakeJwtMissingS3AdminScope = "fake-jwt-token-missing-s3-admin-scope";
+    public const string FakeJwtMissingSuperuserRole = "fake-jwt-token-missing-superuser-role";
+    public const string FakeJwtAzureAdRolesClaim = "fake-jwt-token-azure-ad-roles-claim";
 
     // ## Fakes: Cognito
     public const string FakeCongnitoAuthority = "https://cognito-test";
