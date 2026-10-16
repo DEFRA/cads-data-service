@@ -52,6 +52,16 @@ public static class DbAdminTestClient
             cancellationToken);
     }
 
+    public static async Task<HttpResponseMessage> PrepareCtsImportAsync(
+        HttpClient client,
+        CancellationToken cancellationToken)
+    {
+        return await client.PostAsync(
+            TestEndpointConstants.DbAdminPrepareCtsImportEndpoint,
+            content: null,
+            cancellationToken);
+    }
+
     public static async Task<DbAdminCommandResponse?> ReadDtoAsync(
         HttpResponseMessage response,
         CancellationToken cancellationToken)
