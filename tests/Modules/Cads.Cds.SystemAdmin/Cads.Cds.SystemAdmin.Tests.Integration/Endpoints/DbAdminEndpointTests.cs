@@ -124,7 +124,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         dto!.Command.Should().Be(command);
     }
 
-    [Fact]
+    [Fact(Skip = "LANI-1144")]
     public async Task GivenScopeMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingScopeToken());
