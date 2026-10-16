@@ -52,22 +52,6 @@ public static class DbAdminTestClient
             cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> GetCtsImportRunsAsync(
-        HttpClient client,
-        CancellationToken cancellationToken)
-    {
-        return await client.GetAsync(TestEndpointConstants.DbAdminCtsImportRunsEndpoint, cancellationToken);
-    }
-
-    public static async Task<GetCtsImportRunsResponse?> ReadRunsAsync(
-        HttpResponseMessage response,
-        CancellationToken cancellationToken)
-    {
-        return await response.Content.ReadFromJsonAsync<GetCtsImportRunsResponse>(
-            JsonDefaults.DefaultOptionsWithStringEnumConversion,
-            cancellationToken);
-    }
-
     public static async Task<DbAdminCommandResponse?> ReadDtoAsync(
         HttpResponseMessage response,
         CancellationToken cancellationToken)
