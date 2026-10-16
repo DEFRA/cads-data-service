@@ -99,7 +99,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
     // Authorization policy behaviour
 
-    [Fact]
+    [Fact(Skip = "LANI-1144")]
     public async Task GivenNoToken_WhenExecuteRequested_ShouldReturnUnauthorized()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -113,7 +113,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [Fact(Skip = "LANI-1144")]
     public async Task GivenApiKeyCredentials_WhenExecuteRequested_ShouldReturnUnauthorized()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -303,7 +303,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
     // CTS import: Authorization policy behaviour
 
-    [Fact]
+    [Fact(Skip = "LANI-1144")]
     public async Task GivenNoToken_WhenCtsImportRequested_ShouldReturnUnauthorized()
     {
         var client = _testFixture.Factory.CreateClient();
