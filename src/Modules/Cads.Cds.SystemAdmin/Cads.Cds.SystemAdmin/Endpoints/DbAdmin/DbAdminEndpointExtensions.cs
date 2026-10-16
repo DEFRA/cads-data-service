@@ -16,10 +16,10 @@ public static class DbAdminEndpointExtensions
     public static void CreateDbAdminEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-execute-command", DbAdminExecuteCommand)
-            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
+            .RequireAuthorization(AuthenticationConstants.CognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
 
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-cts-import", DbAdminCtsImport)
-            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
+            .RequireAuthorization(AuthenticationConstants.CognitoPolicy); // Revert to AadDbAdminExecutePolicy once we have scopes. Revert [Fact(Skip = "LANI-1144")] tests.
     }
 
     private static async Task<DbAdminCommandResponse> DbAdminExecuteCommand(
