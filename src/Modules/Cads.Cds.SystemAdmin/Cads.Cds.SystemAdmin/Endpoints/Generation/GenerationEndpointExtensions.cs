@@ -50,7 +50,8 @@ public static class GenerationEndpointExtensions
         var createGenerationRequestDto = new CreateGenerationRequestDto
         {
             Scenario = request.Scenario,
-            RowCount = request.RowCount.GetValueOrDefault()
+            RowCount = request.RowCount,
+            BusinessKeys = request.BusinessKeys
         };
 
         var result = await dispatcher.DispatchAsync(createGenerationRequestDto, cancellationToken);
