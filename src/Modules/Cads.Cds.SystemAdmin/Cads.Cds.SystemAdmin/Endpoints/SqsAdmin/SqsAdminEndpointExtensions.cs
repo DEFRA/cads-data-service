@@ -16,25 +16,25 @@ public static class SqsAdminEndpointExtensions
 {
     public static void CreateSqsAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues", GetQueues)
+        app.MapGet($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues", GetQueues)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
-        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/metrics", GetMetrics)
+        app.MapGet($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/metrics", GetMetrics)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
-        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/messages", GetMessages)
+        app.MapGet($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/messages", GetMessages)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
-        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/messages", GetDlqMessages)
+        app.MapGet($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/messages", GetDlqMessages)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
-        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/metrics", GetDlqMetrics)
+        app.MapGet($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/metrics", GetDlqMetrics)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
-        app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/replay", ReplayMessagesToQueue)
+        app.MapPost($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/replay", ReplayMessagesToQueue)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
 
-        app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/messages/{{messageId}}/replay", ReplayMessageToQueue)
+        app.MapPost($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/sqs/queues/{{queue}}/dlq/replay/{{messageId}}", ReplayMessageToQueue)
             .RequireAuthorization(AuthenticationConstants.AadSqsAdminExecutePolicy);
     }
 
