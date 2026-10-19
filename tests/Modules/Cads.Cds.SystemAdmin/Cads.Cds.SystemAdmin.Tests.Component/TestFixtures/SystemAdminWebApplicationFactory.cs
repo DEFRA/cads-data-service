@@ -29,8 +29,8 @@ public class SystemAdminWebApplicationFactory(
     private static Dictionary<string, string?> MergeConfigOverrides(IDictionary<string, string?>? overrides)
     {
         var merged = new Dictionary<string, string?>(overrides ?? new Dictionary<string, string?>());
-        // Ensure DB admin endpoints are mapped for tests, since the production default is now false.
         merged.TryAdd("Modules:SystemAdmin:EnableAdminEndpoints", "true");
+        merged.TryAdd("Modules:SystemAdmin:EnablePrepareCtsImportEndpoints", "true");
         return merged;
     }
 
@@ -45,12 +45,17 @@ public class SystemAdminWebApplicationFactory(
         builder.ConfigureTestServices(services =>
         {
             ConfigurePersistence(services);
+
+            // Services
             services.RemoveAll<IDbAdminExecuteCommandService>();
             services.AddScoped(_ => DbAdminExecuteCommandServiceMock.Object);
-            services.RemoveAll<ICtsImportPrepareJobQueue>();
-            services.AddSingleton(_ => CtsImportPrepareJobQueueMock.Object);
+
             services.RemoveAll<ISqsAdminService>();
             services.AddScoped(_ => SqsAdminServiceMock.Object);
+
+            // Job Queues
+            services.RemoveAll<ICtsImportPrepareJobQueue>();
+            services.AddSingleton(_ => CtsImportPrepareJobQueueMock.Object);
         });
     }
 

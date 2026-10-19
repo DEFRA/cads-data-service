@@ -234,9 +234,6 @@ public static class ServiceCollectionExtensions
                 .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
                 .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
                 .RequireAuthenticatedUser())
-            .AddPolicy(AuthenticationConstants.CognitoPolicy, policy => policy
-                .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
-                .RequireAuthenticatedUser())
             .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy => policy
                 .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
                 .AddSchemeIf(authenticationConfiguration.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
