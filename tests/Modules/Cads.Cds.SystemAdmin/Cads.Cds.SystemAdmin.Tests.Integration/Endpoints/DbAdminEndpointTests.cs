@@ -161,7 +161,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         problemDetails!.Extensions.Should().ContainKey("errors");
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenValidRoleAndScope_WhenCancelQueryRequestedForNonExistentPid_ShouldReturnFalse()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
@@ -182,7 +182,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         dto.Result.ValueKind.Should().Be(JsonValueKind.False);
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenValidRoleAndScope_WhenCtsImportRunsRequested_ShouldReturnOk()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
