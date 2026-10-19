@@ -10,7 +10,7 @@ namespace Cads.Cds.SystemAdmin.Tests.Integration.Endpoints;
 [Collection("SystemAdminIntegration"), Trait("Dependence", "testcontainers")]
 public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
 {
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenValidRoleAndScope_WhenSessionsByStateRequested_ShouldReturnOk()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
@@ -36,7 +36,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         first.TryGetProperty("sessions", out _).Should().BeTrue();
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenValidRoleAndScope_WhenActiveQueriesRequested_ShouldReturnOk()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
@@ -60,7 +60,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         dto.Result.ValueKind.Should().BeOneOf(JsonValueKind.Array, JsonValueKind.Object);
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenValidRoleAndScope_WhenCancelQueryRequestedForNonExistentPid_ShouldReturnFalse()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
@@ -81,7 +81,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         dto.Result.ValueKind.Should().Be(JsonValueKind.False);
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenValidRoleAndScope_WhenCtsImportRunsRequested_ShouldReturnOk()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.ValidUserToken());
@@ -101,7 +101,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         dto!.Command.Should().Be("runs");
     }
 
-    [Theory(Skip = "LANI-1144")]
+    [Theory]
     [InlineData("deferred_errors")]
     [InlineData("plan")]
     [InlineData("summary")]
@@ -124,7 +124,7 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         dto!.Command.Should().Be(command);
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenScopeMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
         var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingScopeToken());
