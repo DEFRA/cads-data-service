@@ -6,7 +6,7 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.DbAdmin.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddSystemAdminDbAdminLayer(this IServiceCollection services)
+    public static void AddSystemAdminDbAdminLayer(this IServiceCollection services)
     {
         services.AddScoped<IDbAdminExecuteCommandService, DbAdminExecuteCommandService>();
 
@@ -14,6 +14,5 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICtsImportPrepareJobQueue>(sp => sp.GetRequiredService<CtsImportPrepareJobQueue>());
         services.AddScoped<ICtsImportPrepareService, CtsImportPrepareService>();
         services.AddHostedService<CtsImportPrepareBackgroundService>();
-        return services;
     }
 }
