@@ -52,19 +52,13 @@ public static class DbAdminTestClient
             cancellationToken);
     }
 
-    public static async Task<HttpResponseMessage> GetCtsImportRunsAsync(
+    public static async Task<HttpResponseMessage> PrepareCtsImportAsync(
         HttpClient client,
         CancellationToken cancellationToken)
     {
-        return await client.GetAsync(TestEndpointConstants.DbAdminCtsImportRunsEndpoint, cancellationToken);
-    }
-
-    public static async Task<GetCtsImportRunsResponse?> ReadRunsAsync(
-        HttpResponseMessage response,
-        CancellationToken cancellationToken)
-    {
-        return await response.Content.ReadFromJsonAsync<GetCtsImportRunsResponse>(
-            JsonDefaults.DefaultOptionsWithStringEnumConversion,
+        return await client.PostAsync(
+            TestEndpointConstants.DbAdminPrepareCtsImportEndpoint,
+            content: null,
             cancellationToken);
     }
 
