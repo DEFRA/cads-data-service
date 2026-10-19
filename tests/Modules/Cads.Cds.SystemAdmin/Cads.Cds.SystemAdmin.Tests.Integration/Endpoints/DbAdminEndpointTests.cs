@@ -253,7 +253,6 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact]
     [Fact(Skip = "LANI-1144")]
     public async Task GivenScopeMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
