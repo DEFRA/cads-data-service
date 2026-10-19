@@ -11,8 +11,9 @@ public sealed class CreateGenerationRequestValidator
         RuleFor(x => x.Scenario)
             .NotEmpty()
             .WithMessage("Scenario is required.");
-        RuleFor(x => x.RowCount)
-            .NotNull().WithMessage("Row count is required.")
-            .GreaterThan(0).WithMessage("Row count must be greater than zero.");
+
+        RuleFor(x => x)
+         .Must(r => (r.BusinessKeys?.Any()).GetValueOrDefault() || r.RowCount.GetValueOrDefault() > 0)
+         .WithMessage("Business keys or a Row count greater than zero is required.");
     }
 }

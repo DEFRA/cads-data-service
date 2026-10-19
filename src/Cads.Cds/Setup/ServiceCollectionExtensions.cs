@@ -231,14 +231,17 @@ public static class ServiceCollectionExtensions
 
         var builder = services.AddAuthorizationBuilder()
             .AddPolicy(AuthenticationConstants.ApiKeyOrCognitoPolicy, policy => policy
-            .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
-            .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
-            .RequireAuthenticatedUser())
-        .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy => policy
-            .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
-            .AddSchemeIf(authenticationConfiguration.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
-            .RequireAuthenticatedUser()
-            .RequireScope(scopeClaim, ScopeNames.ReportsRead));
+                .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
+                .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
+                .RequireAuthenticatedUser())
+            .AddPolicy(AuthenticationConstants.CognitoPolicy, policy => policy
+                .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
+                .RequireAuthenticatedUser())
+            .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy => policy
+                .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
+                .AddSchemeIf(authenticationConfiguration.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
+                .RequireAuthenticatedUser()
+                .RequireScope(scopeClaim, ScopeNames.ReportsRead));
 
         // Admin policies: Azure AD only and a specific scope. Where a role is given it is also required
         // (the DB admin policy needs the superuser role; the SQS and S3 admin policies are scope-only).
