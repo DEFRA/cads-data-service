@@ -99,7 +99,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
     // Authorization policy behaviour
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenNoToken_WhenExecuteRequested_ShouldReturnUnauthorized()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -113,7 +113,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenApiKeyCredentials_WhenExecuteRequested_ShouldReturnUnauthorized()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -128,7 +128,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenScopeClaimMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -303,7 +303,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
 
     // CTS import: Authorization policy behaviour
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenNoToken_WhenCtsImportRequested_ShouldReturnUnauthorized()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -317,7 +317,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenScopeClaimMissing_WhenCtsImportRequested_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();
@@ -438,7 +438,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
-    [Fact(Skip = "LANI-1144")]
+    [Fact]
     public async Task GivenScopeClaimMissing_WhenPrepareCtsImportRequested_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();

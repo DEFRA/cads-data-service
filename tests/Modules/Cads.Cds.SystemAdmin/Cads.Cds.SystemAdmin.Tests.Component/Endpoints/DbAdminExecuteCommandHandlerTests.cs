@@ -155,11 +155,11 @@ public class DbAdminExecuteCommandHandlerTests
         return await task;
     }
 
-    private static HttpContext CreateHttpContext(string userName) =>
-        new DefaultHttpContext
+    private static DefaultHttpContext CreateHttpContext(string userName) =>
+        new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(
-                [new Claim(ClaimTypes.Name, userName)],
+                [new Claim("name", userName)],
                 authenticationType: "TestAuth"))
         };
 
