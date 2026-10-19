@@ -44,6 +44,11 @@ public sealed class SystemAdminModule : IModule
             app.CreateSqsAdminEndpoints();
         }
 
+        if (config.GetValue("Modules:SystemAdmin:EnablePrepareCtsImportEndpoints", false))
+        {
+            app.CreateDbAdminPrepareCtsImportEndpoints();
+        }
+
         app.CreateSystemAdminEndpoints();
     }
 }
