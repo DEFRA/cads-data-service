@@ -21,6 +21,7 @@ public class ApiContainerFixture : IAsyncLifetime
     public PostgresFixture PostgresFixture { get; }
     public LocalStackFixture LocalStackFixture { get; }
     public OidcMockFixture OidcMockFixture { get; }
+    public StsMockFixture StsMockFixture { get; }
     public TestAzureAdConfiguration? AzureAdConfig { get; set; }
 
     public ApiContainerFixture()
@@ -28,6 +29,7 @@ public class ApiContainerFixture : IAsyncLifetime
         PostgresFixture = new PostgresFixture(_networkName);
         LocalStackFixture = new LocalStackFixture(_networkName);
         OidcMockFixture = new OidcMockFixture(_networkName);
+        StsMockFixture = new StsMockFixture(_networkName);
     }
 
     public async ValueTask InitializeAsync()
@@ -35,6 +37,7 @@ public class ApiContainerFixture : IAsyncLifetime
         await PostgresFixture.InitializeAsync();
         await LocalStackFixture.InitializeAsync();
         await OidcMockFixture.InitializeAsync();
+        await StsMockFixture.InitializeAsync();
 
         AzureAdConfig = new TestAzureAdConfiguration(OidcMockFixture);
 
@@ -85,6 +88,12 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AuthenticationConfiguration__AzureAD__ValidateIssuer", "false")
           .WithEnvironment("AuthenticationConfiguration__AzureAD__ScopeClaimType", "scope")
           .WithEnvironment("AuthenticationConfiguration__AzureAD__RoleClaimType", "role")
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__Enabled", "true")
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__Audience", TestAuthConstants.StsAudience)
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__TrustedOrgId", TestAuthConstants.StsTrustedOrgId)
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__Environment", TestAuthConstants.StsEnvironment)
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__RequireHttpsMetadata", "false")
+          .WithEnvironment($"Acl__StsClients__{TestAuthConstants.StsServiceName}__Scopes__0", TestAuthConstants.StsImportsScope)
           .WithEnvironment("AWS_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_DEFAULT_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
@@ -131,6 +140,21 @@ public class ApiContainerFixture : IAsyncLifetime
         return client;
     }
 
+    public async Task<HttpClient> CreateStsClientAsync(StsTokenRequest request)
+    {
+        var token = await StsMockFixture.CreateTokenAsync(request);
+
+        var client = new HttpClient
+        {
+            BaseAddress = HttpClient.BaseAddress
+        };
+
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        return client;
+    }
+
     public HttpClient CreateBasicClient()
     {
         var client = new HttpClient { BaseAddress = HttpClient.BaseAddress };
@@ -156,6 +180,7 @@ public class ApiContainerFixture : IAsyncLifetime
         await Safe(() => PostgresFixture.DisposeAsync());
         await Safe(() => LocalStackFixture.DisposeAsync());
         await Safe(() => OidcMockFixture.DisposeAsync());
+        await Safe(() => StsMockFixture.DisposeAsync());
 
         try { HttpClient?.Dispose(); }
         catch (Exception ex) { error ??= ex; }
