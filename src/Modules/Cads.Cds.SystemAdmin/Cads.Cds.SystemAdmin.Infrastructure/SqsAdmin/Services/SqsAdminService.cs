@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
@@ -11,6 +6,11 @@ using Cads.Cds.SystemAdmin.Core.Configuration;
 using Cads.Cds.SystemAdmin.Core.DTOs.SqsAdmin;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.SqsAdmin.Services;
 
