@@ -23,15 +23,14 @@ public sealed class DbAdminExecuteCommandRequestValidator : DbAdminRequestValida
         "slow_queries",
         "shared_block_reads",
         "database_size",
-        "reset_pg_stat_statements"
-    };
+        "reset_pg_stat_statements"];
 
     private static readonly string[] PidCommands = {
         "cancel_query",
         "terminate_query"
     };
 
-    public DbAdminExecuteCommandRequestValidator() : base(AllowedCommands)
+    public DbAdminExecuteCommandRequestValidator() : base(s_allowedCommands)
     {
         RuleFor(x => x.Args)
             .Must(HaveValidPid)
