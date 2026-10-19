@@ -18,7 +18,7 @@ namespace Cads.Cds.SystemAdmin.Endpoints.Generation;
 
 public static class GenerationEndpointExtensions
 {
-    public static void CreateSystemAdminEndpoints(this IEndpointRouteBuilder app)
+    public static void CreateGenerationEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/generation", Generate)
             .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);

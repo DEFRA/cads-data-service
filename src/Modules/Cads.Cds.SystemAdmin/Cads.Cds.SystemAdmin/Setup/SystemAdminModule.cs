@@ -27,18 +27,9 @@ public sealed class SystemAdminModule : IModule
     /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-        app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
-
         var config = app.ServiceProvider.GetRequiredService<IConfiguration>();
-        var enableAdminEndpoints = config.GetValue("Modules:SystemAdmin:EnableAdminEndpoints", false);
-        if (enableAdminEndpoints)
+
+        if (config.GetValue("Modules:SystemAdmin:EnableAdminEndpoints", false))
         {
             app.CreateDbAdminEndpoints();
             app.CreateSqsAdminEndpoints();
@@ -49,6 +40,18 @@ public sealed class SystemAdminModule : IModule
             app.CreateDbAdminPrepareCtsImportEndpoints();
         }
 
-        app.CreateSystemAdminEndpoints();
+        if (config.GetValue("Modules:SystemAdmin:EnableGenerationEndpoints", false))
+        {
+            app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema")
+                .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+            app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema")
+                .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+            app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema")
+                .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+            app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
+                .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+
+            app.CreateGenerationEndpoints();
+        }
     }
 }
