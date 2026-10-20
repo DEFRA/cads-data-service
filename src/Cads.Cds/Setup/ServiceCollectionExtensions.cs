@@ -256,6 +256,12 @@ public static class ServiceCollectionExtensions
                 .RequireScope(scopeClaim, scope));
         }
 
+        // Add default policy for diagnostics endpoints, which requires authentication but does not require any specific scope or role
+
+        builder.AddPolicy(AuthenticationConstants.DefaultPolicy, p => p
+            .AddAuthenticationSchemes([.. schemes])
+            .RequireAuthenticatedUser());
+
         builder.AddPolicy(AuthenticationConstants.DiagnosticsPolicyName, p => p
             .AddAuthenticationSchemes([.. schemes])
             .RequireAuthenticatedUser());
