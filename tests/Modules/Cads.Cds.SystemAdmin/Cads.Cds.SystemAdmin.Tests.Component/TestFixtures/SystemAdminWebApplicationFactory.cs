@@ -21,18 +21,10 @@ namespace Cads.Cds.SystemAdmin.Tests.Component.TestFixtures;
 public class SystemAdminWebApplicationFactory(
     IDictionary<string, string?>? configOverrides = null,
     bool useFakeAuth = false) : WebAppFactoryBase<Program>(
-        configOverrides: MergeConfigOverrides(configOverrides),
+        configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
     private readonly string _dbName = $"SystemAdminDb_{Guid.NewGuid()}";
-
-    private static Dictionary<string, string?> MergeConfigOverrides(IDictionary<string, string?>? overrides)
-    {
-        var merged = new Dictionary<string, string?>(overrides ?? new Dictionary<string, string?>());
-        merged.TryAdd("Modules:SystemAdmin:EnableAdminEndpoints", "true");
-        merged.TryAdd("Modules:SystemAdmin:EnablePrepareCtsImportEndpoints", "true");
-        return merged;
-    }
 
     public Mock<IDbAdminExecuteCommandService> DbAdminExecuteCommandServiceMock { get; } = new();
     public Mock<ISqsAdminService> SqsAdminServiceMock { get; } = new();
