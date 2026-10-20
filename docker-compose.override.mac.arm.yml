@@ -23,6 +23,7 @@ services:
       Modules__SystemAdmin__ImportsDeduplication__BucketName: cads-external-bucket
       Modules__SystemAdmin__ImportsDeduplication__EnvironmentName: PreProd
       Modules__SystemAdmin__EnableAdminEndpoints: "true"
+      Modules__SystemAdmin__EnableGenerationEndpoints: "true"
       IMB_S3_ACCESS_KEY: test
       IMB_S3_ACCESS_SECRET: test
       AuthenticationConfiguration__ApiKey__Enabled: "true"
