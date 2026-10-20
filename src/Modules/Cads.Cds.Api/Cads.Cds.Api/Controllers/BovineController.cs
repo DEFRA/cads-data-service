@@ -14,6 +14,7 @@ namespace Cads.Cds.Api.Controllers;
 
 [ApiController]
 [Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
+[Authorize(Policy = AuthenticationConstants.AadDbAdminExecutePolicy)]
 [Route("api/v1/[controller]")]
 public class BovineController(IRequestExecutor executor) : ControllerBase
 {
