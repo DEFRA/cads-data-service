@@ -23,6 +23,7 @@ public class ApiContainerFixture : IAsyncLifetime
     public OidcMockFixture OidcMockFixture { get; }
     public StsMockFixture StsMockFixture { get; }
     public TestAzureAdConfiguration? AzureAdConfig { get; set; }
+    public TestAwsStsConfiguration? AwsStsConfig { get; set; }
 
     public ApiContainerFixture()
     {
@@ -40,6 +41,7 @@ public class ApiContainerFixture : IAsyncLifetime
         await StsMockFixture.InitializeAsync();
 
         AzureAdConfig = new TestAzureAdConfiguration(OidcMockFixture);
+        AwsStsConfig = new TestAwsStsConfiguration();
 
         var certPath = Path.Combine(AppContext.BaseDirectory, "certs");
 
@@ -89,11 +91,10 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AuthenticationConfiguration__AzureAD__ScopeClaimType", "scope")
           .WithEnvironment("AuthenticationConfiguration__AzureAD__RoleClaimType", "role")
           .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__Enabled", "true")
-          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__Audience", TestAuthConstants.StsAudience)
-          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__TrustedOrgId", TestAuthConstants.StsTrustedOrgId)
-          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__Environment", TestAuthConstants.StsEnvironment)
-          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__RequireHttpsMetadata", "false")
-          .WithEnvironment($"Acl__StsClients__{TestAuthConstants.StsServiceName}__Scopes__0", TestAuthConstants.StsImportsScope)
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__Audience", AwsStsConfig.Audience)
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__TrustedOrgId", AwsStsConfig.TrustedOrgId)
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__Environment", AwsStsConfig.Environment)
+          .WithEnvironment("AuthenticationConfiguration__AwsOutboundFederation__RequireHttpsMetadata", AwsStsConfig.RequireHttpsMetadata.ToString())
           .WithEnvironment("AWS_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_DEFAULT_REGION", LocalStackFixture.AuthenticationRegion)
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
