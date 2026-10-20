@@ -42,10 +42,6 @@ public static class TestAuthConstants
     public const string StsAudience = "https://cads-data-service.test";
     public const string StsTrustedOrgId = "o-test";
     public const string StsEnvironment = "Test";
-    public const string StsServiceName = "cads-bridge";
-    public const string StsAwsAccount = "111111111111";
-    public const string StsRoleArn = "arn:aws:iam::111111111111:role/cads-bridge";
-    public const string StsImportsScope = "imports";
 
     // # Fakes
 
