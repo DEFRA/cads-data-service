@@ -20,10 +20,10 @@ public static class GenerationEndpointExtensions
 {
     public static void CreateGenerationEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/generation", Generate)
+        app.MapPost($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/generation", Generate)
             .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
 
-        app.MapGet($"{SysyemAdminEndpointsConstants.ApiRoutePrefix}/generation/scenarios", GetScenarios)
+        app.MapGet($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/generation/scenarios", GetScenarios)
             .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
 
         app.MapGet("/api/v1/systemadmin/generation/cads/{tableName}/dependencies", GetDependencies<CadsSystemAdminDbContext>)
