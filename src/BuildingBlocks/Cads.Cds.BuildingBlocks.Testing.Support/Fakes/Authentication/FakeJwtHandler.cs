@@ -48,15 +48,6 @@ public class FakeJwtHandler(
             {
                 claims.Add(new Claim(azureAd.ScopeClaimType, ScopeNames.AdminS3Manager));
             }
-            if (token == TestAuthConstants.FakeJwtAzureAdRolesClaim)
-            {
-                // Real Azure AD access tokens carry app roles in the raw "roles" claim
-                claims.Add(new Claim(CustomClaimTypes.Roles, RoleNames.CadsAdminSuperuser));
-            }
-            else if (token != TestAuthConstants.FakeJwtMissingSuperuserRole)
-            {
-                claims.Add(new Claim(azureAd.RoleClaimType, RoleNames.CadsAdminSuperuser));
-            }
         }
         else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
         {
