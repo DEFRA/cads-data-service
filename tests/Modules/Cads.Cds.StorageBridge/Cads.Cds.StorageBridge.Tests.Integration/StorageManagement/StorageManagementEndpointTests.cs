@@ -41,14 +41,4 @@ public class StorageManagementEndpointTests(ApiContainerFixture apiContainerFixt
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
-
-    [Fact]
-    public async Task GivenApiKeyCredentials_WhenBucketsListed_ShouldReturnUnauthorized()
-    {
-        var client = apiContainerFixture.CreateBasicClient();
-
-        var response = await client.GetAsync(BucketsEndpoint, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
 }

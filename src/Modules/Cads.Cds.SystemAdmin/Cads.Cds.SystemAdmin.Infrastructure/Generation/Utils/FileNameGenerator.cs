@@ -10,7 +10,7 @@ public class FileNameGenerator : IFileNameGenerator
     {
         // Normalize extension to avoid double dots (caller may pass ".csv" or "csv")
         var ext = command.Extension.TrimStart('.');
-        var timestamp = command.Timestamp.ToString("yyyy-MM-dd-HHmss");
+        var timestamp = command.Timestamp.ToString("yyyy-MM-dd-HHmmss");
         string filename;
 
         // Include partNo when provided (follows Pattern 1); omit when empty (Pattern 2)
