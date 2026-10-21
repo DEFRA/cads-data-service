@@ -37,13 +37,13 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     }
 
     [Fact]
-    public async Task GivenNoToken_WhenGetQueuesRequested_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenGetQueuesRequested_ShouldReturnForbidden()
     {
         var client = testFixture.Factory.CreateClient();
 
         var response = await SqsAdminTestClient.GetQueuesAsync(client, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -109,13 +109,13 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     }
 
     [Fact]
-    public async Task GivenNoToken_WhenGetMetricsRequested_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenGetMetricsRequested_ShouldReturnForbidden()
     {
         var client = testFixture.Factory.CreateClient();
 
         var response = await SqsAdminTestClient.GetMetricsAsync(client, "CadsCds", TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -179,13 +179,13 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     }
 
     [Fact]
-    public async Task GivenNoToken_WhenGetDlqMetricsRequested_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenGetDlqMetricsRequested_ShouldReturnForbidden()
     {
         var client = testFixture.Factory.CreateClient();
 
         var response = await SqsAdminTestClient.GetDlqMetricsAsync(client, "CadsCds", TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -289,13 +289,13 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     }
 
     [Fact]
-    public async Task GivenNoToken_WhenGetDlqMessagesRequested_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenGetDlqMessagesRequested_ShouldReturnForbidden()
     {
         var client = testFixture.Factory.CreateClient();
 
         var response = await SqsAdminTestClient.GetDlqMessagesAsync(client, "CadsCds", maxMessages: null, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -450,13 +450,13 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     }
 
     [Fact]
-    public async Task GivenNoToken_WhenReplayRequested_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenReplayRequested_ShouldReturnForbidden()
     {
         var client = testFixture.Factory.CreateClient();
 
         var response = await SqsAdminTestClient.ReplayDlqAsync(client, "CadsCds", batchSize: 5, TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -544,13 +544,13 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     }
 
     [Fact]
-    public async Task GivenNoToken_WhenReplaySingleMessageRequested_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenReplaySingleMessageRequested_ShouldReturnForbidden()
     {
         var client = testFixture.Factory.CreateClient();
 
         var response = await SqsAdminTestClient.ReplayDlqMessageAsync(client, "CadsCds", "m-unauthorized", TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
