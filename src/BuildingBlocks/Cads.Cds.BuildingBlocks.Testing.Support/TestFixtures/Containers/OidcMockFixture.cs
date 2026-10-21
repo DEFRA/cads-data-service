@@ -119,7 +119,7 @@ public class OidcMockFixture(string networkName) : IAsyncLifetime
                 password: TestAuthConstants.AzureAdPassword,
                 name: "Test Cads Admin",
                 email: TestAuthConstants.AzureAdCadsAdminEmail,
-                role: RoleNames.CadsAdminSuperuser)
+                role: "cads-admin-superuser")
         });
 
         OidcContainer = new ContainerBuilder("ghcr.io/soluto/oidc-server-mock:0.6.0")

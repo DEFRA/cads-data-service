@@ -242,27 +242,19 @@ public static class ServiceCollectionExtensions
 
         // Admin policies: Azure AD only and a specific scope. Where a role is given it is also required
         // (the DB admin policy needs the superuser role; the SQS and S3 admin policies are scope-only).
-        (string Policy, string Scope, string? Role)[] adminPolicies =
+        (string Policy, string Scope)[] adminPolicies =
         [
-            (AuthenticationConstants.AadDbAdminExecutePolicy, ScopeNames.DbAdminExecute, RoleNames.CadsAdminSuperuser),
-            (AuthenticationConstants.AadSqsAdminExecutePolicy, ScopeNames.SqsAdminManager, null),
-            (AuthenticationConstants.AadS3AdminExecutePolicy, ScopeNames.AdminS3Manager, null)
+            (AuthenticationConstants.AadDbAdminExecutePolicy, ScopeNames.DbAdminExecute),
+            (AuthenticationConstants.AadSqsAdminExecutePolicy, ScopeNames.SqsAdminManager),
+            (AuthenticationConstants.AadS3AdminExecutePolicy, ScopeNames.AdminS3Manager)
         ];
 
-        foreach (var (name, scope, role) in adminPolicies)
+        foreach (var (name, scope) in adminPolicies)
         {
-            builder.AddPolicy(name, policy =>
-            {
-                policy
-                    .AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName)
-                    .RequireAuthenticatedUser()
-                    .RequireScope(scopeClaim, scope);
-
-                if (role is not null)
-                {
-                    policy.RequireRoleClaim(roleClaim, role);
-                }
-            });
+            builder.AddPolicy(name, policy => policy
+                .AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName)
+                .RequireAuthenticatedUser()
+                .RequireScope(scopeClaim, scope));
         }
 
         builder.AddPolicy(AuthenticationConstants.DiagnosticsPolicyName, p => p
@@ -281,18 +273,6 @@ public static class ServiceCollectionExtensions
             .Where(c => c.Type == scopeClaimType)
             .SelectMany(c => c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .Contains(scope, StringComparer.Ordinal));
-
-    // MapInboundClaims is off for Azure AD, so role claims keep their raw names: Azure AD issues "roles",
-    // the local OIDC mock issues "role". Check the configured role claim type plus both raw names.
-    private static AuthorizationPolicyBuilder RequireRoleClaim(
-        this AuthorizationPolicyBuilder policy, string roleClaimType, string role)
-    {
-        string[] roleClaimTypes = [.. new[] { roleClaimType, CustomClaimTypes.Roles, CustomClaimTypes.Role }.Distinct(StringComparer.Ordinal)];
-
-        return policy.RequireAssertion(ctx => ctx.User.Claims
-            .Where(c => roleClaimTypes.Contains(c.Type, StringComparer.Ordinal))
-            .Any(c => string.Equals(c.Value, role, StringComparison.Ordinal)));
-    }
 
     private static AuthorizationPolicyBuilder AddSchemeIf(
         this AuthorizationPolicyBuilder policy, bool enabled, string scheme) =>
