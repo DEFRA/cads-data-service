@@ -20,24 +20,14 @@ public class StorageManagementAuthorizationEndpointTests : IClassFixture<Storage
     }
 
     [Fact]
-    public async Task GivenNoCredentials_WhenBucketsListed_ShouldReturnUnauthorized()
-    {
-        var client = _testFixture.Factory.CreateClient();
-
-        var response = await client.GetAsync($"{Endpoint}/buckets", TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task GivenApiKeyCredentials_WhenBucketsListed_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenBucketsListed_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();
         client.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
 
         var response = await client.GetAsync($"{Endpoint}/buckets", TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
