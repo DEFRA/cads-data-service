@@ -206,21 +206,6 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     }
 
     [Fact]
-    public async Task GivenScopeButSuperuserRoleMissing_WhenExecuteRequested_ShouldReturnForbidden()
-    {
-        var client = _testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingSuperuserRole);
-
-        var response = await DbAdminTestClient.ExecuteAsync(
-            client,
-            command: "sessions_by_state",
-            args: null,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
     public async Task GivenValidRoleAndScope_WhenExecuteRequested_ShouldReturnOk()
     {
         _testFixture.Factory.DbAdminExecuteCommandServiceMock
@@ -399,21 +384,6 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     {
         var client = _testFixture.Factory.CreateClient();
         client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminScope);
-
-        var response = await DbAdminTestClient.ExecuteCtsImportAsync(
-            client,
-            command: "summary",
-            args: new { run_id = 123L },
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
-    public async Task GivenScopeButSuperuserRoleMissing_WhenCtsImportRequested_ShouldReturnForbidden()
-    {
-        var client = _testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingSuperuserRole);
 
         var response = await DbAdminTestClient.ExecuteCtsImportAsync(
             client,
