@@ -17,10 +17,10 @@ public class TestEndpointStartupFilter : IStartupFilter
                 var group = endpoints.MapGroup("/test-auth");
 
                 group.MapGet("/basic/apikey", () => "OK: API Key")
-                    .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+                    .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
                 group.MapGet("/bearer/cognito", () => "OK: Cognito")
-                    .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+                    .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
                 group.MapGet("/azuread/reports", () => "OK: AzureAD ReportsRead")
                     .RequireAuthorization(AuthenticationConstants.AadReportsReadPolicy);
