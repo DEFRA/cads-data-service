@@ -75,7 +75,9 @@ public class ConfigureAuthenticationTests
             ["AuthenticationConfiguration:AzureAD:Enabled"] = "true",
             ["AuthenticationConfiguration:AzureAD:MetadataAddress"] = "http://fake-metadata",
             ["AuthenticationConfiguration:AzureAD:Authority"] = "https://fake-issuer",
-            ["AuthenticationConfiguration:AzureAD:RequireHttpsMetadata"] = "false"
+            ["AuthenticationConfiguration:AzureAD:RequireHttpsMetadata"] = "false",
+            ["AuthenticationConfiguration:AzureAD:ScopeClaimType"] = "scope",
+            ["AuthenticationConfiguration:AzureAD:RoleClaimType"] = "role"
         };
 
         var config = new ConfigurationBuilder()
@@ -114,7 +116,7 @@ public class ConfigureAuthenticationTests
         var provider = services.BuildServiceProvider();
         var policyProvider = provider.GetRequiredService<IAuthorizationPolicyProvider>();
 
-        var policy = await policyProvider.GetPolicyAsync(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+        var policy = await policyProvider.GetPolicyAsync(AuthenticationConstants.DefaultPolicy);
 
         policy!.AuthenticationSchemes.Should().Contain(
         [
