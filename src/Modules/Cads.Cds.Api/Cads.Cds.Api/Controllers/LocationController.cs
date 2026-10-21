@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cads.Cds.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
+[Authorize(Policy = AuthenticationConstants.DefaultPolicy)]
 [Route("api/v1/[controller]")]
 public class LocationController(IRequestExecutor executor) : ControllerBase
 {
