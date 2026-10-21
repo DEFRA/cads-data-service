@@ -77,7 +77,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AuthenticationConfiguration__Cognito__Enabled", "false")
           .WithEnvironment("AuthenticationConfiguration__Cognito__Authority", "")
           .WithEnvironment("AuthenticationConfiguration__Cognito__ScopeClaimType", "scope")
-          .WithEnvironment("AuthenticationConfiguration__Cognito__RoleClaimType", "")
+          .WithEnvironment("AuthenticationConfiguration__Cognito__RoleClaimType", "role")
           .WithEnvironment("AuthenticationConfiguration__AzureAD__Enabled", "true")
           .WithEnvironment("AuthenticationConfiguration__AzureAD__Authority", AzureAdConfig.ContainerAuthority)
           .WithEnvironment("AuthenticationConfiguration__AzureAD__Audience", AzureAdConfig.Audience)
