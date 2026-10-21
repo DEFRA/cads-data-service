@@ -43,13 +43,13 @@ public sealed class SystemAdminModule : IModule
         if (config.GetValue("Modules:SystemAdmin:EnableGenerationEndpoints", false))
         {
             app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema")
-                .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+                .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
             app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema")
-                .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+                .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
             app.MapGraphQL("/graphql/cts-audit", schemaName: "CtsAuditSchema")
-                .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+                .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
             app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
-                .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+                .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
             app.CreateGenerationEndpoints();
         }

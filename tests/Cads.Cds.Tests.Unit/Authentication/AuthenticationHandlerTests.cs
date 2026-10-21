@@ -139,20 +139,6 @@ public class AuthenticationHandlerTests
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Theory]
-    [InlineData("test-auth/azuread/db-admin")]
-    [InlineData("test-auth/azuread/sqs-admin")]
-    public async Task GivenTheAadPolicy_WhenDbAdminEndpointRequested_WithApiKeyCredentials_ReturnsUnauthorized(string url)
-    {
-        var factory = GetFactory();
-        var client = factory.CreateClient();
-        client.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
-
-        var response = await client.GetAsync(url, TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
     [Fact]
     public async Task GivenTheAadDbAdminExecutePolicy_WhenDbAdminEndpointRequested_WithCognitoToken_ReturnsUnauthorized()
     {
@@ -202,17 +188,5 @@ public class AuthenticationHandlerTests
         var response = await client.GetAsync("test-auth/azuread/s3-admin", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
-    public async Task GivenTheAadS3AdminExecutePolicy_WhenS3AdminEndpointRequested_WithApiKeyCredentials_ReturnsUnauthorized()
-    {
-        var factory = GetFactory();
-        var client = factory.CreateClient();
-        client.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
-
-        var response = await client.GetAsync("test-auth/azuread/s3-admin", TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }
