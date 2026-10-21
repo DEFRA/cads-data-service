@@ -189,7 +189,7 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Enabled", "true");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Authority", TestAuthConstants.FakeCongnitoAuthority);
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__ScopeClaimType", "scope");
-        Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__RoleClaimType", "");
+        Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__RoleClaimType", "role");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Enabled", "true");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Authority", TestAuthConstants.AzureAdFakeAuthority);
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__Audience", TestAuthConstants.AzureAdCadsCdsAudience);
