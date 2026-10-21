@@ -51,9 +51,11 @@ public class FakeJwtHandler(
         }
         else if (Scheme.Name == AuthenticationConstants.CognitoSchemeName)
         {
+            var cognito = authConfig.CurrentValue.Cognito;
+
             claims.Add(new Claim(CustomClaimTypes.CognitoSub, Guid.NewGuid().ToString()));
             claims.Add(new Claim(CustomClaimTypes.CustomTenantId, "test-cognito-tenant"));
-            claims.Add(new Claim("scope", ScopeNames.Access));
+            claims.Add(new Claim(cognito.ScopeClaimType, ScopeNames.Access));
         }
 
         var identity = new ClaimsIdentity(claims, Scheme.Name);
