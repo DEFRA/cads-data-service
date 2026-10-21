@@ -85,6 +85,6 @@ public static class WebApplicationExtensions
                 [HealthStatus.Degraded] = StatusCodes.Status200OK,
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
-        }).RequireAuthorization(AuthenticationConstants.DiagnosticsPolicyName);
+        }).RequireAuthorization(AuthenticationConstants.DefaultPolicy);
     }
 }

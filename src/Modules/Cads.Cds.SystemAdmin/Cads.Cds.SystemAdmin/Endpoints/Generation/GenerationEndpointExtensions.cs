@@ -21,22 +21,22 @@ public static class GenerationEndpointExtensions
     public static void CreateGenerationEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapPost($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/generation", Generate)
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+            .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
         app.MapGet($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/generation/scenarios", GetScenarios)
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+            .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
         app.MapGet("/api/v1/systemadmin/generation/cads/{tableName}/dependencies", GetDependencies<CadsSystemAdminDbContext>)
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+            .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
         app.MapGet("/api/v1/systemadmin/generation/cts/{tableName}/dependencies", GetDependencies<CtsSystemAdminDbContext>)
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+            .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
         app.MapGet("/api/v1/systemadmin/generation/cts-audit/{tableName}/dependencies", GetDependencies<CtsAuditSystemAdminDbContext>)
-            .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+            .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
         app.MapGet("/api/v1/systemadmin/generation/cts-transactions/{tableName}/dependencies", GetDependencies<CtsTransactionsSystemAdminDbContext>)
-           .RequireAuthorization(AuthenticationConstants.ApiKeyOrCognitoPolicy);
+           .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
     }
 
     private static async Task<IResult> Generate(

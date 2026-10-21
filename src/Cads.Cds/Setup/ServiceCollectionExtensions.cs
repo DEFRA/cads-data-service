@@ -24,6 +24,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Cads.Cds.Setup;
 
@@ -162,6 +163,11 @@ public static class ServiceCollectionExtensions
             schemes.Add(AuthenticationConstants.AzureADSchemeName);
         }
 
+        if (schemes.Count == 0)
+        {
+            throw new InvalidOperationException("At least one authentication scheme must be enabled.");
+        }
+
         services.AddAuthorisationPolicies(authConfig, schemes);
         services.AddUserContext();
     }
@@ -223,48 +229,28 @@ public static class ServiceCollectionExtensions
 
     private static void AddAuthorisationPolicies(
         this IServiceCollection services,
-        AuthenticationConfiguration authenticationConfiguration,
+        AuthenticationConfiguration authConfig,
         List<string> schemes)
     {
-        var scopeClaim = authenticationConfiguration.AzureAD.ScopeClaimType;
-        var roleClaim = authenticationConfiguration.AzureAD.RoleClaimType;
-
-        var builder = services.AddAuthorizationBuilder()
-            .AddPolicy(AuthenticationConstants.ApiKeyOrCognitoPolicy, policy => policy
-                .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
-                .AddSchemeIf(authenticationConfiguration.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
-                .RequireAuthenticatedUser())
-            .AddPolicy(AuthenticationConstants.AadReportsReadPolicy, policy => policy
-                .AddSchemeIf(authenticationConfiguration.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
-                .AddSchemeIf(authenticationConfiguration.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
-                .RequireAuthenticatedUser()
-                .RequireScope(scopeClaim, ScopeNames.ReportsRead));
-
-        // Admin policies all same shape: Azure AD only, a specific scope, and the superuser role
-        (string Policy, string Scope)[] adminPolicies =
-        [
-            (AuthenticationConstants.AadDbAdminExecutePolicy, ScopeNames.DbAdminExecute),
-            (AuthenticationConstants.AadSqsAdminExecutePolicy, ScopeNames.SqsAdminManager),
-            (AuthenticationConstants.AadS3AdminExecutePolicy, ScopeNames.AdminS3Manager)
-        ];
-
-        foreach (var (name, scope) in adminPolicies)
-        {
-            builder.AddPolicy(name, policy => policy
-                .AddAuthenticationSchemes(AuthenticationConstants.AzureADSchemeName)
-                .RequireAuthenticatedUser()
-                .RequireScope(scopeClaim, scope));
-        }
-
-        // Add default policy for diagnostics endpoints, which requires authentication but does not require any specific scope or role
+        var builder = services.AddAuthorizationBuilder();
 
         builder.AddPolicy(AuthenticationConstants.DefaultPolicy, p => p
             .AddAuthenticationSchemes([.. schemes])
             .RequireAuthenticatedUser());
 
-        builder.AddPolicy(AuthenticationConstants.DiagnosticsPolicyName, p => p
-            .AddAuthenticationSchemes([.. schemes])
-            .RequireAuthenticatedUser());
+        (string Policy, string Scope)[] customScopePolicies =
+        [
+            (AuthenticationConstants.AadReportsReadPolicy, ScopeNames.ReportsRead),
+            (AuthenticationConstants.AadDbAdminExecutePolicy, ScopeNames.DbAdminExecute),
+            (AuthenticationConstants.AadSqsAdminExecutePolicy, ScopeNames.SqsAdminManager),
+            (AuthenticationConstants.AadS3AdminExecutePolicy, ScopeNames.AdminS3Manager)
+        ];
+
+        foreach (var (name, scope) in customScopePolicies)
+        {
+            builder.AddPolicy(name, policy => policy.RequireEnabledSchemes(authConfig)
+                .RequireScopeFromEnabledSchemes(authConfig, scope));
+        }
 
         builder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
             .AddAuthenticationSchemes([.. schemes])
@@ -272,14 +258,47 @@ public static class ServiceCollectionExtensions
             .Build());
     }
 
-    private static AuthorizationPolicyBuilder RequireScope(
-        this AuthorizationPolicyBuilder policy, string scopeClaimType, string scope) =>
-        policy.RequireAssertion(ctx => ctx.User.Claims
-            .Where(c => c.Type == scopeClaimType)
-            .SelectMany(c => c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            .Contains(scope, StringComparer.Ordinal));
+    private static AuthorizationPolicyBuilder RequireEnabledSchemes(
+        this AuthorizationPolicyBuilder policy,
+        AuthenticationConfiguration config)
+    {
+        return policy
+            .AddSchemeIf(config.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
+            .AddSchemeIf(config.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
+            .AddSchemeIf(config.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
+            .RequireAuthenticatedUser();
+    }
 
     private static AuthorizationPolicyBuilder AddSchemeIf(
         this AuthorizationPolicyBuilder policy, bool enabled, string scheme) =>
         enabled ? policy.AddAuthenticationSchemes(scheme) : policy;
+
+    private static AuthorizationPolicyBuilder RequireScopeFromEnabledSchemes(
+        this AuthorizationPolicyBuilder policy,
+        AuthenticationConfiguration config,
+        string scope)
+    {
+        return policy.RequireAssertion(ctx =>
+        {
+            var user = ctx.User;
+
+            // Azure AD scopes
+            if (config.AzureAD.Enabled &&
+                HasScope(user, config.AzureAD.ScopeClaimType, scope))
+                return true;
+
+            // Cognito scopes
+            if (config.Cognito.Enabled &&
+                HasScope(user, config.Cognito.ScopeClaimType, scope))
+                return true;
+
+            return false;
+        });
+    }
+
+    private static bool HasScope(ClaimsPrincipal user, string claimType, string scope) =>
+        user.Claims
+            .Where(c => c.Type == claimType)
+            .SelectMany(c => c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Contains(scope, StringComparer.Ordinal);
 }

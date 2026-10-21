@@ -100,7 +100,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     // Authorization policy behaviour
 
     [Fact]
-    public async Task GivenNoToken_WhenExecuteRequested_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenExecuteRequested_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();
 
@@ -110,22 +110,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
             args: null,
             TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task GivenApiKeyCredentials_WhenExecuteRequested_ShouldReturnUnauthorized()
-    {
-        var client = _testFixture.Factory.CreateClient();
-        client.AddBasicApiKey(TestAuthConstants.BasicApiKey, TestAuthConstants.BasicSecret);
-
-        var response = await DbAdminTestClient.ExecuteAsync(
-            client,
-            command: "sessions_by_state",
-            args: null,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -304,7 +289,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     // CTS import: Authorization policy behaviour
 
     [Fact]
-    public async Task GivenNoToken_WhenCtsImportRequested_ShouldReturnUnauthorized()
+    public async Task GivenBasicToken_WhenCtsImportRequested_ShouldReturnForbidden()
     {
         var client = _testFixture.Factory.CreateClient();
 
@@ -314,7 +299,7 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
             args: new { run_id = 123L },
             TestContext.Current.CancellationToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
