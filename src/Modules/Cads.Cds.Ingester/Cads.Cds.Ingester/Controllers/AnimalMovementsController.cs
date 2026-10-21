@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Cads.Cds.Ingester.Controllers;
 
 [ApiController]
-[Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
+[Authorize(Policy = AuthenticationConstants.DefaultPolicy)]
 [Route("api/v1/nation/{nation}/animal-movements")]
 public class AnimalMovementsController(ILogger<AnimalMovementsController> logger) : ControllerBase
 {
