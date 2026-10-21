@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cads.Cds.StorageBridge.Controllers;
 
 [ApiController]
-[Authorize(Policy = AuthenticationConstants.ApiKeyOrCognitoPolicy)]
+[Authorize(Policy = AuthenticationConstants.DefaultPolicy)]
 [Route("api/v1/storage/[controller]")]
 public class S3ImportController(IRequestExecutor executor) : ControllerBase
 {
