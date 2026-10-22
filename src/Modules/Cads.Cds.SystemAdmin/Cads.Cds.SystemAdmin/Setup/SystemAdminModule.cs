@@ -42,6 +42,11 @@ public sealed class SystemAdminModule : IModule
 
         if (config.GetValue("Modules:SystemAdmin:EnableGenerationEndpoints", false))
         {
+            app.CreateGenerationEndpoints();
+        }
+
+        if (config.GetValue("Modules:SystemAdmin:EnableGraphQlEndpoints", false))
+        {
             app.MapGraphQL("/graphql/cads", schemaName: "CadsSchema")
                 .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
             app.MapGraphQL("/graphql/cts", schemaName: "CtsSchema")
@@ -50,8 +55,6 @@ public sealed class SystemAdminModule : IModule
                 .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
             app.MapGraphQL("/graphql/cts-transactions", schemaName: "CtsTransactionsSchema")
                 .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
-
-            app.CreateGenerationEndpoints();
         }
     }
 }
