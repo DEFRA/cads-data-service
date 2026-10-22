@@ -5,6 +5,13 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 public class AclOptions
 {
     public Dictionary<string, ApiKeyClient> Clients { get; init; } = [];
+    public Dictionary<string, StsClient> StsClients { get; init; } = [];
+
+    public class StsClient
+    {
+        [Required]
+        public required string[] Scopes { get; init; } = [];
+    }
 
     public class ApiKeyClient
     {
