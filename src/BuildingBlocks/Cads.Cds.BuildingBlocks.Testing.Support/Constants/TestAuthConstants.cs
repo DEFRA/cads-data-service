@@ -38,6 +38,11 @@ public static class TestAuthConstants
     public const string AzureAdCadsAdminEmail = "cads-admin-user@internal.test";
     public const string AzureAdCadsAdminUsername = "cads-admin-user";
 
+    // # AWS STS mock
+    public const string StsAudience = "https://cads-data-service.test";
+    public const string StsTrustedOrgId = "o-test";
+    public const string StsEnvironment = "Test";
+
     // # Fakes
 
     // ## Fakes: bearer token control values (consumed by FakeJwtHandler)
