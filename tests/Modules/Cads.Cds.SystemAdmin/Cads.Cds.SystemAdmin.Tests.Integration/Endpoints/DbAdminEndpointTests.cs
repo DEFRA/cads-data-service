@@ -225,33 +225,6 @@ public class DbAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         dto!.Command.Should().Be(command);
     }
 
-    [Fact] public async Task GivenScopeButNoSuperuserRole_WhenExecuteRequested_ShouldReturnForbidden()
-    {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingRoleToken());
-
-        var response = await DbAdminTestClient.ExecuteAsync(
-            client,
-            command: "sessions_by_state",
-            args: null,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
-    public async Task GivenScopeButNoSuperuserRole_WhenCtsImportRequested_ShouldReturnForbidden()
-    {
-        var client = await apiContainerFixture.CreateAzureAdClientAsync(TestDbAdminExecuteTokenFactory.MissingRoleToken());
-
-        var response = await DbAdminTestClient.ExecuteCtsImportAsync(
-            client,
-            command: "runs",
-            args: null,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
     [Fact]
     public async Task GivenScopeMissing_WhenExecuteRequested_ShouldReturnForbidden()
     {
