@@ -29,6 +29,8 @@ public class DbAdminExecuteCommandService(IPostgresDataSourceFactory factory) : 
         cmd.Parameters.AddWithValue("command", request.Command);
         cmd.Parameters.AddWithValue("args", request.Args ?? JsonDocument.Parse("{}").RootElement);
 
+        // db_admin_exec_command returns [] for empty list results; a SQL NULL can still come back from
+        // non-list results (and from cts_parallel_import_admin_exec_command), so keep an object fallback.
         var json = await cmd.ExecuteScalarAsync(cancellationToken) as string;
         return JsonDocument.Parse(json ?? "{}");
     }
