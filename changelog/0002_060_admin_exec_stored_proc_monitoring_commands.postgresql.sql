@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset james-grafton:0002_060_admin_exec_stored_proc_monitoring_commands splitStatements:false
+-- changeset james-grafton:0002-060-admin-exec-stored-proc-monitoring-commands splitStatements:false
 -- Supersedes the definition in 0002_050_admin_exec_stored_proc.postgresql.sql:
 --   * adds 'database_size' and 'reset_pg_stat_statements'
 --   * list-returning commands return [] (not NULL) when there are no rows
