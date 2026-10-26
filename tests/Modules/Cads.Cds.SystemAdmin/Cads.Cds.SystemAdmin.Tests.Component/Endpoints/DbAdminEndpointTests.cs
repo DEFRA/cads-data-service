@@ -97,6 +97,83 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         dto.Result.GetBoolean().Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("cancel_query", null)]
+    [InlineData("cancel_query", """{}""")]
+    [InlineData("cancel_query", """{"pid":"12345"}""")]
+    [InlineData("cancel_query", """{"pid":12.5}""")]
+    [InlineData("cancel_query", """{"pid":0}""")]
+    [InlineData("terminate_query", """{"pid":-1}""")]
+    [InlineData("terminate_query", """{"pid":2147483648}""")]
+    [InlineData("terminate_query", null)]
+    public async Task GivenPidCommandWithMissingOrInvalidPid_WhenExecuteRequested_ShouldReturnBadRequestWithArgsError(
+        string command, string? argsJson)
+    {
+        object? args = argsJson is null ? null : JsonDocument.Parse(argsJson).RootElement.Clone();
+
+        var response = await DbAdminTestClient.ExecuteAsync(
+            _httpClient,
+            command,
+            args,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        using var problem = JsonDocument.Parse(body);
+
+        problem.RootElement.GetProperty("status").GetInt32().Should().Be(400);
+        problem.RootElement.GetProperty("title").GetString().Should().Be("Validation errors");
+        problem.RootElement.GetProperty("errors").GetProperty("Args")[0].GetString()
+            .Should().Be("Args must contain an integer 'pid' property between 1 and 2147483647.");
+    }
+
+    [Fact]
+    public async Task GivenDatabaseSizeCommand_WhenExecuteRequested_ShouldReturnCommandAndResult()
+    {
+        _testFixture.Factory.DbAdminExecuteCommandServiceMock
+            .Setup(x => x.ExecuteAsync(
+                It.Is<DbAdminExecuteCommandRequestDto>(r => r.Command == "database_size"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(JsonDocument.Parse("""[{"datname":"cads","size_bytes":8192,"size_pretty":"8192 bytes"}]"""));
+
+        var response = await DbAdminTestClient.ExecuteAsync(
+            _httpClient,
+            command: "database_size",
+            args: null,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var dto = await DbAdminTestClient.ReadDtoAsync(response, TestContext.Current.CancellationToken);
+
+        dto!.Command.Should().Be("database_size");
+        dto.Result[0].GetProperty("size_bytes").GetInt64().Should().Be(8192);
+    }
+
+    [Fact]
+    public async Task GivenResetPgStatStatementsCommand_WhenExecuteRequested_ShouldReturnCommandAndResult()
+    {
+        _testFixture.Factory.DbAdminExecuteCommandServiceMock
+            .Setup(x => x.ExecuteAsync(
+                It.Is<DbAdminExecuteCommandRequestDto>(r => r.Command == "reset_pg_stat_statements"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(JsonDocument.Parse("true"));
+
+        var response = await DbAdminTestClient.ExecuteAsync(
+            _httpClient,
+            command: "reset_pg_stat_statements",
+            args: null,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var dto = await DbAdminTestClient.ReadDtoAsync(response, TestContext.Current.CancellationToken);
+
+        dto!.Command.Should().Be("reset_pg_stat_statements");
+        dto.Result.GetBoolean().Should().BeTrue();
+    }
+
     // Authorization policy behaviour
 
     [Fact]
