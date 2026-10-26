@@ -44,7 +44,10 @@ public class AwsStsAuthenticationHandlerTests
         {
             AwsSts = new AwsStsConfiguration
             {
-                Enabled = true, Audience = Audience, TrustedOrgId = OrgId, Environment = Environment
+                Enabled = true,
+                Audience = Audience,
+                TrustedOrgId = OrgId,
+                Environment = Environment
             }
         };
     }
