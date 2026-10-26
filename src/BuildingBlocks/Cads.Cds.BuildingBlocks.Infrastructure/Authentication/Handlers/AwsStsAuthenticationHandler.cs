@@ -1,3 +1,9 @@
+using System.Collections.Concurrent;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -7,12 +13,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using System.Collections.Concurrent;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 
@@ -25,7 +25,9 @@ public class AwsStsAuthenticationHandler(
     IHttpClientFactory httpClientFactory
 ) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    private static readonly ConcurrentDictionary<string, ConfigurationManager<OpenIdConnectConfiguration>> ConfigManagers = new();
+    private static readonly ConcurrentDictionary<string, ConfigurationManager<OpenIdConnectConfiguration>>
+        ConfigManagers = new();
+
     private readonly JwtSecurityTokenHandler _tokenHandler = new();
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -61,7 +63,7 @@ public class AwsStsAuthenticationHandler(
             {
                 ValidIssuer = issuer,
                 ValidateIssuer = true,
-                ValidAudience = config.Audience,   // rejects tokens not addressed to us
+                ValidAudience = config.Audience, // rejects tokens not addressed to us
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 IssuerSigningKeys = discovery.SigningKeys,
@@ -70,7 +72,7 @@ public class AwsStsAuthenticationHandler(
         }
         catch (Exception ex) when (ex is SecurityTokenException or InvalidOperationException)
         {
-            Logger.LogWarning(ex, "STS token validation failed for issuer {Issuer}", issuer);
+            Logger.LogWarning(ex, $"STS token validation failed for issuer {issuer}. Reason: {ex.Message}");
             return AuthenticateResult.Fail("Invalid token");
         }
 
@@ -91,17 +93,22 @@ public class AwsStsAuthenticationHandler(
 
         var orgId = GetString(stsClaims, "org_id");
         var tags = stsClaims.ValueKind == JsonValueKind.Object && stsClaims.TryGetProperty("principal_tags", out var t)
-            ? t : default;
+            ? t
+            : default;
         var serviceName = GetString(tags, "ServiceName");
         var environment = GetString(tags, "Environment");
 
         if (!string.Equals(orgId, config.TrustedOrgId, StringComparison.Ordinal))
-            return AuthenticateResult.Fail("Token is not from a trusted AWS organization");
+            return AuthenticateResult.Fail($"Token is not from a trusted AWS organization ({orgId})");
 
         if (!string.Equals(environment, config.Environment, StringComparison.OrdinalIgnoreCase))
-            return AuthenticateResult.Fail($"Token minted for environment '{environment}', this service runs in '{config.Environment}'");
+            return AuthenticateResult.Fail(
+                $"Token minted for environment '{environment}', this service runs in '{config.Environment}'");
 
-        if (serviceName is null || !aclOptions.Value.StsClients.TryGetValue(serviceName, out var client))
+        if (serviceName is null)
+            return AuthenticateResult.Fail("Caller serviceName is missing");
+
+        if (!aclOptions.Value.StsClients.TryGetValue(serviceName, out var client))
             return AuthenticateResult.Fail($"Caller '{serviceName}' is not on the allow list");
 
         var claims = new List<Claim> { new(ClaimTypes.Name, serviceName) };
@@ -112,17 +119,22 @@ public class AwsStsAuthenticationHandler(
         return AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(identity), Scheme.Name));
     }
 
-    private static string? GetString(JsonElement element, string propertyName) =>
-        element.ValueKind == JsonValueKind.Object && element.TryGetProperty(propertyName, out var value)
-            ? value.GetString() : null;
+    private static string? GetString(JsonElement element, string propertyName)
+    {
+        return element.ValueKind == JsonValueKind.Object && element.TryGetProperty(propertyName, out var value)
+            ? value.GetString()
+            : null;
+    }
 
     private Task<OpenIdConnectConfiguration> GetIssuerConfigurationAsync(string issuer, AwsStsConfiguration config)
     {
-        // RequireHttps follows config so the local http mock (plain http) works.
         var manager = ConfigManagers.GetOrAdd(issuer, iss => new ConfigurationManager<OpenIdConnectConfiguration>(
             $"{iss.TrimEnd('/')}/.well-known/openid-configuration",
             new OpenIdConnectConfigurationRetriever(),
-            new HttpDocumentRetriever(httpClientFactory.CreateClient("proxy")) { RequireHttps = config.RequireHttpsMetadata }));
+            new HttpDocumentRetriever(httpClientFactory.CreateClient("proxy"))
+            {
+                RequireHttps = config.RequireHttpsMetadata
+            }));
 
         return manager.GetConfigurationAsync(CancellationToken.None);
     }
