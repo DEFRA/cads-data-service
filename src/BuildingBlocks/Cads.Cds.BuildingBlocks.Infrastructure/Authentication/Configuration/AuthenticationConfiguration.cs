@@ -48,4 +48,7 @@ public static class AuthenticationConstants
     public const string AadDbAdminExecutePolicy = "AadDbAdminExecute";
     public const string AadSqsAdminExecutePolicy = "AadSqsAdminExecute";
     public const string AadS3AdminExecutePolicy = "AadS3AdminExecute";
+
+    public const string StsOrCognitoPolicy = "StsOrCognito";
+    public const string StsOrCognitoPolicyImports = "StsOrCognitoImports";
 }

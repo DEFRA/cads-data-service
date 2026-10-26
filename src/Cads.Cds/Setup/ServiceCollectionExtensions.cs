@@ -151,6 +151,11 @@ public static class ServiceCollectionExtensions
             schemes.Add(AuthenticationConstants.ApiKeySchemeName);
         }
 
+        if (authConfig.AwsSts.Enabled)
+        {
+            authBuilder.AddAwsStsScheme();
+        }
+
         if (authConfig.Cognito.Enabled)
         {
             authBuilder.AddCognitoScheme(authConfig.Cognito);
@@ -181,6 +186,12 @@ public static class ServiceCollectionExtensions
     {
         authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
             AuthenticationConstants.ApiKeySchemeName, _ => { });
+    }
+
+    private static void AddAwsStsScheme(this AuthenticationBuilder authenticationBuilder)
+    {
+        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, AwsStsAuthenticationHandler>(
+            AuthenticationConstants.AwsStsSchemeName, _ => { });
     }
 
     private static void AddCognitoScheme(this AuthenticationBuilder authenticationBuilder, AuthenticationProviderConfiguration authenticationProviderConfiguration)
@@ -251,6 +262,33 @@ public static class ServiceCollectionExtensions
             builder.AddPolicy(name, policy => policy.RequireEnabledSchemes(authConfig)
                 .RequireScopeFromEnabledSchemes(authConfig, scope));
         }
+
+        builder.AddPolicy(AuthenticationConstants.StsOrCognitoPolicy, policy =>
+        {
+            if (authConfig.AwsSts.Enabled)
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.AwsStsSchemeName);
+            }
+            if (authConfig.Cognito.Enabled)
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
+            }
+            policy.RequireAuthenticatedUser();
+        });
+
+        builder.AddPolicy(AuthenticationConstants.StsOrCognitoPolicyImports, policy =>
+        {
+            if (authConfig.AwsSts.Enabled)
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.AwsStsSchemeName);
+            }
+            if (authConfig.Cognito.Enabled)
+            {
+                policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
+            }
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("scope", ScopeNames.Imports);
+        });
 
         builder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
             .AddAuthenticationSchemes([.. schemes])
