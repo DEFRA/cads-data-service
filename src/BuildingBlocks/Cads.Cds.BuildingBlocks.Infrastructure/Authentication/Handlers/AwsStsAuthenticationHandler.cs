@@ -32,20 +32,13 @@ public class AwsStsAuthenticationHandler(
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var endpoint = Context.GetEndpoint();
-        if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
+        if (Context.GetEndpoint()?.Metadata.GetMetadata<IAllowAnonymous>() != null)
             return AuthenticateResult.NoResult();
 
-        if (!Request.Headers.TryGetValue("Authorization", out var headerValue))
+        var token = GetBearerToken();
+        if (token is null)
             return AuthenticateResult.NoResult();
 
-        // TryParse instead of Parse, which throws (HTTP 500) on a malformed header.
-        if (!AuthenticationHeaderValue.TryParse(headerValue!, out var header)
-            || !string.Equals(header.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase)
-            || header.Parameter is null)
-            return AuthenticateResult.NoResult();
-
-        var token = header.Parameter;
         var config = authConfig.Value.AwsSts;
 
         if (!_tokenHandler.CanReadToken(token))
@@ -72,25 +65,50 @@ public class AwsStsAuthenticationHandler(
         }
         catch (Exception ex) when (ex is SecurityTokenException or InvalidOperationException)
         {
-            Logger.LogWarning(ex, $"STS token validation failed for issuer {issuer}. Reason: {ex.Message}");
+            Logger.LogWarning(ex, "STS token validation failed for issuer {Issuer}", issuer);
             return AuthenticateResult.Fail("Invalid token");
         }
 
-        // Flatten the nested "https://sts.amazonaws.com/" claim into usable values.
-        var stsClaimsJson = principal.FindFirst("https://sts.amazonaws.com/")?.Value;
-        JsonElement stsClaims;
+        if (!TryReadStsClaims(principal, out var stsClaims))
+            return AuthenticateResult.Fail("Invalid STS claim");
+
+        return MapCaller(stsClaims, config);
+    }
+
+    private string? GetBearerToken()
+    {
+        if (!Request.Headers.TryGetValue("Authorization", out var headerValue))
+            return null;
+
+        // TryParse instead of Parse, which throws (HTTP 500) on a malformed header.
+        if (!AuthenticationHeaderValue.TryParse(headerValue.ToString(), out var header)
+            || !string.Equals(header.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        return header.Parameter;
+    }
+
+    private static bool TryReadStsClaims(ClaimsPrincipal principal, out JsonElement stsClaims)
+    {
+        stsClaims = default;
+        var json = principal.FindFirst("https://sts.amazonaws.com/")?.Value;
+        if (string.IsNullOrEmpty(json))
+            return true;
+
         try
         {
-            stsClaims = string.IsNullOrEmpty(stsClaimsJson)
-                ? default
-                : JsonSerializer.Deserialize<JsonElement>(stsClaimsJson);
+            stsClaims = JsonSerializer.Deserialize<JsonElement>(json);
+            return true;
         }
         catch (JsonException)
         {
             // Without this the exception escapes as HTTP 500.
-            return AuthenticateResult.Fail("Invalid STS claim");
+            return false;
         }
+    }
 
+    private AuthenticateResult MapCaller(JsonElement stsClaims, AwsStsConfiguration config)
+    {
         var orgId = GetString(stsClaims, "org_id");
         var tags = stsClaims.ValueKind == JsonValueKind.Object && stsClaims.TryGetProperty("principal_tags", out var t)
             ? t
