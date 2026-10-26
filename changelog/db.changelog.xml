@@ -87,6 +87,7 @@
   <include file="0002_053_cads_get_animal_detail.postgresql.sql"/>
   <include file="0002_054_cads_bovine_animal_detail.postgresql.sql"/>
   <include file="0002_055_cads_get_animals_on_holding.postgresql.sql"/>
+  <include file="0002_056_cads_bovine_animal_detail.postgresql.sql"/>
   <include file="0002_059_cts_parallel_bulk_import_sec_definer.postgresql.sql"/>
   <include file="0002_060_admin_exec_stored_proc_monitoring_commands.postgresql.sql"/>
   <include file="0004_002_cads_reference_state_seed_data.postgresql.sql"/>
