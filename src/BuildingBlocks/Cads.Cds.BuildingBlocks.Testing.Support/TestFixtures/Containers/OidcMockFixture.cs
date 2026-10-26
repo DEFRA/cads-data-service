@@ -1,5 +1,6 @@
 namespace Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 
+using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 using DotNet.Testcontainers.Builders;
