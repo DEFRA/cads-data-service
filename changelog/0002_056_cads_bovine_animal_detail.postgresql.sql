@@ -3,12 +3,12 @@
 -- 056 updates the existing database-backed AnimalDetail function.
 -- The function returns the complete relational projection consumed by the API.
 
--- changeset gary:0002_056_10
+-- changeset gary:0002_056_20
 DROP FUNCTION IF EXISTS cads.get_bovine_animal_detail(text);
 DROP FUNCTION IF EXISTS cads.get_animal_detail(text);
 -- rollback -- no-op
 
--- changeset gary:0002_056_11 runInTransaction:false runOnChange:true
+-- changeset gary:0002_056_21 runInTransaction:false runOnChange:true
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_ct_animal_identifiers_detail_exact
     ON cts.ct_animal_identifiers
         (aid_identifier, aid_ran_id, aid_id DESC)
@@ -18,14 +18,14 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_ct_animal_identifiers_detail_exact
         AND aid_effective_to_date IS NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_ct_animal_identifiers_detail_exact;
 
--- changeset gary:0002_056_12 runInTransaction:false
+-- changeset gary:0002_056_22 runInTransaction:false
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_ct_registered_movements_detail
     ON cts.ct_registered_movements
         (mov_ran_id, mov_movement_date DESC, mov_id DESC)
     INCLUDE (mov_loc_id, mov_direction, mov_current_status);
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_ct_registered_movements_detail;
 
--- changeset gary:0002_056_13 runInTransaction:false runOnChange:true
+-- changeset gary:0002_056_23 runInTransaction:false runOnChange:true
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_ct_animal_relationships_detail_live
     ON cts.ct_animal_relationships
         (aar_ran_id_child, aar_rel_type, aar_id DESC)
@@ -33,20 +33,20 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_ct_animal_relationships_detail_live
     WHERE aar_current_status = 'L';
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_ct_animal_relationships_detail_live;
 
--- changeset gary:0002_056_14 runInTransaction:false
+-- changeset gary:0002_056_24 runInTransaction:false
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_ct_location_identifiers_detail
     ON cts.ct_location_identifiers
         (lid_loc_id, lid_current_status, lid_sub_identifier);
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_ct_location_identifiers_detail;
 
--- changeset gary:0002_056_15 runInTransaction:false
+-- changeset gary:0002_056_25 runInTransaction:false
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_ct_param_value_detail
     ON cts.ct_param_value (pvl_param, pvl_param_value)
     INCLUDE (pvl_param_short_desc, pvl_param_long_desc)
     WHERE pvl_current_status = '1';
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_ct_param_value_detail;
 
--- changeset gary:0002_056_16 splitStatements:false runOnChange:true
+-- changeset gary:0002_056_26 splitStatements:false runOnChange:true
 -- Recreate on rerun because adding output columns changes the return type.
 DROP FUNCTION IF EXISTS cads.get_animal_detail(text);
 CREATE OR REPLACE FUNCTION cads.get_animal_detail(p_eartag text)
@@ -88,6 +88,31 @@ WITH animal_key AS (
                   LEFT JOIN cts.ct_breeds brd
                             ON brd.brd_id = ran.ran_brd_id
      ),
+     current_holding_episode AS (
+         -- Match the holding-list episode rules, scoped to the requested animal.
+         -- A later-reported OFF from another location must not select that
+         -- departed holding or close this animal's destination episode.
+         SELECT i.mov_ran_id AS ran_id,
+                i.mov_loc_id,
+                i.mov_movement_date AS date_on_cph
+         FROM animal_key k
+         JOIN cts.ct_registered_movements i ON i.mov_ran_id = k.ran_id
+         WHERE i.mov_loc_id IS NOT NULL
+           AND i.mov_direction = '1'
+           AND i.mov_current_status <> 'C'
+           AND NOT EXISTS (
+               SELECT 1
+               FROM cts.ct_registered_movements o
+               WHERE o.mov_ran_id = i.mov_ran_id
+                 AND o.mov_loc_id = i.mov_loc_id
+                 AND o.mov_current_status <> 'C'
+                 AND o.mov_direction <> '1'
+                 AND (o.mov_movement_date, o.mov_id)
+                     > (i.mov_movement_date, i.mov_id)
+           )
+         ORDER BY i.mov_movement_date DESC NULLS LAST, i.mov_id DESC
+         LIMIT 1
+     ),
      request_location AS (
          SELECT *
          FROM (
@@ -114,31 +139,17 @@ WITH animal_key AS (
                       ) AS adr ON true
                   WHERE lid.lid_current_status = '1'
                     AND lid.lid_loc_id = (
-                      SELECT m.mov_loc_id
-                      FROM cts.ct_registered_movements AS m
-                               JOIN animal_key AS k
-                                    ON k.ran_id = m.mov_ran_id
-                      WHERE m.mov_loc_id IS NOT NULL
-                      ORDER BY m.mov_movement_date DESC NULLS LAST, m.mov_id DESC
-                      LIMIT 1
+                      SELECT e.mov_loc_id
+                      FROM current_holding_episode e
                   )
               ) AS ranked
          WHERE rn = 1
      ),
      date_on_cph AS (
-         -- Calculate the date for the requested animal only, not every animal
-         -- at its selected location. Preserve the existing earliest ON date rule.
-         SELECT
-             m.mov_ran_id AS ran_id,
-             MIN(m.mov_movement_date) AS date_on_cph
-         FROM cts.ct_registered_movements m
-                  JOIN animal_key k
-                       ON k.ran_id = m.mov_ran_id
-                  JOIN request_location rl
-                       ON rl.lid_loc_id = m.mov_loc_id
-         WHERE m.mov_current_status IN ('1', 'L')
-           AND m.mov_direction = '1'  -- ON
-         GROUP BY m.mov_ran_id
+         -- Arrival date belongs to the same open episode as currentLocation,
+         -- not the animal's earliest historical visit to that location.
+         SELECT e.ran_id, e.date_on_cph
+         FROM current_holding_episode e
      ),
      registration_movement AS (
          SELECT
@@ -338,6 +349,6 @@ FROM core c
                    ON sr.status_code = c.ran_current_status::numeric;
 $function$;
 
--- changeset gary:0002_052_07
+-- changeset gary:0002_056_27
 COMMENT ON FUNCTION cads.get_animal_detail(text) IS
     'Returns the complete AnimalDetail relational projection for an exact ear-tag lookup, including breed, parentage, CPH, registration and death locations.';
