@@ -154,6 +154,7 @@ public static class ServiceCollectionExtensions
         if (authConfig.AwsSts.Enabled)
         {
             authBuilder.AddAwsStsScheme();
+            schemes.Add(AuthenticationConstants.AwsStsSchemeName);
         }
 
         if (authConfig.Cognito.Enabled)
