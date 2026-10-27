@@ -138,6 +138,8 @@ public class ConfigureAuthenticationTests
             .GetPolicyAsync(AuthenticationConstants.DefaultPolicy);
 
         scheme.Should().NotBeNull();
+        provider.GetRequiredService<IOptionsMonitor<AuthenticationSchemeOptions>>()
+            .Get(AuthenticationConstants.AwsStsSchemeName).Should().NotBeNull();
         policy!.AuthenticationSchemes.Should().Contain(AuthenticationConstants.AwsStsSchemeName);
     }
 
