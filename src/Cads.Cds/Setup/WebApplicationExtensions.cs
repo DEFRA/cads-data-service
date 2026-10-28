@@ -1,4 +1,3 @@
-using Asp.Versioning.ApiExplorer;
 using Cads.Cds.Api.Setup;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
@@ -92,9 +91,9 @@ public static class WebApplicationExtensions
                 options.Title = "CADS CDS Documentation";
                 options.Theme = ScalarTheme.Default;
 
-                var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+                var apiVersionDescriptions = app.DescribeApiVersions();
 
-                foreach (var description in provider.ApiVersionDescriptions)
+                foreach (var description in apiVersionDescriptions)
                 {
                     options.AddDocument(
                         description.GroupName,
