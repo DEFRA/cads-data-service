@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Cads.Cds.Api.Application;
 using Cads.Cds.BuildingBlocks.Application.Behaviors;
 using Cads.Cds.BuildingBlocks.Application.Identity;
@@ -11,7 +12,6 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.Ingester.Application;
 using Cads.Cds.MiBff.Application;
 using Cads.Cds.Setup.Providers;
-using Cads.Cds.Setup.Swagger;
 using Cads.Cds.StorageBridge.Application;
 using Cads.Cds.SystemAdmin;
 using Cads.Cds.SystemAdmin.Application;
@@ -38,15 +38,69 @@ public static class ServiceCollectionExtensions
         {
             options.ModelBinderProviders.Insert(0, new DateOnlyModelBinderProvider());
         })
-            .AddJsonOptions(opts =>
+        .AddJsonOptions(opts =>
+        {
+            opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptionsWithStringEnumConversion.PropertyNamingPolicy;
+            opts.JsonSerializerOptions.WriteIndented = JsonDefaults.DefaultOptionsWithStringEnumConversion.WriteIndented;
+            foreach (var converter in JsonDefaults.DefaultOptionsWithStringEnumConversion.Converters)
             {
-                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonDefaults.DefaultOptionsWithStringEnumConversion.PropertyNamingPolicy;
-                opts.JsonSerializerOptions.WriteIndented = JsonDefaults.DefaultOptionsWithStringEnumConversion.WriteIndented;
-                foreach (var converter in JsonDefaults.DefaultOptionsWithStringEnumConversion.Converters)
+                opts.JsonSerializerOptions.Converters.Add(converter);
+            }
+        });
+
+        // Api versioning and OpenAPI configuration
+        _ = services.AddApiVersioning(options =>
+        {
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.ReportApiVersions = true;
+            options.ApiVersionReader = new UrlSegmentApiVersionReader();
+        })
+        .AddMvc()
+        .AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+            options.SubstituteApiVersionInUrl = true;
+        });
+
+        var apiVersions = new[] { "v1", "v2" };
+
+        foreach (var version in apiVersions)
+        {
+            _ = services.AddOpenApi(version, options =>
+            {
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
                 {
-                    opts.JsonSerializerOptions.Converters.Add(converter);
-                }
+                    document.Info ??= new OpenApiInfo();
+                    document.Info.Title = "CADS API";
+                    document.Info.Version = version;
+
+                    document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+                    document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        Description = "JWT Authorization header using the Bearer scheme"
+                    };
+
+                    document.Components.SecuritySchemes["Basic"] = new OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "basic",
+                        Description = "Basic authentication header"
+                    };
+
+                    return Task.CompletedTask;
+                });
             });
+        }
 
         services.AddDefaultAWSOptions(configuration.GetAWSOptions());
         services.Configure<AwsConfig>(configuration.GetSection(AwsConfig.SectionName));
@@ -56,44 +110,6 @@ public static class ServiceCollectionExtensions
         services.ConfigureMediatR();
 
         services.AddModules(configuration);
-
-        // Make endpoints available for discovery by tools like Swagger
-        services.AddEndpointsApiExplorer();
-
-        // Configure Swagger/OpenAPI
-        services.AddSwaggerGen(options =>
-        {
-            options.SwaggerDoc("v1", new OpenApiInfo { Title = "CADS API", Version = "v1" });
-
-            // Bearer Authentication
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT"
-            });
-
-            // Basic Authentication
-            options.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
-            {
-                Description = "Basic Authentication header. Example: \"Basic {base64(username:password)}\"",
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.Http,
-                Scheme = "basic"
-            });
-
-            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-            {
-                [new OpenApiSecuritySchemeReference("bearer", document)] = [],
-                [new OpenApiSecuritySchemeReference("basic", document)] = []
-            });
-
-            options.ParameterFilter<DefaultValueParameterFilter>();
-        });
     }
 
     private static void ConfigureMediatR(this IServiceCollection services)
