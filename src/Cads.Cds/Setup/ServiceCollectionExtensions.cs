@@ -62,46 +62,35 @@ public static class ServiceCollectionExtensions
             options.GroupNameFormat = "'v'VVV";
             options.SubstituteApiVersionInUrl = true;
         })
-        .AddOpenApi();
-
-        var apiVersions = new[] { "v1", "v2" };
-
-        foreach (var version in apiVersions)
+        .AddOpenApi(options =>
         {
-            _ = services.AddOpenApi(version, options =>
+            options.Document.AddDocumentTransformer((document, context, cancellationToken) =>
             {
-                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                document.Components ??= new OpenApiComponents();
+                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
                 {
-                    document.Info ??= new OpenApiInfo();
-                    document.Info.Title = "CADS API";
-                    document.Info.Version = version;
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "JWT Authorization header using the Bearer scheme"
+                };
 
-                    document.Components ??= new OpenApiComponents();
-                    document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                document.Components.SecuritySchemes["Basic"] = new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "basic",
+                    Description = "Basic authentication header"
+                };
 
-                    document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
-                    {
-                        Name = "Authorization",
-                        In = ParameterLocation.Header,
-                        Type = SecuritySchemeType.Http,
-                        Scheme = "bearer",
-                        BearerFormat = "JWT",
-                        Description = "JWT Authorization header using the Bearer scheme"
-                    };
-
-                    document.Components.SecuritySchemes["Basic"] = new OpenApiSecurityScheme
-                    {
-                        Name = "Authorization",
-                        In = ParameterLocation.Header,
-                        Type = SecuritySchemeType.Http,
-                        Scheme = "basic",
-                        Description = "Basic authentication header"
-                    };
-
-                    return Task.CompletedTask;
-                });
+                return Task.CompletedTask;
             });
-        }
+        });
 
         services.AddDefaultAWSOptions(configuration.GetAWSOptions());
         services.Configure<AwsConfig>(configuration.GetSection(AwsConfig.SectionName));
