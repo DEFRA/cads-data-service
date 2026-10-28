@@ -4,6 +4,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.Setup;
@@ -42,12 +43,9 @@ public static class WebApplicationExtensions
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
 
-        app.UseSwagger();
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwaggerUI();
-        }
+        _ = app.MapOpenApi("/openapi/{documentName}.json")
+            .WithDocumentPerVersion()
+            .AllowAnonymous();
 
         app.UseAuthentication();
         app.UseAuthorization();
@@ -86,5 +84,23 @@ public static class WebApplicationExtensions
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
         }).RequireAuthorization(AuthenticationConstants.DefaultPolicy);
+
+        if (app.Environment.IsDevelopment())
+        {
+            _ = app.MapScalarApiReference(options =>
+            {
+                options.Title = "CADS CDS Documentation";
+                options.Theme = ScalarTheme.Default;
+
+                var apiVersionDescriptions = app.DescribeApiVersions();
+
+                foreach (var description in apiVersionDescriptions.Select(description => description.GroupName))
+                {
+                    options.AddDocument(
+                        description,
+                        $"/openapi/{description}.json");
+                }
+            }).AllowAnonymous();
+        }
     }
 }
