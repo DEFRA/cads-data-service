@@ -1,9 +1,11 @@
+using Asp.Versioning.ApiExplorer;
 using Cads.Cds.Api.Setup;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cads.Cds.Setup;
@@ -42,11 +44,26 @@ public static class WebApplicationExtensions
         app.UseCorrelationId();
         app.UseMiddleware<ApiResponseMiddleware>();
 
-        app.UseSwagger();
+        _ = app.MapOpenApi("/openapi/{documentName}.json")
+            .AllowAnonymous();
 
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwaggerUI();
+
+            _ = app.MapScalarApiReference(options =>
+            {
+                options.Title = "CADS CDS Documentation";
+                options.Theme = ScalarTheme.Default;
+
+                var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.AddDocument(
+                        description.GroupName,
+                        $"/openapi/{description.GroupName}.json");
+                }
+            }).AllowAnonymous();
         }
 
         app.UseAuthentication();
