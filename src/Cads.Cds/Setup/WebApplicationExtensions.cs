@@ -94,11 +94,11 @@ public static class WebApplicationExtensions
 
                 var apiVersionDescriptions = app.DescribeApiVersions();
 
-                foreach (var description in apiVersionDescriptions)
+                foreach (var description in apiVersionDescriptions.Select(description => description.GroupName))
                 {
                     options.AddDocument(
-                        description.GroupName,
-                        $"/openapi/{description.GroupName}.json");
+                        description,
+                        $"/openapi/{description}.json");
                 }
             }).AllowAnonymous();
         }
