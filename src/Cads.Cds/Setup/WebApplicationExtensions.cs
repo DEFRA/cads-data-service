@@ -44,6 +44,7 @@ public static class WebApplicationExtensions
         app.UseMiddleware<ApiResponseMiddleware>();
 
         _ = app.MapOpenApi("/openapi/{documentName}.json")
+            .WithDocumentPerVersion()
             .AllowAnonymous();
 
         app.UseAuthentication();

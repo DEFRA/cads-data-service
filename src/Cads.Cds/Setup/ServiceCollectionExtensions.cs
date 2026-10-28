@@ -61,7 +61,8 @@ public static class ServiceCollectionExtensions
         {
             options.GroupNameFormat = "'v'VVV";
             options.SubstituteApiVersionInUrl = true;
-        });
+        })
+        .AddOpenApi();
 
         var apiVersions = new[] { "v1", "v2" };
 
