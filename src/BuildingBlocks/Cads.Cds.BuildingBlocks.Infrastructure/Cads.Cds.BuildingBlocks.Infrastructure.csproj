@@ -12,6 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Abstractions" Version="10.2.1" />
+    <PackageReference Include="Asp.Versioning.Http" Version="10.2.3" />
+    <PackageReference Include="Asp.Versioning.Mvc" Version="10.2.1" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.2.1" />
+    <PackageReference Include="Asp.Versioning.OpenApi" Version="10.2.3" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.102.4" />
     <PackageReference Include="AWSSDK.RDS" Version="4.0.106.4" />
     <PackageReference Include="Elastic.CommonSchema.Serilog" Version="9.0.0" />

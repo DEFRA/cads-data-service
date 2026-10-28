@@ -12,10 +12,28 @@ namespace Cads.Cds.Ingester.Tests.Integration.AnimalMovementsEndpoints;
 public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture)
 {
     [Fact]
-    public async Task GivenValidAnimalMovements_WhenPostingToEndpoint_ShouldSucceed()
+    public async Task GivenValidAnimalMovements_WhenPostingToEndpointV1_ShouldSucceed()
     {
         var nation = Nation.Wales;
-        var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpoint, nation);
+        var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpointV1, nation);
+        var client = apiContainerFixture.CreateBasicClient();
+
+        var result = await client.PostAsync(endpoint, new StringContent(_payload, Encoding.UTF8, "application/json"),
+            TestContext.Current.CancellationToken);
+        result.IsSuccessStatusCode.Should().BeTrue();
+        var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var responseData = JsonConvert.DeserializeObject<IngestionDto>(responseBody);
+        responseData.Should().NotBeNull();
+        responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
+        responseData.RecordCount.Should().Be(1);
+    }
+
+
+    [Fact]
+    public async Task GivenValidAnimalMovements_WhenPostingToEndpointV2_ShouldSucceed()
+    {
+        var nation = Nation.Wales;
+        var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpointV2, nation);
         var client = apiContainerFixture.CreateBasicClient();
 
         var result = await client.PostAsync(endpoint, new StringContent(_payload, Encoding.UTF8, "application/json"),
