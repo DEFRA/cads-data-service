@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
@@ -14,9 +15,10 @@ using System.Text.Json;
 
 namespace Cads.Cds.MiBff.Controllers;
 
-[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
 [ApiController]
-[Route("api/v1/bff/mi/[controller]")]
+[ApiVersion("1.0")]
+[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
+[Route("api/v{version:apiVersion}/bff/mi/reports")]
 public class ReportsController(IMediator mediator, IReportRegistry reportRegistry, IUserContext userContext) : ControllerBase
 {
     private readonly IMediator _mediator = mediator;
