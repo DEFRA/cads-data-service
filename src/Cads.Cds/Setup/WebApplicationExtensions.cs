@@ -47,25 +47,6 @@ public static class WebApplicationExtensions
         _ = app.MapOpenApi("/openapi/{documentName}.json")
             .AllowAnonymous();
 
-        if (app.Environment.IsDevelopment())
-        {
-
-            _ = app.MapScalarApiReference(options =>
-            {
-                options.Title = "CADS CDS Documentation";
-                options.Theme = ScalarTheme.Default;
-
-                var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
-                foreach (var description in provider.ApiVersionDescriptions)
-                {
-                    options.AddDocument(
-                        description.GroupName,
-                        $"/openapi/{description.GroupName}.json");
-                }
-            }).AllowAnonymous();
-        }
-
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -103,5 +84,23 @@ public static class WebApplicationExtensions
                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
             }
         }).RequireAuthorization(AuthenticationConstants.DefaultPolicy);
+
+        if (app.Environment.IsDevelopment())
+        {
+            _ = app.MapScalarApiReference(options =>
+            {
+                options.Title = "CADS CDS Documentation";
+                options.Theme = ScalarTheme.Default;
+
+                var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.AddDocument(
+                        description.GroupName,
+                        $"/openapi/{description.GroupName}.json");
+                }
+            }).AllowAnonymous();
+        }
     }
 }
