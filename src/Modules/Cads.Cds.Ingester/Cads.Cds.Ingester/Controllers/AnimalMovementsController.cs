@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Cads.Cds.Ingester.Controllers.AnimalMovements;
 
 [ApiController]
-[ApiVersion("1.0", Deprecated = true)]
+[ApiVersion("1.0")]
 [ApiVersion("2.0")]
 [Authorize(Policy = AuthenticationConstants.DefaultPolicy)]
 [Route("api/v{version:apiVersion}/nation/{nation}/animal-movements")]
