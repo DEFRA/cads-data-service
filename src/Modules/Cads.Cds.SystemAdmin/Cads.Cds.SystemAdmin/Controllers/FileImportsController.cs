@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
@@ -18,8 +19,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cads.Cds.SystemAdmin.Controllers;
 
 [ApiController]
+[ApiVersion("1.0")]
 [Authorize(Policy = AuthenticationConstants.DefaultPolicy)]
-[Route("api/v1/systemadmin/[controller]")]
+[Route("api/v{version:apiVersion}/systemadmin/[controller]")]
 public class FileImportsController(IRequestExecutor executor) : ControllerBase
 {
     /// <summary>
