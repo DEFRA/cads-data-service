@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.StorageBridge.Application.S3Import.Commands;
@@ -9,8 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cads.Cds.StorageBridge.Controllers;
 
 [ApiController]
+[ApiVersion("1.0")]
 [Authorize(Policy = AuthenticationConstants.DefaultPolicy)]
-[Route("api/v1/storage/[controller]")]
+[Route("api/v{version:apiVersion}/storage/[controller]")]
 public class S3ImportController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
