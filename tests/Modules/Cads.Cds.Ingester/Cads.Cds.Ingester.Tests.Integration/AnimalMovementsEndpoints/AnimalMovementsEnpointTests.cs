@@ -126,8 +126,8 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
     }
 }";
 
-private readonly string _payloadV2 =
-    """
+    private readonly string _payloadV2 =
+        """
     {
       "Event": {
         "RecordID": "record-14567413",
