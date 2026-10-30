@@ -16,10 +16,10 @@ public static class DbAdminEndpointExtensions
 {
     public static void CreateDbAdminEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-execute-command", DbAdminExecuteCommand)
+        app.MapPost($"/db-admin-execute-command", DbAdminExecuteCommand)
             .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
 
-        app.MapPost($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-cts-import", DbAdminCtsImport)
+        app.MapPost($"/db-admin-cts-import", DbAdminCtsImport)
             .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
     }
 
@@ -29,7 +29,7 @@ public static class DbAdminEndpointExtensions
     /// <param name="app"></param>
     public static void CreateDbAdminPrepareCtsImportEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/db-admin-prepare-cts-import", DbAdminPrepareCtsImport)
+        app.MapPost($"/db-admin-prepare-cts-import", DbAdminPrepareCtsImport)
             .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
     }
 
