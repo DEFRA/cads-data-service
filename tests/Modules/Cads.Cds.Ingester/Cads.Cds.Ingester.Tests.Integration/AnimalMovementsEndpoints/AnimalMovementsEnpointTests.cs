@@ -18,7 +18,7 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpointV1, nation);
         var client = apiContainerFixture.CreateBasicClient();
 
-        var result = await client.PostAsync(endpoint, new StringContent(_payload, Encoding.UTF8, "application/json"),
+        var result = await client.PostAsync(endpoint, new StringContent(_payloadV1, Encoding.UTF8, "application/json"),
             TestContext.Current.CancellationToken);
         result.IsSuccessStatusCode.Should().BeTrue();
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -27,7 +27,6 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
     }
-
 
     [Fact]
     public async Task GivenValidAnimalMovements_WhenPostingToEndpointV2_ShouldSucceed()
@@ -36,7 +35,7 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpointV2, nation);
         var client = apiContainerFixture.CreateBasicClient();
 
-        var result = await client.PostAsync(endpoint, new StringContent(_payload, Encoding.UTF8, "application/json"),
+        var result = await client.PostAsync(endpoint, new StringContent(_payloadV2, Encoding.UTF8, "application/json"),
             TestContext.Current.CancellationToken);
         result.IsSuccessStatusCode.Should().BeTrue();
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -46,84 +45,152 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         responseData.RecordCount.Should().Be(1);
     }
 
-    private readonly string _payload = @"{
- ""AnimalMovement"": {
-   ""CreatedBy"": ""SC"",
-   ""DepartureRegion"": ""SC"",
-   ""DestinationRegion"": ""SC"",
-   ""MessageID"": ""14567413"",
-   ""MovementTime"": ""2026-03-23T00:00:00Z"",
-   ""MovementID"": ""8308310"",
-   ""MovementGroupID"": ""2474189:31710"",
-   ""MovementGroup"": ""2474189"",
-   ""CrossBorderMovementId"": """",
-   ""MovementType"": ""01"",
-   ""ActionType"": ""New"",
-   ""ActionStatus"": ""Completed"",
-   ""SupplierType"": ""Receiver"",
-   ""AnimalType"": ""Sheep"",
-   ""MovementDetails"": {
-     ""DepartureDate"": ""2026-02-26"",
-     ""DepartureLocation"": ""55/015/0071"",
-     ""DepartureCoreID"": ""98005647"",
-     ""DepartureLocationType"": ""Agricultural Holding"",
-     ""DeparturePremisesActivity"": ""AH"",
-     ""OffExemptionCode"": """",
-     ""ArrivalDate"": ""2026-02-26"",
-     ""DestinationLocation"": ""55/014/0006"",
-     ""DestinationCoreID"": ""98045305"",
-     ""DestinationLocationType"": ""Agricultural Holding"",
-     ""DestinationPremisesActivity"": ""AH"",
-     ""OnExemptionCode"": """",
-     ""LotNumber"": """",
-     ""NumberOfAnimals"": 3,
-     ""NumberOfDOAs"": 0,
-     ""NumberOfReads"": 3,
-     ""LoadingTimestamp"": """",
-     ""ExpectedJourneyDuration"": """",
-     ""UnloadingTimestamp"": """",
-     ""AnimalTransporter"": ""01"",
-     ""HaulierDetails"": {
-       ""Name"": """",
-       ""Telephone"": """",
-       ""Email"": """",
-       ""VehicleDetails"": [
-         {
-           ""VehicleRegistrationNumber"": """",
-           ""DriverName"": """",
-           ""TransportAuthorisationNumber"": """"
-         }
-       ]
-     }
-   },
-   ""AnimalGroupDetails"": [
-   ],
-   ""AnimalDetails"": [
-     {
-       ""AnimalID"": ""826074973200188"",
-       ""AnimalIDType"": ""IM"",
-       ""AnimalIDTransponderHex"": """",
-       ""AnimalIDTransponderISO"": """",
-       ""TagIssueNumber"": """",
-       ""DOA"": false
-     },
-     {
-       ""AnimalID"": ""826074191409879"",
-       ""AnimalIDType"": ""IM"",
-       ""AnimalIDTransponderHex"": """",
-       ""AnimalIDTransponderISO"": """",
-       ""TagIssueNumber"": """",
-       ""DOA"": false
-     },
-     {
-       ""AnimalID"": ""826074973200206"",
-       ""AnimalIDType"": ""IM"",
-       ""AnimalIDTransponderHex"": """",
-       ""AnimalIDTransponderISO"": """",
-       ""TagIssueNumber"": """",
-       ""DOA"": false
-     }
-   ]
- }
+    private readonly string _payloadV1 = @"{
+    ""AnimalMovement"": {
+    ""CreatedBy"": ""SC"",
+    ""DepartureRegion"": ""SC"",
+    ""DestinationRegion"": ""SC"",
+    ""MessageID"": ""14567413"",
+    ""MovementTime"": ""2026-03-23T00:00:00Z"",
+    ""MovementID"": ""8308310"",
+    ""MovementGroupID"": ""2474189:31710"",
+    ""MovementGroup"": ""2474189"",
+    ""CrossBorderMovementId"": """",
+    ""MovementType"": ""01"",
+    ""ActionType"": ""New"",
+    ""ActionStatus"": ""Completed"",
+    ""SupplierType"": ""Receiver"",
+    ""AnimalType"": ""Sheep"",
+    ""MovementDetails"": {
+        ""DepartureDate"": ""2026-02-26"",
+        ""DepartureLocation"": ""55/015/0071"",
+        ""DepartureCoreID"": ""98005647"",
+        ""DepartureLocationType"": ""Agricultural Holding"",
+        ""DeparturePremisesActivity"": ""AH"",
+        ""OffExemptionCode"": """",
+        ""ArrivalDate"": ""2026-02-26"",
+        ""DestinationLocation"": ""55/014/0006"",
+        ""DestinationCoreID"": ""98045305"",
+        ""DestinationLocationType"": ""Agricultural Holding"",
+        ""DestinationPremisesActivity"": ""AH"",
+        ""OnExemptionCode"": """",
+        ""LotNumber"": """",
+        ""NumberOfAnimals"": 3,
+        ""NumberOfDOAs"": 0,
+        ""NumberOfReads"": 3,
+        ""LoadingTimestamp"": """",
+        ""ExpectedJourneyDuration"": """",
+        ""UnloadingTimestamp"": """",
+        ""AnimalTransporter"": ""01"",
+        ""HaulierDetails"": {
+        ""Name"": """",
+        ""Telephone"": """",
+        ""Email"": """",
+        ""VehicleDetails"": [
+            {
+            ""VehicleRegistrationNumber"": """",
+            ""DriverName"": """",
+            ""TransportAuthorisationNumber"": """"
+            }
+        ]
+        }
+    },
+    ""AnimalGroupDetails"": [
+    ],
+    ""AnimalDetails"": [
+        {
+        ""AnimalID"": ""826074973200188"",
+        ""AnimalIDType"": ""IM"",
+        ""AnimalIDTransponderHex"": """",
+        ""AnimalIDTransponderISO"": """",
+        ""TagIssueNumber"": """",
+        ""DOA"": false
+        },
+        {
+        ""AnimalID"": ""826074191409879"",
+        ""AnimalIDType"": ""IM"",
+        ""AnimalIDTransponderHex"": """",
+        ""AnimalIDTransponderISO"": """",
+        ""TagIssueNumber"": """",
+        ""DOA"": false
+        },
+        {
+        ""AnimalID"": ""826074973200206"",
+        ""AnimalIDType"": ""IM"",
+        ""AnimalIDTransponderHex"": """",
+        ""AnimalIDTransponderISO"": """",
+        ""TagIssueNumber"": """",
+        ""DOA"": false
+        }
+    ]
+    }
 }";
+
+private readonly string _payloadV2 =
+    """
+    {
+      "Event": {
+        "RecordID": "record-14567413",
+        "EventID": "event-8308310",
+        "EventType": "Movement",
+        "ActionType": "New",
+        "CreatedBy": "WA",
+        "CreatedDate": "2026-03-23T12:00:00Z",
+        "Species": "Sheep",
+        "AnimalMovement": {
+          "DepartureRegion": "WA",
+          "MovementGroup": "2474189",
+          "MovementType": "01",
+          "MovementStatus": "Completed",
+          "SupplierType": "Receiver",
+          "DepartureDate": "2026-03-23",
+          "DepartureLocation": "55/015/0071",
+          "DepartureCoreID": "98005647",
+          "DepartureLocationType": "Agricultural Holding",
+          "DeparturePremisesActivity": "AH",
+          "ArrivalDate": "2026-03-23",
+          "DestinationLocation": "55/014/0006",
+          "DestinationCoreID": "98045305",
+          "DestinationLocationType": "Agricultural Holding",
+          "DestinationPremisesActivity": "AH",
+          "NumberOfAnimals": 3,
+          "NumberOfDOAs": 0,
+          "NumberOfReads": 3,
+          "LoadingTimestamp": "2026-03-23T10:00:00Z",
+          "ExpectedJourneyDuration": "02:00:00",
+          "UnloadingTimestamp": "2026-03-23T12:00:00Z",
+          "AnimalTransporter": "01",
+          "HaulierDetails": {
+            "HaulierID": "haulier-123",
+            "HaulierCompanyName": "Test Haulier",
+            "HaulierAddressLine1": "1 Test Street",
+            "HaulierAddressLine2": "Test District",
+            "HaulierAddressLine3": "Test Town",
+            "HaulierAddressLine4": "Test County",
+            "HaulierPostcode": "CF10 1AA",
+            "HaulierTelephone": "01234567890",
+            "HaulierEmail": "test.haulier@example.com",
+            "TotalVehicles": 1,
+            "VehicleDetails": [
+              {
+                "VehicleRegistrationNumber": "AB12 CDE",
+                "DriverName": "Test Driver",
+                "TrailerIdentificationNumber": "TRAILER-123",
+                "TransportAuthorisationNumber": "AUTH-123"
+              }
+            ]
+          },
+          "LotNumber": "LOT-123",
+          "CrossBorderMovementID": "",
+          "DestinationRegion": "WA",
+          "CrossBorderSource": "WA",
+          "MovementDirection": "ON",
+          "WithinBusinessMovement": "NO",
+          "WithinBusinessMainCPH": "55/015/0071",
+          "InitialWithinBusinessLocation": "55/015/0071",
+          "EmergencySlaughter": "NO"
+        }
+      }
+    }
+    """;
 }

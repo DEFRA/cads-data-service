@@ -12,6 +12,7 @@
   - [Running the Application](#running-the-application)
 - [Accessing Services](#accessing-services)
 - [Verifying Everything Is Running](#verifying-everything-is-running)
+- [OpenApi documentation and testing](#openapi-documentation-and-testing)
 - [Testing](#testing)
 - [Development](#development) 
   - [Database](#database)
@@ -474,6 +475,21 @@ Signs in through the browser using the authorization code flow and prints the to
 
 Both use the password `password`. Use `-Scopes "openid profile email ..."` to override the scopes.
 Client details must match `oidc/config/clients.yml`.
+
+## OpenApi documentation and testing
+
+The CADS Data Services provides access to the OpenApi schema files directly or through an interactive web-based UI using [Scalar](https://scalar.com/products/api-references/integrations/aspnetcore/integration).
+
+Currently there are two defined schemas which are versioned as "v1" and "v2". 
+To access the schema documentation directly:
+
+**version 1**
+http://localhost:5555/openapi/v1.json
+
+**version 2**
+http://localhost:5555/openapi/v2.json
+
+To access the interactive API reference for testing each endpoint, simply navigate to http://localhost:5555/scalar.
 
 ### Testing
 
