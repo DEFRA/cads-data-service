@@ -269,33 +269,6 @@ public static class ServiceCollectionExtensions
                 .RequireScopeFromEnabledSchemes(authConfig, scope));
         }
 
-        builder.AddPolicy(AuthenticationConstants.StsOrCognitoPolicy, policy =>
-        {
-            if (authConfig.AwsSts.Enabled)
-            {
-                policy.AddAuthenticationSchemes(AuthenticationConstants.AwsStsSchemeName);
-            }
-            if (authConfig.Cognito.Enabled)
-            {
-                policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
-            }
-            policy.RequireAuthenticatedUser();
-        });
-
-        builder.AddPolicy(AuthenticationConstants.StsOrCognitoPolicyImports, policy =>
-        {
-            if (authConfig.AwsSts.Enabled)
-            {
-                policy.AddAuthenticationSchemes(AuthenticationConstants.AwsStsSchemeName);
-            }
-            if (authConfig.Cognito.Enabled)
-            {
-                policy.AddAuthenticationSchemes(AuthenticationConstants.CognitoSchemeName);
-            }
-            policy.RequireAuthenticatedUser();
-            policy.RequireClaim("scope", ScopeNames.Imports);
-        });
-
         builder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
             .AddAuthenticationSchemes([.. schemes])
             .RequireAuthenticatedUser()
