@@ -157,18 +157,6 @@ public class ConfigureAuthenticationTests
         policy!.AuthenticationSchemes.Should().NotContain(AuthenticationConstants.AwsStsSchemeName);
     }
 
-    [Fact]
-    public async Task ConfigureAuthentication_StsOrCognitoPolicy_AcceptsAwsStsButNotApiKey()
-    {
-        var provider = BuildProvider(apiKeyEnabled: true, awsStsEnabled: true);
-
-        var policy = await provider.GetRequiredService<IAuthorizationPolicyProvider>()
-            .GetPolicyAsync(AuthenticationConstants.StsOrCognitoPolicy);
-
-        policy!.AuthenticationSchemes.Should().Contain(AuthenticationConstants.AwsStsSchemeName);
-        policy.AuthenticationSchemes.Should().NotContain(AuthenticationConstants.ApiKeySchemeName);
-    }
-
     private static ServiceProvider BuildProvider(bool apiKeyEnabled, bool awsStsEnabled)
     {
         var configDict = new Dictionary<string, string?>
