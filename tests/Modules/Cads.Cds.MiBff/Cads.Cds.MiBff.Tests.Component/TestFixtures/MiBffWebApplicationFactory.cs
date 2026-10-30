@@ -1,9 +1,11 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.MiBff.Application.Reports.Authorisation;
+using Cads.Cds.MiBff.Application.Uow;
 using Cads.Cds.MiBff.Infrastructure.Authorisation.Reports;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Testing.Support.Contexts;
 using Cads.Cds.MiBff.Testing.Support.Factories;
+using Cads.Cds.MiBff.Testing.Support.Fakes.Uow;
 using Cads.Cds.MiBff.Testing.Support.Seeding;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -44,6 +46,9 @@ public class MiBffWebApplicationFactory(
 
         services.AddDbContext<MiBffWriteDbContext>(o =>
             o.UseInMemoryDatabase(_dbName));
+
+        services.RemoveAll<IMiBffUnitOfWork>();
+        services.AddScoped<IMiBffUnitOfWork, FakeMiBffUnitOfWork>();
     }
 
     private static void ConfigurePersistence(IServiceCollection services)
