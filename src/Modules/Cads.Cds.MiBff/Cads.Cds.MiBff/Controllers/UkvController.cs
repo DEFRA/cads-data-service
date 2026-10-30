@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Cads.Cds.BuildingBlocks.Application;
 using Cads.Cds.BuildingBlocks.Application.Attributes;
 using Cads.Cds.BuildingBlocks.Application.Queries;
@@ -20,9 +21,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cads.Cds.MiBff.Controllers;
 
-[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
 [ApiController]
-[Route("api/v1/bff/mi/[controller]")]
+[ApiVersion("1.0")]
+[Authorize(Policy = AuthenticationConstants.AadReportsReadPolicy)]
+[Route("api/v{version:apiVersion}/bff/mi/ukv")]
 public class UkvController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
