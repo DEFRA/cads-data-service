@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Cads.Cds.Api.Application.DTOs.Bovine.Animals;
 using Cads.Cds.Api.Application.Queries.Bovine.AnimalDetails;
 using Cads.Cds.Api.Application.Queries.Bovine.AnimalsOnHolding;
@@ -13,8 +14,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cads.Cds.Api.Controllers;
 
 [ApiController]
+[ApiVersion("1.0")]
 [Authorize(Policy = AuthenticationConstants.DefaultPolicy)]
-[Route("api/v1/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class BovineController(IRequestExecutor executor) : ControllerBase
 {
     /// <summary>

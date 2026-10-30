@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Cads.Cds.Api.Application.DTOs.Holdings;
 using Cads.Cds.Api.Application.Queries.Locations;
 using Cads.Cds.Api.Controllers.Requests.Locations;
@@ -11,8 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cads.Cds.Api.Controllers;
 
 [ApiController]
+[ApiVersion("1.0")]
 [Authorize(Policy = AuthenticationConstants.DefaultPolicy)]
-[Route("api/v1/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class LocationController(IRequestExecutor executor) : ControllerBase
 {
     private readonly IRequestExecutor _executor = executor;
