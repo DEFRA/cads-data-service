@@ -2,7 +2,7 @@
 
 -- changeset schema:0000-013-mi-report-job-tables splitStatements:false
 
--- Async report generation: job state table and transactional outbox (Option B).
+-- Report generation job requests and status tracking for async report generation.
 
 CREATE TABLE cads."mi_report_job" (
                                       "report_job_id"    UUID NOT NULL,
@@ -23,13 +23,11 @@ CREATE TABLE cads."mi_report_job" (
                                           CHECK ("status" IN ('pending', 'processing', 'complete', 'failed', 'expired'))
 );
 
--- Lookup unexpired jobs ready to be cleaned up / served.
 CREATE INDEX "mi_report_job_status_idx" ON cads."mi_report_job" ("status");
 CREATE INDEX "mi_report_job_expires_at_idx" ON cads."mi_report_job" ("expires_at")
     WHERE "expires_at" IS NOT NULL;
 
--- Transactional outbox: one row written atomically with the job on submit,
--- deleted after successful SQS dispatch.
+-- Transactional outbox for async report generation job status notifications.
 CREATE TABLE cads."mi_report_job_outbox" (
                                              "outbox_id"      UUID NOT NULL,
                                              "report_job_id"  UUID NOT NULL,
@@ -48,8 +46,6 @@ CREATE TABLE cads."mi_report_job_outbox" (
                                                      ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
--- Partial index keeps the dispatcher poll ("WHERE status = 'pending'") cheap
--- regardless of how many dispatched/historical rows exist.
 CREATE INDEX "mi_report_job_outbox_pending_idx"
     ON cads."mi_report_job_outbox" ("created_at")
     WHERE "status" = 'pending';
