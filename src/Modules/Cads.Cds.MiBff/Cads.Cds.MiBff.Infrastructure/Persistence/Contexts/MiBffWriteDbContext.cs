@@ -25,6 +25,10 @@ public class MiBffWriteDbContext(DbContextOptions<MiBffWriteDbContext> options) 
 
     public DbSet<MiUserReportPermission> UserReportPermissions => Set<MiUserReportPermission>();
 
+    public DbSet<MiReportJob> ReportJobs => Set<MiReportJob>();
+
+    public DbSet<MiReportJobOutbox> ReportJobOutboxMessages => Set<MiReportJobOutbox>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MiBffWriteDbContext).Assembly);
