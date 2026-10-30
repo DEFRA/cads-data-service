@@ -28,6 +28,11 @@ services:
       IMB_S3_ACCESS_KEY: test
       IMB_S3_ACCESS_SECRET: test
       AuthenticationConfiguration__ApiKey__Enabled: "true"
+      AuthenticationConfiguration__AwsSts__Enabled: "false"
+      AuthenticationConfiguration__AwsSts__Audience: https://cads-data-service.dev.cdp-int.defra.cloud
+      AuthenticationConfiguration__AwsSts__TrustedOrgId: o-kl1ac4xahf
+      AuthenticationConfiguration__AwsSts__Environment: dev
+      AuthenticationConfiguration__AwsSts__RequireHttpsMetadata: "false"
       AuthenticationConfiguration__Cognito__Enabled: "false"
       AuthenticationConfiguration__Cognito__Authority: ""
       AuthenticationConfiguration__AzureAD__Enabled: "true"
