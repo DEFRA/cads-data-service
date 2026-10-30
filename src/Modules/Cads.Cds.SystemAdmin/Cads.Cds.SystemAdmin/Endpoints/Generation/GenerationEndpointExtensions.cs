@@ -20,22 +20,24 @@ public static class GenerationEndpointExtensions
 {
     public static void CreateGenerationEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/generation", Generate)
+        const string generationRouteSegment = "/generation";
+
+        app.MapPost(generationRouteSegment, Generate)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet($"{SystemAdminEndpointsConstants.ApiRoutePrefix}/generation/scenarios", GetScenarios)
+        app.MapGet($"{generationRouteSegment}/scenarios", GetScenarios)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet("/api/v1/systemadmin/generation/cads/{tableName}/dependencies", GetDependencies<CadsSystemAdminDbContext>)
+        app.MapGet($"{generationRouteSegment}/cads/{{tableName}}/dependencies", GetDependencies<CadsSystemAdminDbContext>)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet("/api/v1/systemadmin/generation/cts/{tableName}/dependencies", GetDependencies<CtsSystemAdminDbContext>)
+        app.MapGet($"{generationRouteSegment}/cts/{{tableName}}/dependencies", GetDependencies<CtsSystemAdminDbContext>)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet("/api/v1/systemadmin/generation/cts-audit/{tableName}/dependencies", GetDependencies<CtsAuditSystemAdminDbContext>)
+        app.MapGet($"{generationRouteSegment}/cts-audit/{{tableName}}/dependencies", GetDependencies<CtsAuditSystemAdminDbContext>)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet("/api/v1/systemadmin/generation/cts-transactions/{tableName}/dependencies", GetDependencies<CtsTransactionsSystemAdminDbContext>)
+        app.MapGet($"{generationRouteSegment}/cts-transactions/{{tableName}}/dependencies", GetDependencies<CtsTransactionsSystemAdminDbContext>)
            .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
     }
 

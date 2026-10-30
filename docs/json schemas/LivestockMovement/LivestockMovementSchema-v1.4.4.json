@@ -1,0 +1,558 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"properties": {
+		"Event": {
+			"type": "object",
+			"properties": {
+				"RecordID": {
+					"type": "string",
+					"description": "Unique identifier for the record"
+				},
+				"EventID": {
+					"type": "string",
+					"description": "Unique identifier for the event - birth, death, movement, etc"
+				},
+				"EventType": {
+					"type": "string",
+					"enum": [
+						"Registration", "Death", "Movement", "Import", "Export", "Holding", "Animal"
+					],
+					"default": "Movement"
+				},
+				"ActionType": {
+					"type": "string",
+					"enum": [
+						"New", "Amend", "Delete"
+					]
+				},
+				"CreatedBy": {
+					"type": "string",
+					"enum": [
+						"WA", "EN", "SC", "NI"
+					],
+					"description": "The Devolved Administration licestock tracing system the data has been sourced from"
+				},
+				"CreatedDate": {
+					"type": "string",
+					"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]:[0-5][0-9]Z$",
+					"description": "UTC Date & Time when the record was created on the source system; format YYYY-MM-DDThh:mm:ssZ"
+				},
+				"Species": {
+					"type": "string",
+					"enum": [
+						"Sheep", "Cattle", "Buffalo", "Bison", "Goats", "Deer", "Pigs"
+					],
+					"description": "Species of the animal"				},
+				"AnimalMovement": {
+					"type": "object",
+					"properties": {
+						"DepartureRegion": {
+							"type": "string",
+							"enum": [
+								"WA", "EN", "SC", "NI"
+							],
+							"description": "The territory from which the movement originated"
+						},
+						"MovementGroup": {
+							"type": "string",
+							"description": "A movement grouping under which multiple movements may exist - i.e. UMID within EID Cymru"
+						},
+						"MovementType": {
+							"type": "string",
+							"enum": [
+								"01", "02", "03"
+							],
+							"description": "01 - Recorded by a keeper or, for EID Cymru, The Bureau; 02 - Recorded by a market; 03 - Recorded by an abattoir"
+						},
+						"MovementStatus": {
+							"type": "string",
+							"enum": [
+								"NeedsAcceptance", "Queried", "Recorded", "Completed", "Deleted", "Incomplete"
+							],
+							"description": "Status of the move"
+						},
+						"SupplierType": {
+							"type": "string",
+							"enum": [
+								"Dispatcher", "Receiver"
+							],
+							"default": "Receiver"
+						},
+						"DepartureDate": {
+							"type": "string",
+							"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+							"description": "Format YYYY-MM-DD"
+						},
+						"DepartureLocation": {
+							"type": "string"
+						},
+						"DepartureCoreID": {
+							"type": "string"
+						},
+						"DepartureLocationType": {
+							"type": "string"
+						},
+						"DeparturePremisesActivity": {
+							"type": "string"
+						},
+						"ArrivalDate": {
+							"type": "string",
+							"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$|^$",
+							"description": "Format YYYY-MM-DD"
+						},
+						"DestinationLocation": {
+							"type": "string"
+						},
+						"DestinationCoreID": {
+							"type": "string"
+						},
+						"DestinationLocationType": {
+							"type": "string"
+						},
+						"DestinationPremisesActivity": {
+							"type": "string"
+						},
+						"NumberOfAnimals": {
+							"type": "integer",
+							"description": "Total number of animals within this movement transaction"
+						},
+						"NumberOfDOAs": {
+							"type": "integer",
+							"description": "Total number of animals DOA within this movement transaction"
+						},
+						"NumberOfReads": {
+							"type": "integer",
+							"description": "Total number of animals where the eartag has been electronically read"
+						},
+						"LoadingTimestamp": {
+							"type": "string",
+							"pattern": "(^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]:[0-5][0-9]Z$)|(^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]Z$)|(^$)",
+							"description": "Of first animal loaded; format YYYY-MM-DDThh:mm:ssZ - i.e. UTC timestamp. Will match on no value also"
+						},
+						"ExpectedJourneyDuration": {
+							"type": "string"
+						},
+						"UnloadingTimestamp": {
+							"type": "string",
+							"pattern": "(^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]:[0-5][0-9]Z$)|(^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]Z$)|(^$)",
+							"description": "Datetime last animal unloaded; Format YYYY-MM-DDThh:mm:ssZ - i.e. UTC timestamp. Will match on no value also"
+						},
+						"AnimalTransporter": {
+							"type": "string",
+							"enum": [
+								"01", "02", "03"
+							],
+							"description": "01=DepartureKeeper; 02=ReceivingKeeper; 03=Haulier"
+						},
+						"HaulierDetails": {
+							"type": "object",
+							"properties": {
+								"HaulierID": {
+									"type": "string"
+								},
+								"HaulierCompanyName": {
+									"type": "string"
+								},
+								"HaulierAddressLine1": {
+									"type": "string"
+								},
+								"HaulierAddressLine2": {
+									"type": "string"
+								},
+								"HaulierAddressLine3": {
+									"type": "string"
+								},
+								"HaulierAddressLine4": {
+									"type": "string"
+								},
+								"HaulierPostcode": {
+									"type": "string"
+								},
+								"HaulierTelephone": {
+									"type": "string"
+								},
+								"HaulierEmail": {
+									"type": "string"
+								},
+								"TotalVehicles": {
+									"type": "integer"
+								},
+								"VehicleDetails": {
+									"type": "array",
+									"items": [
+										{
+											"type": "object",
+											"properties": {
+												"VehicleRegistrationNumber": {
+													"type": "string"
+												},
+												"DriverName": {
+													"type": "string"
+												},
+												"TrailerIdentificationNumber": {
+													"type": "string"
+												},
+												"TransportAuthorisationNumber": {
+													"type": "string"
+												}
+											}
+										}
+									],
+									"required": [
+										"VehicleRegistrationNumber"
+									]
+								}
+							},
+							"required": [
+								"HaulierID"
+							]
+						},
+						"LotNumber": {
+							"type": "string"
+						},
+						"CrossBorderMovementID": {
+							"type": "string",
+							"description": "The MovementID for the alternate country where a move takes place across a border"
+						},
+						"DestinationRegion": {
+							"type": "string",
+							"enum": [
+								"WA", "EN", "SC", "NI"
+							],
+							"description": "The region the animal arrived at - its destination"
+						},
+						"CrossBorderSource": {
+							"type": "string",
+							"enum": [
+								"WA", "EN", "SC", "NI"
+							],
+							"description": "The system that first generated the movement"
+						},
+						"MovementDirection": {
+							"type": "string",
+							"enum": [
+								"ON", "OFF", "DE"
+							]
+						},
+						"WithinBusinessMovement": {
+							"type": "string",
+							"enum": [
+								"Yes", "No"
+							]
+						},
+						"WithinBusinessMainCPH": {
+							"type": "string",
+							"description": "The main CPH which acts as the parent for a within business groups of CPHs"
+						},
+						"InitialWithinBusinessLocation": {
+							"type": "string",
+							"description": "CPH of initial location of animals (where move has been ported onto the main CPH for a group of within business holdings)"
+						},
+						"EmergencySlaughter": {
+							"type": "string",
+							"enum": [
+								"Yes", "No"
+							]
+						}
+					},
+					"required": [
+						"MovementType", "SupplierType", "NumberOfAnimals", "MovementDirection"
+					]
+				},
+				"AnimalGroupDetails": {
+					"type": "array",
+					"items": [
+						{
+							"type": "object",
+							"properties": {
+								"AnimalGroupNumber": {
+									"type": "string",
+									"description": "e.g. FlockNumber"
+								},
+								"AnimalGroupType": {
+									"type": "string",
+									"enum": [
+										"FM", "HM", "IM", "PU", "TN"
+									],
+									"description": "Flock Mark (Sheep); Herd Mark (Cows); Individual Identification Mark (Pigs); Unknown Permanent Mark (Sheep, Goats, Pigs, Deer); Tattoo Number (Pigs)"
+								},
+								"NumberOfAnimals": {
+									"type": "integer"
+								},
+								"NumberOfDOAs": {
+									"type": "integer"
+								}
+							},
+							"required": [
+								"AnimalGroupNumber", "AnimalGroupType", "NumberOfAnimals", "NumberOfDOAs"
+							]
+						}
+					]
+				},
+				"AnimalDetails": {
+					"type": "array",
+					"items": [
+						{
+							"type": "object",
+							"properties": {
+								"AnimalID": {
+									"type": "string",
+									"description": "i.e. EartagID"
+								},
+								"AnimalIDType": {
+									"type": "string",
+									"enum": [
+										"FM", "HM", "IM", "PU", "TN"
+									],
+									"description": "Flock Mark; Herd Mark; Individual Identification Mark; Unknown Permanent Mark; Tattoo Number"
+								},
+								"AnimalIDTransponderHex": {
+									"type": "string"
+								},
+								"AnimalIDTransponderISO": {
+									"type": "string"
+								},
+								"TagIssueNumber": {
+									"type": "string",
+									"description": "The issue number for the tag - re-tag counter"
+								},
+								"DOA": {
+									"type": "boolean"
+								},
+								"Breed": {
+									"type": "string"
+								},
+								"Gender": {
+									"type": "string",
+									"enum": [
+										"Female", "Male"
+									]
+								},
+								"DOB": {
+									"type": "string",
+									"pattern": "^[1-2][0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+									"description": "Format YYYY-MM-DD"
+								},
+								"DateBirthReported": {
+									"type": "string",
+									"pattern": "^[1-2][0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+									"description": "Format YYYY-MM-DD"
+								},
+								"BirthLocation": {
+									"type": "string"
+								},
+								"GeneticDamID": {
+									"type": "string"
+								},
+								"SurrogateDamID": {
+									"type": "string"
+								},
+								"SireID": {
+									"type": "string"
+								},
+								"RegistrationType": {
+									"type": "string",
+									"description": "How an animal has arrived in GB; may be by birth, registration (if late registering the birth) or import"
+								},
+								"RegistrationDocumentType": {
+									"type": "string",
+									"description": "Passport, NOR (CPP35), CPS Passport, Certificate of Registration"
+								},
+								"RegistrationLocation": {
+									"type": "string",
+									"description": "Location of animal registration (Holding No.); will be the same as BirthLocation when EventType = Birth."
+								},
+								"RegistrationStatus": {
+									"type": "string",
+									"description": "NOR - Late Reg; NOR - Incomplete; NOR - Passport Revoked; Passport Issued; NOR - Passport Refused; In suspense; NOR NTI (Notice to identify); NOR-V Restricted at inspection; NOR-D Registered Dead; NORA - Found at inspection"
+								},
+								"RegistrationDocumentVersion": {
+									"type": "string"
+								},
+								"RegistrationStatusEffectiveFrom": {
+									"type": "string",
+									"pattern": "^[1-2][0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+									"description": "Format YYYY-MM-DD"
+								},
+								"RegistrationStatusEffectiveTo": {
+									"type": "string",
+									"pattern": "^[1-2][0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+									"description": "Format YYYY-MM-DD"
+								},
+								"EHCReference": {
+									"type": "string",
+									"description": "Reference of the Export Health Certificate which accompanies the animal"
+								},
+								"OriginalAnimalID": {
+									"type": "string",
+									"description": "Original eartag of an imported animal where imported from outside the EU"
+								},
+								"DateOfDeath": {
+									"type": "string",
+									"pattern": "^[1-2][0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+									"description": "Format YYYY-MM-DD"
+								},
+								"DateDeathReported": {
+									"type": "string",
+									"pattern": "^[1-2][0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+									"description": "Format YYYY-MM-DD"
+								},
+								"DeathLocation": {
+									"type": "string"
+								},
+								"AnimalGroups": {
+									"type": "array",
+									"items": [
+										{
+											"type": "object",
+											"properties": {
+												"AnimalGroupNumber": {
+													"type": "string",
+													"description": "e.g. FlockMark, Lot Number"
+												},
+												"AnimalGroupType": {
+													"type": "string",
+													"enum": [
+														"FM", "HM", "LT"
+													],
+													"description": "Flock Mark, Herd Mark, Lot Number"
+												}
+											},
+											"required": [
+												"AnimalGroupNumber", "AnimalGroupType"
+											]
+										}
+									]
+								},
+								"AnimalHealthStatus": {
+									"type": "array",
+									"items": [
+										{
+											"type": "object", 
+											"properties": {
+												"AnimalHealthEventType": {
+													"type": "string",
+													"description": "e.g. BSE, BVD, Welfare (for herd restriction placed on by inspectorate)"
+												},
+												"AnimalHealthEventStatus": {
+													"type": "string",
+													"description": "e.g. Not Negative, Negative (BVD Fee?), BSE Negligible Risk (Yes/No)?, Herd Restricted (Inspectorate)"
+												},
+												"AnimalHealthEventEffectiveFrom": {
+													"type": "string",
+													"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+													"description": "Format YYYY-MM-DD"
+												},
+												"AnimalHealthEventEffectiveTo": {
+													"type": "string",
+													"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+													"description": "Format YYYY-MM-DD"
+												}
+											},
+											"required": [
+												"AnimalHealthEventType", "AnimalHealthEventStatus"
+											]
+										}
+									]
+								}
+							},
+							"required": [
+								"AnimalID", "AnimalIDType", "DOA"
+							]
+						}
+					]
+				},
+				"HoldingDetails": {
+					"type": "object",
+					"properties": {
+						"HoldingID": {
+							"type": "string",
+							"description": "CPH of holding"
+						},
+						"AttestationNumber": {
+							"type": "string",
+							"description": "Export eligibility flag"
+						},
+						"AttestationEffectiveFrom": {
+							"type": "string",
+							"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+							"description": "Format YYYY-MM-DD"
+						},
+						"AttestationEffectiveTo": {
+							"type": "string",
+							"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+							"description": "Format YYYY-MM-DD"
+						},
+						"HoldingHealthStatus": {
+							"type": "array",
+							"items": [
+								{
+									"type": "object", 
+									"properties": {
+										"HoldingHealthEventType": {
+											"type": "string",
+											"description": "e.g. BSE, BVD, Welfare (for herd restriction placed on by inspectorate"
+										},
+										"HoldingHealthEventStatus": {
+											"type": "string"
+										},
+										"HoldingHealthEventFrom": {
+											"type": "string",
+											"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+											"description": "Format YYYY-MM-DD"
+										},
+										"HoldingHealthEventTo": {
+											"type": "string",
+											"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+											"description": "Format YYYY-MM-DD"
+										}
+									},
+									"required": [
+										"HoldingHealthEventType", "HoldingHealthEventStatus", "HoldingHealthEventFrom"
+									]
+								}
+							]
+						},
+						"ExemptHoldingDetails": { 
+							"type": "array",
+							"items": [
+								{
+									"type": "object", 
+									"properties": {
+										"ExemptHoldingID": {
+											"type": "string",
+											"description": "CPH of holding included in exemption group"
+										},
+										"ExemptHoldingEffectiveFrom": {
+											"type": "string",
+											"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+											"description": "Format YYYY-MM-DD"
+										},
+										"ExemptHoldingEffectiveTo": {
+											"type": "string",
+											"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+											"description": "Format YYYY-MM-DD"
+										}
+									},
+									"required": [
+										"ExemptHoldingID", "ExemptHoldingEffectiveFrom", "ExemptHoldingEffectiveTo"
+									]
+								}
+							]
+						}
+					},
+					"required": [
+						"HoldingID", "HoldingHealthStatus"
+					]
+				}
+			},
+			"required": [
+				"RecordID", "EventID", "EventType", "ActionType", "CreatedBy", "CreatedDate"
+			]
+		}
+	},
+	"required": [
+		"Event"
+	]
+}

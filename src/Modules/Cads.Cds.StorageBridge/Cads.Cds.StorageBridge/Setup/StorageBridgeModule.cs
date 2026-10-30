@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Setup;
+using Cads.Cds.BuildingBlocks.Infrastructure.Versioning;
 using Cads.Cds.StorageBridge.Application.Setup;
 using Cads.Cds.StorageBridge.Endpoints;
 using Cads.Cds.StorageBridge.Infrastructure.Setup;
@@ -23,6 +24,8 @@ public sealed class StorageBridgeModule : IModule
     /// <param name="app"></param>
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
-        app.MapStorageBridgeStorageManagementEndpoints();
+        var storageApp = app.MapVersionedApi("storage");
+
+        storageApp.MapStorageBridgeStorageManagementEndpoints();
     }
 }
