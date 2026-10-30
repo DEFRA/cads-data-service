@@ -27,6 +27,10 @@ public class MiBffReadDbContext(DbContextOptions<MiBffReadDbContext> options) : 
 
     public DbSet<MiUserReportPermission> UserReportPermissions => Set<MiUserReportPermission>();
 
+    public DbSet<MiReportJob> ReportJobs => Set<MiReportJob>();
+
+    public DbSet<MiReportJobOutbox> ReportJobOutboxMessages => Set<MiReportJobOutbox>();
+
     // Functions
     public virtual IQueryable<MiEffectiveReportPermission> GetMiEffectiveReportPermission(string externalSubject, string? reportKey)
         => FromExpression(() => GetMiEffectiveReportPermission(externalSubject, reportKey));
