@@ -20,7 +20,7 @@ public static class StorageManagementEndpoints
     public static IEndpointRouteBuilder MapStorageBridgeStorageManagementEndpoints(this IEndpointRouteBuilder app)
     {
         // Read-only by design: no put/delete routes are exposed.
-        var group = app.MapGroup("/api/v1/storage/s3")
+        var group = app.MapGroup("/s3")
             .RequireAuthorization(AuthenticationConstants.AadS3AdminExecutePolicy)
             .WithTags("StorageManagement");
 
