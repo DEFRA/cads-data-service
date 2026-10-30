@@ -10,7 +10,4 @@ public static class ScopeNames
     public const string DbAdminExecute = "admin.db.execute";
     public const string AdminS3Manager = "admin.s3.manager";
     public const string SqsAdminManager = "admin.queue.manager";
-
-    // AWS STS
-    public const string Imports = "imports";
 }
