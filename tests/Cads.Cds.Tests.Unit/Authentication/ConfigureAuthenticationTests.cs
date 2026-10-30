@@ -126,4 +126,54 @@ public class ConfigureAuthenticationTests
 
         policy.Requirements.Should().ContainSingle(r => r is DenyAnonymousAuthorizationRequirement);
     }
+
+    [Fact]
+    public async Task ConfigureAuthentication_AddsAwsStsSchemeToDefaultPolicy_WhenEnabled()
+    {
+        var provider = BuildProvider(apiKeyEnabled: false, awsStsEnabled: true);
+
+        var scheme = await provider.GetRequiredService<IAuthenticationSchemeProvider>()
+            .GetSchemeAsync(AuthenticationConstants.AwsStsSchemeName);
+        var policy = await provider.GetRequiredService<IAuthorizationPolicyProvider>()
+            .GetPolicyAsync(AuthenticationConstants.DefaultPolicy);
+
+        scheme.Should().NotBeNull();
+        provider.GetRequiredService<IOptionsMonitor<AuthenticationSchemeOptions>>()
+            .Get(AuthenticationConstants.AwsStsSchemeName).Should().NotBeNull();
+        policy!.AuthenticationSchemes.Should().Contain(AuthenticationConstants.AwsStsSchemeName);
+    }
+
+    [Fact]
+    public async Task ConfigureAuthentication_DoesNotAddAwsStsScheme_WhenDisabled()
+    {
+        var provider = BuildProvider(apiKeyEnabled: true, awsStsEnabled: false);
+
+        var scheme = await provider.GetRequiredService<IAuthenticationSchemeProvider>()
+            .GetSchemeAsync(AuthenticationConstants.AwsStsSchemeName);
+        var policy = await provider.GetRequiredService<IAuthorizationPolicyProvider>()
+            .GetPolicyAsync(AuthenticationConstants.DefaultPolicy);
+
+        scheme.Should().BeNull();
+        policy!.AuthenticationSchemes.Should().NotContain(AuthenticationConstants.AwsStsSchemeName);
+    }
+
+    private static ServiceProvider BuildProvider(bool apiKeyEnabled, bool awsStsEnabled)
+    {
+        var configDict = new Dictionary<string, string?>
+        {
+            ["AuthenticationConfiguration:ApiKey:Enabled"] = apiKeyEnabled.ToString(),
+            ["AuthenticationConfiguration:AwsSts:Enabled"] = awsStsEnabled.ToString(),
+            ["AuthenticationConfiguration:Cognito:Enabled"] = "false",
+            ["AuthenticationConfiguration:AzureAD:Enabled"] = "false"
+        };
+
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(configDict)
+            .Build();
+
+        var services = new ServiceCollection();
+        services.ConfigureAuthentication(config);
+
+        return services.BuildServiceProvider();
+    }
 }
