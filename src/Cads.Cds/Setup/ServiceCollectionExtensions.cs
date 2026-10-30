@@ -156,6 +156,12 @@ public static class ServiceCollectionExtensions
             schemes.Add(AuthenticationConstants.ApiKeySchemeName);
         }
 
+        if (authConfig.AwsSts.Enabled)
+        {
+            authBuilder.AddAwsStsScheme();
+            schemes.Add(AuthenticationConstants.AwsStsSchemeName);
+        }
+
         if (authConfig.Cognito.Enabled)
         {
             authBuilder.AddCognitoScheme(authConfig.Cognito);
@@ -186,6 +192,12 @@ public static class ServiceCollectionExtensions
     {
         authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
             AuthenticationConstants.ApiKeySchemeName, _ => { });
+    }
+
+    private static void AddAwsStsScheme(this AuthenticationBuilder authenticationBuilder)
+    {
+        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, AwsStsAuthenticationHandler>(
+            AuthenticationConstants.AwsStsSchemeName, _ => { });
     }
 
     private static void AddCognitoScheme(this AuthenticationBuilder authenticationBuilder, AuthenticationProviderConfiguration authenticationProviderConfiguration)
