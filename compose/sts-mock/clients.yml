@@ -1,0 +1,23 @@
+# Local stand-in for AWS STS outbound identity federation (LocalStack has no GetWebIdentityToken).
+# Tokens carry the local AwsSts values from docker-compose.override.yml, so they validate locally.
+# Request a token: POST http://localhost:5568/connect/token with
+#   grant_type=client_credentials, client_id=local-sts-cads-bridge, client_secret=local-mock-secret, scope=sts.cads-data-service
+
+# cads-bridge calling cads-data-service
+- ClientId: "local-sts-cads-bridge"
+  ClientSecrets:
+    - "local-mock-secret"
+  AllowedGrantTypes:
+    - "client_credentials"
+  AllowedScopes:
+    - "sts.cads-data-service"
+  AccessTokenType: "Jwt"
+  AlwaysSendClientClaims: true
+  ClientClaimsPrefix: ""
+  AccessTokenLifetime: 300
+  Claims:
+    - Type: "https://sts.amazonaws.com/"
+      ValueType: "json"
+      Value: '{"org_id":"o-local","aws_account":"000000000000","principal_id":"arn:aws:iam::000000000000:role/cads-bridge","principal_tags":{"ServiceName":"cads-bridge","Environment":"local"}}'
+    - Type: "sub"
+      Value: "arn:aws:iam::000000000000:role/cads-bridge"
