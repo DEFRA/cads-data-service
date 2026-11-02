@@ -12,7 +12,7 @@ public class AnimalMovementByNationCommandValidatorTests
     [Fact]
     public void Region_WithValue_ShouldHaveBeValid()
     {
-        var model = new AnimalMovementByNationCommand(Nation.Wales, "json");
+        var model = new AnimalMovementByNationCommand(Nation.Wales, 1.0, "json");
 
         var result = _sut.TestValidate(model);
 
@@ -22,7 +22,7 @@ public class AnimalMovementByNationCommandValidatorTests
     [Fact]
     public void Payload_WhenNull_ShouldHaveValidationError()
     {
-        var model = new AnimalMovementByNationCommand(Nation.Wales, null);
+        var model = new AnimalMovementByNationCommand(Nation.Wales, 1.0, null);
 
         var result = _sut.TestValidate(model);
 
@@ -32,10 +32,20 @@ public class AnimalMovementByNationCommandValidatorTests
     [Fact]
     public void Payload_WithValue_ShouldHaveBeValid()
     {
-        var model = new AnimalMovementByNationCommand(Nation.Wales, "json");
+        var model = new AnimalMovementByNationCommand(Nation.Wales, 1.0, "json");
 
         var result = _sut.TestValidate(model);
 
         result.ShouldNotHaveValidationErrorFor(x => x.Payload);
+    }   
+
+    [Fact]
+    public void Version_WhenLessThanOne_ShouldHaveValidationError()
+    {
+        var model = new AnimalMovementByNationCommand(Nation.Wales, 0.5, "json");
+
+        var result = _sut.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.Version);
     }
 }
