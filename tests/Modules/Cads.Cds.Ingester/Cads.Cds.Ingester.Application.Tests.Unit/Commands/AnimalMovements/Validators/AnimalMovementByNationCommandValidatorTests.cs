@@ -37,7 +37,7 @@ public class AnimalMovementByNationCommandValidatorTests
         var result = _sut.TestValidate(model);
 
         result.ShouldNotHaveValidationErrorFor(x => x.Payload);
-    }   
+    }
 
     [Fact]
     public void Version_WhenLessThanOne_ShouldHaveValidationError()

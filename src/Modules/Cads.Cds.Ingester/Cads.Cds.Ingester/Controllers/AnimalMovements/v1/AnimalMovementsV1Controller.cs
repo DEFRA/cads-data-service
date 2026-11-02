@@ -30,7 +30,7 @@ public class AnimalMovementsV1Controller(IRequestExecutor executor, ILogger<Anim
         var payload = JsonSerializer.Serialize(request, JsonDefaults.DefaultOptionsWithIndented);
         var command = new AnimalMovementByNationCommand(nation, 1.0, payload);
         var response = await executor.ExecuteCommand(command);
-       
+
         if (logger.IsEnabled(LogLevel.Debug))
         {
             logger.LogDebug("Received animal movements request for {Nation} at {Timestamp}", nation, DateTime.UtcNow);
