@@ -157,6 +157,30 @@ public class ConfigureAuthenticationTests
         policy!.AuthenticationSchemes.Should().NotContain(AuthenticationConstants.AwsStsSchemeName);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ConfigureAuthentication_ScopePolicies_IncludeAwsSts_OnlyWhenEnabled(bool awsStsEnabled)
+    {
+        var provider = BuildProvider(apiKeyEnabled: true, awsStsEnabled: awsStsEnabled);
+        var policyProvider = provider.GetRequiredService<IAuthorizationPolicyProvider>();
+
+        string[] scopePolicies =
+        [
+            AuthenticationConstants.AadReportsReadPolicy,
+            AuthenticationConstants.AadDbAdminExecutePolicy,
+            AuthenticationConstants.AadSqsAdminExecutePolicy,
+            AuthenticationConstants.AadS3AdminExecutePolicy
+        ];
+
+        foreach (var name in scopePolicies)
+        {
+            var policy = await policyProvider.GetPolicyAsync(name);
+            policy!.AuthenticationSchemes.Contains(AuthenticationConstants.AwsStsSchemeName)
+                .Should().Be(awsStsEnabled, name);
+        }
+    }
+
     private static ServiceProvider BuildProvider(bool apiKeyEnabled, bool awsStsEnabled)
     {
         var configDict = new Dictionary<string, string?>
