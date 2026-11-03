@@ -1,0 +1,389 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$comment": "Version 1.3, issued 2023-02-24: Loading / Unloading timestamp validation relaxed to allow no seconds value; all numbers validated as integers",
+	"$comment": "Version 1.2, issued 2023-02-22: ArrivalDate made an optional field",
+	"$comment": "Version 1.1, issued 2023-02-20: schema hardening in readiness for enbling message validation",
+	"$comment": "Version 1.0, issued 2022-10-25",
+	"type": "object",
+	"properties": {
+		"AnimalMovement": {
+			"type": "object",
+			"properties": {
+				"CreatedBy": {
+					"type": "string",
+					"enum": [
+						"WA", "EN", "SC", "NI"
+					],
+					"description": "The system that created the movement"
+				},
+				"DepartureRegion": {
+					"type": "string",
+					"enum": [
+						"WA", "EN", "SC", "NI"
+					],
+					"description": "The region the animal started its journey from"
+				},
+				"DestinationRegion": {
+					"type": "string",
+					"enum": [
+						"WA", "EN", "SC", "NI"
+					],
+					"description": "The region the animal arrived at - its destination"
+				},
+				"MessageID": {
+					"type": "string",
+					"description": "A unique identifier for the transaction"
+				},
+				"MovementTime": {
+					"type": "string",
+					"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]:[0-5][0-9]Z$",
+					"description": "Format YYYY-MM-DDThh:mm:ssZ - i.e. UTC timestamp"
+				},
+				"MovementID": {
+					"type": "string",
+					"description": "Known as the SupplierRefID for EID Cymru"
+				},
+				"MovementGroupID": {
+					"type": "string",
+					"description": "A grouping identifier for the movement, under which several movements may exist - i.e. UMIDUID within EID Cymru"
+				},
+				"MovementGroup": {
+					"type": "string",
+					"description": "A movement grouping under which multiple movements may exist - i.e. UMID within EID Cymru"
+				},
+				"CrossBorderMovementId": {
+					"type": "string",
+					"description": "An identifier to enable the pairing of cross-border movements - i.e. for a move into Scotland, submitted by England"
+				},
+				"MovementType": {
+					"type": "string",
+					"enum": [
+						"01", "02", "03"
+					],
+					"description": "01 - Recorded by a keeper or, for EID Cymru, The Bureau; 02 - Recorded by a market; 03 - Recorded by an abattoir"
+				},
+				"ActionType": {
+					"type": "string",
+					"enum": [
+						"New", "Amend", "Delete"
+					]
+				},
+				"ActionStatus": {
+					"type": "string",
+					"enum": [
+						"NeedsAcceptance", "Queried", "Completed", "Recorded", "Deleted"
+					]
+				},
+				"SupplierType": {
+					"type": "string",
+					"enum": [
+						"Dispatcher", "Receiver"
+					],
+					"default": "Receiver"
+				},
+				"AnimalType": {
+					"type": "string",
+					"enum": [
+						"Sheep", "Cattle", "Goats", "Deer", "Pigs"
+					]
+				},
+				"MovementDetails": {
+					"type": "object",
+					"properties": {
+						"DepartureDate": {
+							"type": "string",
+							"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+							"description": "Format YYYY-MM-DD"
+						},
+						"DepartureLocation": {
+							"type": "string"
+						},
+						"DepartureCoreID": {
+							"type": "string"
+						},
+						"DepartureLocationType": {
+							"type": "string"
+						},
+						"DeparturePremisesActivity": {
+							"type": "string"
+						},
+						"OffExemptionCode": {
+							"type": "string",
+							"default": "0"
+						},
+						"ArrivalDate": {
+							"type": "string",
+							"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$|^$",
+							"description": "Format YYYY-MM-DD"
+						},
+						"DestinationLocation": {
+							"type": "string"
+						},
+						"DestinationCoreID": {
+							"type": "string"
+						},
+						"DestinationLocationType": {
+							"type": "string"
+						},
+						"DestinationPremisesActivity": {
+							"type": "string"
+						},
+						"OnExemptionCode": {
+							"type": "string",
+							"default": "0"
+						},
+						"LotNumber": {
+							"type": "string"
+						},
+						"NumberOfAnimals": {
+							"type": "integer",
+							"description": "Total number of animals within this movement transaction"
+						},
+						"NumberOfDOAs": {
+							"type": "integer",
+							"description": "Total number of animals DOA within this movement transaction"
+						},
+						"NumberOfReads": {
+							"type": "integer",
+							"description": "Total number of animals where the eartag has been electronically read"
+						},
+						"LoadingTimestamp": {
+							"type": "string",
+							"pattern": "(^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]:[0-5][0-9]Z$)|(^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]Z$)|(^$)",
+							"description": "Of first animal loaded; format YYYY-MM-DDThh:mm:ssZ - i.e. UTC timestamp. Will match on no value also"
+						},
+						"ExpectedJourneyDuration": {
+							"type": "string"
+						},
+						"UnloadingTimestamp": {
+							"type": "string",
+							"pattern": "(^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]:[0-5][0-9]Z$)|(^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]Z$)|(^$)",
+							"description": "Datetime last animal unloaded; Format YYYY-MM-DDThh:mm:ssZ - i.e. UTC timestamp. Will match on no value also"
+						},
+						"AnimalTransporter": {
+							"type": "string",
+							"enum": [
+								"01", "02", "03"
+							],
+							"description": "01=DepartureKeeper; 02=ReceivingKeeper; 03=Haulier"
+						},
+						"HaulierDetails": {
+							"type": "object",
+							"properties": {
+								"HaulierID": {
+									"type": "string"
+								},
+								"Name": {
+									"type": "string"
+								},
+								"AddressLine1": {
+									"type": "string"
+								},
+								"AddressLine2": {
+									"type": "string"
+								},
+								"AddressLine3": {
+									"type": "string"
+								},
+								"AddressLine4": {
+									"type": "string"
+								},
+								"Postcode": {
+									"type": "string"
+								},
+								"Telephone": {
+									"type": "string"
+								},
+								"Email": {
+									"type": "string"
+								},
+								"TotalVehicles": {
+									"type": "integer"
+								},
+								"VehicleDetails": {
+									"type": "array",
+									"items": [
+										{
+											"type": "object",
+											"properties": {
+												"VehicleRegistrationNumber": {
+													"type": "string"
+												},
+												"DriverName": {
+													"type": "string"
+												},
+												"TrailerIdentificationNumber": {
+													"type": "string"
+												},
+												"TransportAuthorisationNumber": {
+													"type": "string"
+												}
+											}
+										}
+									]
+								}
+							}
+						}
+					},
+					"required": [
+						"DepartureDate", "DepartureLocation", "DestinationLocation", "NumberOfAnimals", "NumberOfDOAs", "NumberOfReads"
+					]
+				},
+				"AnimalGroupDetails": {
+					"type": "array",
+					"items": [
+						{
+							"type": "object",
+							"properties": {
+								"AnimalGroupNumber": {
+									"type": "string",
+									"description": "e.g. FlockNumber"
+								},
+								"AnimalGroupType": {
+									"type": "string",
+									"enum": [
+										"FM", "HM", "IM", "PU", "TN"
+									],
+									"description": "Flock Mark (Sheep); Herd Mark (Cows); Individual Identification Mark (Pigs); Unknown Permanent Mark (Sheep, Goats, Pigs, Deer); Tattoo Number (Pigs)"
+								},
+								"NumberOfAnimals": {
+									"type": "integer"
+								},
+								"NumberOfDOAs": {
+									"type": "integer"
+								}
+							},
+							"required": [
+								"AnimalGroupNumber", "AnimalGroupType", "NumberOfAnimals", "NumberOfDOAs"
+							]
+						}
+					]
+				},
+				"AnimalDetails": {
+					"type": "array",
+					"items": [
+						{
+							"type": "object",
+							"properties": {
+								"AnimalID": {
+									"type": "string",
+									"description": "i.e. EartagID"
+								},
+								"AnimalIDType": {
+									"type": "string",
+									"enum": [
+										"FM", "HM", "IM", "PU", "TN"
+									],
+									"description": "Flock Mark; Herd Mark; Individual Identification Mark; Unknown Permanent Mark; Tattoo Number"
+								},
+								"AnimalIDTransponderHex": {
+									"type": "string"
+								},
+								"AnimalIDTransponderISO": {
+									"type": "string"
+								},
+								"TagIssueNumber": {
+									"type": "string",
+									"description": "The issue number for the tag - re-tag counter"
+								},
+								"DOA": {
+									"type": "boolean"
+								},
+								"Breed": {
+									"type": "string"
+								},
+								"Gender": {
+									"type": "string",
+									"enum": [
+										"Female", "Male"
+									]
+								},
+								"DOB": {
+									"type": "string",
+									"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+									"description": "Format YYYY-MM-DD"
+								},
+								"DamID": {
+									"type": "string"
+								},
+								"SurrogateDamID": {
+									"type": "string"
+								},
+								"SireID": {
+									"type": "string"
+								},
+								"DateOfDeath": {
+									"type": "string",
+									"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+									"description": "Format YYYY-MM-DD"
+								},
+								"LicenceType": {
+									"type": "string",
+									"description": "Captured against individual animal - applied to APHA for a licence in order to move an animal which would not be able to move otherwise"
+								},
+								"AnimalGroups": {
+									"type": "array",
+									"items": [
+										{
+											"type": "object",
+											"properties": {
+												"AnimalGroupNumber": {
+													"type": "string",
+													"description": "e.g. FlockMark, Lot Number"
+												},
+												"AnimalGroupType": {
+													"type": "string",
+													"enum": [
+														"FM", "HM", "LT"
+													],
+													"description": "Flock Mark, Herd Mark, Lot Number"
+												}
+											},
+											"required": [
+												"AnimalGroupNumber", "AnimalGroupType"
+											]
+										}
+									]
+								},
+								"PassportDetails": {
+									"type": "object",
+									"properties": {
+										"DocumentType": {
+											"type": "string",
+											"enum": [
+												"Passport", "CPP35"
+											]
+										},
+										"DateOfRegistration": {
+											"type": "string",
+											"pattern": "^2[0-9]{3}-([0][1-9]|[1][0-2])-([0][1-9]|[1-2][0-9]|[3][0-1])$",
+											"description": "Format YYYY-MM-DD"
+										},
+										"PassportStatusCode": {
+											"type": "string"
+										},
+										"PassportVersion": {
+											"type": "integer"
+										},
+										"RefusedPassport": {
+											"type": "boolean"
+										}
+									}
+								}
+							},
+							"required": [
+								"AnimalID", "AnimalIDType"
+							]
+						}
+					]
+				}
+			},
+			"required": [
+				"CreatedBy", "DepartureRegion", "DestinationRegion", "MessageID", "MovementID", "MovementTime", "MovementType", "ActionType", "ActionStatus", "SupplierType", "AnimalType"
+			]
+		}
+	},
+	"required": [
+		"AnimalMovement"
+	]
+}
