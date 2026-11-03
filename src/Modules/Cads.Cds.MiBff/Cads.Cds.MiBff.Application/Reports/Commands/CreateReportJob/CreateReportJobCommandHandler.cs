@@ -21,8 +21,6 @@ public class CreateReportJobCommandHandler(
 
     public async Task<Guid> Handle(CreateReportJobCommand command, CancellationToken cancellationToken)
     {
-        reportRegistry.Resolve(command.ReportKey, serviceProvider);
-
         var now = DateTimeOffset.UtcNow;
         var reportJobId = Guid.NewGuid();
 
