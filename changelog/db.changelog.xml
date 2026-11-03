@@ -49,6 +49,7 @@
   <include file="0000_010_cla_core_tables.postgresql.sql"/>
   <include file="0000_011_cads_mi_tables.postgresql.sql"/>
   <include file="0000_012_create_cts_file_import_monitoring_tables.postgresql.sql"/>
+  <include file="0000_013_mi_report_job_tables.postgresql.sql"/>
   <include file="0000_020_cts_tables.postgresql.sql"/>
   <include file="0000_030_cts_transactions_tables.postgresql.sql"/>
   <include file="0000_030_cla_transactions_tables.postgresql.sql"/>
