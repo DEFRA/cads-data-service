@@ -1,9 +1,11 @@
+using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.Ingester.Core.Domain.Enums;
 using Cads.Cds.Ingester.Core.DTOs.Common;
 using Cads.Cds.Ingester.Testing.Support.Constants;
 using FluentAssertions;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Text;
 
 namespace Cads.Cds.Ingester.Tests.Integration.AnimalMovementsEndpoints;
@@ -26,6 +28,9 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         responseData.Should().NotBeNull();
         responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
+
+        var s3FileExists = await CheckIfS3FileExistsAsync(responseData.IngestionId);
+        s3FileExists.Should().BeTrue();
     }
 
     [Fact]
@@ -43,6 +48,23 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         responseData.Should().NotBeNull();
         responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
+
+        var s3FileExists = await CheckIfS3FileExistsAsync(responseData.IngestionId);
+        s3FileExists.Should().BeTrue();
+    }
+
+    private async Task<bool> CheckIfS3FileExistsAsync(string key)
+    {
+        using var s3Object = await apiContainerFixture.LocalStackFixture.S3Client.GetObjectAsync(
+            LocalStackFixture.CadsInternalBucketName,
+            key,
+            TestContext.Current.CancellationToken);
+
+        using var reader = new StreamReader(s3Object.ResponseStream);
+        var storedPayload = await reader.ReadToEndAsync(
+            TestContext.Current.CancellationToken);
+
+        return !string.IsNullOrEmpty(storedPayload);
     }
 
     private readonly string _payloadV1 = @"{

@@ -7,6 +7,7 @@ public class AnimalMovementByNationCommandValidator : AbstractValidator<AnimalMo
     public AnimalMovementByNationCommandValidator()
     {
         RuleFor(x => x.Nation).NotNull();
+        RuleFor(x => x.Version).GreaterThanOrEqualTo(1.0);
         RuleFor(x => x.Payload).NotNull();
     }
 }
