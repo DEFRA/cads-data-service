@@ -12,6 +12,7 @@
   - [Running the Application](#running-the-application)
 - [Accessing Services](#accessing-services)
 - [Verifying Everything Is Running](#verifying-everything-is-running)
+- [OpenApi documentation and testing](#openapi-documentation-and-testing)
 - [Testing](#testing)
 - [Development](#development) 
   - [Database](#database)
@@ -240,6 +241,18 @@ Used for internal service‑to‑service calls.
 
 ### AWS STS
 Used for internal service‑to‑service calls.
+
+Settings (`AuthenticationConfiguration:AwsSts`), set per environment in `cdp-app-config` (locally in `docker-compose.override.yml`):
+
+| Setting | Meaning |
+|---|---|
+| `Enabled` | Feature flag for the scheme |
+| `Audience` | This service's own identity; tokens for another service are rejected |
+| `TrustedOrgId` | AWS Organization ID the caller must belong to |
+| `Environment` | Must match the caller's `principal_tags.Environment` |
+| `RequireHttpsMetadata` | `false` only for a local http mock |
+
+Allowed callers and their scopes are listed in `Acl:StsClients`, keyed by the caller's `ServiceName`.
 
 ### Cognito
 Used for external user authentication (e.g., mobile/web).
@@ -474,6 +487,21 @@ Signs in through the browser using the authorization code flow and prints the to
 
 Both use the password `password`. Use `-Scopes "openid profile email ..."` to override the scopes.
 Client details must match `oidc/config/clients.yml`.
+
+## OpenApi documentation and testing
+
+The CADS Data Services provides access to the OpenApi schema files directly or through an interactive web-based UI using [Scalar](https://scalar.com/products/api-references/integrations/aspnetcore/integration).
+
+Currently there are two defined schemas which are versioned as "v1" and "v2". 
+To access the schema documentation directly:
+
+**version 1**
+http://localhost:5555/openapi/v1.json
+
+**version 2**
+http://localhost:5555/openapi/v2.json
+
+To access the interactive API reference for testing each endpoint, simply navigate to http://localhost:5555/scalar.
 
 ### Testing
 
