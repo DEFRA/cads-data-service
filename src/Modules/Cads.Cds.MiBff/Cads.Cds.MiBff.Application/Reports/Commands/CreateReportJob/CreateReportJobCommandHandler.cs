@@ -8,9 +8,7 @@ using System.Text.Json.Serialization;
 namespace Cads.Cds.MiBff.Application.Reports.Commands.CreateReportJob;
 
 public class CreateReportJobCommandHandler(
-    IReportRegistry reportRegistry,
-    IMiReportJobRepository reportJobRepository,
-    IServiceProvider serviceProvider)
+    IMiReportJobRepository reportJobRepository)
     : ICommandHandler<CreateReportJobCommand, Guid>
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
