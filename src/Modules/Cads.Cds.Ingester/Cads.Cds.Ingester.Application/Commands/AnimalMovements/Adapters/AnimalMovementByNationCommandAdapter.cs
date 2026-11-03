@@ -11,7 +11,7 @@ public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storag
         AnimalMovementByNationCommand command,
         CancellationToken cancellationToken = default)
     {
-        var key = GetKey(command.Nation);
+        var key = GetKey(command.Nation, command.Version);
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
@@ -22,9 +22,9 @@ public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storag
         return result;
     }
 
-    private static string GetKey(Nation nation)
+    private static string GetKey(Nation nation, double version)
     {
         var nationalDirectory = nation.ToString().ToLower();
-        return $"inbound/{nationalDirectory}/incremental/animal-movements/{DateTime.UtcNow:yy-MM-dd-HH-mm-ss-fff}.json";
+        return $"inbound/{nationalDirectory}/incremental/animal-movements/v{version:F1}/{DateTime.UtcNow:yy-MM-dd-HH-mm-ss-fff}.json";
     }
 }
