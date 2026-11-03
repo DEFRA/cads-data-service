@@ -16,4 +16,3 @@ public class ReportJobStatusDto
     [JsonPropertyName("error")]
     public string? Error { get; set; }
 }
-
