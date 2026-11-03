@@ -156,6 +156,12 @@ public static class ServiceCollectionExtensions
             schemes.Add(AuthenticationConstants.ApiKeySchemeName);
         }
 
+        if (authConfig.AwsSts.Enabled)
+        {
+            authBuilder.AddAwsStsScheme();
+            schemes.Add(AuthenticationConstants.AwsStsSchemeName);
+        }
+
         if (authConfig.Cognito.Enabled)
         {
             authBuilder.AddCognitoScheme(authConfig.Cognito);
@@ -186,6 +192,12 @@ public static class ServiceCollectionExtensions
     {
         authenticationBuilder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
             AuthenticationConstants.ApiKeySchemeName, _ => { });
+    }
+
+    private static void AddAwsStsScheme(this AuthenticationBuilder authenticationBuilder)
+    {
+        authenticationBuilder.AddScheme<AuthenticationSchemeOptions, AwsStsAuthenticationHandler>(
+            AuthenticationConstants.AwsStsSchemeName, _ => { });
     }
 
     private static void AddCognitoScheme(this AuthenticationBuilder authenticationBuilder, AuthenticationProviderConfiguration authenticationProviderConfiguration)
@@ -269,6 +281,7 @@ public static class ServiceCollectionExtensions
     {
         return policy
             .AddSchemeIf(config.ApiKey.Enabled, AuthenticationConstants.ApiKeySchemeName)
+            .AddSchemeIf(config.AwsSts.Enabled, AuthenticationConstants.AwsStsSchemeName)
             .AddSchemeIf(config.Cognito.Enabled, AuthenticationConstants.CognitoSchemeName)
             .AddSchemeIf(config.AzureAD.Enabled, AuthenticationConstants.AzureADSchemeName)
             .RequireAuthenticatedUser();
@@ -278,12 +291,12 @@ public static class ServiceCollectionExtensions
         this AuthorizationPolicyBuilder policy, bool enabled, string scheme) =>
         enabled ? policy.AddAuthenticationSchemes(scheme) : policy;
 
-    private static AuthorizationPolicyBuilder RequireScopeFromEnabledSchemes(
+    private static void RequireScopeFromEnabledSchemes(
         this AuthorizationPolicyBuilder policy,
         AuthenticationConfiguration config,
         string scope)
     {
-        return policy.RequireAssertion(ctx =>
+        policy.RequireAssertion(ctx =>
         {
             var user = ctx.User;
 

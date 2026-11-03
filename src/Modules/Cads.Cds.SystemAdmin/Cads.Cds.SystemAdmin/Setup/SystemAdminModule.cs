@@ -1,6 +1,8 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Setup;
+using Cads.Cds.BuildingBlocks.Infrastructure.Versioning;
 using Cads.Cds.SystemAdmin.Application.Setup;
+using Cads.Cds.SystemAdmin.Endpoints;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin;
 using Cads.Cds.SystemAdmin.Endpoints.Generation;
 using Cads.Cds.SystemAdmin.Endpoints.SqsAdmin;
@@ -28,21 +30,22 @@ public sealed class SystemAdminModule : IModule
     public void MapEndpoints(IEndpointRouteBuilder app)
     {
         var config = app.ServiceProvider.GetRequiredService<IConfiguration>();
+        var systemAdminApp = app.MapVersionedApi(SystemAdminEndpointsConstants.ApiRoutePrefix);
 
         if (config.GetValue("Modules:SystemAdmin:EnableAdminEndpoints", false))
         {
-            app.CreateDbAdminEndpoints();
-            app.CreateSqsAdminEndpoints();
+            systemAdminApp.CreateDbAdminEndpoints();
+            systemAdminApp.CreateSqsAdminEndpoints();
         }
 
         if (config.GetValue("Modules:SystemAdmin:EnablePrepareCtsImportEndpoints", false))
         {
-            app.CreateDbAdminPrepareCtsImportEndpoints();
+            systemAdminApp.CreateDbAdminPrepareCtsImportEndpoints();
         }
 
         if (config.GetValue("Modules:SystemAdmin:EnableGenerationEndpoints", false))
         {
-            app.CreateGenerationEndpoints();
+            systemAdminApp.CreateGenerationEndpoints();
         }
 
         if (config.GetValue("Modules:SystemAdmin:EnableGraphQlEndpoints", false))
