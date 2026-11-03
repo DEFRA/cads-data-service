@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\AnimalMovements\Requests\**" />
+    <EmbeddedResource Remove="Controllers\AnimalMovements\Requests\**" />
+    <None Remove="Controllers\AnimalMovements\Requests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
