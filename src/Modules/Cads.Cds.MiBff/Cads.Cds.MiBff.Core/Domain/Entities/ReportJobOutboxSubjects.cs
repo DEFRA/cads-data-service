@@ -4,4 +4,3 @@ public static class ReportJobOutboxSubjects
 {
     public const string ReportJobRequested = "mi-report-job-requested";
 }
-

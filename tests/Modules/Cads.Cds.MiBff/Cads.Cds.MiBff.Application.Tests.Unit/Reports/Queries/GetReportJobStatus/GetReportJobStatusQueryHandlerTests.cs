@@ -94,4 +94,3 @@ public class GetReportJobStatusQueryHandlerTests
             => throw new NotImplementedException();
     }
 }
-

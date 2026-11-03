@@ -111,5 +111,3 @@ public class RequestReportTests
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
-
-

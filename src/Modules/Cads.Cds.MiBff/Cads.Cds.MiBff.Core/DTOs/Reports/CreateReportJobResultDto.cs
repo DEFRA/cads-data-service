@@ -7,4 +7,3 @@ public class CreateReportJobResultDto
     [JsonPropertyName("jobId")]
     public required Guid JobId { get; set; }
 }
-

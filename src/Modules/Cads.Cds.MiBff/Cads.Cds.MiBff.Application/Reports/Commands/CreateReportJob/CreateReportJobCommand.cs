@@ -9,4 +9,3 @@ public class CreateReportJobCommand : ICommand<Guid>
     public required string ExternalSubject { get; set; }
     public required GetReportRequest Request { get; set; }
 }
-
