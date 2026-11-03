@@ -89,7 +89,9 @@ public sealed class PostgresDataSourceFactory(
     private NpgsqlConnectionStringBuilder CreateStandardConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
     {
         var connectionString = pool.ConnectionString ?? (isReadPool ? config.ReadOnlyConnection : config.DefaultConnection);
-        var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString);
+        var connectionStringBuilder = string.IsNullOrWhiteSpace(connectionString)
+            ? CreatePasswordConnectionStringBuilder(pool, isReadPool)
+            : new NpgsqlConnectionStringBuilder(connectionString);
 
         if (pool.Host is not null)
         {
@@ -99,7 +101,19 @@ public sealed class PostgresDataSourceFactory(
         return connectionStringBuilder;
     }
 
+    private NpgsqlConnectionStringBuilder CreatePasswordConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
+    {
+        var connectionStringBuilder = CreateDiscreteConnectionStringBuilder(pool, isReadPool);
+        connectionStringBuilder.Password = config.Password;
+        return connectionStringBuilder;
+    }
+
     private NpgsqlConnectionStringBuilder CreateIamConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
+    {
+        return CreateDiscreteConnectionStringBuilder(pool, isReadPool);
+    }
+
+    private NpgsqlConnectionStringBuilder CreateDiscreteConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
     {
         return new NpgsqlConnectionStringBuilder
         {
