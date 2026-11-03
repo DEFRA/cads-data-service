@@ -23,4 +23,3 @@ public class GetReportJobStatusQueryHandler(IMiReportJobRepository reportJobRepo
         };
     }
 }
-
