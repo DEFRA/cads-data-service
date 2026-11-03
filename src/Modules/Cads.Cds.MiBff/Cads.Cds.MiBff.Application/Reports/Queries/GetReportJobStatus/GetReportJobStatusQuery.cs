@@ -7,4 +7,3 @@ public class GetReportJobStatusQuery : IQuery<ReportJobStatusDto>
 {
     public required Guid ReportJobId { get; set; }
 }
-
