@@ -12,20 +12,15 @@ namespace Cads.Cds.MiBff.Application.Tests.Unit.Reports.Commands.CreateReportJob
 public class CreateReportJobCommandHandlerTests
 {
     private readonly FakeMiReportJobRepository _repository = new();
-    private readonly IServiceProvider _provider;
-    private readonly IReportRegistry _registry;
 
     public CreateReportJobCommandHandlerTests()
     {
         var services = new ServiceCollection();
         services.AddTransient<TestReportHandler>();
-        _provider = services.BuildServiceProvider();
-
-        _registry = new ReportRegistry([typeof(CreateReportJobCommandHandlerTests).Assembly]);
     }
 
     private CreateReportJobCommandHandler CreateHandler()
-        => new(_registry, _repository, _provider);
+        => new(_repository);
 
     [Fact]
     public async Task Handle_WithValidReportKey_PersistsJobAndOutboxAndReturnsJobId()
