@@ -21,8 +21,6 @@ public class CreateReportJobCommandHandler(
 
     public async Task<Guid> Handle(CreateReportJobCommand command, CancellationToken cancellationToken)
     {
-        // Validates the reportKey is a known/registered report and resolves the request type
-        // associated with it, consistent with the synchronous GetReport flow.
         reportRegistry.Resolve(command.ReportKey, serviceProvider);
 
         var now = DateTimeOffset.UtcNow;
