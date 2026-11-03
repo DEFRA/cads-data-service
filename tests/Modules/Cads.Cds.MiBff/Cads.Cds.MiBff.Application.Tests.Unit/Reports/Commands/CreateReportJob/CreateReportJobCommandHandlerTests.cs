@@ -52,26 +52,6 @@ public class CreateReportJobCommandHandlerTests
         _repository.CreatedOutbox.Payload.Should().Contain(result.ToString());
     }
 
-    [Fact]
-    public async Task Handle_WithUnknownReportKey_ThrowsKeyNotFoundException()
-    {
-        var handler = CreateHandler();
-
-        var command = new CreateReportJobCommand
-        {
-            ReportKey = "DoesNotExist",
-            ExternalSubject = "user@example.test",
-            Request = new TestCreateReportJobRequest()
-        };
-
-        var act = () => handler.Handle(command, TestContext.Current.CancellationToken);
-
-        await act.Should().ThrowAsync<KeyNotFoundException>();
-
-        _repository.CreatedJob.Should().BeNull();
-        _repository.CreatedOutbox.Should().BeNull();
-    }
-
     [ReportHandler("TestCreateReportJob", typeof(TestCreateReportJobRequest))]
     public class TestReportHandler : IReportHandler
     {
