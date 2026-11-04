@@ -57,7 +57,8 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            if (string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection) || string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyConnection))
+            if ((string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection) || string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyConnection))
+                && string.IsNullOrWhiteSpace(postgresConfig.Password))
             {
                 var missingString = postgresConfig.DefaultConnection == string.Empty ? "DefaultConnection" : "ReadOnlyConnection";
                 throw new InvalidOperationException(
