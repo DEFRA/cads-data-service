@@ -55,10 +55,18 @@ public static class ServiceCollectionExtensions
                 return new PostgresIamTokenGeneratorService(credentials, region);
             });
         }
+        else if (postgresConfig.UsePasswordBasedAuthentication)
+        {
+            if (string.IsNullOrWhiteSpace(postgresConfig.User) || string.IsNullOrWhiteSpace(postgresConfig.Password))
+            {
+                var missingString = postgresConfig.DefaultConnection == string.Empty ? "DefaultConnection" : "ReadOnlyConnection";
+                throw new InvalidOperationException(
+                    $"Connection string '{missingString}' not missing User or Password value");
+            }
+        }
         else
         {
-            if ((string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection) || string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyConnection))
-                && string.IsNullOrWhiteSpace(postgresConfig.Password))
+            if (string.IsNullOrWhiteSpace(postgresConfig.DefaultConnection) || string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyConnection))
             {
                 var missingString = postgresConfig.DefaultConnection == string.Empty ? "DefaultConnection" : "ReadOnlyConnection";
                 throw new InvalidOperationException(

@@ -9,6 +9,7 @@ public class PostgresConfiguration
     public string ReadOnlyConnection { get; init; } = string.Empty;
     // IAM Authentication settings
     public bool UseIamAuthentication { get; init; } = false;
+    public bool UsePasswordBasedAuthentication { get; init; } = false;
     public required string DefaultHost { get; init; }
     public required string ReadOnlyHost { get; init; }
     public int Port { get; init; } = 5432;

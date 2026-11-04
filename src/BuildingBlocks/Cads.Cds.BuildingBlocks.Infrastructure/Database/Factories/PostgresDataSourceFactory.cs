@@ -74,7 +74,9 @@ public sealed class PostgresDataSourceFactory(
 
         var connectionStringBuilder = config.UseIamAuthentication
             ? CreateIamConnectionStringBuilder(pool, isReadPool)
-            : CreateStandardConnectionStringBuilder(pool, isReadPool);
+            : config.UsePasswordBasedAuthentication
+                ? CreatePasswordConnectionStringBuilder(pool, isReadPool)
+                : CreateStandardConnectionStringBuilder(pool, isReadPool);
 
         ApplyPoolSettings(connectionStringBuilder, pool);
 
@@ -89,9 +91,7 @@ public sealed class PostgresDataSourceFactory(
     private NpgsqlConnectionStringBuilder CreateStandardConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
     {
         var connectionString = pool.ConnectionString ?? (isReadPool ? config.ReadOnlyConnection : config.DefaultConnection);
-        var connectionStringBuilder = string.IsNullOrWhiteSpace(connectionString)
-            ? CreatePasswordConnectionStringBuilder(pool, isReadPool)
-            : new NpgsqlConnectionStringBuilder(connectionString);
+        var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString);
 
         if (pool.Host is not null)
         {
