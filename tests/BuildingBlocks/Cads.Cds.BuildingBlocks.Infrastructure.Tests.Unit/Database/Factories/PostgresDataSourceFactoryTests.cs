@@ -59,16 +59,19 @@ public class PostgresDataSourceFactoryTests
             Pools = pools ?? []
         };
 
-    // Password authentication where only the discrete settings (and the password) are configured.
+    // Password authentication built from the discrete settings (Host / Port / Name / User / Password).
+    // UsePasswordBasedAuthentication is on by default here; tests turn it off (or turn IAM on) explicitly.
     // The full connection strings are left unset unless a test passes them in.
     private static PostgresConfiguration CreatePartsConfig(
         bool useIam = false,
+        bool usePassword = true,
         string? password = TestCredsPw,
         string? defaultConnection = null,
         string? readOnlyConnection = null,
         Dictionary<string, PostgresPoolConfiguration>? pools = null) => new()
         {
             UseIamAuthentication = useIam,
+            UsePasswordBasedAuthentication = usePassword,
             DefaultConnection = defaultConnection!,
             ReadOnlyConnection = readOnlyConnection!,
             DefaultHost = WriterHost,
@@ -315,16 +318,20 @@ public class PostgresDataSourceFactoryTests
     }
 
     // ------------------------------------------------------------------
-    // Password authentication built from discrete settings
-    // (Host / Port / Name / User / Password, with no full connection string)
+    // Password authentication built from discrete settings, switched on
+    // explicitly with UsePasswordBasedAuthentication
     // ------------------------------------------------------------------
 
     [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public void Builds_Connection_From_Settings_When_Connection_String_Is_Not_Set(string? connectionString)
+    [InlineData("Replace in docker-compose.override.yml")]
+    [InlineData("Host=writer-cs;Database=test;Username=postgres")]
+    public void Builds_Connection_From_Settings_Whatever_The_Connection_String_Holds(string? connectionString)
     {
+        // The flag is explicit, so an appsettings placeholder (or any other value) in the
+        // connection string properties cannot get in the way.
         var config = CreatePartsConfig(defaultConnection: connectionString, readOnlyConnection: connectionString);
         using var sut = new PostgresDataSourceFactory(config, s_poolRegistry);
 
@@ -373,9 +380,24 @@ public class PostgresDataSourceFactoryTests
     }
 
     [Fact]
-    public void Connection_String_Wins_Over_Settings_When_Both_Are_Set()
+    public void Settings_Win_Over_Connection_Strings_When_Password_Based_Authentication_Is_Enabled()
     {
         var config = CreatePartsConfig(defaultConnection: DefaultConnection, readOnlyConnection: ReadOnlyConnection);
+        using var sut = new PostgresDataSourceFactory(config, s_poolRegistry);
+
+        var writer = sut.BuildConnectionStringBuilder(PostgresPools.Default);
+        var reader = sut.BuildConnectionStringBuilder(PostgresPools.ReadOnly);
+
+        writer.Host.Should().Be(WriterHost);
+        writer.Database.Should().Be("cads");
+        writer.Password.Should().Be(TestCredsPw);
+        reader.Host.Should().Be(ReaderHost);
+    }
+
+    [Fact]
+    public void Connection_Strings_Are_Used_And_Settings_Password_Is_Ignored_When_Password_Based_Authentication_Is_Off()
+    {
+        var config = CreatePartsConfig(usePassword: false, defaultConnection: DefaultConnection, readOnlyConnection: ReadOnlyConnection);
         using var sut = new PostgresDataSourceFactory(config, s_poolRegistry);
 
         var writer = sut.BuildConnectionStringBuilder(PostgresPools.Default);
@@ -388,23 +410,10 @@ public class PostgresDataSourceFactoryTests
     }
 
     [Fact]
-    public void Each_Pool_Falls_Back_Independently_When_Only_One_Connection_String_Is_Set()
+    public void Pool_ConnectionString_Is_Ignored_When_Built_From_Settings()
     {
-        var config = CreatePartsConfig(defaultConnection: DefaultConnection, readOnlyConnection: null);
-        using var sut = new PostgresDataSourceFactory(config, s_poolRegistry);
-
-        var writer = sut.BuildConnectionStringBuilder(PostgresPools.Default);
-        var reader = sut.BuildConnectionStringBuilder(PostgresPools.ReadOnly);
-
-        writer.Host.Should().Be("writer-cs");
-        writer.Password.Should().BeNullOrEmpty();
-        reader.Host.Should().Be(ReaderHost);
-        reader.Password.Should().Be(TestCredsPw);
-    }
-
-    [Fact]
-    public void Pool_ConnectionString_Overrides_Settings()
-    {
+        // Documents current behaviour: in password-based mode only the pool Host, sizes and application name
+        // are applied. A pool level ConnectionString is only honoured in the standard (connection string) mode.
         var config = CreatePartsConfig(pools: new()
         {
             [PostgresPools.StorageBridgeWrite] = new() { ConnectionString = "Host=bridge-db;Database=bridge;Username=bridge;Password=bridge-pw" }
@@ -413,10 +422,10 @@ public class PostgresDataSourceFactoryTests
 
         var builder = sut.BuildConnectionStringBuilder(PostgresPools.StorageBridgeWrite);
 
-        builder.Host.Should().Be("bridge-db");
-        builder.Database.Should().Be("bridge");
-        builder.Username.Should().Be("bridge");
-        builder.Password.Should().Be("bridge-pw");
+        builder.Host.Should().Be(WriterHost);
+        builder.Database.Should().Be("cads");
+        builder.Username.Should().Be("cads_user");
+        builder.Password.Should().Be(TestCredsPw);
     }
 
     [Fact]
@@ -508,9 +517,10 @@ public class PostgresDataSourceFactoryTests
     }
 
     [Fact]
-    public void Password_Is_Not_Applied_With_Iam()
+    public void Iam_Takes_Precedence_Over_Password_Based_Authentication()
     {
-        var config = CreatePartsConfig(useIam: true);
+        // Both flags on: IAM wins and the configured password is not used.
+        var config = CreatePartsConfig(useIam: true, usePassword: true);
         using var sut = new PostgresDataSourceFactory(config, s_poolRegistry, Mock.Of<IPostgresIamTokenGeneratorService>());
 
         var builder = sut.BuildConnectionStringBuilder(PostgresPools.Default);
@@ -520,12 +530,13 @@ public class PostgresDataSourceFactoryTests
     }
 
     [Fact]
-    public void Non_Empty_Placeholder_Connection_String_Is_Parsed_And_Rejected()
+    public void Placeholder_Connection_String_Is_Parsed_And_Rejected_When_Password_Based_Authentication_Is_Off()
     {
         // appsettings.json placeholders such as "Replace in docker-compose.override.yml" are not empty,
-        // so they are treated as a real connection string and fail to parse. Remove the keys (or leave
-        // them empty) in deployed environments that build the connection from settings.
+        // so in standard mode they are treated as a real connection string and fail to parse.
+        // Turn UsePasswordBasedAuthentication on to build from settings instead.
         var config = CreatePartsConfig(
+            usePassword: false,
             defaultConnection: "Replace in docker-compose.override.yml",
             readOnlyConnection: "Replace in docker-compose.override.yml");
         using var sut = new PostgresDataSourceFactory(config, s_poolRegistry);
