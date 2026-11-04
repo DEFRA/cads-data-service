@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration,
         PostgresConfiguration postgresConfig)
     {
-        if (postgresConfig.UseIamAuthentication)
+        if (postgresConfig.UseIamAuthentication || postgresConfig.UsePasswordBasedAuthentication)
         {
             if (string.IsNullOrWhiteSpace(postgresConfig.DefaultHost) ||
                 string.IsNullOrWhiteSpace(postgresConfig.ReadOnlyHost) ||
@@ -45,15 +45,27 @@ public static class ServiceCollectionExtensions
                 string.IsNullOrWhiteSpace(postgresConfig.User))
             {
                 throw new InvalidOperationException(
-                    "IAM authentication requires DefaultHost, ReadOnlyHost, Name, and User to be configured");
+                    "IAM or password based authentication requires DefaultHost, ReadOnlyHost, Name, and User to be configured");
             }
+        }
 
+        if (postgresConfig.UseIamAuthentication)
+        {
             services.AddSingleton<IPostgresIamTokenGeneratorService>(sp =>
             {
                 var credentials = sp.GetService<AWSCredentials>() ?? DefaultAWSCredentialsIdentityResolver.GetCredentials();
                 var region = RegionEndpoint.GetBySystemName(configuration.GetValue<string>("AWS:Region") ?? "eu-west-2");
                 return new PostgresIamTokenGeneratorService(credentials, region);
             });
+        }
+        else if (postgresConfig.UsePasswordBasedAuthentication)
+        {
+            if (string.IsNullOrWhiteSpace(postgresConfig.User) || string.IsNullOrWhiteSpace(postgresConfig.Password))
+            {
+                var missingString = postgresConfig.DefaultConnection == string.Empty ? "DefaultConnection" : "ReadOnlyConnection";
+                throw new InvalidOperationException(
+                    $"Connection string '{missingString}' not missing User or Password value");
+            }
         }
         else
         {
