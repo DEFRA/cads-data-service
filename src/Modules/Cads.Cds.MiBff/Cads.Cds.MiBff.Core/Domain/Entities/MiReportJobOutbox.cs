@@ -18,6 +18,7 @@ public class MiReportJobOutbox
 public static class ReportJobOutboxStatus
 {
     public const string Pending = "pending";
+    public const string Dispatching = "dispatching";
     public const string Dispatched = "dispatched";
     public const string Failed = "failed";
 }

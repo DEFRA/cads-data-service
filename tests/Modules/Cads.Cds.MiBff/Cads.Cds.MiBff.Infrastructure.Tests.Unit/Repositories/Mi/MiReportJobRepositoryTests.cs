@@ -239,6 +239,90 @@ public class MiReportJobRepositoryTests : IDisposable
         Assert.Single(remaining);
     }
 
+    [Fact]
+    public async Task MarkOutboxDispatchFailed_BelowMaxAttempts_RequeuesAsPendingAndIncrementsAttempts()
+    {
+        var reportJob = CreateReportJob(out var reportJobId);
+        await _context.ReportJobs.AddAsync(reportJob, TestContext.Current.CancellationToken);
+
+        var outboxMessage = new MiReportJobOutbox
+        {
+            OutboxId = Guid.NewGuid(),
+            ReportJobId = reportJobId,
+            Subject = "report.job.created",
+            Payload = "{}",
+            Status = ReportJobOutboxStatus.Dispatching,
+            Attempts = 1,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        await _context.ReportJobOutboxMessages.AddAsync(outboxMessage, TestContext.Current.CancellationToken);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        await _repository.MarkOutboxDispatchFailedAsync(
+            outboxMessage.OutboxId,
+            "transient SQS error",
+            maxAttempts: 5,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var updated = await _context.ReportJobOutboxMessages
+            .SingleAsync(o => o.OutboxId == outboxMessage.OutboxId, TestContext.Current.CancellationToken);
+
+        Assert.Equal(ReportJobOutboxStatus.Pending, updated.Status);
+        Assert.Equal(2, updated.Attempts);
+        Assert.Equal("transient SQS error", updated.LastError);
+    }
+
+    [Fact]
+    public async Task MarkOutboxDispatchFailed_AtMaxAttempts_MarksAsFailed()
+    {
+        var reportJob = CreateReportJob(out var reportJobId);
+        await _context.ReportJobs.AddAsync(reportJob, TestContext.Current.CancellationToken);
+
+        var outboxMessage = new MiReportJobOutbox
+        {
+            OutboxId = Guid.NewGuid(),
+            ReportJobId = reportJobId,
+            Subject = "report.job.created",
+            Payload = "{}",
+            Status = ReportJobOutboxStatus.Dispatching,
+            Attempts = 4,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        await _context.ReportJobOutboxMessages.AddAsync(outboxMessage, TestContext.Current.CancellationToken);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        await _repository.MarkOutboxDispatchFailedAsync(
+            outboxMessage.OutboxId,
+            "permanent failure",
+            maxAttempts: 5,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var updated = await _context.ReportJobOutboxMessages
+            .SingleAsync(o => o.OutboxId == outboxMessage.OutboxId, TestContext.Current.CancellationToken);
+
+        Assert.Equal(ReportJobOutboxStatus.Failed, updated.Status);
+        Assert.Equal(5, updated.Attempts);
+    }
+
+    [Fact]
+    public async Task MarkOutboxDispatchFailed_WithUnknownOutboxId_DoesNothing()
+    {
+        // Should not throw - the row may have already been cleaned up by another replica.
+        await _repository.MarkOutboxDispatchFailedAsync(
+            Guid.NewGuid(),
+            "error",
+            maxAttempts: 5,
+            cancellationToken: TestContext.Current.CancellationToken);
+    }
+
+    // ClaimPendingOutboxMessagesAsync uses a raw `FOR UPDATE SKIP LOCKED` CTE + UPDATE...RETURNING
+    // statement that is Postgres-specific and unsupported by the EF Core InMemory provider used by
+    // both these unit tests and the MiBff component test suite. It needs a real Postgres-backed
+    // test (e.g. a Testcontainers Postgres fixture) to verify the atomic-claim/concurrency behaviour;
+    // no such fixture exists yet in this module, so this is a follow-up rather than covered here.
+
     private static MiReportJob CreateReportJob(out Guid reportJobId)
     {
         reportJobId = Guid.NewGuid();
