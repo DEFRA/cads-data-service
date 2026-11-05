@@ -208,5 +208,3 @@ public class MiBffFifoQueuePublisherTests
         thrown.Which.IsTransient.Should().BeFalse();
     }
 }
-
-
