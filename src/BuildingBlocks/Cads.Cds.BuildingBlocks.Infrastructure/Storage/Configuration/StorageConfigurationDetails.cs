@@ -4,4 +4,5 @@ public record StorageConfigurationDetails
 {
     public bool HealthcheckEnabled { get; init; }
     public string BucketName { get; init; } = string.Empty;
+    public bool EncryptionEnabled { get; init; }
 }
