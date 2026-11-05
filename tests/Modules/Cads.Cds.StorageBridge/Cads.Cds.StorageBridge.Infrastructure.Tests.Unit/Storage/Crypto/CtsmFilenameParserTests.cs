@@ -8,11 +8,11 @@ public class CtsmFilenameParserTests
     [Fact]
     public void TryParse_returns_the_expected_fields_for_the_new_format()
     {
-        var result = CtsmFilenameParser.TryParse("CTSM_UKV_PROD_BULK_123456_1_CT_REGISTERED_MOVEMENTS_2026-02-22-074603.csv", out var ctsmFilename);
+        var result = CtsmFilenameParser.TryParse("CTSM_CADS_PROD_BULK_123456_1_CT_REGISTERED_MOVEMENTS_2026-02-22-074603.csv", out var ctsmFilename);
 
         result.Should().BeTrue();
         ctsmFilename.Should().NotBeNull();
-        ctsmFilename!.App.Should().Be("UKV");
+        ctsmFilename!.App.Should().Be("CADS");
         ctsmFilename.Env.Should().Be("PROD");
         ctsmFilename.Type.Should().Be("BULK");
         ctsmFilename.BatchId.Should().Be("123456");
@@ -33,7 +33,7 @@ public class CtsmFilenameParserTests
 
     // Password vectors from cads-bridge's CtsmFilenameExtensionsTests.
     [Theory]
-    [InlineData("CTSM_UKV_PROD_BULK_######_CT_REGISTERED_ANIMALS_2026-02-22-074603.csv", "2026-02-22_ANIMALS_REGISTERED_CT_######_BULK_PROD_UKV_CTSM")]
+    [InlineData("CTSM_CADS_PROD_BULK_######_CT_REGISTERED_ANIMALS_2026-02-22-074603.csv", "2026-02-22_ANIMALS_REGISTERED_CT_######_BULK_PROD_CADS_CTSM")]
     [InlineData("CTSM_CADS_PREP_DELTA_00002_CT_ANIMAL_STATUSES_2026-07-30-141209.csv", "2026-07-30_STATUSES_ANIMAL_CT_00002_DELTA_PREP_CADS_CTSM")]
     [InlineData("CTSM_CADS_PREP_DELTA_00002_001_CT_ANIMAL_STATUSES_2026-07-30-141209.csv", "2026-07-30_STATUSES_ANIMAL_CT_001_00002_DELTA_PREP_CADS_CTSM")]
     public void DerivePassword_matches_the_cads_bridge_vectors(string filename, string expectedPassword)
