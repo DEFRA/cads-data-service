@@ -317,11 +317,11 @@ public class MiReportJobRepositoryTests : IDisposable
             cancellationToken: TestContext.Current.CancellationToken);
     }
 
-    // ClaimPendingOutboxMessagesAsync uses a raw `FOR UPDATE SKIP LOCKED` CTE + UPDATE...RETURNING
-    // statement that is Postgres-specific and unsupported by the EF Core InMemory provider used by
-    // both these unit tests and the MiBff component test suite. It needs a real Postgres-backed
-    // test (e.g. a Testcontainers Postgres fixture) to verify the atomic-claim/concurrency behaviour;
-    // no such fixture exists yet in this module, so this is a follow-up rather than covered here.
+    // ClaimPendingOutboxMessagesAsync delegates to the Postgres-only
+    // cads.claim_pending_report_job_outbox_messages function (FOR UPDATE SKIP LOCKED),
+    // which EF Core's InMemory provider does not support. Its atomic-claim/concurrency
+    // behaviour is covered by MiReportJobOutboxClaimConcurrencyTests in
+    // Cads.Cds.MiBff.Tests.Integration, which runs against a real Postgres container.
 
     private static MiReportJob CreateReportJob(out Guid reportJobId)
     {
