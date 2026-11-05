@@ -75,34 +75,11 @@ public class MiReportJobRepository(MiBffWriteDbContext writeDbContext, IMiBffUni
         int batchSize = 20,
         CancellationToken cancellationToken = default)
     {
-        // Single atomic statement: the CTE selects+locks the batch with FOR UPDATE SKIP LOCKED
-        // (so concurrent dispatcher replicas never see the same pending row), and the outer
-        // UPDATE...RETURNING claims them by flipping status to 'dispatching' before releasing
-        // the row locks. No explicit transaction needed - Postgres runs the whole statement atomically.
-        const string sql = """
-            WITH claimed AS (
-                SELECT outbox_id
-                FROM cads.mi_report_job_outbox
-                WHERE status = 'pending'
-                ORDER BY created_at
-                LIMIT {0}
-                FOR UPDATE SKIP LOCKED
-            )
-            UPDATE cads.mi_report_job_outbox AS o
-            SET status = 'dispatching'
-            FROM claimed AS c
-            WHERE o.outbox_id = c.outbox_id
-            RETURNING
-                o.outbox_id,
-                o.report_job_id,
-                o.subject,
-                o.payload,
-                o.status,
-                o.attempts,
-                o.last_error,
-                o.created_at,
-                o.dispatched_at
-            """;
+        // Delegates the claim+lock+flip logic to the cads.claim_pending_report_job_outbox_messages
+        // Postgres function (see 0000_013_mi_report_job_tables.postgresql.sql), which uses
+        // FOR UPDATE SKIP LOCKED internally so concurrent dispatcher replicas never claim the
+        // same pending row. No explicit transaction needed - the function body runs atomically.
+        const string sql = "SELECT * FROM cads.claim_pending_report_job_outbox_messages({0})";
 
         return await writeDbContext.ReportJobOutboxMessages
             .FromSqlRaw(sql, batchSize)
