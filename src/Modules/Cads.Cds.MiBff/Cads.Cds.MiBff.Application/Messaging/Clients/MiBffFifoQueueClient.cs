@@ -6,4 +6,3 @@ public class MiBffFifoQueueClient : IQueueClient
 {
     public string ClientName => GetType().Name;
 }
-

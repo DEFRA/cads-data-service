@@ -18,4 +18,3 @@ public class ReportJobOutboxDispatcherOptions
     /// </summary>
     public int MaxAttempts { get; set; } = 5;
 }
-
