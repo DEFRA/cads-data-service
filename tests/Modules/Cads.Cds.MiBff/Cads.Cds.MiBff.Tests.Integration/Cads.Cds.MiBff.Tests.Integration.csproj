@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.MiBff\Cads.Cds.MiBff.Core\Cads.Cds.MiBff.Core.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.MiBff\Cads.Cds.MiBff.Infrastructure\Cads.Cds.MiBff.Infrastructure.csproj" />
     <ProjectReference Include="..\Cads.Cds.MiBff.Testing.Support\Cads.Cds.MiBff.Testing.Support.csproj" />
   </ItemGroup>
 
