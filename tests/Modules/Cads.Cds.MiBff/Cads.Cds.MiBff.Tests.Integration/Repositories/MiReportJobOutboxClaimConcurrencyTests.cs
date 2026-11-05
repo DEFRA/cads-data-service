@@ -110,4 +110,3 @@ public class MiReportJobOutboxClaimConcurrencyTests(ApiContainerFixture apiConta
         return new MiBffWriteDbContext(options);
     }
 }
-
