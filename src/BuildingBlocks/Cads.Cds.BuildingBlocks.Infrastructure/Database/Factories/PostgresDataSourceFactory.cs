@@ -74,7 +74,9 @@ public sealed class PostgresDataSourceFactory(
 
         var connectionStringBuilder = config.UseIamAuthentication
             ? CreateIamConnectionStringBuilder(pool, isReadPool)
-            : CreateStandardConnectionStringBuilder(pool, isReadPool);
+            : config.UsePasswordBasedAuthentication
+                ? CreatePasswordConnectionStringBuilder(pool, isReadPool)
+                : CreateStandardConnectionStringBuilder(pool, isReadPool);
 
         ApplyPoolSettings(connectionStringBuilder, pool);
 
@@ -83,7 +85,7 @@ public sealed class PostgresDataSourceFactory(
 
     internal Func<NpgsqlConnectionStringBuilder, CancellationToken, ValueTask<string>> CreateIamPasswordProvider(string host)
     {
-        return async (_, _) => await iamTokenGenerator!.GenerateAuthTokenAsync(host, config.Port, config.User);
+        return async (_, _) => await iamTokenGenerator!.GenerateAuthTokenAsync(host, config.DefaultPort, config.User);
     }
 
     private NpgsqlConnectionStringBuilder CreateStandardConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
@@ -99,12 +101,24 @@ public sealed class PostgresDataSourceFactory(
         return connectionStringBuilder;
     }
 
+    private NpgsqlConnectionStringBuilder CreatePasswordConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
+    {
+        var connectionStringBuilder = CreateDiscreteConnectionStringBuilder(pool, isReadPool);
+        connectionStringBuilder.Password = config.Password;
+        return connectionStringBuilder;
+    }
+
     private NpgsqlConnectionStringBuilder CreateIamConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
+    {
+        return CreateDiscreteConnectionStringBuilder(pool, isReadPool);
+    }
+
+    private NpgsqlConnectionStringBuilder CreateDiscreteConnectionStringBuilder(PostgresPoolConfiguration pool, bool isReadPool)
     {
         return new NpgsqlConnectionStringBuilder
         {
             Host = pool.Host ?? (isReadPool ? config.ReadOnlyHost : config.DefaultHost),
-            Port = config.Port,
+            Port = isReadPool ? config.ReadOnlyPort : config.DefaultPort,
             Database = config.Name,
             Username = config.User,
             CommandTimeout = 60,
