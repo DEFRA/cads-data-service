@@ -2,6 +2,7 @@ using Cads.Cds.MiBff.Application.Reports.Commands.CreateReportJob;
 using Cads.Cds.MiBff.Application.Reports.Requests;
 using Cads.Cds.MiBff.Application.Reports.Routing;
 using Cads.Cds.MiBff.Application.Reports.Routing.Abstractions;
+using Cads.Cds.MiBff.Core.Domain.Constants;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using FluentAssertions;
@@ -91,6 +92,12 @@ public class CreateReportJobCommandHandlerTests
             => throw new NotImplementedException();
 
         public Task<IReadOnlyList<MiReportJobOutbox>> GetPendingOutboxMessagesAsync(int batchSize = 50, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<IReadOnlyList<MiReportJobOutbox>> ClaimPendingOutboxMessagesAsync(int batchSize = 20, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task MarkOutboxDispatchFailedAsync(Guid outboxId, string error, int maxAttempts, CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
         public Task DeleteDispatchedOutboxMessagesAsync(IEnumerable<Guid> outboxIds, CancellationToken cancellationToken = default)

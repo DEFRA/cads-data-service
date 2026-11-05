@@ -40,7 +40,7 @@ CREATE TABLE cads."mi_report_job_outbox" (
                                              "dispatched_at"  TIMESTAMP WITH TIME ZONE,
                                              CONSTRAINT "mi_report_job_outbox_pkey" PRIMARY KEY ("outbox_id"),
                                              CONSTRAINT "mi_report_job_outbox_status_chk"
-                                                 CHECK ("status" IN ('pending', 'dispatched', 'failed')),
+                                                 CHECK ("status" IN ('pending', 'dispatching', 'dispatched', 'failed')),
                                              CONSTRAINT "mi_report_job_outbox_report_job_id_fkey"
                                                  FOREIGN KEY ("report_job_id") REFERENCES cads."mi_report_job" ("report_job_id")
                                                      ON UPDATE NO ACTION ON DELETE CASCADE

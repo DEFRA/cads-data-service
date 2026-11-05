@@ -29,6 +29,16 @@ public interface IMiReportJobRepository
         int batchSize = 50,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<MiReportJobOutbox>> ClaimPendingOutboxMessagesAsync(
+        int batchSize = 20,
+        CancellationToken cancellationToken = default);
+
+    Task MarkOutboxDispatchFailedAsync(
+        Guid outboxId,
+        string error,
+        int maxAttempts,
+        CancellationToken cancellationToken = default);
+
     Task DeleteDispatchedOutboxMessagesAsync(
         IEnumerable<Guid> outboxIds,
         CancellationToken cancellationToken = default);
