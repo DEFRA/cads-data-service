@@ -1,0 +1,10 @@
+CREATE ROLE cads_data_service LOGIN;
+GRANT CONNECT ON DATABASE cads_data_service TO cads_data_service;
+
+SELECT r AS role,
+       has_database_privilege(r, current_database(), 'CONNECT') AS connect,
+       has_database_privilege(r, current_database(), 'CREATE')  AS create_schemas,
+       has_schema_privilege(r, 'public', 'CREATE')               AS create_in_public,
+       has_schema_privilege(r, 'cads', 'USAGE')                  AS use_cads,
+       has_schema_privilege(r, 'cads', 'CREATE')                 AS create_in_cads
+FROM (VALUES ('cadsadmin'), ('cads_data_service')) AS t(r);

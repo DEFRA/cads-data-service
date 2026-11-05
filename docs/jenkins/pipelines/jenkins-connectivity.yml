@@ -1,0 +1,26 @@
+// Minimal connectivity test. No parameters, no AWS role, no secrets. Changes nothing.
+// Prints, for each database endpoint: the IP it resolves to, and whether TCP port 5432 is reachable.
+//   rc=0   -> open (the network path works)
+//   rc=124 -> timed out (no route, or something is dropping the traffic)
+//   other  -> see the error text on the same line
+
+pipeline {
+  agent { label 'master' }
+
+  stages {
+    stage('Test database connectivity') {
+      steps {
+        sh '''#!/bin/bash
+          echo "Agent IP: $(hostname -I)"
+          for h in devldncdsrds001.cnc42k06cl7y.eu-west-2.rds.amazonaws.com \
+                   devldncdsauroracls001.cluster-cnc42k06cl7y.eu-west-2.rds.amazonaws.com; do
+            ip=$(getent hosts "$h" | awk '{print $1; exit}')
+            timeout 5 bash -c "exec 3<>/dev/tcp/$h/5432" 2>/tmp/tcperr; rc=$?
+            echo "$h -> ${ip:-no-DNS} : rc=$rc $(head -1 /tmp/tcperr)"
+          done
+          exit 0
+        '''
+      }
+    }
+  }
+}
