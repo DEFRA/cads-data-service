@@ -310,11 +310,18 @@ public class MiReportJobRepositoryTests : IDisposable
     public async Task MarkOutboxDispatchFailed_WithUnknownOutboxId_DoesNothing()
     {
         // Should not throw - the row may have already been cleaned up by another replica.
-        await _repository.MarkOutboxDispatchFailedAsync(
-            Guid.NewGuid(),
-            "error",
-            maxAttempts: 5,
-            cancellationToken: TestContext.Current.CancellationToken);
+        var exception = await Record.ExceptionAsync(() =>
+            _repository.MarkOutboxDispatchFailedAsync(
+                Guid.NewGuid(),
+                "error",
+                maxAttempts: 5,
+                cancellationToken: TestContext.Current.CancellationToken));
+
+        Assert.Null(exception);
+
+        var remaining = await _context.ReportJobOutboxMessages.ToListAsync(TestContext.Current.CancellationToken);
+
+        Assert.Empty(remaining);
     }
 
     // ClaimPendingOutboxMessagesAsync delegates to the Postgres-only
