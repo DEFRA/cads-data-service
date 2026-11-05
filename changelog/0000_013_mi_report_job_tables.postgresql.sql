@@ -49,3 +49,30 @@ CREATE TABLE cads."mi_report_job_outbox" (
 CREATE INDEX "mi_report_job_outbox_pending_idx"
     ON cads."mi_report_job_outbox" ("created_at")
     WHERE "status" = 'pending';
+
+-- changeset schema:0000-013-mi-report-job-outbox-claim-function endDelimiter://
+
+DROP FUNCTION IF EXISTS cads.claim_pending_report_job_outbox_messages(INTEGER);
+
+CREATE OR REPLACE FUNCTION cads.claim_pending_report_job_outbox_messages(
+    p_batch_size INTEGER
+)
+    RETURNS SETOF cads."mi_report_job_outbox"
+    LANGUAGE sql
+AS $$
+    WITH claimed AS (
+        SELECT "outbox_id"
+        FROM cads."mi_report_job_outbox"
+        WHERE "status" = 'pending'
+        ORDER BY "created_at"
+        LIMIT p_batch_size
+        FOR UPDATE SKIP LOCKED
+    )
+    UPDATE cads."mi_report_job_outbox" AS o
+    SET "status" = 'dispatching'
+    FROM claimed AS c
+    WHERE o."outbox_id" = c."outbox_id"
+    RETURNING o.*;
+$$
+//
+
