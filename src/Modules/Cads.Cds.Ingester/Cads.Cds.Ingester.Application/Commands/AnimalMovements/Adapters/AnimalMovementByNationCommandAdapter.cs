@@ -18,7 +18,13 @@ public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storag
             logger.LogDebug("Writing to storage: {Key}", key);
         }
 
-        var result = await storageService.WriteAsync(key, command.Payload!, cancellationToken);
+        ArgumentException.ThrowIfNullOrEmpty(command.Payload);
+
+        var result = await storageService.WriteAsync(
+            key,
+            command.Payload, 
+            cancellationToken);
+
         return result;
     }
 
