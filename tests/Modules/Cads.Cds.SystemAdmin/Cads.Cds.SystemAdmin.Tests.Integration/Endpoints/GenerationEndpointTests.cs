@@ -105,7 +105,7 @@ public class GenerationEndpointTests(ApiContainerFixture apiContainerFixture)
         dto.Should().NotBeNull();
         dto.FileName.Should().NotBeNullOrEmpty();
         dto.FileName.Should().Contain("CT_LOCATIONS");
-        dto.FileName.Should().Contain("DEV");
+        dto.FileName.Should().Contain("ETE");
 
         dto.BusinessKeys.Should().NotBeNull();
         dto.BusinessKeys.Should().HaveCount(10);
@@ -161,7 +161,7 @@ public class GenerationEndpointTests(ApiContainerFixture apiContainerFixture)
         dto.Should().NotBeNull();
         dto.FileName.Should().NotBeNullOrEmpty();
         dto.FileName.Should().Contain("CT_LOCATIONS");
-        dto.FileName.Should().Contain("DEV");
+        dto.FileName.Should().Contain("ETE");
 
         dto.BusinessKeys.Should().NotBeNull();
         dto.BusinessKeys.Should().HaveCount(10);
