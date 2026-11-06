@@ -1,8 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Handlers;
 using FluentAssertions;
@@ -14,6 +9,11 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders.Testing;
 using Microsoft.IdentityModel.Tokens;
 using NSubstitute;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Authentication;
 

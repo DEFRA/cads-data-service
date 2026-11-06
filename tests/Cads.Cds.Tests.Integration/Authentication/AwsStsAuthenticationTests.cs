@@ -1,8 +1,8 @@
-using System.Net;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using FluentAssertions;
+using System.Net;
 
 namespace Cads.Cds.Tests.Integration.Authentication;
 

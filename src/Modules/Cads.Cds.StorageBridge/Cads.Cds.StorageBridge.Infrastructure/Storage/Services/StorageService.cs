@@ -48,4 +48,17 @@ public class StorageService<T>(IS3ClientFactory s3ClientFactory, IStorageReader<
             Key = sourceKey
         }, cancellationToken);
     }
+
+    public Task WriteAsync(string key, Stream fileStream, CancellationToken cancellationToken)
+    {
+        var putObjectRequest = new PutObjectRequest
+        {
+            BucketName = _bucketName,
+            Key = key,
+            InputStream = fileStream,
+            ContentType = "application/octet-stream"
+        };
+
+        return _s3Client.PutObjectAsync(putObjectRequest, cancellationToken);
+    }
 }
