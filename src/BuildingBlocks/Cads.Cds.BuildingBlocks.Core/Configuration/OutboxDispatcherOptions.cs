@@ -18,4 +18,3 @@ public class OutboxDispatcherOptions
     /// </summary>
     public int MaxAttempts { get; set; } = 5;
 }
-

@@ -305,4 +305,3 @@ public class BaseOutboxDispatcherTests
         public string ClientName => GetType().Name;
     }
 }
-

@@ -53,4 +53,3 @@ public class TestMessagePublisher<TClient> : IMessagePublisher<TClient>
     private static TaskCompletionSource<(object Message, FifoMessageMetadata Metadata)> CreateTcs() =>
         new(TaskCreationOptions.RunContinuationsAsynchronously);
 }
-

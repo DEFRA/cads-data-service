@@ -140,5 +140,3 @@ public abstract class BaseOutboxDispatcher<TClient, TRepository, TOutbox, TMessa
     private static TimeSpan ToInterval(OutboxDispatcherOptions o) =>
         TimeSpan.FromSeconds(Math.Max(1, o.PollIntervalSeconds));
 }
-
-

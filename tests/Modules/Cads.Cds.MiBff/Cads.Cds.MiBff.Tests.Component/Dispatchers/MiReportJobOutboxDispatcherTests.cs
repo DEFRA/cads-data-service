@@ -121,8 +121,3 @@ public class MiReportJobOutboxDispatcherTests(MiBffTestFixture testFixture) : IC
         predicate().Should().BeTrue("the expected repository state should be reached before the timeout");
     }
 }
-
-
-
-
-

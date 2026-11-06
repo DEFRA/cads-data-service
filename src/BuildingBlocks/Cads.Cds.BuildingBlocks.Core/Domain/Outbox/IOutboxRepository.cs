@@ -22,4 +22,3 @@ public interface IOutboxRepository<TOutbox>
         IEnumerable<Guid> outboxIds,
         CancellationToken cancellationToken = default);
 }
-
