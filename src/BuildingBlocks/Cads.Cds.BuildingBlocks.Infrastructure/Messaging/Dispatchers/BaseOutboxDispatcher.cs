@@ -10,12 +10,9 @@ using Microsoft.Extensions.Options;
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Dispatchers;
 
 /// <summary>
-/// Generic polling outbox dispatcher: periodically claims pending rows from
-/// <see cref="IOutboxRepository{TOutbox}"/> (resolved per-poll from DI), delegates building +
-/// publishing the message for each row to <see cref="PublishAsync"/>, and marks per-row publish
-/// failures/deletes successfully dispatched rows. Only two type parameters are needed - the queue
-/// client and the outbox row type - the message type stays an implementation detail of
-/// <see cref="PublishAsync"/> in each module's dispatcher subclass.
+/// Generic polling outbox dispatcher: periodically claims pending rows from the outbox repo,
+/// delegates building and publishing the message for each row, and marks per-row publish
+/// failures/deletes successfully dispatched rows.
 /// </summary>
 public abstract class BaseOutboxDispatcher<TClient, TOutbox>(
     IServiceScopeFactory scopeFactory,
