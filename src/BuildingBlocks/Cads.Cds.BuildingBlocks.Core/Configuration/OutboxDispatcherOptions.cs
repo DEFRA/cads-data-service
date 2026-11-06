@@ -1,6 +1,6 @@
-namespace Cads.Cds.MiBff.Core.Configuration;
+namespace Cads.Cds.BuildingBlocks.Core.Configuration;
 
-public class ReportJobOutboxDispatcherOptions
+public class OutboxDispatcherOptions
 {
     /// <summary>
     /// How often the dispatcher polls for pending outbox rows.
@@ -18,3 +18,4 @@ public class ReportJobOutboxDispatcherOptions
     /// </summary>
     public int MaxAttempts { get; set; } = 5;
 }
+

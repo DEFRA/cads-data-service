@@ -1,8 +1,9 @@
+using Cads.Cds.BuildingBlocks.Core.Domain.Outbox;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 
 namespace Cads.Cds.MiBff.Core.Domain.Repositories;
 
-public interface IMiReportJobRepository
+public interface IMiReportJobRepository : IOutboxRepository<MiReportJobOutbox>
 {
     /// <summary>
     /// Creates the report job and its outbox message atomically in a single transaction.
@@ -29,17 +30,6 @@ public interface IMiReportJobRepository
         int batchSize = 50,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<MiReportJobOutbox>> ClaimPendingOutboxMessagesAsync(
-        int batchSize = 20,
-        CancellationToken cancellationToken = default);
-
-    Task MarkOutboxDispatchFailedAsync(
-        Guid outboxId,
-        string error,
-        int maxAttempts,
-        CancellationToken cancellationToken = default);
-
-    Task DeleteDispatchedOutboxMessagesAsync(
-        IEnumerable<Guid> outboxIds,
-        CancellationToken cancellationToken = default);
+    // ClaimPendingOutboxMessagesAsync, MarkOutboxDispatchFailedAsync and
+    // DeleteDispatchedOutboxMessagesAsync are inherited from IOutboxRepository<MiReportJobOutbox>.
 }

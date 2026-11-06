@@ -1,6 +1,8 @@
+using Cads.Cds.BuildingBlocks.Core.Domain.Outbox;
+
 namespace Cads.Cds.MiBff.Core.Domain.Entities;
 
-public class MiReportJobOutbox
+public class MiReportJobOutbox : IOutboxMessage
 {
     public Guid OutboxId { get; set; }
     public Guid ReportJobId { get; set; }
