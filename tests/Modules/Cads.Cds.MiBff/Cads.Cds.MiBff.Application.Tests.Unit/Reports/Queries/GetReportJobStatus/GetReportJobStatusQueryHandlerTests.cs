@@ -90,6 +90,12 @@ public class GetReportJobStatusQueryHandlerTests
         public Task<IReadOnlyList<MiReportJobOutbox>> GetPendingOutboxMessagesAsync(int batchSize = 50, CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
+        public Task<IReadOnlyList<MiReportJobOutbox>> ClaimPendingOutboxMessagesAsync(int batchSize = 20, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task MarkOutboxDispatchFailedAsync(Guid outboxId, string error, int maxAttempts, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
         public Task DeleteDispatchedOutboxMessagesAsync(IEnumerable<Guid> outboxIds, CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }
