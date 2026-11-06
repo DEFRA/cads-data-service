@@ -8,12 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cads.Cds.MiBff.Tests.Integration.Repositories;
 
-// Exercises cads.claim_pending_report_job_outbox_messages (see
-// changelog/0000_013_mi_report_job_tables.postgresql.sql) against a real PostgreSQL instance.
-// The function relies on `FOR UPDATE SKIP LOCKED`, which EF Core's InMemory provider does not
-// support, so this behaviour cannot be verified by the repository unit tests - it needs the
-// ApiContainerFixture's real Postgres container (provisioned + migrated for the whole
-// MiBffIntegration collection).
+// Exercises cads.claim_pending_report_job_outbox_messages.
+// This function relies on `FOR UPDATE SKIP LOCKED`, which EF Core's InMemory provider does not
+// support so cannot be verified by the repository unit tests
 [Collection("MiBffIntegration"), Trait("Dependence", "testcontainers")]
 public class MiReportJobOutboxClaimConcurrencyTests(ApiContainerFixture apiContainerFixture)
 {
