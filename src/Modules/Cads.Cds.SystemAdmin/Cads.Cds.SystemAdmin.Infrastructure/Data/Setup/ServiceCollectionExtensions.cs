@@ -6,17 +6,18 @@ using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsAudit.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Utils;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureSystemAdminData(this IServiceCollection services)
+    public static IServiceCollection ConfigureSystemAdminData(this IServiceCollection services, IConfiguration config)
     {
         services.RegisterDbContexts();
         services.RegisterQueries();
-        services.ConfigureSystemAdminGraphQL();
+        services.ConfigureSystemAdminGraphQL(config);
 
         return services;
     }
