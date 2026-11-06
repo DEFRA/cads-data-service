@@ -13,4 +13,3 @@ public interface IOutboxDispatcher<in TClient>
     Task StartAsync(CancellationToken cancellationToken);
     Task StopAsync(CancellationToken cancellationToken);
 }
-
