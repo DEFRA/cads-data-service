@@ -22,7 +22,7 @@ public class AnimalMovementByNationCommandAdapter(IIngesterStorageService storag
 
         var result = await storageService.WriteAsync(
             key,
-            command.Payload, 
+            command.Payload,
             cancellationToken);
 
         return result;
