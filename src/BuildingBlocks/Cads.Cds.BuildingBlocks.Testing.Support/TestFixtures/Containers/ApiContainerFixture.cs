@@ -24,6 +24,7 @@ public class ApiContainerFixture : IAsyncLifetime
     public StsMockFixture StsMockFixture { get; }
     public TestAzureAdConfiguration? AzureAdConfig { get; set; }
     public TestAwsStsConfiguration? AwsStsConfig { get; set; }
+    public TestEncryptionConfiguration? EncryptionConfig { get; set; }
 
     public ApiContainerFixture()
     {
@@ -42,6 +43,7 @@ public class ApiContainerFixture : IAsyncLifetime
 
         AzureAdConfig = new TestAzureAdConfiguration(OidcMockFixture);
         AwsStsConfig = new TestAwsStsConfiguration();
+        EncryptionConfig = new TestEncryptionConfiguration();
 
         var certPath = Path.Combine(AppContext.BaseDirectory, "certs");
 
@@ -101,6 +103,8 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AWS_ACCESS_KEY_ID", LocalStackFixture.AwsAccessKeyId)
           .WithEnvironment("AWS_SECRET_ACCESS_KEY", LocalStackFixture.AwsSecretAccessKey)
           .WithEnvironment("DOTNET_SYSTEM_NET_SOCKETS_HTTP_USEIPV6", "false")
+          .WithEnvironment("Encryption__CurrentKeyId", TestEncryptionConfiguration.CurrentKeyId)
+          .WithEnvironment("Encryption__Keys__V1", TestEncryptionConfiguration.CurrentKeyBase64)
           .WithNetwork(_networkName)
           .WithNetworkAliases("cads_cds")
           .WithWaitStrategy(Wait.ForUnixContainer()

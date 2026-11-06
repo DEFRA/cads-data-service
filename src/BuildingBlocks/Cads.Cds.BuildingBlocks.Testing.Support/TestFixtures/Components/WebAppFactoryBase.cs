@@ -11,6 +11,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers.Configuration;
 using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 using Cads.Cds.MiBff.Application.Reports.Authorisation;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
@@ -198,6 +199,9 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__ValidateIssuer", "false");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__ScopeClaimType", "scope");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__AzureAD__RoleClaimType", "role");
+
+        Environment.SetEnvironmentVariable("Encryption__CurrentKeyId", TestEncryptionConfiguration.CurrentKeyId);
+        Environment.SetEnvironmentVariable("Encryption__Keys__V1", TestEncryptionConfiguration.CurrentKeyBase64);
     }
 
     private static void ConfigureDefaultAuthorization(IServiceCollection services)
