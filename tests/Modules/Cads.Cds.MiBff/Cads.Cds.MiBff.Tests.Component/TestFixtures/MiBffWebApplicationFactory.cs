@@ -1,10 +1,12 @@
 using Cads.Cds.BuildingBlocks.Application.Messaging.Publishers;
+using Cads.Cds.BuildingBlocks.Core.Domain.Outbox;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Dispatchers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Publishers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.MiBff.Application.Messaging.Clients;
 using Cads.Cds.MiBff.Application.Reports.Authorisation;
 using Cads.Cds.MiBff.Application.Uow;
+using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Infrastructure.Authorisation.Reports;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Dispatchers;
@@ -92,6 +94,11 @@ public class MiBffWebApplicationFactory(
         services.RemoveAll<IMiReportJobRepository>();
         services.AddSingleton<FakeMiReportJobRepository>();
         services.AddSingleton<IMiReportJobRepository>(sp => sp.GetRequiredService<FakeMiReportJobRepository>());
+
+        // BaseOutboxDispatcher<TClient,TOutbox> resolves IOutboxRepository<TOutbox> directly
+        // from DI rather than the module-specific IMiReportJobRepository.
+        services.RemoveAll<IOutboxRepository<MiReportJobOutbox>>();
+        services.AddSingleton<IOutboxRepository<MiReportJobOutbox>>(sp => sp.GetRequiredService<FakeMiReportJobRepository>());
 
         services.RemoveAll<IMessagePublisher<MiBffFifoQueueClient>>();
         services.AddSingleton<TestMessagePublisher<MiBffFifoQueueClient>>();
