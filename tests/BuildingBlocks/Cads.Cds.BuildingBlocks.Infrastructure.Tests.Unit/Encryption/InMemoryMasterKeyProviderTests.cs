@@ -47,7 +47,7 @@ public class InMemoryMasterKeyProviderTests
 
         await Assert.ThrowsAsync<KeyNotFoundException>(
             async () => await provider.GetByIdAsync(
-                "unknown", 
+                "unknown",
                 TestContext.Current.CancellationToken));
     }
 

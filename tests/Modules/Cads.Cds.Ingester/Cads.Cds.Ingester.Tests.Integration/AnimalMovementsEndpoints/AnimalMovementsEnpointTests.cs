@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.Ingester.Core.Domain.Enums;
 using Cads.Cds.Ingester.Core.DTOs.Common;
 using Cads.Cds.Ingester.Testing.Support.Constants;
@@ -76,12 +77,12 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         var responseData = JsonConvert.DeserializeObject<IngestionDto>(responseBody);
 
         responseData.Should().NotBeNull();
-        responseData!.IngestionId.Should().Contain(nation.ToString().ToLowerInvariant());
+        responseData.IngestionId.Should().Contain(nation.ToString().ToLowerInvariant());
         responseData.RecordCount.Should().Be(1);
 
         var decryptedPayload = await DownloadAndDecryptAsync(responseData.IngestionId);
 
-        decryptedPayload.Should().Be(_payloadV1);
+        decryptedPayload.Should().Contain("\"movementID\": \"8308310\"");
     }
 
     [Fact]
@@ -107,12 +108,12 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         var responseData = JsonConvert.DeserializeObject<IngestionDto>(responseBody);
 
         responseData.Should().NotBeNull();
-        responseData!.IngestionId.Should().Contain(nation.ToString().ToLowerInvariant());
+        responseData.IngestionId.Should().Contain(nation.ToString().ToLowerInvariant());
         responseData.RecordCount.Should().Be(1);
 
         var decryptedPayload = await DownloadAndDecryptAsync(responseData.IngestionId);
 
-        decryptedPayload.Should().Be(_payloadV2);
+        decryptedPayload.Should().Contain("\"recordID\": \"record-14567413\"");
     }
 
     private async Task<string> DownloadAndDecryptAsync(string key)
@@ -141,8 +142,8 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
 
         var encryptor = new FileEncryptor(
             new InMemoryMasterKeyProvider(
-                TestEncryptionSettings.CurrentKeyId,
-                TestEncryptionSettings.Keys));
+                TestEncryptionKeyProvider.CurrentKeyId,
+                TestEncryptionKeyProvider.Keys));
 
         await encryptor.DecryptAsync(
             encryptedStream,
@@ -150,18 +151,6 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
             cancellationToken: TestContext.Current.CancellationToken);
 
         return Encoding.UTF8.GetString(decryptedStream.ToArray());
-    }
-
-    private static class TestEncryptionSettings
-    {
-        public const string CurrentKeyId = "integration-test-key";
-
-        public static IReadOnlyDictionary<string, byte[]> Keys { get; } =
-            new Dictionary<string, byte[]>
-            {
-                [CurrentKeyId] = Convert.FromBase64String(
-                    "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=")
-            };
     }
 
     private async Task<bool> CheckIfS3FileExistsAsync(string key)

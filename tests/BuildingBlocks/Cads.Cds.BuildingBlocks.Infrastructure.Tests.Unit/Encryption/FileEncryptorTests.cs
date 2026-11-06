@@ -12,11 +12,11 @@ public class FileEncryptorTests
 {
     private const uint SmallChunk = FileFormat.MinChunkSize; // 4096, keeps multi-chunk tests small
 
-    private static byte[] Key(byte seed) => Enumerable.Range(0, 32).Select(i => (byte)(seed + i)).ToArray();
+    private static byte[] Key(byte seed) => [.. Enumerable.Range(0, 32).Select(i => (byte)(seed + i))];
 
     private static InMemoryMasterKeyProvider Keys(string current = "k1", params string[] ids)
     {
-        var all = (ids.Length == 0 ? new[] { "k1" } : ids).Distinct().ToDictionary(id => id, id => Key((byte)id.GetHashCode()));
+        var all = (ids.Length == 0 ? ["k1"] : ids).Distinct().ToDictionary(id => id, id => Key((byte)id.GetHashCode()));
         return new InMemoryMasterKeyProvider(current, all);
     }
 
@@ -115,11 +115,11 @@ public class FileEncryptorTests
         var enc = new FileEncryptor(Keys());
 
         using var encrypted = new MemoryStream();
-        await enc.EncryptAsync(new PatternStream(size), encrypted);
+        await enc.EncryptAsync(new PatternStream(size), encrypted, cancellationToken: TestContext.Current.CancellationToken);
         encrypted.Position = 0;
 
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        await enc.DecryptAsync(encrypted, new HashingSink(hash));
+        await enc.DecryptAsync(encrypted, new HashingSink(hash), cancellationToken: TestContext.Current.CancellationToken);
 
         using var expected = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var buf = new byte[1 << 20];
@@ -137,10 +137,10 @@ public class FileEncryptorTests
         var plaintext = Data(20_000);
 
         using var encrypted = new MemoryStream();
-        await enc.EncryptAsync(new NonSeekableStream(new MemoryStream(plaintext)), new NonSeekableStream(encrypted));
+        await enc.EncryptAsync(new NonSeekableStream(new MemoryStream(plaintext)), new NonSeekableStream(encrypted), cancellationToken: TestContext.Current.CancellationToken);
 
         using var decrypted = new MemoryStream();
-        await enc.DecryptAsync(new NonSeekableStream(new MemoryStream(encrypted.ToArray())), new NonSeekableStream(decrypted));
+        await enc.DecryptAsync(new NonSeekableStream(new MemoryStream(encrypted.ToArray())), new NonSeekableStream(decrypted), cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(plaintext, decrypted.ToArray());
     }
@@ -303,7 +303,7 @@ public class FileEncryptorTests
 
         var rotating = Enc(new InMemoryMasterKeyProvider("new", newKeys));
         using var rewrapped = new MemoryStream();
-        await rotating.RewrapAsync(new MemoryStream(original), rewrapped);
+        await rotating.RewrapAsync(new MemoryStream(original), rewrapped, TestContext.Current.CancellationToken);
         var rewrappedBytes = rewrapped.ToArray();
 
         Assert.Equal(original.AsSpan(FileHeader.Size).ToArray(), rewrappedBytes.AsSpan(FileHeader.Size).ToArray());
@@ -324,7 +324,7 @@ public class FileEncryptorTests
         ciphertext[FileHeader.Size - 1] ^= 1; // wrap tag
 
         await Assert.ThrowsAsync<EncryptedFileAuthenticationException>(
-            () => enc.RewrapAsync(new MemoryStream(ciphertext), new MemoryStream()));
+            () => enc.RewrapAsync(new MemoryStream(ciphertext), new MemoryStream(), TestContext.Current.CancellationToken));
     }
 
     // ---- format pinning -----------------------------------------------------------------------------
@@ -375,7 +375,7 @@ public class FileEncryptorTests
         var plaintext = Data(10 * 4096);
         var reports = new List<int>();
 
-        await enc.EncryptAsync(new MemoryStream(plaintext), new MemoryStream(), plaintext.Length, (p, _) => reports.Add(p));
+        await enc.EncryptAsync(new MemoryStream(plaintext), new MemoryStream(), plaintext.Length, (p, _) => reports.Add(p), TestContext.Current.CancellationToken);
 
         Assert.Equal(0, reports[0]);
         Assert.Equal(100, reports[^1]);
@@ -399,7 +399,7 @@ public class FileEncryptorTests
         var enc = Enc();
         var input = new MemoryStream(Data(100));
         var output = new MemoryStream();
-        await enc.EncryptAsync(input, output);
+        await enc.EncryptAsync(input, output, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.True(input.CanRead);
         Assert.True(output.CanWrite);
@@ -433,9 +433,9 @@ public class FileEncryptorTests
         using var dir = new TempDir();
         var dest = Path.Combine(dir.Path, "out.bin");
 
-        await enc.DecryptToFileAsync(new MemoryStream(ciphertext), dest);
+        await enc.DecryptToFileAsync(new MemoryStream(ciphertext), dest, cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(plaintext, await File.ReadAllBytesAsync(dest));
+        Assert.Equal(plaintext, await File.ReadAllBytesAsync(dest, TestContext.Current.CancellationToken));
         Assert.Single(Directory.GetFiles(dir.Path));
     }
 
@@ -449,7 +449,7 @@ public class FileEncryptorTests
         var dest = Path.Combine(dir.Path, "out.bin");
 
         await Assert.ThrowsAsync<EncryptedFileAuthenticationException>(
-            () => enc.DecryptToFileAsync(new MemoryStream(ciphertext), dest));
+            () => enc.DecryptToFileAsync(new MemoryStream(ciphertext), dest, cancellationToken: TestContext.Current.CancellationToken));
 
         Assert.Empty(Directory.GetFiles(dir.Path));
     }
@@ -462,12 +462,12 @@ public class FileEncryptorTests
         ciphertext[^1] ^= 1;
         using var dir = new TempDir();
         var dest = Path.Combine(dir.Path, "out.bin");
-        await File.WriteAllTextAsync(dest, "previous");
+        await File.WriteAllTextAsync(dest, "previous", TestContext.Current.CancellationToken);
 
         await Assert.ThrowsAsync<EncryptedFileAuthenticationException>(
-            () => enc.DecryptToFileAsync(new MemoryStream(ciphertext), dest));
+            () => enc.DecryptToFileAsync(new MemoryStream(ciphertext), dest, cancellationToken: TestContext.Current.CancellationToken));
 
-        Assert.Equal("previous", await File.ReadAllTextAsync(dest));
+        Assert.Equal("previous", await File.ReadAllTextAsync(dest, TestContext.Current.CancellationToken));
     }
 
     // ---- helpers ---------------------------------------------------------------------------------------

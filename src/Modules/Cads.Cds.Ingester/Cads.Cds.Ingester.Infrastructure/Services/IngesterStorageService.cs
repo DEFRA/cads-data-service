@@ -1,17 +1,21 @@
 using Cads.Cds.BuildingBlocks.Application.Encryption;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.Ingester.Core.DTOs.Common;
 using Cads.Cds.Ingester.Core.Services.AnimalMovements;
 using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
-using Cads.Cds.Ingester.Infrastructure.Storage.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Cads.Cds.Ingester.Infrastructure.Services;
 
-public class IngesterStorageService(IStorageWriter<IngesterClient> storageWriter, IFileEncryptor fileEncryptor, IngesterStorageConfiguration config) : IIngesterStorageService
+public class IngesterStorageService(IStorageWriter<IngesterClient> storageWriter, IFileEncryptor fileEncryptor, IOptions<EncryptionConfig> encryptionOptions)
+    : IIngesterStorageService
 {
+    private readonly EncryptionConfig _encryptionConfig = encryptionOptions.Value;
+
     public async Task<IngestionDto> WriteAsync(string key, string payload, CancellationToken cancellationToken)
     {
-        if(!config.CadsIngester.EncryptionEnabled)
+        if (!_encryptionConfig.StorageEncryptionEnabled)
         {
             await storageWriter.WriteAsync(key, payload, cancellationToken);
 
@@ -24,7 +28,7 @@ public class IngesterStorageService(IStorageWriter<IngesterClient> storageWriter
 
         return await WriteAsync(key,
             input,
-            cancellationToken: cancellationToken);    
+            cancellationToken: cancellationToken);
     }
 
     public async Task<IngestionDto> WriteAsync(string key, Stream fileStream, CancellationToken cancellationToken)
@@ -32,7 +36,7 @@ public class IngesterStorageService(IStorageWriter<IngesterClient> storageWriter
         using var output = new MemoryStream();
 
         await fileEncryptor.EncryptAsync(
-            fileStream, 
+            fileStream,
             output,
             cancellationToken: cancellationToken);
 
