@@ -1,0 +1,257 @@
+// Liquibase pipeline for the CADS data service databases (DEFRA/cads-data-service, changelog/db.changelog.xml).
+//
+// SAFETY: the root changelog includes scripts named *drop_all_schema_objects*, *drop_legacy_schema_objects*
+// and *truncate_all_tables*. Whether they run depends on their changeset contexts, which this pipeline does
+// not control. Run TARGET=offline-preview first: it generates the SQL for the chosen CONTEXTS without touching
+// any database and lists every DROP / TRUNCATE / DELETE statement it would run.
+//
+// TARGET:
+//   offline-preview  no database needed; needs only GitHub + the Liquibase download
+//   rds              devldncdsrds001 (RDS instance), credentials from Secrets Manager
+//   aurora-writer    devldncdsauroracls001 writer, credentials from Secrets Manager
+//
+// Run the job in the DEV folder. The first build after saving uses the defaults (offline-preview);
+// after that, use "Build with Parameters".
+
+pipeline {
+  agent { label 'master' }
+
+  options {
+    disableConcurrentBuilds()
+    timeout(time: 60, unit: 'MINUTES')
+  }
+
+  parameters {
+    choice(name: 'TARGET', choices: ['offline-preview', 'rds', 'aurora-writer'],
+           description: 'Where to run. Start with offline-preview.')
+    choice(name: 'COMMAND', choices: ['status', 'inspect', 'updateSQL', 'update'],
+           description: 'Command for rds / aurora-writer. status, inspect and updateSQL change nothing. inspect lists the schemas and tables already in the database.')
+    string(name: 'CONTEXTS', defaultValue: '',
+           description: 'Liquibase contexts (dev, test, ext-test, perf-test). Leave blank to use the ENV property of the Jenkins folder, which should match the ENV value CDP passes.')
+    string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch of DEFRA/cads-data-service')
+    string(name: 'CHANGELOG_DIR', defaultValue: 'changelog',
+           description: 'Folder in the repo containing db.changelog.xml and the SQL files it includes')
+    string(name: 'DB_NAME', defaultValue: 'cads_data_service', description: 'Database name')
+    string(name: 'LIQUIBASE_VERSION', defaultValue: '4.29.2',
+           description: 'Liquibase CLI version. Match the version used in CDP.')
+    choice(name: 'SSL_MODE', choices: ['verify-full', 'require'],
+           description: 'verify-full downloads the RDS CA bundle; use require if that is blocked')
+    booleanParam(name: 'CONFIRM_UPDATE', defaultValue: false,
+                 description: 'Must be ticked to run COMMAND=update against a database')
+  }
+
+  environment {
+    LIQUIBASE_ANALYTICS_ENABLED = 'false'
+  }
+
+  stages {
+    stage('Prepare') {
+      steps {
+        script {
+          env.TARGET = params.TARGET ?: 'offline-preview'
+          env.COMMAND = params.COMMAND ?: 'status'
+          env.BRANCH = params.BRANCH ?: 'main'
+          env.CHANGELOG_DIR = params.CHANGELOG_DIR ?: 'changelog'
+          env.DB_NAME = params.DB_NAME ?: 'cads_data_service'
+          env.LIQUIBASE_VERSION = params.LIQUIBASE_VERSION ?: '4.29.2'
+          env.SSL_MODE = params.SSL_MODE ?: 'verify-full'
+          env.CONFIRM_UPDATE = params.CONFIRM_UPDATE ? 'true' : 'false'
+
+          def targets = [
+            'rds'          : [host: 'devldncdsrds001.cnc42k06cl7y.eu-west-2.rds.amazonaws.com',
+                              secret: 'rds!db-f014160e-275f-4afe-867c-e02e21fda860'],
+            'aurora-writer': [host: 'devldncdsauroracls001.cluster-cnc42k06cl7y.eu-west-2.rds.amazonaws.com',
+                              secret: 'rds!cluster-1a5af91c-1bde-4aa6-ac33-d8a12702b081']
+          ]
+          if (env.TARGET != 'offline-preview') {
+            env.DB_HOST = targets[env.TARGET].host
+            env.DB_SECRET_ID = targets[env.TARGET].secret
+            if (env.COMMAND == 'update' && env.CONFIRM_UPDATE != 'true') {
+              error('COMMAND=update needs CONFIRM_UPDATE ticked. Run offline-preview and updateSQL first and read the output.')
+            }
+          }
+        }
+        withFolderProperties {
+          script {
+            env.RESOLVED_ACCOUNT_ID = env.ACCOUNT_ID ?: ''
+            env.FOLDER_ENV = (env.ENV ?: '').toLowerCase()
+          }
+        }
+        script {
+          if (env.TARGET != 'offline-preview' && !env.RESOLVED_ACCOUNT_ID) {
+            error('ACCOUNT_ID is not set. Create this job inside the DEV folder.')
+          }
+          // Contexts: the parameter if given, otherwise the folder's ENV property, otherwise dev.
+          env.CONTEXTS = (params.CONTEXTS ?: '').trim() ?: (env.FOLDER_ENV ?: 'dev')
+          echo "Folder ENV='${env.FOLDER_ENV}' -> contexts='${env.CONTEXTS}'"
+          // 'local' seeds are for local docker development only, never for a shared database.
+          if (env.CONTEXTS.toLowerCase().split(',').collect { it.trim() }.contains('local')) {
+            error("Contexts include 'local', which is for local development only.")
+          }
+          echo "TARGET=${env.TARGET} COMMAND=${env.COMMAND} CONTEXTS=${env.CONTEXTS} BRANCH=${env.BRANCH} LIQUIBASE=${env.LIQUIBASE_VERSION}"
+        }
+      }
+    }
+
+    stage('Checkout') {
+      steps {
+        deleteDir()
+        git url: 'https://github.com/DEFRA/cads-data-service.git', branch: env.BRANCH
+        sh '''#!/bin/bash
+          git log -1 --oneline
+          if [ ! -f "$CHANGELOG_DIR/db.changelog.xml" ]; then
+            echo "No $CHANGELOG_DIR/db.changelog.xml. Changelog files found:"
+            find . -name 'db.changelog*.xml' -not -path './.git/*'
+            exit 1
+          fi
+          echo "SQL files next to the changelog: $(ls "$CHANGELOG_DIR"/*.sql 2>/dev/null | wc -l)"
+          echo "(If that is 0, the includes point somewhere else. Set CHANGELOG_DIR or change the search path.)"
+        '''
+      }
+    }
+
+    stage('Get Liquibase') {
+      steps {
+        sh '''#!/bin/bash
+          set -euo pipefail
+          DIR="${JENKINS_HOME:-$HOME}/liquibase-cache/$LIQUIBASE_VERSION"
+          if [ ! -x "$DIR/liquibase" ]; then
+            mkdir -p "$DIR"
+            URL="https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.zip"
+            echo "Downloading $URL"
+            curl -fsSL -m 300 -o "$DIR/liquibase.zip" "$URL" || { echo "Download failed: GitHub releases may be blocked from this agent."; exit 1; }
+            unzip -q -o "$DIR/liquibase.zip" -d "$DIR"
+            chmod +x "$DIR/liquibase"
+          fi
+          "$DIR/liquibase" --version
+        '''
+      }
+    }
+
+    stage('Offline preview (no database)') {
+      when { expression { env.TARGET == 'offline-preview' } }
+      steps {
+        sh '''#!/bin/bash
+          set -uo pipefail
+          LB="${JENKINS_HOME:-$HOME}/liquibase-cache/$LIQUIBASE_VERSION/liquibase"
+          mkdir -p out
+          ARGS=(--search-path="$CHANGELOG_DIR" --changelog-file=db.changelog.xml --url="offline:postgresql?changeLogFile=out/offline-changelog.csv")
+          "$LB" "${ARGS[@]}" updateSQL --contexts="$CONTEXTS" > out/preview.sql 2> out/preview.log
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            echo "Liquibase failed (rc=$rc). Last log lines:"
+            tail -40 out/preview.log
+            exit $rc
+          fi
+          echo "Contexts: $CONTEXTS"
+          echo "Changesets that would run: $(grep -c '^-- Changeset' out/preview.sql)"
+          echo "Generated SQL lines: $(wc -l < out/preview.sql)"
+          echo
+          echo "DROP / TRUNCATE / DELETE FROM statements in the generated SQL (first 40):"
+          grep -nEi '^[[:space:]]*(DROP|TRUNCATE|DELETE[[:space:]]+FROM)' out/preview.sql | head -40 || true
+          echo "Total: $(grep -cEi '^[[:space:]]*(DROP|TRUNCATE|DELETE[[:space:]]+FROM)' out/preview.sql || true)"
+          echo
+          echo "Changesets that would run (first 25):"
+          grep '^-- Changeset' out/preview.sql | head -25 || true
+        '''
+      }
+    }
+
+    stage('Check database connectivity') {
+      when { expression { env.TARGET != 'offline-preview' } }
+      steps {
+        sh '''#!/bin/bash
+          timeout 5 bash -c "exec 3<>/dev/tcp/$DB_HOST/5432" 2>/tmp/tcperr; rc=$?
+          echo "$DB_HOST:5432 rc=$rc $(head -1 /tmp/tcperr)"
+          if [ $rc -ne 0 ]; then
+            echo "Cannot reach the database from Jenkins (rc=124 means it timed out). This is the network issue raised with the engineer."
+            exit 1
+          fi
+        '''
+      }
+    }
+
+    stage('Run Liquibase') {
+      when { expression { env.TARGET != 'offline-preview' } }
+      steps {
+        withAWS(role: 'aps-jenkins-role', roleAccount: env.RESOLVED_ACCOUNT_ID) {
+          sh '''#!/bin/bash
+            set +x
+            set -euo pipefail
+            LB="${JENKINS_HOME:-$HOME}/liquibase-cache/$LIQUIBASE_VERSION/liquibase"
+
+            SECRET=$(aws secretsmanager get-secret-value --secret-id "$DB_SECRET_ID" --query SecretString --output text --region eu-west-2)
+            DB_USER=$(echo "$SECRET" | jq -r .username)
+            PW=$(echo "$SECRET" | jq -r .password)
+            unset SECRET
+            if [ -z "$PW" ] || [ "$PW" = "null" ]; then echo "No password in the secret"; exit 1; fi
+            export LIQUIBASE_COMMAND_PASSWORD="$PW"
+            unset PW
+            echo "Connecting as $DB_USER to $DB_HOST / $DB_NAME (sslmode=$SSL_MODE)"
+
+            SSL="sslmode=$SSL_MODE"
+            if [ "$SSL_MODE" = "verify-full" ]; then
+              curl -fsSL -m 60 -o global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem \
+                || { echo "Could not download the RDS CA bundle. Re-run with SSL_MODE=require."; exit 1; }
+              SSL="$SSL&sslrootcert=$PWD/global-bundle.pem"
+            fi
+            URL="jdbc:postgresql://$DB_HOST:5432/$DB_NAME?$SSL&tcpKeepAlive=true"
+
+            if [ "$COMMAND" = "inspect" ]; then
+              # Read-only look at what is already in the database, using the JDBC driver bundled with Liquibase.
+              export JDBC_URL="$URL" DB_USER
+              cat > Inspect.java <<'EOF'
+import java.sql.*;
+
+public class Inspect {
+  public static void main(String[] args) throws Exception {
+    String url = System.getenv("JDBC_URL");
+    String user = System.getenv("DB_USER");
+    String pw = System.getenv("LIQUIBASE_COMMAND_PASSWORD");
+    try (Connection c = DriverManager.getConnection(url, user, pw)) {
+      c.setAutoCommit(false);
+      c.setReadOnly(true);
+      run(c, "select current_user, current_database()");
+      run(c, "select nspname as schema from pg_namespace where nspname not like 'pg_%' and nspname <> 'information_schema' order by 1");
+      run(c, "select schemaname as schema, count(*) as tables, sum(n_live_tup) as est_rows from pg_stat_user_tables group by 1 order by 1");
+      run(c, "select schemaname as schema, tablename from pg_tables where tablename in ('databasechangelog', 'databasechangeloglock')");
+      run(c, "select rolname, rolcanlogin from pg_roles where rolname not like 'pg_%' order by 1");
+      c.rollback();
+    }
+  }
+
+  static void run(Connection c, String sql) throws Exception {
+    System.out.println();
+    System.out.println("> " + sql);
+    try (Statement s = c.createStatement(); ResultSet r = s.executeQuery(sql)) {
+      ResultSetMetaData m = r.getMetaData();
+      int n = m.getColumnCount();
+      int rows = 0;
+      while (r.next()) {
+        StringBuilder b = new StringBuilder("  ");
+        for (int i = 1; i <= n; i++) {
+          b.append(m.getColumnLabel(i)).append("=").append(r.getString(i));
+          if (i < n) b.append("  ");
+        }
+        System.out.println(b);
+        rows++;
+      }
+      if (rows == 0) System.out.println("  (no rows)");
+    }
+  }
+}
+EOF
+              java -cp "$(dirname "$LB")/internal/lib/postgresql.jar" Inspect.java
+              exit 0
+            fi
+
+            CMD=("$COMMAND")
+            if [ "$COMMAND" = "status" ]; then CMD+=(--verbose); fi
+            ARGS=(--search-path="$CHANGELOG_DIR" --changelog-file=db.changelog.xml --url="$URL" --username="$DB_USER")
+            "$LB" "${ARGS[@]}" "${CMD[@]}" --contexts="$CONTEXTS"
+          '''
+        }
+      }
+    }
+  }
+}
