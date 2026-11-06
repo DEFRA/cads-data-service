@@ -1,5 +1,4 @@
 using Cads.Cds.BuildingBlocks.Application.Messaging.Clients;
-using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Publishers;
 using Cads.Cds.BuildingBlocks.Core.Configuration;
 using Cads.Cds.BuildingBlocks.Core.Domain.Outbox;
@@ -11,21 +10,21 @@ using Microsoft.Extensions.Options;
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Dispatchers;
 
 /// <summary>
-/// Generic polling outbox dispatcher: periodically claims pending rows from <typeparamref name="TRepository"/>,
-/// publishes them via <see cref="IMessagePublisher{TClient}"/>, marks per-row publish failures and deletes
-/// successfully dispatched rows. Modules only need to supply <see cref="BuildMessage"/> and
-/// <see cref="BuildMetadata"/>.
+/// Generic polling outbox dispatcher: periodically claims pending rows from
+/// <see cref="IOutboxRepository{TOutbox}"/> (resolved per-poll from DI), delegates building +
+/// publishing the message for each row to <see cref="PublishAsync"/>, and marks per-row publish
+/// failures/deletes successfully dispatched rows. Only two type parameters are needed - the queue
+/// client and the outbox row type - the message type stays an implementation detail of
+/// <see cref="PublishAsync"/> in each module's dispatcher subclass.
 /// </summary>
-public abstract class BaseOutboxDispatcher<TClient, TRepository, TOutbox, TMessage>(
+public abstract class BaseOutboxDispatcher<TClient, TOutbox>(
     IServiceScopeFactory scopeFactory,
     IMessagePublisher<TClient> publisher,
     IOptionsMonitor<OutboxDispatcherOptions> options,
     ILogger logger)
     : BackgroundService, IOutboxDispatcher<TClient>
     where TClient : IQueueClient, new()
-    where TRepository : class, IOutboxRepository<TOutbox>
     where TOutbox : IOutboxMessage
-    where TMessage : class
 {
     protected readonly IServiceScopeFactory ScopeFactory = scopeFactory;
     protected readonly IMessagePublisher<TClient> Publisher = publisher;
@@ -73,7 +72,7 @@ public abstract class BaseOutboxDispatcher<TClient, TRepository, TOutbox, TMessa
     protected virtual async Task DispatchPendingAsync(OutboxDispatcherOptions currentOptions, CancellationToken cancellationToken)
     {
         using var scope = ScopeFactory.CreateScope();
-        var repository = scope.ServiceProvider.GetRequiredService<TRepository>();
+        var repository = scope.ServiceProvider.GetRequiredService<IOutboxRepository<TOutbox>>();
 
         var claimed = await repository.ClaimPendingOutboxMessagesAsync(currentOptions.BatchSize, cancellationToken);
 
@@ -86,10 +85,7 @@ public abstract class BaseOutboxDispatcher<TClient, TRepository, TOutbox, TMessa
         {
             try
             {
-                var message = BuildMessage(outboxMessage);
-                var metadata = BuildMetadata(outboxMessage);
-
-                await Publisher.PublishAsync(message, metadata, cancellationToken);
+                await PublishAsync(outboxMessage, cancellationToken);
 
                 dispatchedOutboxIds.Add(outboxMessage.OutboxId);
 
@@ -128,14 +124,14 @@ public abstract class BaseOutboxDispatcher<TClient, TRepository, TOutbox, TMessa
     }
 
     /// <summary>
-    /// Builds the message payload to publish for a claimed outbox row.
+    /// Builds the message + FIFO metadata for a claimed outbox row and publishes it via
+    /// <see cref="Publisher"/>. Keeping this as a single method (rather than separate
+    /// BuildMessage/BuildMetadata abstract members) avoids needing the message type as a third
+    /// generic parameter on the dispatcher - implementations simply call
+    /// <c>Publisher.PublishAsync(message, metadata, cancellationToken)</c> with their own
+    /// strongly-typed message.
     /// </summary>
-    protected abstract TMessage BuildMessage(TOutbox outboxMessage);
-
-    /// <summary>
-    /// Builds the FIFO publish metadata (group/dedup/correlation ids) for a claimed outbox row.
-    /// </summary>
-    protected abstract FifoMessageMetadata BuildMetadata(TOutbox outboxMessage);
+    protected abstract Task PublishAsync(TOutbox outboxMessage, CancellationToken cancellationToken);
 
     private static TimeSpan ToInterval(OutboxDispatcherOptions o) =>
         TimeSpan.FromSeconds(Math.Max(1, o.PollIntervalSeconds));
