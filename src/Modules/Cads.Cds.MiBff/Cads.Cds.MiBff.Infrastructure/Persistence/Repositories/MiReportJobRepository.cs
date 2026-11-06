@@ -72,7 +72,7 @@ public class MiReportJobRepository(MiBffWriteDbContext writeDbContext, IMiBffUni
     }
 
     public async Task<IReadOnlyList<MiReportJobOutbox>> ClaimPendingOutboxMessagesAsync(
-        int batchSize = 20,
+        int batchSize,
         CancellationToken cancellationToken = default)
     {
         // Delegates the claim+lock+flip logic to the cads.claim_pending_report_job_outbox_messages
