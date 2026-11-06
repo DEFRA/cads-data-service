@@ -1,4 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Messaging.Publishers;
+using Cads.Cds.BuildingBlocks.Core.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Dispatchers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Publishers;
 using Cads.Cds.MiBff.Application.Messaging.Clients;
 using Cads.Cds.MiBff.Core.Configuration;
@@ -15,7 +17,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddQueuePublishers(configuration.GetSection(ModuleConfigurationSection.QueuesSectionName));
 
-        services.Configure<ReportJobOutboxDispatcherOptions>(
+        services.Configure<OutboxDispatcherOptions>(
             configuration.GetSection(ModuleConfigurationSection.ReportJobOutboxDispatcherSectionName));
 
         services.AddQueueClients();
@@ -44,6 +46,9 @@ public static class ServiceCollectionExtensions
 
     private static void AddOutboxDispatcher(this IServiceCollection services)
     {
-        services.AddHostedService<ReportJobOutboxDispatcher>();
+        services.AddSingleton<IOutboxDispatcher<MiBffFifoQueueClient>, MiReportJobOutboxDispatcher>();
+        services.AddHostedService<ReportJobOutboxDispatcherListener>();
     }
 }
+
+
