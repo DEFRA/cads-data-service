@@ -3,6 +3,8 @@ using Cads.Cds.BuildingBlocks.Application.Identity;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.MiBff.Application.Queries.Reports;
+using Cads.Cds.MiBff.Application.Reports.Commands.CreateReportJob;
+using Cads.Cds.MiBff.Application.Reports.Queries.GetReportJobStatus;
 using Cads.Cds.MiBff.Application.Reports.Requests;
 using Cads.Cds.MiBff.Application.Reports.Routing.Abstractions;
 using Cads.Cds.MiBff.Controllers.Extensions;
@@ -80,6 +82,49 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
             JsonReportResult json => Ok(json.Payload),
             _ => BadRequest("Unknown report result type")
         };
+    }
+
+    [Authorize(Policy = "ReportAccess")]
+    [HttpPost("{reportKey}/jobs")]
+    [ProducesResponseType(typeof(CreateReportJobResultDto), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RequestReport([FromRoute] string reportKey, CancellationToken cancellationToken)
+    {
+        // Validates that the reportKey is known/registered before accepting a job for it.
+        var (_, requestType) = _reportRegistry.Resolve(reportKey, HttpContext.RequestServices);
+
+        var request = await DeserialiseReportRequest(requestType, cancellationToken);
+
+        if (request is null)
+            return BadRequest("Invalid request payload");
+
+        request.ReportKey = reportKey;
+
+        var command = new CreateReportJobCommand
+        {
+            ReportKey = reportKey,
+            ExternalSubject = _userContext.UserIdentifier ?? Guid.NewGuid().ToString(),
+            Request = request
+        };
+
+        var reportJobId = await _mediator.Send(command, cancellationToken);
+
+        return Accepted(new CreateReportJobResultDto { JobId = reportJobId });
+    }
+
+    [Authorize(Policy = "ReportAccess")]
+    [HttpGet("{reportKey}/jobs/{jobId:guid}")]
+    [ProducesResponseType(typeof(ReportJobStatusDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetReportJobStatus([FromRoute] string reportKey, [FromRoute] Guid jobId, CancellationToken cancellationToken)
+    {
+        var query = new GetReportJobStatusQuery { ReportJobId = jobId };
+
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return Ok(result);
     }
 
     private async Task<GetReportRequest?> DeserialiseReportRequest(Type requestType, CancellationToken cancellationToken)
