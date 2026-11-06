@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Files.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Setup;
@@ -18,6 +19,7 @@ public sealed class BuildingBlocksModule : IModule
         services.ConfigureDatabase(config);
         services.AddFileInfrastructure();
         services.AddBuildBlocksApplicationLayer();
+        services.AddEncryption(config);
     }
 
     /// <summary>
