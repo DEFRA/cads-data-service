@@ -1,16 +1,9 @@
 using Cads.Cds.ApiSurface.Messages.Reports;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
-using Cads.Cds.BuildingBlocks.Application.Messaging.Publishers;
-using Cads.Cds.BuildingBlocks.Core.Configuration;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
-using Cads.Cds.MiBff.Application.Messaging.Clients;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Dispatchers;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Moq;
 using System.Reflection;
 
 namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Messaging.Dispatchers;
@@ -18,30 +11,10 @@ namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Messaging.Dispatchers;
 /// <summary>
 /// All the polling/claim/publish/retry logic is now covered by BaseOutboxDispatcherTests in
 /// Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit. This class only covers the MiBff-specific
-/// BuildMessage/BuildMetadata mapping from an MiReportJobOutbox row.
+/// (private, static) BuildMessage/BuildMetadata mapping from an MiReportJobOutbox row.
 /// </summary>
 public class MiReportJobOutboxDispatcherTests
 {
-    private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
-    private readonly Mock<IMessagePublisher<MiBffFifoQueueClient>> _publisher = new();
-    private readonly Mock<IOptionsMonitor<OutboxDispatcherOptions>> _optionsMonitor = new();
-    private readonly Mock<ILogger<MiReportJobOutboxDispatcher>> _logger = new();
-
-    private readonly OutboxDispatcherOptions _options = new()
-    {
-        PollIntervalSeconds = 5,
-        BatchSize = 20,
-        MaxAttempts = 5
-    };
-
-    public MiReportJobOutboxDispatcherTests()
-    {
-        _optionsMonitor.Setup(x => x.CurrentValue).Returns(_options);
-    }
-
-    private MiReportJobOutboxDispatcher CreateSut()
-        => new(_scopeFactory.Object, _publisher.Object, _optionsMonitor.Object, _logger.Object);
-
     private static MiReportJobOutbox CreateOutbox(Guid? reportJobId = null, string payload = "{}")
         => new()
         {
@@ -134,19 +107,19 @@ public class MiReportJobOutboxDispatcherTests
         metadata.CorrelationId.Should().NotBeNullOrWhiteSpace();
     }
 
-    private ReportJobRequestedMessage InvokeBuildMessage(MiReportJobOutbox outbox)
+    private static ReportJobRequestedMessage InvokeBuildMessage(MiReportJobOutbox outbox)
     {
         var method = typeof(MiReportJobOutboxDispatcher)
-            .GetMethod("BuildMessage", BindingFlags.NonPublic | BindingFlags.Instance);
+            .GetMethod("BuildMessage", BindingFlags.NonPublic | BindingFlags.Static);
 
-        return (ReportJobRequestedMessage)method!.Invoke(CreateSut(), [outbox])!;
+        return (ReportJobRequestedMessage)method!.Invoke(null, [outbox])!;
     }
 
-    private FifoMessageMetadata InvokeBuildMetadata(MiReportJobOutbox outbox)
+    private static FifoMessageMetadata InvokeBuildMetadata(MiReportJobOutbox outbox)
     {
         var method = typeof(MiReportJobOutboxDispatcher)
-            .GetMethod("BuildMetadata", BindingFlags.NonPublic | BindingFlags.Instance);
+            .GetMethod("BuildMetadata", BindingFlags.NonPublic | BindingFlags.Static);
 
-        return (FifoMessageMetadata)method!.Invoke(CreateSut(), [outbox])!;
+        return (FifoMessageMetadata)method!.Invoke(null, [outbox])!;
     }
 }
