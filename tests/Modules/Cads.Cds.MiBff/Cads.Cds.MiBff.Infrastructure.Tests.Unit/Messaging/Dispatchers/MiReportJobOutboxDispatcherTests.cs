@@ -150,4 +150,3 @@ public class MiReportJobOutboxDispatcherTests
         return (FifoMessageMetadata)method!.Invoke(CreateSut(), [outbox])!;
     }
 }
-
