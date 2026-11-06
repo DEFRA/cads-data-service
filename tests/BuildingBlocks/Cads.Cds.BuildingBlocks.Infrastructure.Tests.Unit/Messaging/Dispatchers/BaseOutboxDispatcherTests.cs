@@ -18,7 +18,7 @@ public class BaseOutboxDispatcherTests
     private readonly Mock<IServiceScopeFactory> _scopeFactory = new();
     private readonly Mock<IServiceScope> _scope = new();
     private readonly Mock<IServiceProvider> _provider = new();
-    private readonly Mock<ITestOutboxRepository> _repository = new();
+    private readonly Mock<IOutboxRepository<TestOutbox>> _repository = new();
     private readonly Mock<IMessagePublisher<TestFifoQueueClient>> _publisher = new();
     private readonly Mock<IOptionsMonitor<OutboxDispatcherOptions>> _optionsMonitor = new();
     private readonly Mock<ILogger<TestOutboxDispatcher>> _logger = new();
@@ -34,7 +34,7 @@ public class BaseOutboxDispatcherTests
     {
         _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
         _scope.Setup(x => x.ServiceProvider).Returns(_provider.Object);
-        _provider.Setup(x => x.GetService(typeof(ITestOutboxRepository))).Returns(_repository.Object);
+        _provider.Setup(x => x.GetService(typeof(IOutboxRepository<TestOutbox>))).Returns(_repository.Object);
         _optionsMonitor.Setup(x => x.CurrentValue).Returns(_options);
     }
 
@@ -279,13 +279,19 @@ public class BaseOutboxDispatcherTests
         IMessagePublisher<TestFifoQueueClient> publisher,
         IOptionsMonitor<OutboxDispatcherOptions> options,
         ILogger<TestOutboxDispatcher> logger)
-        : BaseOutboxDispatcher<TestFifoQueueClient, ITestOutboxRepository, TestOutbox, TestMessage>(
+        : BaseOutboxDispatcher<TestFifoQueueClient, TestOutbox>(
             scopeFactory, publisher, options, logger)
     {
-        protected override TestMessage BuildMessage(TestOutbox outboxMessage) => new() { OutboxId = outboxMessage.OutboxId };
+        protected override Task PublishAsync(TestOutbox outboxMessage, CancellationToken cancellationToken)
+        {
+            var message = new TestMessage { OutboxId = outboxMessage.OutboxId };
+            var metadata = new FifoMessageMetadata(
+                outboxMessage.OutboxId.ToString(),
+                outboxMessage.OutboxId.ToString(),
+                Guid.NewGuid().ToString());
 
-        protected override FifoMessageMetadata BuildMetadata(TestOutbox outboxMessage) =>
-            new(outboxMessage.OutboxId.ToString(), outboxMessage.OutboxId.ToString(), Guid.NewGuid().ToString());
+            return Publisher.PublishAsync(message, metadata, cancellationToken);
+        }
     }
 
     public class TestOutbox : IOutboxMessage
@@ -298,7 +304,6 @@ public class BaseOutboxDispatcherTests
         public Guid OutboxId { get; init; }
     }
 
-    public interface ITestOutboxRepository : IOutboxRepository<TestOutbox>;
 
     public class TestFifoQueueClient : IQueueClient
     {

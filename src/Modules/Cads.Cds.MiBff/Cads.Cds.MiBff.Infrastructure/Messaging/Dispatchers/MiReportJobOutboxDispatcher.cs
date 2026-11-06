@@ -6,7 +6,6 @@ using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Dispatchers;
 using Cads.Cds.MiBff.Application.Messaging.Clients;
 using Cads.Cds.MiBff.Core.Domain.Entities;
-using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,10 +23,18 @@ public class MiReportJobOutboxDispatcher(
     IMessagePublisher<MiBffFifoQueueClient> publisher,
     IOptionsMonitor<OutboxDispatcherOptions> options,
     ILogger<MiReportJobOutboxDispatcher> logger)
-    : BaseOutboxDispatcher<MiBffFifoQueueClient, IMiReportJobRepository, MiReportJobOutbox, ReportJobRequestedMessage>(
+    : BaseOutboxDispatcher<MiBffFifoQueueClient, MiReportJobOutbox>(
         scopeFactory, publisher, options, logger)
 {
-    protected override ReportJobRequestedMessage BuildMessage(MiReportJobOutbox outboxMessage)
+    protected override Task PublishAsync(MiReportJobOutbox outboxMessage, CancellationToken cancellationToken)
+    {
+        var message = BuildMessage(outboxMessage);
+        var metadata = BuildMetadata(outboxMessage);
+
+        return Publisher.PublishAsync(message, metadata, cancellationToken);
+    }
+
+    private static ReportJobRequestedMessage BuildMessage(MiReportJobOutbox outboxMessage)
     {
         var jobId = outboxMessage.ReportJobId;
         var reportKey = string.Empty;
@@ -60,7 +67,7 @@ public class MiReportJobOutboxDispatcher(
         };
     }
 
-    protected override FifoMessageMetadata BuildMetadata(MiReportJobOutbox outboxMessage) =>
+    private static FifoMessageMetadata BuildMetadata(MiReportJobOutbox outboxMessage) =>
         new(
             messageGroupId: outboxMessage.ReportJobId.ToString(),
             messageDeduplicationId: outboxMessage.OutboxId.ToString(),
