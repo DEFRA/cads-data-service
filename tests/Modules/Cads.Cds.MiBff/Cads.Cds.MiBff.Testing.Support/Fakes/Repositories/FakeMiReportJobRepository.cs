@@ -89,4 +89,3 @@ public class FakeMiReportJobRepository : IMiReportJobRepository
         return Task.CompletedTask;
     }
 }
-

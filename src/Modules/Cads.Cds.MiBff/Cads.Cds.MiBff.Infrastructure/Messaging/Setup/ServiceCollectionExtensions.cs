@@ -50,5 +50,3 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<ReportJobOutboxDispatcherListener>();
     }
 }
-
-
