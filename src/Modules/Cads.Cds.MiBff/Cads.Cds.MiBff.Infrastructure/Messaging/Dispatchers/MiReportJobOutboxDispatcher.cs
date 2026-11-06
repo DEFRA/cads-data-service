@@ -66,4 +66,3 @@ public class MiReportJobOutboxDispatcher(
             messageDeduplicationId: outboxMessage.OutboxId.ToString(),
             correlationId: CorrelationIdContext.Value ?? Guid.NewGuid().ToString());
 }
-

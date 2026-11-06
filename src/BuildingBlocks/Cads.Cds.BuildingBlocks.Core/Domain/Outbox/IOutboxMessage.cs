@@ -8,4 +8,3 @@ public interface IOutboxMessage
 {
     Guid OutboxId { get; }
 }
-
