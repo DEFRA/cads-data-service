@@ -23,33 +23,41 @@ public class ReportJobOutboxDispatcher(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        using var timer = new PeriodicTimer(ToInterval(options.CurrentValue));
+
+        try
         {
-            var currentOptions = options.CurrentValue;
+            do
+            {
+                var currentOptions = options.CurrentValue;
 
-            try
-            {
-                await DispatchPendingAsync(currentOptions, stoppingToken);
-            }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Unhandled error while dispatching mi_report_job_outbox messages.");
-            }
+                // Pick up changes to PollIntervalSeconds (settable from .NET 8) without
+                // waiting for the current tick to elapse.
+                var interval = ToInterval(currentOptions);
+                if (timer.Period != interval)
+                {
+                    timer.Period = interval;
+                }
 
-            try
-            {
-                await Task.Delay(TimeSpan.FromSeconds(Math.Max(1, currentOptions.PollIntervalSeconds)), stoppingToken);
+                try
+                {
+                    await DispatchPendingAsync(currentOptions, stoppingToken);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException || !stoppingToken.IsCancellationRequested)
+                {
+                    logger.LogError(ex, "Unhandled error while dispatching mi_report_job_outbox messages.");
+                }
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
+            while (await timer.WaitForNextTickAsync(stoppingToken));
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Graceful shutdown.
         }
     }
+
+    private static TimeSpan ToInterval(ReportJobOutboxDispatcherOptions o) =>
+        TimeSpan.FromSeconds(Math.Max(1, o.PollIntervalSeconds));
 
     private async Task DispatchPendingAsync(ReportJobOutboxDispatcherOptions currentOptions, CancellationToken cancellationToken)
     {
