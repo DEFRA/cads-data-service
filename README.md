@@ -310,6 +310,8 @@ POSTGRES_REF_DB=reference_schema
 PGADMIN_EMAIL=pgadmin@pgadmin.com
 PGADMIN_PASSWORD=*****
 STORAGE_MANAGER_SALT=*****
+ENCRYPTION_CURRENTKEYID=V1
+ENCRYPTION_KEY==*****
 ```
 
 Passwords can be anything for local development.
