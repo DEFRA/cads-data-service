@@ -203,12 +203,12 @@ public class S3ToPostgresCopyService(
         }
         catch (OperationCanceledException)
         {
-            await RollbackWithLoggingAsync(transaction, key, LogLevel.Warning, "Rollback after cancellation failed for key {Key}");
+            await RollbackWithLoggingAsync(transaction, key, afterCancellation: true);
             throw;
         }
         catch (NpgsqlException ex)
         {
-            await RollbackWithLoggingAsync(transaction, key, LogLevel.Error, "Rollback failed for key {Key}");
+            await RollbackWithLoggingAsync(transaction, key, afterCancellation: false);
             if (logger.IsEnabled(LogLevel.Information))
             {
                 logger.LogInformation(ex, "An NpgsqlException has occurred. Current ConnectionState: {ConnectionState}",
@@ -218,7 +218,7 @@ public class S3ToPostgresCopyService(
         }
         catch (Exception ex)
         {
-            await RollbackWithLoggingAsync(transaction, key, LogLevel.Error, "Rollback failed for key {Key}");
+            await RollbackWithLoggingAsync(transaction, key, afterCancellation: false);
             if (logger.IsEnabled(LogLevel.Error))
             {
                 logger.LogError(ex, "Failed to process file {Key}", key);
@@ -231,8 +231,7 @@ public class S3ToPostgresCopyService(
     private async Task RollbackWithLoggingAsync(
         NpgsqlTransaction transaction,
         string key,
-        LogLevel rollbackFailureLevel,
-        string rollbackFailureMessageTemplate)
+        bool afterCancellation)
     {
         try
         {
@@ -240,9 +239,16 @@ public class S3ToPostgresCopyService(
         }
         catch (Exception rbEx)
         {
-            if (logger.IsEnabled(rollbackFailureLevel))
+            if (afterCancellation)
             {
-                logger.Log(rollbackFailureLevel, rbEx, rollbackFailureMessageTemplate, key);
+                if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    logger.LogWarning(rbEx, "Rollback after cancellation failed for key {Key}", key);
+                }
+            }
+            else if (logger.IsEnabled(LogLevel.Error))
+            {
+                logger.LogError(rbEx, "Rollback failed for key {Key}", key);
             }
         }
     }
@@ -380,8 +386,20 @@ public class S3ToPostgresCopyService(
         }
         catch
         {
-            try { File.Delete(decryptedPath); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+            TryDeleteTempFile(decryptedPath);
             throw;
+        }
+    }
+
+    private void TryDeleteTempFile(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(ex, "Could not delete temporary file {Path}", path);
         }
     }
 
