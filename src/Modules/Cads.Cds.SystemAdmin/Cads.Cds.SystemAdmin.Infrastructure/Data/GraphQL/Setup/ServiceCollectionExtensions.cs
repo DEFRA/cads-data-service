@@ -12,7 +12,7 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Setup;
 public static class ServiceCollectionExtensions
 {
     private const int MaxExecutionDepth = 4;
-    
+
     public static IServiceCollection ConfigureSystemAdminGraphQL(this IServiceCollection services, IConfiguration config)
     {
         var enableIntrospection = config.GetValue("Modules:SystemAdmin:EnableGraphQlIntrospection", false);
