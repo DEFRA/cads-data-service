@@ -1,5 +1,8 @@
+using Cads.Cds.BuildingBlocks.Application.Encryption;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Configuration;
+using Cads.Cds.BuildingBlocks.Application.Extensions;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
 using Cads.Cds.StorageBridge.Application.S3Import.Model;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
@@ -12,6 +15,7 @@ using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using System.Data;
 using System.Data.Common;
@@ -23,6 +27,8 @@ namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
 
 public class S3ToPostgresCopyService(
     IServiceScopeFactory serviceScopeFactory,
+    IFileEncryptor fileEncryptor,
+    IOptions<EncryptionConfig> encryptionOptions,
     ILogger<S3ToPostgresCopyService> logger) : IS3ToPostgresCopyService
 {
     private IStorageService<CadsInternalClient> _storageService = null!;
@@ -161,6 +167,13 @@ public class S3ToPostgresCopyService(
     {
         var importExecutionContext = fileExecutionContext.ImportContext;
         var key = fileExecutionContext.Key;
+
+        // Download and (if storage encryption is enabled) decrypt BEFORE taking the connection/transaction, so slow
+        // S3 I/O and decryption don't hold them open. When decrypting, the file is fully authenticated by the time we
+        // get a stream back, so nothing from a corrupt or tampered file ever reaches Postgres.
+        using var fileObjectResponse = await _storageService.GetObjectResponseAsync(key, cancellationToken);
+        await using var fileObjectSource = await OpenSourceAsync(fileObjectResponse?.ResponseStream, key, cancellationToken);
+
         var connection = (NpgsqlConnection)await OpenConnectionAsync(importExecutionContext.DbContext, cancellationToken);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
@@ -170,7 +183,7 @@ public class S3ToPostgresCopyService(
             importExecutionContext.CreateTempTableCommand.Transaction = transaction;
             await importExecutionContext.CreateTempTableCommand.ExecuteNonQueryAsync(cancellationToken);
 
-            var amendedRowIds = await CopyFileToStagingAsync(fileExecutionContext, useDefensiveCopyMode, cancellationToken);
+            var amendedRowIds = await CopyFileToStagingAsync(fileExecutionContext, fileObjectSource, useDefensiveCopyMode, cancellationToken);
 
             foreach (var command in importExecutionContext.ActionCommands)
             {
@@ -336,8 +349,45 @@ public class S3ToPostgresCopyService(
         return total;
     }
 
+    /// <summary>
+    /// Returns the stream to import from. If storage encryption is disabled this is the downloaded stream as-is.
+    /// Otherwise the download is decrypted to a temporary file and a read stream over the plaintext is returned; it
+    /// deletes the file when disposed. Returns null if the object has no content stream.
+    /// </summary>
+    [ExcludeFromCodeCoverage]
+    private async Task<Stream?> OpenSourceAsync(Stream? downloaded, string key, CancellationToken cancellationToken)
+    {
+        if (downloaded is null)
+        {
+            logger.LogWarning("Null stream for key {Key}", key);
+            return null;
+        }
+
+        if (!encryptionOptions.Value.StorageEncryptionEnabled)
+        {
+            return downloaded;
+        }
+
+        var decryptedPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.csv");
+
+        // Writes to a sibling temp file and moves into place only once the whole file has authenticated.
+        await fileEncryptor.DecryptToFileAsync(downloaded, decryptedPath, cancellationToken: cancellationToken);
+
+        try
+        {
+            return new FileStream(decryptedPath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 81920,
+                FileOptions.Asynchronous | FileOptions.SequentialScan | FileOptions.DeleteOnClose);
+        }
+        catch
+        {
+            try { File.Delete(decryptedPath); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+            throw;
+        }
+    }
+
     private async Task<List<string>> CopyFileToStagingAsync(
         FileExecutionContext fileExecutionContext,
+        Stream? fileObjectSource,
         bool useDefensiveCopyMode,
         CancellationToken cancellationToken)
     {
@@ -345,15 +395,10 @@ public class S3ToPostgresCopyService(
         var key = fileExecutionContext.Key;
         var amendedRowIds = new List<string>();
 
-        using var response = await _storageService.GetObjectResponseAsync(key, cancellationToken);
+        // No content stream (already logged in OpenSourceAsync): same behaviour as before, nothing staged.
+        if (fileObjectSource is null) return amendedRowIds;
 
-        if (response?.ResponseStream is null)
-        {
-            logger.LogWarning("Null stream for key {Key}", key);
-            return amendedRowIds;
-        }
-
-        using var reader = new StreamReader(response.ResponseStream);
+        using var reader = new StreamReader(fileObjectSource);
 
         var header = await reader.ReadLineAsync(cancellationToken)
                      ?? throw new InvalidOperationException($"File {key} is empty or missing header row.");
