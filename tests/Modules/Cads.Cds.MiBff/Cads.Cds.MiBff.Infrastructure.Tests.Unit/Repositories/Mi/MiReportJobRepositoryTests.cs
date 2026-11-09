@@ -239,6 +239,97 @@ public class MiReportJobRepositoryTests : IDisposable
         Assert.Single(remaining);
     }
 
+    [Fact]
+    public async Task MarkOutboxDispatchFailed_BelowMaxAttempts_RequeuesAsPendingAndIncrementsAttempts()
+    {
+        var reportJob = CreateReportJob(out var reportJobId);
+        await _context.ReportJobs.AddAsync(reportJob, TestContext.Current.CancellationToken);
+
+        var outboxMessage = new MiReportJobOutbox
+        {
+            OutboxId = Guid.NewGuid(),
+            ReportJobId = reportJobId,
+            Subject = "report.job.created",
+            Payload = "{}",
+            Status = ReportJobOutboxStatus.Dispatching,
+            Attempts = 1,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        await _context.ReportJobOutboxMessages.AddAsync(outboxMessage, TestContext.Current.CancellationToken);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        await _repository.MarkOutboxDispatchFailedAsync(
+            outboxMessage.OutboxId,
+            "transient SQS error",
+            maxAttempts: 5,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var updated = await _context.ReportJobOutboxMessages
+            .SingleAsync(o => o.OutboxId == outboxMessage.OutboxId, TestContext.Current.CancellationToken);
+
+        Assert.Equal(ReportJobOutboxStatus.Pending, updated.Status);
+        Assert.Equal(2, updated.Attempts);
+        Assert.Equal("transient SQS error", updated.LastError);
+    }
+
+    [Fact]
+    public async Task MarkOutboxDispatchFailed_AtMaxAttempts_MarksAsFailed()
+    {
+        var reportJob = CreateReportJob(out var reportJobId);
+        await _context.ReportJobs.AddAsync(reportJob, TestContext.Current.CancellationToken);
+
+        var outboxMessage = new MiReportJobOutbox
+        {
+            OutboxId = Guid.NewGuid(),
+            ReportJobId = reportJobId,
+            Subject = "report.job.created",
+            Payload = "{}",
+            Status = ReportJobOutboxStatus.Dispatching,
+            Attempts = 4,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        await _context.ReportJobOutboxMessages.AddAsync(outboxMessage, TestContext.Current.CancellationToken);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        await _repository.MarkOutboxDispatchFailedAsync(
+            outboxMessage.OutboxId,
+            "permanent failure",
+            maxAttempts: 5,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var updated = await _context.ReportJobOutboxMessages
+            .SingleAsync(o => o.OutboxId == outboxMessage.OutboxId, TestContext.Current.CancellationToken);
+
+        Assert.Equal(ReportJobOutboxStatus.Failed, updated.Status);
+        Assert.Equal(5, updated.Attempts);
+    }
+
+    [Fact]
+    public async Task MarkOutboxDispatchFailed_WithUnknownOutboxId_DoesNothing()
+    {
+        // Should not throw - the row may have already been cleaned up by another replica.
+        var exception = await Record.ExceptionAsync(() =>
+            _repository.MarkOutboxDispatchFailedAsync(
+                Guid.NewGuid(),
+                "error",
+                maxAttempts: 5,
+                cancellationToken: TestContext.Current.CancellationToken));
+
+        Assert.Null(exception);
+
+        var remaining = await _context.ReportJobOutboxMessages.ToListAsync(TestContext.Current.CancellationToken);
+
+        Assert.Empty(remaining);
+    }
+
+    // ClaimPendingOutboxMessagesAsync delegates to the Postgres-only
+    // cads.claim_pending_report_job_outbox_messages function (FOR UPDATE SKIP LOCKED),
+    // which EF Core's InMemory provider does not support. Its atomic-claim/concurrency
+    // behaviour is covered by MiReportJobOutboxClaimConcurrencyTests in
+    // Cads.Cds.MiBff.Tests.Integration, which runs against a real Postgres container.
+
     private static MiReportJob CreateReportJob(out Guid reportJobId)
     {
         reportJobId = Guid.NewGuid();

@@ -1,7 +1,9 @@
+using Cads.Cds.BuildingBlocks.Core.Domain.Outbox;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
 using Cads.Cds.MiBff.Application.Uow;
+using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
@@ -49,6 +51,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMiUserRepository, MiUserRepository>();
         services.AddScoped<IMiUserRoleRepository, MiUserRoleRepository>();
         services.AddScoped<IMiReportJobRepository, MiReportJobRepository>();
+
+        // The generic BaseOutboxDispatcher<TClient,TOutbox> resolves IOutboxRepository<TOutbox>
+        // directly from DI (rather than the module-specific IMiReportJobRepository), so forward it
+        // to the same registration.
+        services.AddScoped<IOutboxRepository<MiReportJobOutbox>>(sp => sp.GetRequiredService<IMiReportJobRepository>());
     }
 
     private static void RegisterFunctionRepositories(this IServiceCollection services)
