@@ -11,6 +11,8 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Setup;
 
 public static class ServiceCollectionExtensions
 {
+    private const int MaxExecutionDepth = 4;
+    
     public static IServiceCollection ConfigureSystemAdminGraphQL(this IServiceCollection services, IConfiguration config)
     {
         var enableIntrospection = config.GetValue("Modules:SystemAdmin:EnableGraphQlIntrospection", false);
@@ -19,7 +21,7 @@ public static class ServiceCollectionExtensions
             .AddGraphQLServer("CadsSchema")
             .AddAuthorization()
             .AllowIntrospectionWhen(enableIntrospection)
-            .AddMaxExecutionDepthRule(4, skipIntrospectionFields: true)
+            .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
             .AddTypeExtension<ErdQuery<CadsSystemAdminDbContext>>()
             .AddTypeExtension<CadsGraphQuery>()
@@ -32,6 +34,7 @@ public static class ServiceCollectionExtensions
             .AddGraphQLServer("CtsSchema")
             .AddAuthorization()
             .AllowIntrospectionWhen(enableIntrospection)
+            .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
             .AddTypeExtension<ErdQuery<CtsSystemAdminDbContext>>()
             .AddTypeExtension<CtsGraphQuery>()
@@ -44,6 +47,7 @@ public static class ServiceCollectionExtensions
             .AddGraphQLServer("CtsAuditSchema")
             .AddAuthorization()
             .AllowIntrospectionWhen(enableIntrospection)
+            .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
             .AddTypeExtension<ErdQuery<CtsAuditSystemAdminDbContext>>()
             .AddTypeExtension<CtsAuditGraphQuery>()
@@ -56,6 +60,7 @@ public static class ServiceCollectionExtensions
             .AddGraphQLServer("CtsTransactionsSchema")
             .AddAuthorization()
             .AllowIntrospectionWhen(enableIntrospection)
+            .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
             .AddTypeExtension<ErdQuery<CtsTransactionsSystemAdminDbContext>>()
             .AddTypeExtension<CtsTransactionsGraphQuery>()
