@@ -26,5 +26,7 @@ public partial class CtSuspAnimalError
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtSuspendedAnimal? SaeSan { get; set; }
 }

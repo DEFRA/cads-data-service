@@ -44,6 +44,8 @@ public partial class CtAnimalChange
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtLocation? AchLocIdDocIssuedNavigation { get; set; }
 
     public virtual CtRegisteredMovement? AchMovIdDeathCancelNavigation { get; set; }

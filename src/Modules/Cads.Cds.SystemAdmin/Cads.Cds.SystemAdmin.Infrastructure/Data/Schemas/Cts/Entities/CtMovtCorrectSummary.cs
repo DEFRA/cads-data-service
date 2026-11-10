@@ -81,11 +81,7 @@ public partial class CtMovtCorrectSummary
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtMovtCorrSummError> CtMovtCorrSummErrors { get; set; } = new List<CtMovtCorrSummError>();
-
-    public virtual CtRegisteredMovement? McsMov { get; set; }
-
-    public virtual CtReceivedMovement? McsRmo { get; set; }
-
-    public virtual CtSuspendedMovement? McsSmo { get; set; }
 }

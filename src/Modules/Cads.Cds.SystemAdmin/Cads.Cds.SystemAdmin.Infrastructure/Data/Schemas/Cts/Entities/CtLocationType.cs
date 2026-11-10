@@ -53,6 +53,8 @@ public partial class CtLocationType
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtLocTypeRelComb> CtLocTypeRelCombLrcLtyId1Navigations { get; set; } = new List<CtLocTypeRelComb>();
 
     public virtual ICollection<CtLocTypeRelComb> CtLocTypeRelCombLrcLtyId2Navigations { get; set; } = new List<CtLocTypeRelComb>();

@@ -99,6 +99,8 @@ public partial class CtSuspConditionMarker
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtConditionMarkerError> CtConditionMarkerErrors { get; set; } = new List<CtConditionMarkerError>();
 
     public virtual ICollection<CtSuspCmMeasureResult> CtSuspCmMeasureResults { get; set; } = new List<CtSuspCmMeasureResult>();
