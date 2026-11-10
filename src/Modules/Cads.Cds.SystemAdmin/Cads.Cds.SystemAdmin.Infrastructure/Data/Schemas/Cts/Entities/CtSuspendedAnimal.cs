@@ -125,7 +125,7 @@ public partial class CtSuspendedAnimal
 
     public long? TransId { get; set; }
 
-    public virtual ICollection<CtAnimalCorrectSummary> CtAnimalCorrectSummaries { get; set; } = new List<CtAnimalCorrectSummary>();
+    public string TransType { get; set; } = null!;
 
     public virtual ICollection<CtSuspAnimalError> CtSuspAnimalErrors { get; set; } = new List<CtSuspAnimalError>();
 

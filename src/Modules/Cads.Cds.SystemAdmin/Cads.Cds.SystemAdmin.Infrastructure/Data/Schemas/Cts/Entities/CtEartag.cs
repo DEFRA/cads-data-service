@@ -57,6 +57,8 @@ public partial class CtEartag
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAnimalIdentifier> CtAnimalIdentifiers { get; set; } = new List<CtAnimalIdentifier>();
 
     public virtual ICollection<CtPreprintedAppnForm> CtPreprintedAppnForms { get; set; } = new List<CtPreprintedAppnForm>();

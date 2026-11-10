@@ -27,6 +27,8 @@ public partial class CtAllocRoutine
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtMgtWgAllocationRule> CtMgtWgAllocationRules { get; set; } = new List<CtMgtWgAllocationRule>();
 
     public virtual ICollection<CtSuspenseCharAllocRule> CtSuspenseCharAllocRules { get; set; } = new List<CtSuspenseCharAllocRule>();

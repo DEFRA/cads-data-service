@@ -27,5 +27,7 @@ public partial class CtIssuingAuthority
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtElectronicIdentifier> CtElectronicIdentifiers { get; set; } = new List<CtElectronicIdentifier>();
 }

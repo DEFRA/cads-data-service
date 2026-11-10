@@ -37,6 +37,8 @@ public partial class CtEartagType
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtEartag> CtEartags { get; set; } = new List<CtEartag>();
 
     public virtual CtEartagFormat? EttEtf { get; set; }

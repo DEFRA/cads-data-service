@@ -67,6 +67,8 @@ public partial class CtConditionMarker
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtConditionActivity? ComCac { get; set; }
 
     public virtual CtCmAuthority? ComCma { get; set; }
