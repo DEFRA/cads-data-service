@@ -41,6 +41,8 @@ public partial class CtPpafGrouping
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtPreprintedAppnForm> CtPreprintedAppnForms { get; set; } = new List<CtPreprintedAppnForm>();
 
     public virtual CtLocation? PpgLocIdBirthNavigation { get; set; }

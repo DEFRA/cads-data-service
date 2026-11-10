@@ -26,5 +26,7 @@ public partial class CtCtsUser
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtWgUserAssignment> CtWgUserAssignments { get; set; } = new List<CtWgUserAssignment>();
 }

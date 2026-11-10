@@ -40,5 +40,7 @@ public partial class CtLocationIdentifier
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtLocation? LidLoc { get; set; }
 }
