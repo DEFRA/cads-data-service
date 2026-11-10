@@ -24,5 +24,7 @@ public partial class CtApplicStatus
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtValidApplication? ApsVap { get; set; }
 }

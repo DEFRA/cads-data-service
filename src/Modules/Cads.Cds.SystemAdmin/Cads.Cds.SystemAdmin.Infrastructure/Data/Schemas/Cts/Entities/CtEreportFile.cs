@@ -17,4 +17,6 @@ public partial class CtEreportFile
     public DateOnly? EreTimestamp { get; set; }
 
     public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
 }

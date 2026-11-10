@@ -77,7 +77,7 @@ public partial class CtSuspendedMovement
 
     public long? TransId { get; set; }
 
-    public virtual ICollection<CtMovtCorrectSummary> CtMovtCorrectSummaries { get; set; } = new List<CtMovtCorrectSummary>();
+    public string TransType { get; set; } = null!;
 
     public virtual ICollection<CtSuspMovementError> CtSuspMovementErrors { get; set; } = new List<CtSuspMovementError>();
 }
