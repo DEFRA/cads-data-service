@@ -1,9 +1,12 @@
 using Cads.Cds.BuildingBlocks.Application.Messaging.Publishers;
 using Cads.Cds.BuildingBlocks.Core.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Dispatchers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Publishers;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Services;
 using Cads.Cds.MiBff.Application.Messaging.Clients;
 using Cads.Cds.MiBff.Core.Configuration;
+using Cads.Cds.MiBff.Infrastructure.Messaging.Consumers;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Dispatchers;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Publishers;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +20,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddQueuePublishers(configuration.GetSection(ModuleConfigurationSection.QueuesSectionName));
 
+        services.AddQueueConsumers(configuration.GetSection(ModuleConfigurationSection.QueuesSectionName));
+
         services.Configure<OutboxDispatcherOptions>(
             configuration.GetSection(ModuleConfigurationSection.ReportJobOutboxDispatcherSectionName));
 
@@ -25,6 +30,8 @@ public static class ServiceCollectionExtensions
         services.AddMessagePublishers();
 
         services.AddOutboxDispatcher();
+
+        services.AddMessageConsumers();
     }
 
     private static void AddQueueClients(this IServiceCollection services)
@@ -48,5 +55,13 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IOutboxDispatcher<MiBffFifoQueueClient>, MiReportJobOutboxDispatcher>();
         services.AddHostedService<ReportJobOutboxDispatcherListener>();
+    }
+    
+    private static void AddMessageConsumers(this IServiceCollection services)
+    {
+        services.AddHostedService<MiBffReportFifoQueueListener>()
+            .AddSingleton<IQueuePoller<MiBffFifoQueueClient>, MiBffReportFifoQueuePoller>();
+
+        services.AddSingleton<IQueueAdminService<MiBffFifoQueueClient>, DeadLetterQueueAdminService<MiBffFifoQueueClient>>();
     }
 }
