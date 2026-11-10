@@ -1,26 +1,27 @@
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Cads.Cds.BuildingBlocks.Application.Messaging.Clients;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Constants;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Services;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
-using Cads.Cds.StorageBridge.Infrastructure.Messaging.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.Messaging.Services;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Messaging.Services;
 
-public class StorageBridgeFifoQueueAdminServiceTests
+public class DeadLetterQueueAdminServiceTests
 {
     private readonly Mock<IAmazonSQS> _sqs = new();
-    private readonly Mock<ILogger<StorageBridgeFifoQueueAdminService>> _logger = new();
-    private readonly StorageBridgeFifoQueueAdminService _sut;
+    private readonly Mock<ILogger<DeadLetterQueueAdminService<TestFifoQueueClient>>> _logger = new();
+    private readonly DeadLetterQueueAdminService<TestFifoQueueClient> _sut;
 
     private static string QueueUrl => TestSqsConstants.TestQueueUrl;
     private static string DlqUrl => TestSqsConstants.TestQueueUrl;
 
-    public StorageBridgeFifoQueueAdminServiceTests()
+    public DeadLetterQueueAdminServiceTests()
     {
-        _sut = new StorageBridgeFifoQueueAdminService(_sqs.Object, _logger.Object);
+        _sut = new DeadLetterQueueAdminService<TestFifoQueueClient>(_sqs.Object, _logger.Object);
 
         _sqs
             .Setup(x => x.SendMessageAsync(It.IsAny<SendMessageRequest>(), It.IsAny<CancellationToken>()))
@@ -425,4 +426,10 @@ public class StorageBridgeFifoQueueAdminServiceTests
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             times);
+
+    public class TestFifoQueueClient : IQueueClient
+    {
+        public string ClientName => GetType().Name;
+    }
 }
+
