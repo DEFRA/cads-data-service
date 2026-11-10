@@ -26,5 +26,7 @@ public partial class CtRecdApplicationError
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtReceivedApplication? RaeRap { get; set; }
 }

@@ -13,4 +13,6 @@ public partial class CtEreportLock
     public DateOnly? ErlTimestamp { get; set; }
 
     public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
 }

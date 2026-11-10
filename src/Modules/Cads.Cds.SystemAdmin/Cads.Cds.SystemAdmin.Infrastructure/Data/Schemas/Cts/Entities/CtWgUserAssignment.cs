@@ -28,6 +28,8 @@ public partial class CtWgUserAssignment
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtCtsUser? WuaCus { get; set; }
 
     public virtual CtWorkgroup? WuaWgp { get; set; }

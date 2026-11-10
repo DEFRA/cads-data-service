@@ -65,13 +65,11 @@ public partial class CtRegisteredAnimal
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAnimalChange> CtAnimalChanges { get; set; } = new List<CtAnimalChange>();
 
     public virtual ICollection<CtAnimalClaim> CtAnimalClaims { get; set; } = new List<CtAnimalClaim>();
-
-    public virtual ICollection<CtAnimalCorrectSummary> CtAnimalCorrectSummaries { get; set; } = new List<CtAnimalCorrectSummary>();
-
-    public virtual ICollection<CtAnimalIdentifier> CtAnimalIdentifiers { get; set; } = new List<CtAnimalIdentifier>();
 
     public virtual ICollection<CtAnimalRelationship> CtAnimalRelationshipAarRanIdChildNavigations { get; set; } = new List<CtAnimalRelationship>();
 
