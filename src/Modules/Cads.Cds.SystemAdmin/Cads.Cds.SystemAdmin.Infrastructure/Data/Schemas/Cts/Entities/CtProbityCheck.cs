@@ -37,5 +37,7 @@ public partial class CtProbityCheck
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtCondition> CtConditions { get; set; } = new List<CtCondition>();
 }

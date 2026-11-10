@@ -33,6 +33,8 @@ public partial class CtLabelSummary
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtLabelRequest> CtLabelRequests { get; set; } = new List<CtLabelRequest>();
 
     public virtual CtLocation? LasLocIdIdentifyingNavigation { get; set; }

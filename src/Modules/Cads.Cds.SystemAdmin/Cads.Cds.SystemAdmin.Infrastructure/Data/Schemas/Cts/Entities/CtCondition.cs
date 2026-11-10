@@ -43,6 +43,8 @@ public partial class CtCondition
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtConditionType? ConCot { get; set; }
 
     public virtual CtProbityCheck? ConPch { get; set; }

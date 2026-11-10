@@ -30,5 +30,7 @@ public partial class CtSuspenseWgAllocRule
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtAllocRoutine? SwaRou { get; set; }
 }

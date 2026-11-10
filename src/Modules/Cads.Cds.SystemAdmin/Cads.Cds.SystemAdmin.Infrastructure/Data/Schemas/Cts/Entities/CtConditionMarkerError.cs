@@ -26,5 +26,7 @@ public partial class CtConditionMarkerError
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtSuspConditionMarker? CmeScm { get; set; }
 }

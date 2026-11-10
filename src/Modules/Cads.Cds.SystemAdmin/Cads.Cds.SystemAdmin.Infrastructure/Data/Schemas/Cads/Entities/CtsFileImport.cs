@@ -43,7 +43,9 @@ public partial class CtsFileImport
 
     public string? LastFilePartImported { get; set; }
 
-    public bool ImportAmendmentsMade { get; set; }
+    public string DestinationPrefix { get; set; } = null!;
+
+    public bool AmendmentsMadeFlag { get; set; }
 
     public virtual ICollection<CtsFileImportsLog> CtsFileImportsLogs { get; set; } = new List<CtsFileImportsLog>();
 
