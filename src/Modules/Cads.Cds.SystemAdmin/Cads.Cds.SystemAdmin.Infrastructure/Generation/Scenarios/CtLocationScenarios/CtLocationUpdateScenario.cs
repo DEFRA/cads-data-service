@@ -1,14 +1,14 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using System;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenarios;
 
 public class CtLocationUpdateScenario(
-    CtsTransactionsSystemAdminDbContext dbContext,
+    CtsTransactionsGQDbContext dbContext,
     IFileNameGenerator fileNameGenerator,
     IFileAssembler fileAssembler)
     : GenerationScenario<CtLocation>("ct_location_update_scenario", ImportActionType.Delta, dbContext, fileNameGenerator, fileAssembler)

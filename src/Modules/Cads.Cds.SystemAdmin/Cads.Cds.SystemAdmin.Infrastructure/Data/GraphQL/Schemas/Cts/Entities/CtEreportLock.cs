@@ -1,0 +1,18 @@
+using System;
+
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Entities;
+
+public partial class CtEreportLock
+{
+    public string? ErlFileType { get; set; }
+
+    public string? ErlFileName { get; set; }
+
+    public string? ErlProcessed { get; set; }
+
+    public DateOnly? ErlTimestamp { get; set; }
+
+    public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+}
