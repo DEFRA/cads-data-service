@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Types;
 
+[ExcludeFromCodeCoverage]
 public sealed class FileImportBatchPart
 {
     public int PartNo { get; set; }
