@@ -8,7 +8,6 @@ using Cads.Cds.StorageBridge.Core.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Serializers;
-using Cads.Cds.StorageBridge.Infrastructure.Messaging.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -69,6 +68,6 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<StorageBridgeFifoQueueListener>()
             .AddSingleton<IQueuePoller<StorageBridgeFifoQueueClient>, StorageBridgeFifoQueuePoller>();
 
-        services.AddSingleton<IQueueAdminService<StorageBridgeFifoQueueClient>, StorageBridgeFifoQueueAdminService>();
+        services.AddSingleton<IQueueAdminService<StorageBridgeFifoQueueClient>, DeadLetterQueueAdminService<StorageBridgeFifoQueueClient>>();
     }
 }
