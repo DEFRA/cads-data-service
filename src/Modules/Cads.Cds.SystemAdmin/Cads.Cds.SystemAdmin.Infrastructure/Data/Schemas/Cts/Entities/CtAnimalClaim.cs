@@ -40,6 +40,8 @@ public partial class CtAnimalClaim
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtClaimStatus? AncCls { get; set; }
 
     public virtual CtClaimType? AncClt { get; set; }

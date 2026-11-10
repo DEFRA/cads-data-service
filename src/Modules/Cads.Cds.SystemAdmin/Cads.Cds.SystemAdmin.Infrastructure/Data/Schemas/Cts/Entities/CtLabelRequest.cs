@@ -86,5 +86,7 @@ public partial class CtLabelRequest
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtLabelSummary? LarLas { get; set; }
 }

@@ -67,6 +67,8 @@ public partial class CtWebUser
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtValidApplication> CtValidApplications { get; set; } = new List<CtValidApplication>();
 
     public virtual CtLocationPartyRel? WurLprIdKeeperNavigation { get; set; }

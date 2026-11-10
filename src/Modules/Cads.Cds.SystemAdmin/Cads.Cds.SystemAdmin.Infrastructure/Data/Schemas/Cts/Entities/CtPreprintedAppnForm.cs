@@ -32,6 +32,8 @@ public partial class CtPreprintedAppnForm
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtEartag? PafEtg { get; set; }
 
     public virtual CtPpafGrouping? PafPpg { get; set; }
