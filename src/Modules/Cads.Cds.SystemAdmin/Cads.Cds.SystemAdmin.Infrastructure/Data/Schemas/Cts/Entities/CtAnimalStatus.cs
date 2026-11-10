@@ -36,5 +36,7 @@ public partial class CtAnimalStatus
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtRegisteredAnimal? AstRan { get; set; }
 }

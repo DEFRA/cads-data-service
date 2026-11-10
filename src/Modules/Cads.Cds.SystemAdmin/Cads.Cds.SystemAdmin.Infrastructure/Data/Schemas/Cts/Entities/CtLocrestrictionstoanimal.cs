@@ -20,6 +20,8 @@ public partial class CtLocrestrictionstoanimal
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtConditionMarker? LraCom { get; set; }
 
     public virtual CtLocation? LraLoc { get; set; }

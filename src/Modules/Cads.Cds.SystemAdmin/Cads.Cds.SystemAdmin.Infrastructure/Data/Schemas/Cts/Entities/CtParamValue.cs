@@ -39,6 +39,8 @@ public partial class CtParamValue
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtParamValueGroup> CtParamValueGroups { get; set; } = new List<CtParamValueGroup>();
 
     public virtual CtParamHeader? PvlPhd { get; set; }
