@@ -30,5 +30,7 @@ public partial class CtSuspCmMeasureResult
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtSuspConditionMarker? SmrScm { get; set; }
 }

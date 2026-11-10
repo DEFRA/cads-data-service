@@ -35,5 +35,7 @@ public partial class CtEartagReason
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtEartagReasonFlag> CtEartagReasonFlags { get; set; } = new List<CtEartagReasonFlag>();
 }

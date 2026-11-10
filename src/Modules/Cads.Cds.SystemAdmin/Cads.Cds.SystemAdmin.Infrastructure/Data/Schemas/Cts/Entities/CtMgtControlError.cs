@@ -28,5 +28,7 @@ public partial class CtMgtControlError
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtRegisteredAnimal? MceRan { get; set; }
 }

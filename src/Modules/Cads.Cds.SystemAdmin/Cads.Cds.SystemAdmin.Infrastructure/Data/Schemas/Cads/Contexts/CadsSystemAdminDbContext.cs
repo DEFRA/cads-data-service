@@ -80,6 +80,10 @@ public partial class CadsSystemAdminDbContext : DbContext
 
     public virtual DbSet<AnimalUnregisteredParent> AnimalUnregisteredParents { get; set; }
 
+    public virtual DbSet<ClaPseudoAnonymisationProgress> ClaPseudoAnonymisationProgresses { get; set; }
+
+    public virtual DbSet<CtsBulkImportMigratedRow> CtsBulkImportMigratedRows { get; set; }
+
     public virtual DbSet<CtsFileImport> CtsFileImports { get; set; }
 
     public virtual DbSet<CtsFileImportStatus> CtsFileImportStatuses { get; set; }
@@ -87,6 +91,28 @@ public partial class CadsSystemAdminDbContext : DbContext
     public virtual DbSet<CtsFileImportsLog> CtsFileImportsLogs { get; set; }
 
     public virtual DbSet<CtsFileProcessingStatus> CtsFileProcessingStatuses { get; set; }
+
+    public virtual DbSet<CtsParallelImportConstraintRestoreLog> CtsParallelImportConstraintRestoreLogs { get; set; }
+
+    public virtual DbSet<CtsParallelImportDeferredRow> CtsParallelImportDeferredRows { get; set; }
+
+    public virtual DbSet<CtsParallelImportDependency> CtsParallelImportDependencies { get; set; }
+
+    public virtual DbSet<CtsParallelImportRun> CtsParallelImportRuns { get; set; }
+
+    public virtual DbSet<CtsParallelImportStatus> CtsParallelImportStatuses { get; set; }
+
+    public virtual DbSet<CtsParallelImportTableSetting> CtsParallelImportTableSettings { get; set; }
+
+    public virtual DbSet<CtsParallelImportWorkQueue> CtsParallelImportWorkQueues { get; set; }
+
+    public virtual DbSet<CtsParallelImportWorker> CtsParallelImportWorkers { get; set; }
+
+    public virtual DbSet<CtsParallelImportWorkerMetric> CtsParallelImportWorkerMetrics { get; set; }
+
+    public virtual DbSet<CtsParallelImportWorkerSample> CtsParallelImportWorkerSamples { get; set; }
+
+    public virtual DbSet<CtsPseudoAnonymisationProgress> CtsPseudoAnonymisationProgresses { get; set; }
 
     public virtual DbSet<Location> Locations { get; set; }
 
@@ -131,6 +157,10 @@ public partial class CadsSystemAdminDbContext : DbContext
     public virtual DbSet<MiReport> MiReports { get; set; }
 
     public virtual DbSet<MiReportGroup> MiReportGroups { get; set; }
+
+    public virtual DbSet<MiReportJob> MiReportJobs { get; set; }
+
+    public virtual DbSet<MiReportJobOutbox> MiReportJobOutboxes { get; set; }
 
     public virtual DbSet<MiRole> MiRoles { get; set; }
 
@@ -884,6 +914,44 @@ public partial class CadsSystemAdminDbContext : DbContext
                 .HasConstraintName("fk_animal_unregistered_parents_animal");
         });
 
+        modelBuilder.Entity<ClaPseudoAnonymisationProgress>(entity =>
+        {
+            entity.HasKey(e => e.ProgressId).HasName("cla_pseudo_anonymisation_progress_pkey");
+
+            entity.ToTable("cla_pseudo_anonymisation_progress", "cads");
+
+            entity.HasIndex(e => new { e.RunId, e.SchemaName, e.TableName }, "cla_pseudo_anonymisation_prog_run_id_schema_name_table_name_key").IsUnique();
+
+            entity.Property(e => e.ProgressId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("progress_id");
+            entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            entity.Property(e => e.ElapsedHours).HasColumnName("elapsed_hours");
+            entity.Property(e => e.ElapsedMinutes).HasColumnName("elapsed_minutes");
+            entity.Property(e => e.ErrorCode).HasColumnName("error_code");
+            entity.Property(e => e.ErrorMessage).HasColumnName("error_message");
+            entity.Property(e => e.FailedAt).HasColumnName("failed_at");
+            entity.Property(e => e.RowsAnonymised).HasColumnName("rows_anonymised");
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.SchemaName).HasColumnName("schema_name");
+            entity.Property(e => e.StartedAt).HasColumnName("started_at");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.TableName).HasColumnName("table_name");
+        });
+
+        modelBuilder.Entity<CtsBulkImportMigratedRow>(entity =>
+        {
+            entity.HasKey(e => new { e.TableName, e.TransactionRowId }).HasName("cts_bulk_import_migrated_rows_pkey");
+
+            entity.ToTable("cts_bulk_import_migrated_rows", "cads");
+
+            entity.Property(e => e.TableName).HasColumnName("table_name");
+            entity.Property(e => e.TransactionRowId).HasColumnName("transaction_row_id");
+            entity.Property(e => e.MigratedAt)
+                .HasDefaultValueSql("clock_timestamp()")
+                .HasColumnName("migrated_at");
+        });
+
         modelBuilder.Entity<CtsFileImport>(entity =>
         {
             entity.HasKey(e => e.CtsFileImportId).HasName("cts_file_imports_pkey");
@@ -906,7 +974,11 @@ public partial class CadsSystemAdminDbContext : DbContext
             entity.Property(e => e.AddedAt)
                 .HasDefaultValueSql("clock_timestamp()")
                 .HasColumnName("added_at");
+            entity.Property(e => e.AmendmentsMadeFlag).HasColumnName("amendments_made_flag");
             entity.Property(e => e.BatchDate).HasColumnName("batch_date");
+            entity.Property(e => e.DestinationPrefix)
+                .HasDefaultValueSql("'import'::text")
+                .HasColumnName("destination_prefix");
             entity.Property(e => e.DestinationTableName).HasColumnName("destination_table_name");
             entity.Property(e => e.FailedAttempts)
                 .HasDefaultValue((short)0)
@@ -929,7 +1001,6 @@ public partial class CadsSystemAdminDbContext : DbContext
             entity.Property(e => e.RowsFound).HasColumnName("rows_found");
             entity.Property(e => e.RowsImported).HasColumnName("rows_imported");
             entity.Property(e => e.TotalRowsToProcess).HasColumnName("total_rows_to_process");
-            entity.Property(e => e.ImportAmendmentsMade).HasColumnName("amendments_made_flag");
 
             entity.HasOne(d => d.ImportStatus).WithMany(p => p.CtsFileImports)
                 .HasForeignKey(d => d.ImportStatusId)
@@ -1010,6 +1081,282 @@ public partial class CadsSystemAdminDbContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("processing_status_id");
             entity.Property(e => e.StatusDescription).HasColumnName("status_description");
+        });
+
+        modelBuilder.Entity<CtsParallelImportConstraintRestoreLog>(entity =>
+        {
+            entity.HasKey(e => new { e.RunId, e.TableName, e.ConstraintName }).HasName("cts_parallel_import_constraint_restore_log_pkey");
+
+            entity.ToTable("cts_parallel_import_constraint_restore_log", "cads");
+
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.TableName).HasColumnName("table_name");
+            entity.Property(e => e.ConstraintName).HasColumnName("constraint_name");
+            entity.Property(e => e.AttemptedAt)
+                .HasDefaultValueSql("clock_timestamp()")
+                .HasColumnName("attempted_at");
+            entity.Property(e => e.ErrorMessage).HasColumnName("error_message");
+            entity.Property(e => e.Status).HasColumnName("status");
+
+            entity.HasOne(d => d.Run).WithMany(p => p.CtsParallelImportConstraintRestoreLogs)
+                .HasForeignKey(d => d.RunId)
+                .HasConstraintName("cts_parallel_import_constraint_restore_log_run_id_fkey");
+        });
+
+        modelBuilder.Entity<CtsParallelImportDeferredRow>(entity =>
+        {
+            entity.HasKey(e => new { e.RunId, e.TableName, e.TransactionRowId }).HasName("cts_parallel_import_deferred_rows_pkey");
+
+            entity.ToTable("cts_parallel_import_deferred_rows", "cads");
+
+            entity.HasIndex(e => new { e.RunId, e.Status, e.DependencyDepth, e.TableName, e.TransactionRowId }, "cts_parallel_import_deferred_claim_idx");
+
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.TableName).HasColumnName("table_name");
+            entity.Property(e => e.TransactionRowId).HasColumnName("transaction_row_id");
+            entity.Property(e => e.BulkErrorMessage).HasColumnName("bulk_error_message");
+            entity.Property(e => e.DeferredAt)
+                .HasDefaultValueSql("clock_timestamp()")
+                .HasColumnName("deferred_at");
+            entity.Property(e => e.DependencyDepth).HasColumnName("dependency_depth");
+            entity.Property(e => e.ErrorContext).HasColumnName("error_context");
+            entity.Property(e => e.ErrorDetail).HasColumnName("error_detail");
+            entity.Property(e => e.ErrorHint).HasColumnName("error_hint");
+            entity.Property(e => e.ErrorMessage).HasColumnName("error_message");
+            entity.Property(e => e.ErrorSqlstate).HasColumnName("error_sqlstate");
+            entity.Property(e => e.LastAttemptedAt).HasColumnName("last_attempted_at");
+            entity.Property(e => e.ResolvedAt).HasColumnName("resolved_at");
+            entity.Property(e => e.RetryCount).HasColumnName("retry_count");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'pending'::text")
+                .HasColumnName("status");
+
+            entity.HasOne(d => d.Run).WithMany(p => p.CtsParallelImportDeferredRows)
+                .HasForeignKey(d => d.RunId)
+                .HasConstraintName("cts_parallel_import_deferred_rows_run_id_fkey");
+        });
+
+        modelBuilder.Entity<CtsParallelImportDependency>(entity =>
+        {
+            entity.HasKey(e => new { e.RunId, e.ChildTable, e.ParentTable }).HasName("cts_parallel_import_dependencies_pkey");
+
+            entity.ToTable("cts_parallel_import_dependencies", "cads");
+
+            entity.HasIndex(e => new { e.RunId, e.ParentTable }, "cts_parallel_import_dependencies_parent_idx");
+
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.ChildTable).HasColumnName("child_table");
+            entity.Property(e => e.ParentTable).HasColumnName("parent_table");
+
+            entity.HasOne(d => d.Run).WithMany(p => p.CtsParallelImportDependencies)
+                .HasForeignKey(d => d.RunId)
+                .HasConstraintName("cts_parallel_import_dependencies_run_id_fkey");
+        });
+
+        modelBuilder.Entity<CtsParallelImportRun>(entity =>
+        {
+            entity.HasKey(e => e.RunId).HasName("cts_parallel_import_runs_pkey");
+
+            entity.ToTable("cts_parallel_import_runs", "cads");
+
+            entity.Property(e => e.RunId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("run_id");
+            entity.Property(e => e.BulkCompletedAt).HasColumnName("bulk_completed_at");
+            entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("clock_timestamp()")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DeleteSource).HasColumnName("delete_source");
+            entity.Property(e => e.LastErrorMessage).HasColumnName("last_error_message");
+            entity.Property(e => e.RangeSize).HasColumnName("range_size");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.TruncateCts).HasColumnName("truncate_cts");
+        });
+
+        modelBuilder.Entity<CtsParallelImportStatus>(entity =>
+        {
+            entity.HasKey(e => new { e.RunId, e.TableName }).HasName("cts_parallel_import_status_pkey");
+
+            entity.ToTable("cts_parallel_import_status", "cads");
+
+            entity.HasIndex(e => new { e.RunId, e.Status, e.DependencyDepth }, "cts_parallel_import_status_claim_idx");
+
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.TableName).HasColumnName("table_name");
+            entity.Property(e => e.BulkCompletedAt).HasColumnName("bulk_completed_at");
+            entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            entity.Property(e => e.DependencyDepth).HasColumnName("dependency_depth");
+            entity.Property(e => e.LastErrorMessage).HasColumnName("last_error_message");
+            entity.Property(e => e.NumberDeferred).HasColumnName("number_deferred");
+            entity.Property(e => e.NumberMigrated).HasColumnName("number_migrated");
+            entity.Property(e => e.OriginalTotal).HasColumnName("original_total");
+            entity.Property(e => e.StartedAt).HasColumnName("started_at");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("clock_timestamp()")
+                .HasColumnName("updated_at");
+
+            entity.HasOne(d => d.Run).WithMany(p => p.CtsParallelImportStatuses)
+                .HasForeignKey(d => d.RunId)
+                .HasConstraintName("cts_parallel_import_status_run_id_fkey");
+        });
+
+        modelBuilder.Entity<CtsParallelImportTableSetting>(entity =>
+        {
+            entity.HasKey(e => e.TableName).HasName("cts_parallel_import_table_settings_pkey");
+
+            entity.ToTable("cts_parallel_import_table_settings", "cads");
+
+            entity.Property(e => e.TableName).HasColumnName("table_name");
+            entity.Property(e => e.BatchSize).HasColumnName("batch_size");
+            entity.Property(e => e.MaxWorkers)
+                .HasDefaultValue(30)
+                .HasColumnName("max_workers");
+        });
+
+        modelBuilder.Entity<CtsParallelImportWorkQueue>(entity =>
+        {
+            entity.HasKey(e => e.WorkId).HasName("cts_parallel_import_work_queue_pkey");
+
+            entity.ToTable("cts_parallel_import_work_queue", "cads");
+
+            entity.HasIndex(e => new { e.RunId, e.TableName }, "cts_parallel_import_processing_table_idx").HasFilter("(state = 'processing'::text)");
+
+            entity.HasIndex(e => new { e.RunId, e.State, e.DependencyDepth, e.TableName, e.MinimumTransId }, "cts_parallel_import_work_claim_idx");
+
+            entity.HasIndex(e => new { e.RunId, e.TableName, e.MinimumTransId, e.MaximumTransId }, "cts_parallel_import_work_queu_run_id_table_name_minimum_tra_key").IsUnique();
+
+            entity.Property(e => e.WorkId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("work_id");
+            entity.Property(e => e.ClaimedAt).HasColumnName("claimed_at");
+            entity.Property(e => e.ClaimedBackendPid).HasColumnName("claimed_backend_pid");
+            entity.Property(e => e.ClaimedBy).HasColumnName("claimed_by");
+            entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            entity.Property(e => e.DependencyDepth).HasColumnName("dependency_depth");
+            entity.Property(e => e.HeartbeatAt).HasColumnName("heartbeat_at");
+            entity.Property(e => e.LastErrorMessage).HasColumnName("last_error_message");
+            entity.Property(e => e.MaximumTransId).HasColumnName("maximum_trans_id");
+            entity.Property(e => e.MinimumTransId).HasColumnName("minimum_trans_id");
+            entity.Property(e => e.RowsDeferred).HasColumnName("rows_deferred");
+            entity.Property(e => e.RowsMigrated).HasColumnName("rows_migrated");
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.State).HasColumnName("state");
+            entity.Property(e => e.TableName).HasColumnName("table_name");
+
+            entity.HasOne(d => d.Run).WithMany(p => p.CtsParallelImportWorkQueues)
+                .HasForeignKey(d => d.RunId)
+                .HasConstraintName("cts_parallel_import_work_queue_run_id_fkey");
+        });
+
+        modelBuilder.Entity<CtsParallelImportWorker>(entity =>
+        {
+            entity.HasKey(e => new { e.RunId, e.WorkerName }).HasName("cts_parallel_import_workers_pkey");
+
+            entity.ToTable("cts_parallel_import_workers", "cads");
+
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.WorkerName).HasColumnName("worker_name");
+            entity.Property(e => e.BackendPid).HasColumnName("backend_pid");
+            entity.Property(e => e.BatchesCommitted).HasColumnName("batches_committed");
+            entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            entity.Property(e => e.CurrentTableName).HasColumnName("current_table_name");
+            entity.Property(e => e.CurrentWorkId).HasColumnName("current_work_id");
+            entity.Property(e => e.HeartbeatAt)
+                .HasDefaultValueSql("clock_timestamp()")
+                .HasColumnName("heartbeat_at");
+            entity.Property(e => e.LastErrorMessage).HasColumnName("last_error_message");
+            entity.Property(e => e.RowsDeferred).HasColumnName("rows_deferred");
+            entity.Property(e => e.RowsMigrated).HasColumnName("rows_migrated");
+            entity.Property(e => e.StartedAt)
+                .HasDefaultValueSql("clock_timestamp()")
+                .HasColumnName("started_at");
+            entity.Property(e => e.Status).HasColumnName("status");
+
+            entity.HasOne(d => d.Run).WithMany(p => p.CtsParallelImportWorkers)
+                .HasForeignKey(d => d.RunId)
+                .HasConstraintName("cts_parallel_import_workers_run_id_fkey");
+        });
+
+        modelBuilder.Entity<CtsParallelImportWorkerMetric>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("cts_parallel_import_worker_metrics", "cads");
+
+            entity.Property(e => e.BackendPid).HasColumnName("backend_pid");
+            entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            entity.Property(e => e.DeferredRows).HasColumnName("deferred_rows");
+            entity.Property(e => e.ElapsedSeconds).HasColumnName("elapsed_seconds");
+            entity.Property(e => e.ElapsedSecondsPerSuccessfulBatch).HasColumnName("elapsed_seconds_per_successful_batch");
+            entity.Property(e => e.ExecutionState).HasColumnName("execution_state");
+            entity.Property(e => e.LastProgressAt).HasColumnName("last_progress_at");
+            entity.Property(e => e.MeasuredFrom).HasColumnName("measured_from");
+            entity.Property(e => e.MigratedRows).HasColumnName("migrated_rows");
+            entity.Property(e => e.PartialHistory).HasColumnName("partial_history");
+            entity.Property(e => e.RowsPerMinute).HasColumnName("rows_per_minute");
+            entity.Property(e => e.RowsPerSecond).HasColumnName("rows_per_second");
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.StartedAt).HasColumnName("started_at");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.SuccessfulBatches).HasColumnName("successful_batches");
+            entity.Property(e => e.WorkerName).HasColumnName("worker_name");
+        });
+
+        modelBuilder.Entity<CtsParallelImportWorkerSample>(entity =>
+        {
+            entity.HasKey(e => e.SampleId).HasName("cts_parallel_import_worker_samples_pkey");
+
+            entity.ToTable("cts_parallel_import_worker_samples", "cads", tb => tb.HasComment("Transactional worker progress history. observed_at is sampled before commit, not the WAL flush completion time. Counter differences support comparisons across time windows."));
+
+            entity.HasIndex(e => new { e.RunId, e.WorkerName, e.WorkerStartedAt, e.SampleId }, "cts_parallel_worker_samples_execution_idx");
+
+            entity.HasIndex(e => new { e.RunId, e.ObservedAt }, "cts_parallel_worker_samples_observed_idx");
+
+            entity.Property(e => e.SampleId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("sample_id");
+            entity.Property(e => e.BackendPid).HasColumnName("backend_pid");
+            entity.Property(e => e.BaselineOnly).HasColumnName("baseline_only");
+            entity.Property(e => e.BatchesCommitted).HasColumnName("batches_committed");
+            entity.Property(e => e.ObservedAt)
+                .HasDefaultValueSql("clock_timestamp()")
+                .HasColumnName("observed_at");
+            entity.Property(e => e.RowsDeferred).HasColumnName("rows_deferred");
+            entity.Property(e => e.RowsMigrated).HasColumnName("rows_migrated");
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.TableName).HasColumnName("table_name");
+            entity.Property(e => e.WorkId).HasColumnName("work_id");
+            entity.Property(e => e.WorkerCompletedAt).HasColumnName("worker_completed_at");
+            entity.Property(e => e.WorkerName).HasColumnName("worker_name");
+            entity.Property(e => e.WorkerStartedAt).HasColumnName("worker_started_at");
+        });
+
+        modelBuilder.Entity<CtsPseudoAnonymisationProgress>(entity =>
+        {
+            entity.HasKey(e => e.ProgressId).HasName("cts_pseudo_anonymisation_progress_pkey");
+
+            entity.ToTable("cts_pseudo_anonymisation_progress", "cads");
+
+            entity.HasIndex(e => new { e.RunId, e.SchemaName, e.TableName }, "cts_pseudo_anonymisation_prog_run_id_schema_name_table_name_key").IsUnique();
+
+            entity.Property(e => e.ProgressId)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("progress_id");
+            entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            entity.Property(e => e.ElapsedHours).HasColumnName("elapsed_hours");
+            entity.Property(e => e.ElapsedMinutes).HasColumnName("elapsed_minutes");
+            entity.Property(e => e.ErrorCode).HasColumnName("error_code");
+            entity.Property(e => e.ErrorMessage).HasColumnName("error_message");
+            entity.Property(e => e.FailedAt).HasColumnName("failed_at");
+            entity.Property(e => e.RowsAnonymised).HasColumnName("rows_anonymised");
+            entity.Property(e => e.RunId).HasColumnName("run_id");
+            entity.Property(e => e.SchemaName).HasColumnName("schema_name");
+            entity.Property(e => e.StartedAt).HasColumnName("started_at");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.TableName).HasColumnName("table_name");
         });
 
         modelBuilder.Entity<Location>(entity =>
@@ -1478,6 +1825,72 @@ public partial class CadsSystemAdminDbContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<MiReportJob>(entity =>
+        {
+            entity.HasKey(e => e.ReportJobId).HasName("mi_report_job_pkey");
+
+            entity.ToTable("mi_report_job", "cads");
+
+            entity.HasIndex(e => e.ExpiresAt, "mi_report_job_expires_at_idx").HasFilter("(expires_at IS NOT NULL)");
+
+            entity.HasIndex(e => e.Status, "mi_report_job_status_idx");
+
+            entity.Property(e => e.ReportJobId)
+                .ValueGeneratedNever()
+                .HasColumnName("report_job_id");
+            entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Error).HasColumnName("error");
+            entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
+            entity.Property(e => e.ExternalSubject).HasColumnName("external_subject");
+            entity.Property(e => e.ReportKey).HasColumnName("report_key");
+            entity.Property(e => e.RequestPayload)
+                .HasColumnType("jsonb")
+                .HasColumnName("request_payload");
+            entity.Property(e => e.RowCount).HasColumnName("row_count");
+            entity.Property(e => e.S3Key).HasColumnName("s3_key");
+            entity.Property(e => e.StartedAt).HasColumnName("started_at");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'pending'::text")
+                .HasColumnName("status");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<MiReportJobOutbox>(entity =>
+        {
+            entity.HasKey(e => e.OutboxId).HasName("mi_report_job_outbox_pkey");
+
+            entity.ToTable("mi_report_job_outbox", "cads");
+
+            entity.HasIndex(e => e.CreatedAt, "mi_report_job_outbox_pending_idx").HasFilter("(status = 'pending'::text)");
+
+            entity.Property(e => e.OutboxId)
+                .ValueGeneratedNever()
+                .HasColumnName("outbox_id");
+            entity.Property(e => e.Attempts).HasColumnName("attempts");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DispatchedAt).HasColumnName("dispatched_at");
+            entity.Property(e => e.LastError).HasColumnName("last_error");
+            entity.Property(e => e.Payload)
+                .HasColumnType("jsonb")
+                .HasColumnName("payload");
+            entity.Property(e => e.ReportJobId).HasColumnName("report_job_id");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'pending'::text")
+                .HasColumnName("status");
+            entity.Property(e => e.Subject).HasColumnName("subject");
+
+            entity.HasOne(d => d.ReportJob).WithMany(p => p.MiReportJobOutboxes)
+                .HasForeignKey(d => d.ReportJobId)
+                .HasConstraintName("mi_report_job_outbox_report_job_id_fkey");
+        });
+
         modelBuilder.Entity<MiRole>(entity =>
         {
             entity.HasKey(e => e.RoleId).HasName("mi_role_pkey");
@@ -1742,6 +2155,8 @@ public partial class CadsSystemAdminDbContext : DbContext
                 .HasMaxLength(30)
                 .HasColumnName("type");
         });
+        modelBuilder.HasSequence("cla_pseudo_anonymisation_run_id_seq", "cads");
+        modelBuilder.HasSequence("pseudo_anonymisation_run_id_seq", "cads");
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -135,11 +135,9 @@ public partial class CtAnimalCorrectSummary
 
     public long? TransId { get; set; }
 
-    public virtual CtRegisteredAnimal? AcsRan { get; set; }
+    public string TransType { get; set; } = null!;
 
     public virtual CtReceivedApplication? AcsRap { get; set; }
-
-    public virtual CtSuspendedAnimal? AcsSan { get; set; }
 
     public virtual CtValidApplication? AcsVap { get; set; }
 

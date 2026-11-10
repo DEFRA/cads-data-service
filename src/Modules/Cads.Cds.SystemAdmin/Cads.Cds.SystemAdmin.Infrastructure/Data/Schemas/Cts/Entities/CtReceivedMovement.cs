@@ -77,7 +77,7 @@ public partial class CtReceivedMovement
 
     public long? TransId { get; set; }
 
-    public virtual ICollection<CtMovtCorrectSummary> CtMovtCorrectSummaries { get; set; } = new List<CtMovtCorrectSummary>();
+    public string TransType { get; set; } = null!;
 
     public virtual ICollection<CtRecdMovementError> CtRecdMovementErrors { get; set; } = new List<CtRecdMovementError>();
 }

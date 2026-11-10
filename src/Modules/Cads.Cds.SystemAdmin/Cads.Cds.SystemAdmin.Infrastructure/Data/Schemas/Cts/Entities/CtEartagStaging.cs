@@ -24,6 +24,8 @@ public partial class CtEartagStaging
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtEartagReasonFlag? EstErf { get; set; }
 
     public virtual CtLocation? EstLocIdOrderNavigation { get; set; }

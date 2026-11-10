@@ -30,6 +30,8 @@ public partial class CtLetter
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtWorkgroup? LetWgp { get; set; }
 
     public virtual CtWorkgroup? LetWgpIdSentNavigation { get; set; }

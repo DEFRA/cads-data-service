@@ -26,6 +26,8 @@ public partial class CtWgSuperAssignment
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtAllocRoutine? WsaRou { get; set; }
 
     public virtual CtWorkgroup? WsaWgpIdAssignedNavigation { get; set; }

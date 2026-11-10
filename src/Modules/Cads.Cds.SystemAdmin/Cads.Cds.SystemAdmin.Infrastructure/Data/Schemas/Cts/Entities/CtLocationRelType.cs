@@ -45,6 +45,8 @@ public partial class CtLocationRelType
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtLocTypeRelComb> CtLocTypeRelCombs { get; set; } = new List<CtLocTypeRelComb>();
 
     public virtual ICollection<CtLocationRelationship> CtLocationRelationships { get; set; } = new List<CtLocationRelationship>();

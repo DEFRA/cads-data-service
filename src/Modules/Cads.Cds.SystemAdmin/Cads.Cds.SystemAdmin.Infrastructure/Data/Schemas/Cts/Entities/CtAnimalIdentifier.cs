@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Entities;
 
@@ -45,19 +44,11 @@ public partial class CtAnimalIdentifier
 
     public long? TransId { get; set; }
 
-    public virtual CtAnimalIdentifier? AidAidIdOriginalNavigation { get; set; }
-
-    public virtual CtAnimalIdentifier? AidAidIdPreviousNavigation { get; set; }
+    public string TransType { get; set; } = null!;
 
     public virtual CtElectronicIdentifier? AidEid { get; set; }
 
     public virtual CtEartag? AidEtg { get; set; }
 
     public virtual CtLocation? AidLocIdAssignedNavigation { get; set; }
-
-    public virtual CtRegisteredAnimal? AidRan { get; set; }
-
-    public virtual ICollection<CtAnimalIdentifier> InverseAidAidIdOriginalNavigation { get; set; } = new List<CtAnimalIdentifier>();
-
-    public virtual ICollection<CtAnimalIdentifier> InverseAidAidIdPreviousNavigation { get; set; } = new List<CtAnimalIdentifier>();
 }

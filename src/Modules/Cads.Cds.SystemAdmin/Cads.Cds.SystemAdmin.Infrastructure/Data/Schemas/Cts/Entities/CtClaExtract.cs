@@ -27,6 +27,8 @@ public partial class CtClaExtract
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtClaExtractDetail> CtClaExtractDetails { get; set; } = new List<CtClaExtractDetail>();
 
     public virtual ICollection<CtClaMiniDetail> CtClaMiniDetails { get; set; } = new List<CtClaMiniDetail>();

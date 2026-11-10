@@ -63,6 +63,8 @@ public partial class CtValidApplication
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAnimalCorrectSummary> CtAnimalCorrectSummaries { get; set; } = new List<CtAnimalCorrectSummary>();
 
     public virtual ICollection<CtApplicStatus> CtApplicStatuses { get; set; } = new List<CtApplicStatus>();

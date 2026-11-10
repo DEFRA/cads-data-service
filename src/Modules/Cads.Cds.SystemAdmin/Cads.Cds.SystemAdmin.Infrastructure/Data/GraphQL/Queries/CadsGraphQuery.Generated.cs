@@ -184,6 +184,16 @@ public partial class CadsGraphQuery
     [UseProjection] // Allows selecting nested fields
     [UseFiltering]  // Enables filtering
     [UseSorting]    // Enables sorting
+    public IQueryable<ClaPseudoAnonymisationProgress> GetClaPseudoAnonymisationProgresses([Service] CadsSystemAdminDbContext db) => db.ClaPseudoAnonymisationProgresses;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsBulkImportMigratedRow> GetCtsBulkImportMigratedRows([Service] CadsSystemAdminDbContext db) => db.CtsBulkImportMigratedRows;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
     public IQueryable<CtsFileImport> GetCtsFileImports([Service] CadsSystemAdminDbContext db) => db.CtsFileImports;
     [UsePaging]     // Enables pagination
     [UseProjection] // Allows selecting nested fields
@@ -200,6 +210,61 @@ public partial class CadsGraphQuery
     [UseFiltering]  // Enables filtering
     [UseSorting]    // Enables sorting
     public IQueryable<CtsFileProcessingStatus> GetCtsFileProcessingStatuses([Service] CadsSystemAdminDbContext db) => db.CtsFileProcessingStatuses;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportConstraintRestoreLog> GetCtsParallelImportConstraintRestoreLogs([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportConstraintRestoreLogs;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportDeferredRow> GetCtsParallelImportDeferredRows([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportDeferredRows;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportDependency> GetCtsParallelImportDependencies([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportDependencies;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportRun> GetCtsParallelImportRuns([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportRuns;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportStatus> GetCtsParallelImportStatuses([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportStatuses;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportTableSetting> GetCtsParallelImportTableSettings([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportTableSettings;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportWorkQueue> GetCtsParallelImportWorkQueues([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportWorkQueues;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportWorker> GetCtsParallelImportWorkers([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportWorkers;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportWorkerMetric> GetCtsParallelImportWorkerMetrics([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportWorkerMetrics;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsParallelImportWorkerSample> GetCtsParallelImportWorkerSamples([Service] CadsSystemAdminDbContext db) => db.CtsParallelImportWorkerSamples;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<CtsPseudoAnonymisationProgress> GetCtsPseudoAnonymisationProgresses([Service] CadsSystemAdminDbContext db) => db.CtsPseudoAnonymisationProgresses;
     [UsePaging]     // Enables pagination
     [UseProjection] // Allows selecting nested fields
     [UseFiltering]  // Enables filtering
@@ -310,6 +375,16 @@ public partial class CadsGraphQuery
     [UseFiltering]  // Enables filtering
     [UseSorting]    // Enables sorting
     public IQueryable<MiReportGroup> GetMiReportGroups([Service] CadsSystemAdminDbContext db) => db.MiReportGroups;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<MiReportJob> GetMiReportJobs([Service] CadsSystemAdminDbContext db) => db.MiReportJobs;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
+    public IQueryable<MiReportJobOutbox> GetMiReportJobOutboxes([Service] CadsSystemAdminDbContext db) => db.MiReportJobOutboxes;
     [UsePaging]     // Enables pagination
     [UseProjection] // Allows selecting nested fields
     [UseFiltering]  // Enables filtering

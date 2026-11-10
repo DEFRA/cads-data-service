@@ -51,6 +51,8 @@ public partial class CtParty
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAddress> CtAddresses { get; set; } = new List<CtAddress>();
 
     public virtual ICollection<CtLocationPartyRel> CtLocationPartyRels { get; set; } = new List<CtLocationPartyRel>();

@@ -123,6 +123,8 @@ public partial class CtReceivedApplication
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAnimalCorrectSummary> CtAnimalCorrectSummaries { get; set; } = new List<CtAnimalCorrectSummary>();
 
     public virtual ICollection<CtRecdApplicationError> CtRecdApplicationErrors { get; set; } = new List<CtRecdApplicationError>();

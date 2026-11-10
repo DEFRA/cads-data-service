@@ -22,5 +22,7 @@ public partial class CtClaMiniDetail
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtClaExtract? CldCle { get; set; }
 }

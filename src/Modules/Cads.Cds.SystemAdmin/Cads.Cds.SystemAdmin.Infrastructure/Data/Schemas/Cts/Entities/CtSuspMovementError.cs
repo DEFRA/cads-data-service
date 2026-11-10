@@ -26,5 +26,7 @@ public partial class CtSuspMovementError
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtSuspendedMovement? SmeSmo { get; set; }
 }

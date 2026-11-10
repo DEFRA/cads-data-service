@@ -25,4 +25,6 @@ public partial class CtClaExtractDm
     public decimal? RowNumber { get; set; }
 
     public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
 }

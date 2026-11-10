@@ -36,6 +36,8 @@ public partial class CtParamValueGroup
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtParamGroup? PvgPgp { get; set; }
 
     public virtual CtParamValue? PvgPvl { get; set; }

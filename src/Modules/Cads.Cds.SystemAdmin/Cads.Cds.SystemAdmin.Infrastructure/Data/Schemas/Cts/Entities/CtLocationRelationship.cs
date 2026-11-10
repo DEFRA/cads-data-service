@@ -40,6 +40,8 @@ public partial class CtLocationRelationship
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtLocation? LlrLocIdChildNavigation { get; set; }
 
     public virtual CtLocation? LlrLocIdParentNavigation { get; set; }

@@ -65,6 +65,8 @@ public partial class CtLocation
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAddress> CtAddresses { get; set; } = new List<CtAddress>();
 
     public virtual ICollection<CtAnimalChange> CtAnimalChanges { get; set; } = new List<CtAnimalChange>();

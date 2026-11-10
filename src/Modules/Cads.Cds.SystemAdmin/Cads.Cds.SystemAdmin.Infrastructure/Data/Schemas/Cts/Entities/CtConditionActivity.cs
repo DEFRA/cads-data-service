@@ -35,6 +35,8 @@ public partial class CtConditionActivity
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtCondition? CacCon { get; set; }
 
     public virtual ICollection<CtConditionMarker> CtConditionMarkers { get; set; } = new List<CtConditionMarker>();

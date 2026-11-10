@@ -45,5 +45,7 @@ public partial class CtCounty
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtLocation> CtLocations { get; set; } = new List<CtLocation>();
 }

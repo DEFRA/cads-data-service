@@ -46,6 +46,8 @@ public partial class CtAnimalRelationship
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtLocation? AarLoc { get; set; }
 
     public virtual CtRegisteredAnimal? AarRanIdChildNavigation { get; set; }

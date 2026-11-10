@@ -26,5 +26,7 @@ public partial class CtRecdMovementError
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtReceivedMovement? RmeRmo { get; set; }
 }

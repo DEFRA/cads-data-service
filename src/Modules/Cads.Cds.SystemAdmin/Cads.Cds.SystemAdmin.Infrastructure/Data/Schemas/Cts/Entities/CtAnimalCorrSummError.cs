@@ -26,5 +26,7 @@ public partial class CtAnimalCorrSummError
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtAnimalCorrectSummary? AseAcs { get; set; }
 }

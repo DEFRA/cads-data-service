@@ -30,5 +30,7 @@ public partial class CtCondVariantGrouping
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtConditionVariant? CvgCov { get; set; }
 }

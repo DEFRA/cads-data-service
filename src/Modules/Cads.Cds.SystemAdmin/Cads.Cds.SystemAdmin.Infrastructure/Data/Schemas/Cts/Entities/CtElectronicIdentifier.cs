@@ -27,6 +27,8 @@ public partial class CtElectronicIdentifier
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAnimalIdentifier> CtAnimalIdentifiers { get; set; } = new List<CtAnimalIdentifier>();
 
     public virtual CtIssuingAuthority? EidIsa { get; set; }

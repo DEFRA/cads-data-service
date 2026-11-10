@@ -35,5 +35,7 @@ public partial class CtLocationIdFormat
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtLocationType> CtLocationTypes { get; set; } = new List<CtLocationType>();
 }

@@ -45,5 +45,7 @@ public partial class CtLocationPartyRelType
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtLocationPartyRel> CtLocationPartyRels { get; set; } = new List<CtLocationPartyRel>();
 }

@@ -25,5 +25,7 @@ public partial class CtClaimStatus
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAnimalClaim> CtAnimalClaims { get; set; } = new List<CtAnimalClaim>();
 }

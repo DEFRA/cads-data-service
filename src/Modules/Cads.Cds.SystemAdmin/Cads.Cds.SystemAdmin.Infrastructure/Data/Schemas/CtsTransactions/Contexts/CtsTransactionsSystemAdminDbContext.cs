@@ -266,6 +266,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.AdrAudType, "ct_addresses_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_addresses_bulk_trans_type_b_trans_id_919d4a_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_addresses_bulk_trans_type_sb_trans_id_919d4a_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_addresses_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_addresses_file_row_number_idx");
@@ -359,6 +363,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.RouAudType, "ct_alloc_routines_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_alloc_routines_bulk_trans_type_b_trans_id_0f951a_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_alloc_routines_bulk_trans_type_sb_trans_id_0f951a_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_alloc_routines_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_alloc_routines_file_row_number_idx");
@@ -440,6 +448,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.AchAudType, e.AchAudDatetime }, "ct_animal_changes_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.AchAudType, "ct_animal_changes_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_changes_bulk_trans_type_b_trans_id_72ea2a_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_changes_bulk_trans_type_sb_trans_id_72ea2a_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_animal_changes_file_record_count_idx");
 
@@ -546,6 +558,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.AncAudType, "ct_animal_claims_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_animal_claims_bulk_trans_type_b_trans_id_374fee_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_claims_bulk_trans_type_sb_trans_id_374fee_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_animal_claims_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_animal_claims_file_row_number_idx");
@@ -631,6 +647,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.ToTable("ct_animal_corr_summ_errors", "cts_transactions");
 
+            entity.HasIndex(e => e.TransId, "ct_animal_corr_summ_error_bulk_trans_type_b_trans_id_abcfd6_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_corr_summ_error_bulk_trans_type_sb_trans_id_abcfd6_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.AseAcsId, "ct_animal_corr_summ_errors_ase_acs_id_idx");
 
             entity.HasIndex(e => e.AseAudDatetime, "ct_animal_corr_summ_errors_aud_datetime_idx");
@@ -710,6 +730,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_animal_correct_summaries_pkey");
 
             entity.ToTable("ct_animal_correct_summaries", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_correct_summari_bulk_trans_type_b_trans_id_ad734d_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_correct_summari_bulk_trans_type_sb_trans_id_ad734d_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.AcsRanId, "ct_animal_correct_summaries_acs_ran_id_idx");
 
@@ -963,6 +987,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.AidAudType, "ct_animal_identifiers_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_animal_identifiers_bulk_trans_type_b_trans_id_01648e_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_identifiers_bulk_trans_type_sb_trans_id_01648e_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_animal_identifiers_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_animal_identifiers_file_row_number_idx");
@@ -1070,6 +1098,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.AarAudType, "ct_animal_relationships_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_animal_relationships_bulk_trans_type_b_trans_id_ad81e4_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_relationships_bulk_trans_type_sb_trans_id_ad81e4_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_animal_relationships_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_animal_relationships_file_row_number_idx");
@@ -1167,6 +1199,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.AstAudType, "ct_animal_statuses_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_animal_statuses_bulk_trans_type_b_trans_id_876257_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_animal_statuses_bulk_trans_type_sb_trans_id_876257_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_animal_statuses_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_animal_statuses_file_row_number_idx");
@@ -1251,6 +1287,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.ApsAudType, "ct_applic_statuses_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_applic_statuses_bulk_trans_type_b_trans_id_9d393d_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_applic_statuses_bulk_trans_type_sb_trans_id_9d393d_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_applic_statuses_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_applic_statuses_file_row_number_idx");
@@ -1325,6 +1365,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.AldAudType, e.AldAudDatetime }, "ct_application_late_days_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.AldAudType, "ct_application_late_days_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_application_late_days_bulk_trans_type_b_trans_id_4bac94_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_application_late_days_bulk_trans_type_sb_trans_id_4bac94_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_application_late_days_file_record_count_idx");
 
@@ -1405,6 +1449,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.BrtAudType, "ct_batch_retention_conf_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_batch_retention_conf_bulk_trans_type_b_trans_id_7fc6fe_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_batch_retention_conf_bulk_trans_type_sb_trans_id_7fc6fe_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_batch_retention_conf_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_batch_retention_conf_file_row_number_idx");
@@ -1462,6 +1510,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.BrdAudType, e.BrdAudDatetime }, "ct_breeds_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.BrdAudType, "ct_breeds_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_breeds_bulk_trans_type_b_trans_id_758307_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_breeds_bulk_trans_type_sb_trans_id_758307_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.BrdType, e.BrdAudType, e.BrdAudDatetime }, "ct_breeds_file_brd_type_aud_datetime_idx");
 
@@ -1551,6 +1603,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CleAudType, "ct_cla_extract_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_cla_extract_bulk_trans_type_b_trans_id_987930_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cla_extract_bulk_trans_type_sb_trans_id_987930_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_cla_extract_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_cla_extract_file_row_number_idx");
@@ -1621,6 +1677,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CldAudType, "ct_cla_extract_detail_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_cla_extract_detail_bulk_trans_type_b_trans_id_020d86_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cla_extract_detail_bulk_trans_type_sb_trans_id_020d86_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.CldCleId, "ct_cla_extract_detail_cld_cle_id_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_cla_extract_detail_file_record_count_idx");
@@ -1687,6 +1747,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CleAudType, e.CleAudDatetime }, "ct_cla_extract_dm_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CleAudType, "ct_cla_extract_dm_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_cla_extract_dm_bulk_trans_type_b_trans_id_46c939_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cla_extract_dm_bulk_trans_type_sb_trans_id_46c939_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_cla_extract_dm_file_record_count_idx");
 
@@ -1758,6 +1822,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CldAudType, "ct_cla_mini_detail_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_cla_mini_detail_bulk_trans_type_b_trans_id_87f410_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cla_mini_detail_bulk_trans_type_sb_trans_id_87f410_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.CldCleId, "ct_cla_mini_detail_cld_cle_id_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_cla_mini_detail_file_record_count_idx");
@@ -1824,6 +1892,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CleAudType, e.CleAudDatetime }, "ct_cla_mini_extract_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CleAudType, "ct_cla_mini_extract_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_cla_mini_extract_bulk_trans_type_b_trans_id_98e6db_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cla_mini_extract_bulk_trans_type_sb_trans_id_98e6db_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_cla_mini_extract_file_record_count_idx");
 
@@ -1894,6 +1966,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.ClsAudType, e.ClsAudDatetime }, "ct_claim_statuses_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.ClsAudType, "ct_claim_statuses_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_claim_statuses_bulk_trans_type_b_trans_id_b74335_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_claim_statuses_bulk_trans_type_sb_trans_id_b74335_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_claim_statuses_file_record_count_idx");
 
@@ -1967,6 +2043,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CltAudType, e.CltAudDatetime }, "ct_claim_types_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CltAudType, "ct_claim_types_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_claim_types_bulk_trans_type_b_trans_id_b427c0_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_claim_types_bulk_trans_type_sb_trans_id_b427c0_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.CltSchId, "ct_claim_types_clt_sch_id_idx");
 
@@ -2045,6 +2125,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CmaAudType, e.CmaAudDatetime }, "ct_cm_authorities_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CmaAudType, "ct_cm_authorities_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_cm_authorities_bulk_trans_type_b_trans_id_b1859f_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cm_authorities_bulk_trans_type_sb_trans_id_b1859f_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.CmaCotId, "ct_cm_authorities_cma_cot_id_idx");
 
@@ -2126,6 +2210,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CmrAudType, e.CmrAudDatetime }, "ct_cm_measures_results_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CmrAudType, "ct_cm_measures_results_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_cm_measures_results_bulk_trans_type_b_trans_id_881061_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cm_measures_results_bulk_trans_type_sb_trans_id_881061_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.CmrComId, "ct_cm_measures_results_cmr_com_id_idx");
 
@@ -2213,6 +2301,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CoaAudType, "ct_comms_addresses_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_comms_addresses_bulk_trans_type_b_trans_id_eb1fb6_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_comms_addresses_bulk_trans_type_sb_trans_id_eb1fb6_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_comms_addresses_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_comms_addresses_file_row_number_idx");
@@ -2284,6 +2376,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CvgAudType, e.CvgAudDatetime }, "ct_cond_variant_groupings_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CvgAudType, "ct_cond_variant_groupings_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_cond_variant_groupings_bulk_trans_type_b_trans_id_4ecd64_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cond_variant_groupings_bulk_trans_type_sb_trans_id_4ecd64_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.CvgCovId, "ct_cond_variant_groupings_cvg_cov_id_idx");
 
@@ -2359,6 +2455,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.ConAudType, e.ConAudDatetime }, "ct_conditions_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.ConAudType, "ct_conditions_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_conditions_bulk_trans_type_b_trans_id_94d0f3_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_conditions_bulk_trans_type_sb_trans_id_94d0f3_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.ConCotId, "ct_conditions_con_cot_id_idx");
 
@@ -2455,6 +2555,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CacAudType, "ct_condition_activities_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_condition_activities_bulk_trans_type_b_trans_id_8e0b64_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_condition_activities_bulk_trans_type_sb_trans_id_8e0b64_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.CacConId, "ct_condition_activities_cac_con_id_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_condition_activities_file_record_count_idx");
@@ -2535,6 +2639,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.ComAudType, e.ComAudDatetime }, "ct_condition_markers_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.ComAudType, "ct_condition_markers_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_condition_markers_bulk_trans_type_b_trans_id_448aa0_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_condition_markers_bulk_trans_type_sb_trans_id_448aa0_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.ComCacId, "ct_condition_markers_com_cac_id_idx");
 
@@ -2663,6 +2771,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.ToTable("ct_condition_marker_errors", "cts_transactions");
 
+            entity.HasIndex(e => e.TransId, "ct_condition_marker_error_bulk_trans_type_b_trans_id_78d59c_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_condition_marker_error_bulk_trans_type_sb_trans_id_78d59c_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.CmeAudDatetime, "ct_condition_marker_errors_aud_datetime_idx");
 
             entity.HasIndex(e => e.CmeAudId, "ct_condition_marker_errors_aud_id_idx");
@@ -2751,6 +2863,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CotAudType, "ct_condition_types_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_condition_types_bulk_trans_type_b_trans_id_a154de_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_condition_types_bulk_trans_type_sb_trans_id_a154de_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_condition_types_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_condition_types_file_row_number_idx");
@@ -2834,6 +2950,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CovAudType, e.CovAudDatetime }, "ct_condition_variants_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CovAudType, "ct_condition_variants_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_condition_variants_bulk_trans_type_b_trans_id_aca2a5_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_condition_variants_bulk_trans_type_sb_trans_id_aca2a5_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.CovConId, "ct_condition_variants_cov_con_id_idx");
 
@@ -2960,6 +3080,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CtyAudType, "ct_counties_migration_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_counties_migration_bulk_trans_type_b_trans_id_3abb17_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_counties_migration_bulk_trans_type_sb_trans_id_3abb17_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_counties_migration_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_counties_migration_file_row_number_idx");
@@ -3061,6 +3185,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CryAudType, "ct_countries_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_countries_bulk_trans_type_b_trans_id_ce7769_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_countries_bulk_trans_type_sb_trans_id_ce7769_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.CryCryIdMainEu, "ct_countries_cry_cry_id_main_eu_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_countries_file_record_count_idx");
@@ -3147,6 +3275,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CtyAudType, e.CtyAudDatetime }, "ct_counties_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CtyAudType, "ct_counties_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_counties_bulk_trans_type_b_trans_id_35c1bb_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_counties_bulk_trans_type_sb_trans_id_35c1bb_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_counties_file_record_count_idx");
 
@@ -3242,6 +3374,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.KnsAudType, "ct_cps167_report_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_cps167_report_bulk_trans_type_b_trans_id_2eaf5b_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cps167_report_bulk_trans_type_sb_trans_id_2eaf5b_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_cps167_report_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_cps167_report_file_row_number_idx");
@@ -3305,6 +3441,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_cts164_handshake_file_keys_transactions_pkey");
 
             entity.ToTable("ct_cts164_handshake_file_keys", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_cts164_handshake_file__bulk_trans_type_b_trans_id_b50f65_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cts164_handshake_file__bulk_trans_type_sb_trans_id_b50f65_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.BjkAudDatetime, "ct_cts164_handshake_file_keys_aud_datetime_idx");
 
@@ -3372,6 +3512,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CusAudType, e.CusAudDatetime }, "ct_cts_users_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CusAudType, "ct_cts_users_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_cts_users_bulk_trans_type_b_trans_id_458412_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_cts_users_bulk_trans_type_sb_trans_id_458412_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_cts_users_file_record_count_idx");
 
@@ -3452,6 +3596,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.EtgAudType, e.EtgAudDatetime }, "ct_eartags_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.EtgAudType, "ct_eartags_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_eartags_bulk_trans_type_b_trans_id_1cf552_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_eartags_bulk_trans_type_sb_trans_id_1cf552_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.EtgErfId, "ct_eartags_etg_erf_id_idx");
 
@@ -3573,6 +3721,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.EtfAudType, "ct_eartag_formats_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_eartag_formats_bulk_trans_type_b_trans_id_2a479d_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_eartag_formats_bulk_trans_type_sb_trans_id_2a479d_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_eartag_formats_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_eartag_formats_file_row_number_idx");
@@ -3652,6 +3804,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.EtrAudType, "ct_eartag_reasons_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_eartag_reasons_bulk_trans_type_b_trans_id_3870eb_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_eartag_reasons_bulk_trans_type_sb_trans_id_3870eb_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_eartag_reasons_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_eartag_reasons_file_row_number_idx");
@@ -3730,6 +3886,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.ErfAudType, e.ErfAudDatetime }, "ct_eartag_reason_flags_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.ErfAudType, "ct_eartag_reason_flags_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_eartag_reason_flags_bulk_trans_type_b_trans_id_2ce79b_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_eartag_reason_flags_bulk_trans_type_sb_trans_id_2ce79b_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.ErfEtrId, "ct_eartag_reason_flags_erf_etr_id_idx");
 
@@ -3836,6 +3996,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.EstAudType, "ct_eartag_staging_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_eartag_staging_bulk_trans_type_b_trans_id_f0faf2_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_eartag_staging_bulk_trans_type_sb_trans_id_f0faf2_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.EstErfId, "ct_eartag_staging_est_erf_id_idx");
 
             entity.HasIndex(e => e.EstLocIdOrder, "ct_eartag_staging_est_loc_id_order_idx");
@@ -3914,6 +4078,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.EttAudType, e.EttAudDatetime }, "ct_eartag_types_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.EttAudType, "ct_eartag_types_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_eartag_types_bulk_trans_type_b_trans_id_1e656c_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_eartag_types_bulk_trans_type_sb_trans_id_1e656c_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.EttEtfId, "ct_eartag_types_ett_etf_id_idx");
 
@@ -3999,6 +4167,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.EidAudType, "ct_electronic_identifiers_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_electronic_identifiers_bulk_trans_type_b_trans_id_49fb50_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_electronic_identifiers_bulk_trans_type_sb_trans_id_49fb50_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.EidIsaId, "ct_electronic_identifiers_eid_isa_id_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_electronic_identifiers_file_record_count_idx");
@@ -4078,6 +4250,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.EmlAudType, e.EmlAudDatetime }, "ct_email_log_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.EmlAudType, "ct_email_log_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_email_log_bulk_trans_type_b_trans_id_8f40d5_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_email_log_bulk_trans_type_sb_trans_id_8f40d5_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_email_log_file_record_count_idx");
 
@@ -4162,6 +4338,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.EreAudType, "ct_ereport_files_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_ereport_files_bulk_trans_type_b_trans_id_8c824a_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ereport_files_bulk_trans_type_sb_trans_id_8c824a_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_ereport_files_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.TransType }, "ct_ereport_files_file_trans_type_idx");
@@ -4227,6 +4407,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.ErmAudType, e.ErmAudDatetime }, "ct_ereport_load_messages_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.ErmAudType, "ct_ereport_load_messages_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_ereport_load_messages_bulk_trans_type_b_trans_id_769ae8_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ereport_load_messages_bulk_trans_type_sb_trans_id_769ae8_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_ereport_load_messages_file_record_count_idx");
 
@@ -4294,6 +4478,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.ErlAudType, "ct_ereport_locks_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_ereport_locks_bulk_trans_type_b_trans_id_20780f_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ereport_locks_bulk_trans_type_sb_trans_id_20780f_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_ereport_locks_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.TransType }, "ct_ereport_locks_file_trans_type_idx");
@@ -4343,6 +4531,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_ereport_process_messages_pkey");
 
             entity.ToTable("ct_ereport_process_messages", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_ereport_process_messag_bulk_trans_type_b_trans_id_cc047b_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ereport_process_messag_bulk_trans_type_sb_trans_id_cc047b_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.ErqAudDatetime, "ct_ereport_process_messages_aud_datetime_idx");
 
@@ -4411,6 +4603,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.CetAudType, e.CetAudDatetime }, "ct_ext_cetd_eartag_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.CetAudType, "ct_ext_cetd_eartag_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_ext_cetd_eartag_bulk_trans_type_b_trans_id_3ce0c2_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ext_cetd_eartag_bulk_trans_type_sb_trans_id_3ce0c2_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_ext_cetd_eartag_file_record_count_idx");
 
@@ -4485,6 +4681,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.NidAudType, "ct_ext_ni_district_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_ext_ni_district_bulk_trans_type_b_trans_id_fa57d2_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ext_ni_district_bulk_trans_type_sb_trans_id_fa57d2_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_ext_ni_district_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_ext_ni_district_file_row_number_idx");
@@ -4543,6 +4743,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.SphAudType, "ct_ext_special_herd_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_ext_special_herd_bulk_trans_type_b_trans_id_08d3d1_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ext_special_herd_bulk_trans_type_sb_trans_id_08d3d1_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_ext_special_herd_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_ext_special_herd_file_row_number_idx");
@@ -4600,6 +4804,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.FltAudType, e.FltAudDatetime }, "ct_file_layouts_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.FltAudType, "ct_file_layouts_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_file_layouts_bulk_trans_type_b_trans_id_c07927_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_file_layouts_bulk_trans_type_sb_trans_id_c07927_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_file_layouts_file_record_count_idx");
 
@@ -4681,6 +4889,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.HssAudType, "ct_hsf_sequences_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_hsf_sequences_bulk_trans_type_b_trans_id_5dc5a7_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_hsf_sequences_bulk_trans_type_sb_trans_id_5dc5a7_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_hsf_sequences_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_hsf_sequences_file_row_number_idx");
@@ -4735,6 +4947,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.IulAudType, e.IulAudDatetime }, "ct_insert_update_log_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.IulAudType, "ct_insert_update_log_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_insert_update_log_bulk_trans_type_b_trans_id_eb99a1_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_insert_update_log_bulk_trans_type_sb_trans_id_eb99a1_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_insert_update_log_file_record_count_idx");
 
@@ -4821,6 +5037,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.IdoAudType, e.IdoAudDatetime }, "ct_issued_documents_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.IdoAudType, "ct_issued_documents_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_issued_documents_bulk_trans_type_b_trans_id_5ae195_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_issued_documents_bulk_trans_type_sb_trans_id_5ae195_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_issued_documents_file_record_count_idx");
 
@@ -4917,6 +5137,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.IsaAudType, "ct_issuing_authorities_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_issuing_authorities_bulk_trans_type_b_trans_id_7f53a9_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_issuing_authorities_bulk_trans_type_sb_trans_id_7f53a9_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.IsaType, e.IsaAudType, e.IsaAudDatetime }, "ct_issuing_authorities_file_isa_type_aud_datetime_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.IsaType, e.IsaAudType }, "ct_issuing_authorities_file_isa_type_aud_type_idx");
@@ -4998,6 +5222,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.LarAudType, e.LarAudDatetime }, "ct_label_requests_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.LarAudType, "ct_label_requests_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_label_requests_bulk_trans_type_b_trans_id_e962a6_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_label_requests_bulk_trans_type_sb_trans_id_e962a6_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_label_requests_file_record_count_idx");
 
@@ -5165,6 +5393,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.LasAudType, "ct_label_summaries_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_label_summaries_bulk_trans_type_b_trans_id_7f55ed_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_label_summaries_bulk_trans_type_sb_trans_id_7f55ed_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_label_summaries_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_label_summaries_file_row_number_idx");
@@ -5254,6 +5486,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.LdaAudType, "ct_late_days_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_late_days_bulk_trans_type_b_trans_id_657f36_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_late_days_bulk_trans_type_sb_trans_id_657f36_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_late_days_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_late_days_file_row_number_idx");
@@ -5327,6 +5563,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.LetAudType, e.LetAudDatetime }, "ct_letters_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.LetAudType, "ct_letters_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_letters_bulk_trans_type_b_trans_id_1e6136_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_letters_bulk_trans_type_sb_trans_id_1e6136_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.LetType, e.LetAudType, e.LetAudDatetime }, "ct_letters_file_let_type_aud_datetime_idx");
 
@@ -5422,6 +5662,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.LrcAudType, "ct_loc_type_rel_combs_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_loc_type_rel_combs_bulk_trans_type_b_trans_id_2a162f_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_loc_type_rel_combs_bulk_trans_type_sb_trans_id_2a162f_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_loc_type_rel_combs_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_loc_type_rel_combs_file_row_number_idx");
@@ -5503,6 +5747,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.LocAudType, e.LocAudDatetime }, "ct_locations_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.LocAudType, "ct_locations_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_locations_bulk_trans_type_b_trans_id_0d668e_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_locations_bulk_trans_type_sb_trans_id_0d668e_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_locations_file_record_count_idx");
 
@@ -5632,6 +5880,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.LifAudType, "ct_location_id_formats_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_location_id_formats_bulk_trans_type_b_trans_id_d4091a_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_location_id_formats_bulk_trans_type_sb_trans_id_d4091a_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_location_id_formats_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_location_id_formats_file_row_number_idx");
@@ -5710,6 +5962,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.LidAudType, e.LidAudDatetime }, "ct_location_identifiers_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.LidAudType, "ct_location_identifiers_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_location_identifiers_bulk_trans_type_b_trans_id_303a03_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_location_identifiers_bulk_trans_type_sb_trans_id_303a03_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_location_identifiers_file_record_count_idx");
 
@@ -5799,6 +6055,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.LprAudType, "ct_location_party_rels_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_location_party_rels_bulk_trans_type_b_trans_id_b127f1_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_location_party_rels_bulk_trans_type_sb_trans_id_b127f1_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_location_party_rels_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_location_party_rels_file_row_number_idx");
@@ -5882,6 +6142,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_location_party_rel_types_transactions_pkey");
 
             entity.ToTable("ct_location_party_rel_types", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_location_party_rel_typ_bulk_trans_type_b_trans_id_a12327_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_location_party_rel_typ_bulk_trans_type_sb_trans_id_a12327_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.LptAudDatetime, "ct_location_party_rel_types_aud_datetime_idx");
 
@@ -5985,6 +6249,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.LrtAudType, "ct_location_rel_types_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_location_rel_types_bulk_trans_type_b_trans_id_bc7974_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_location_rel_types_bulk_trans_type_sb_trans_id_bc7974_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_location_rel_types_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_location_rel_types_file_row_number_idx");
@@ -6079,6 +6347,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.LlrAudType, "ct_location_relationships_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_location_relationships_bulk_trans_type_b_trans_id_7f6644_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_location_relationships_bulk_trans_type_sb_trans_id_7f6644_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_location_relationships_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_location_relationships_file_row_number_idx");
@@ -6170,6 +6442,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.LtyAudType, e.LtyAudDatetime }, "ct_location_types_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.LtyAudType, "ct_location_types_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_location_types_bulk_trans_type_b_trans_id_98511c_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_location_types_bulk_trans_type_sb_trans_id_98511c_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_location_types_file_record_count_idx");
 
@@ -6279,6 +6555,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.LocAudType, "ct_locations_faker_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_locations_faker_bulk_trans_type_b_trans_id_12e33f_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_locations_faker_bulk_trans_type_sb_trans_id_12e33f_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_locations_faker_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.TransType }, "ct_locations_faker_file_trans_type_idx");
@@ -6324,6 +6604,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_locrestrictionstoanimals_pkey");
 
             entity.ToTable("ct_locrestrictionstoanimals", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_locrestrictionstoanima_bulk_trans_type_b_trans_id_e05fee_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_locrestrictionstoanima_bulk_trans_type_sb_trans_id_e05fee_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.LraAudDatetime, "ct_locrestrictionstoanimals_aud_datetime_idx");
 
@@ -6402,6 +6686,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.MceAudType, "ct_mgt_control_errors_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_mgt_control_errors_bulk_trans_type_b_trans_id_f1f065_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_mgt_control_errors_bulk_trans_type_sb_trans_id_f1f065_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_mgt_control_errors_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_mgt_control_errors_file_row_number_idx");
@@ -6476,6 +6764,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_mgt_wg_allocation_rules_transactions_pkey");
 
             entity.ToTable("ct_mgt_wg_allocation_rules", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_mgt_wg_allocation_rule_bulk_trans_type_b_trans_id_88f521_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_mgt_wg_allocation_rule_bulk_trans_type_sb_trans_id_88f521_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.WarAudDatetime, "ct_mgt_wg_allocation_rules_aud_datetime_idx");
 
@@ -6569,6 +6861,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.CphAudType, "ct_mhs_to_cph_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_mhs_to_cph_bulk_trans_type_b_trans_id_38a392_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_mhs_to_cph_bulk_trans_type_sb_trans_id_38a392_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_mhs_to_cph_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_mhs_to_cph_file_row_number_idx");
@@ -6625,6 +6921,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.HstAudType, e.HstAudDatetime }, "ct_mov_hst_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.HstAudType, "ct_mov_hst_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_mov_hst_bulk_trans_type_b_trans_id_700671_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_mov_hst_bulk_trans_type_sb_trans_id_700671_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_mov_hst_file_record_count_idx");
 
@@ -6696,6 +6996,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.MseAudType, e.MseAudDatetime }, "ct_movt_corr_summ_errors_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.MseAudType, "ct_movt_corr_summ_errors_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_movt_corr_summ_errors_bulk_trans_type_b_trans_id_5fa133_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_movt_corr_summ_errors_bulk_trans_type_sb_trans_id_5fa133_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_movt_corr_summ_errors_file_record_count_idx");
 
@@ -6776,6 +7080,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.McsAudType, e.McsAudDatetime }, "ct_movt_correct_summaries_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.McsAudType, "ct_movt_correct_summaries_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_movt_correct_summaries_bulk_trans_type_b_trans_id_52b899_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_movt_correct_summaries_bulk_trans_type_sb_trans_id_52b899_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_movt_correct_summaries_file_record_count_idx");
 
@@ -6938,6 +7246,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.MsgAudType, "ct_msgtxt_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_msgtxt_bulk_trans_type_b_trans_id_5810a7_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_msgtxt_bulk_trans_type_sb_trans_id_5810a7_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_msgtxt_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_msgtxt_file_row_number_idx");
@@ -6992,6 +7304,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.NwdAudType, e.NwdAudDatetime }, "ct_non_working_days_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.NwdAudType, "ct_non_working_days_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_non_working_days_bulk_trans_type_b_trans_id_b56e38_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_non_working_days_bulk_trans_type_sb_trans_id_b56e38_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_non_working_days_file_record_count_idx");
 
@@ -7066,6 +7382,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.PgpAudType, e.PgpAudDatetime }, "ct_param_group_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.PgpAudType, "ct_param_group_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_param_group_bulk_trans_type_b_trans_id_b727c9_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_param_group_bulk_trans_type_sb_trans_id_b727c9_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_param_group_file_record_count_idx");
 
@@ -7151,6 +7471,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.PhdAudType, "ct_param_header_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_param_header_bulk_trans_type_b_trans_id_90c5e7_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_param_header_bulk_trans_type_sb_trans_id_90c5e7_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_param_header_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_param_header_file_row_number_idx");
@@ -7232,6 +7556,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.PvlAudType, e.PvlAudDatetime }, "ct_param_value_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.PvlAudType, "ct_param_value_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_param_value_bulk_trans_type_b_trans_id_4fb54e_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_param_value_bulk_trans_type_sb_trans_id_4fb54e_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_param_value_file_record_count_idx");
 
@@ -7320,6 +7648,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.PvgAudType, "ct_param_value_group_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_param_value_group_bulk_trans_type_b_trans_id_b1ac0c_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_param_value_group_bulk_trans_type_sb_trans_id_b1ac0c_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_param_value_group_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_param_value_group_file_row_number_idx");
@@ -7406,6 +7738,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.ParAudType, "ct_parties_faker_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_parties_faker_bulk_trans_type_b_trans_id_f5860a_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_parties_faker_bulk_trans_type_sb_trans_id_f5860a_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_parties_faker_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.TransType }, "ct_parties_faker_file_trans_type_idx");
@@ -7459,6 +7795,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.ParAudType, e.ParAudDatetime }, "ct_parties_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.ParAudType, "ct_parties_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_parties_bulk_trans_type_b_trans_id_f27d3e_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_parties_bulk_trans_type_sb_trans_id_f27d3e_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_parties_file_record_count_idx");
 
@@ -7561,6 +7901,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.PpgAudType, "ct_ppaf_groupings_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_ppaf_groupings_bulk_trans_type_b_trans_id_d38c9e_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ppaf_groupings_bulk_trans_type_sb_trans_id_d38c9e_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_ppaf_groupings_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_ppaf_groupings_file_row_number_idx");
@@ -7660,6 +8004,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.PafAudType, "ct_preprinted_appn_forms_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_preprinted_appn_forms_bulk_trans_type_b_trans_id_90fbf5_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_preprinted_appn_forms_bulk_trans_type_sb_trans_id_90fbf5_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_preprinted_appn_forms_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_preprinted_appn_forms_file_row_number_idx");
@@ -7749,6 +8097,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.PchAudType, "ct_probity_checks_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_probity_checks_bulk_trans_type_b_trans_id_51d27c_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_probity_checks_bulk_trans_type_sb_trans_id_51d27c_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_probity_checks_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_probity_checks_file_row_number_idx");
@@ -7827,6 +8179,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.RanAudType, "ct_ps9999_ahdb_data_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_ps9999_ahdb_data_bulk_trans_type_b_trans_id_e14380_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ps9999_ahdb_data_bulk_trans_type_sb_trans_id_e14380_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_ps9999_ahdb_data_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_ps9999_ahdb_data_file_row_number_idx");
@@ -7886,6 +8242,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.ToTable("ct_ps9999_ahdb_mov_history", "cts_transactions");
 
+            entity.HasIndex(e => e.TransId, "ct_ps9999_ahdb_mov_histor_bulk_trans_type_b_trans_id_abfeff_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_ps9999_ahdb_mov_histor_bulk_trans_type_sb_trans_id_abfeff_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.LocAudDatetime, "ct_ps9999_ahdb_mov_history_aud_datetime_idx");
 
             entity.HasIndex(e => e.LocAudId, "ct_ps9999_ahdb_mov_history_aud_id_idx");
@@ -7943,6 +8303,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_recd_application_errors_pkey");
 
             entity.ToTable("ct_recd_application_errors", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_recd_application_error_bulk_trans_type_b_trans_id_b69e09_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_recd_application_error_bulk_trans_type_sb_trans_id_b69e09_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.RaeAudDatetime, "ct_recd_application_errors_aud_datetime_idx");
 
@@ -8032,6 +8396,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.RmeAudType, "ct_recd_movement_errors_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_recd_movement_errors_bulk_trans_type_b_trans_id_702290_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_recd_movement_errors_bulk_trans_type_sb_trans_id_702290_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_recd_movement_errors_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_recd_movement_errors_file_row_number_idx");
@@ -8111,6 +8479,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.RapAudType, e.RapAudDatetime }, "ct_received_applications_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.RapAudType, "ct_received_applications_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_received_applications_bulk_trans_type_b_trans_id_320659_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_received_applications_bulk_trans_type_sb_trans_id_320659_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_received_applications_file_record_count_idx");
 
@@ -8315,6 +8687,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.RmoAudType, "ct_received_movements_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_received_movements_bulk_trans_type_b_trans_id_867544_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_received_movements_bulk_trans_type_sb_trans_id_867544_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_received_movements_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_received_movements_file_row_number_idx");
@@ -8453,6 +8829,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.RanAudType, "ct_registered_animals_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_registered_animals_bulk_trans_type_b_trans_id_7dea99_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_registered_animals_bulk_trans_type_sb_trans_id_7dea99_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_registered_animals_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_registered_animals_file_row_number_idx");
@@ -8582,6 +8962,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.MovAudType, e.MovAudDatetime }, "ct_registered_movements_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.MovAudType, "ct_registered_movements_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_registered_movements_bulk_trans_type_b_trans_id_9abef1_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_registered_movements_bulk_trans_type_sb_trans_id_9abef1_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_registered_movements_file_record_count_idx");
 
@@ -8730,6 +9114,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.RteAudType, "ct_reset_to_extract_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_reset_to_extract_bulk_trans_type_b_trans_id_f32e9e_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_reset_to_extract_bulk_trans_type_sb_trans_id_f32e9e_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_reset_to_extract_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_reset_to_extract_file_row_number_idx");
@@ -8793,6 +9181,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.SxtAudType, "ct_sbcs_ext_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_sbcs_ext_bulk_trans_type_b_trans_id_57f3f4_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_sbcs_ext_bulk_trans_type_sb_trans_id_57f3f4_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_sbcs_ext_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_sbcs_ext_file_row_number_idx");
@@ -8846,6 +9238,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.SchAudType, e.SchAudDatetime }, "ct_schemes_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.SchAudType, "ct_schemes_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_schemes_bulk_trans_type_b_trans_id_4db4ff_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_schemes_bulk_trans_type_sb_trans_id_4db4ff_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_schemes_file_record_count_idx");
 
@@ -8924,6 +9320,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.StfAudType, "ct_stage_files_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_stage_files_bulk_trans_type_b_trans_id_96eec7_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_stage_files_bulk_trans_type_sb_trans_id_96eec7_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_stage_files_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_stage_files_file_row_number_idx");
@@ -8993,6 +9393,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.StlAudType, "ct_stage_locks_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_stage_locks_bulk_trans_type_b_trans_id_962b13_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_stage_locks_bulk_trans_type_sb_trans_id_962b13_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_stage_locks_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_stage_locks_file_row_number_idx");
@@ -9053,6 +9457,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.StmAudType, e.StmAudDatetime }, "ct_stage_messages_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.StmAudType, "ct_stage_messages_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_stage_messages_bulk_trans_type_b_trans_id_68a7da_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_stage_messages_bulk_trans_type_sb_trans_id_68a7da_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_stage_messages_file_record_count_idx");
 
@@ -9119,6 +9527,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.SltAudType, e.SltAudDatetime }, "ct_sublocation_types_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.SltAudType, "ct_sublocation_types_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_sublocation_types_bulk_trans_type_b_trans_id_da09d4_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_sublocation_types_bulk_trans_type_sb_trans_id_da09d4_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_sublocation_types_file_record_count_idx");
 
@@ -9208,6 +9620,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.SaeAudType, "ct_susp_animal_errors_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_susp_animal_errors_bulk_trans_type_b_trans_id_fecb1e_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_susp_animal_errors_bulk_trans_type_sb_trans_id_fecb1e_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_susp_animal_errors_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_susp_animal_errors_file_row_number_idx");
@@ -9279,6 +9695,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_susp_cm_measure_results_pkey");
 
             entity.ToTable("ct_susp_cm_measure_results", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_susp_cm_measure_result_bulk_trans_type_b_trans_id_09cd63_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_susp_cm_measure_result_bulk_trans_type_sb_trans_id_09cd63_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.SmrAudDatetime, "ct_susp_cm_measure_results_aud_datetime_idx");
 
@@ -9373,6 +9793,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.ScmAudType, e.ScmAudDatetime }, "ct_susp_condition_markers_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.ScmAudType, "ct_susp_condition_markers_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_susp_condition_markers_bulk_trans_type_b_trans_id_a513cb_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_susp_condition_markers_bulk_trans_type_sb_trans_id_a513cb_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_susp_condition_markers_file_record_count_idx");
 
@@ -9545,6 +9969,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.SmeAudType, "ct_susp_movement_errors_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_susp_movement_errors_bulk_trans_type_b_trans_id_120033_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_susp_movement_errors_bulk_trans_type_sb_trans_id_120033_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_susp_movement_errors_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_susp_movement_errors_file_row_number_idx");
@@ -9624,6 +10052,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.SanAudType, e.SanAudDatetime }, "ct_suspended_animals_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.SanAudType, "ct_suspended_animals_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_suspended_animals_bulk_trans_type_b_trans_id_21b601_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_suspended_animals_bulk_trans_type_sb_trans_id_21b601_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_suspended_animals_file_record_count_idx");
 
@@ -9833,6 +10265,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.SmoAudType, "ct_suspended_movements_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_suspended_movements_bulk_trans_type_b_trans_id_f01518_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_suspended_movements_bulk_trans_type_sb_trans_id_f01518_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_suspended_movements_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_suspended_movements_file_row_number_idx");
@@ -9959,6 +10395,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.ToTable("ct_suspense_char_alloc_rules", "cts_transactions");
 
+            entity.HasIndex(e => e.TransId, "ct_suspense_char_alloc_ru_bulk_trans_type_b_trans_id_040433_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_suspense_char_alloc_ru_bulk_trans_type_sb_trans_id_040433_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => e.ScaAudDatetime, "ct_suspense_char_alloc_rules_aud_datetime_idx");
 
             entity.HasIndex(e => e.ScaAudId, "ct_suspense_char_alloc_rules_aud_id_idx");
@@ -10039,6 +10479,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasKey(e => e.TransId).HasName("ct_suspense_wg_alloc_rules_transactions_pkey");
 
             entity.ToTable("ct_suspense_wg_alloc_rules", "cts_transactions");
+
+            entity.HasIndex(e => e.TransId, "ct_suspense_wg_alloc_rule_bulk_trans_type_b_trans_id_a2589e_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_suspense_wg_alloc_rule_bulk_trans_type_sb_trans_id_a2589e_id").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => e.SwaAudDatetime, "ct_suspense_wg_alloc_rules_aud_datetime_idx");
 
@@ -10129,6 +10573,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.VapAudType, e.VapAudDatetime }, "ct_valid_applications_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.VapAudType, "ct_valid_applications_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_valid_applications_bulk_trans_type_b_trans_id_335bb9_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_valid_applications_bulk_trans_type_sb_trans_id_335bb9_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_valid_applications_file_record_count_idx");
 
@@ -10250,6 +10698,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.WurAudType, e.WurAudDatetime }, "ct_web_users_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.WurAudType, "ct_web_users_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_web_users_bulk_trans_type_b_trans_id_e44aa2_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_web_users_bulk_trans_type_sb_trans_id_e44aa2_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_web_users_file_record_count_idx");
 
@@ -10389,6 +10841,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.WgaAudType, "ct_wg_autoallocations_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_wg_autoallocations_bulk_trans_type_b_trans_id_ebb81a_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_wg_autoallocations_bulk_trans_type_sb_trans_id_ebb81a_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_wg_autoallocations_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_wg_autoallocations_file_row_number_idx");
@@ -10474,6 +10930,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
 
             entity.HasIndex(e => e.WsaAudType, "ct_wg_super_assignments_aud_type_idx");
 
+            entity.HasIndex(e => e.TransId, "ct_wg_super_assignments_bulk_trans_type_b_trans_id_206113_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_wg_super_assignments_bulk_trans_type_sb_trans_id_206113_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
+
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_wg_super_assignments_file_record_count_idx");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RowNumber }, "ct_wg_super_assignments_file_row_number_idx");
@@ -10557,6 +11017,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.WuaAudType, e.WuaAudDatetime }, "ct_wg_user_assignments_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.WuaAudType, "ct_wg_user_assignments_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_wg_user_assignments_bulk_trans_type_b_trans_id_3f6b44_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_wg_user_assignments_bulk_trans_type_sb_trans_id_3f6b44_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_wg_user_assignments_file_record_count_idx");
 
@@ -10642,6 +11106,10 @@ public partial class CtsTransactionsSystemAdminDbContext : DbContext
             entity.HasIndex(e => new { e.WgpAudType, e.WgpAudDatetime }, "ct_workgroups_aud_type_datetime_idx");
 
             entity.HasIndex(e => e.WgpAudType, "ct_workgroups_aud_type_idx");
+
+            entity.HasIndex(e => e.TransId, "ct_workgroups_bulk_trans_type_b_trans_id_5ab6e4_idx").HasFilter("(trans_type = 'B'::text)");
+
+            entity.HasIndex(e => e.TransId, "ct_workgroups_bulk_trans_type_sb_trans_id_5ab6e4_idx").HasFilter("(trans_type = ANY (ARRAY['B'::text, 'S'::text]))");
 
             entity.HasIndex(e => new { e.CtsFileImportId, e.RecordCount }, "ct_workgroups_file_record_count_idx");
 

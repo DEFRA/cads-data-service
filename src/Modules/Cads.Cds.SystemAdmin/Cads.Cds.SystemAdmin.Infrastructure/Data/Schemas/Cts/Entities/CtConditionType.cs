@@ -41,6 +41,8 @@ public partial class CtConditionType
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtCmAuthority> CtCmAuthorities { get; set; } = new List<CtCmAuthority>();
 
     public virtual ICollection<CtCondition> CtConditions { get; set; } = new List<CtCondition>();

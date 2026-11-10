@@ -32,6 +32,8 @@ public partial class CtLocTypeRelComb
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtLocationRelType? LrcLrt { get; set; }
 
     public virtual CtLocationType? LrcLtyId1Navigation { get; set; }

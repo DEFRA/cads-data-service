@@ -67,6 +67,8 @@ public partial class CtConditionVariant
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtCondition? CovCon { get; set; }
 
     public virtual ICollection<CtCondVariantGrouping> CtCondVariantGroupings { get; set; } = new List<CtCondVariantGrouping>();

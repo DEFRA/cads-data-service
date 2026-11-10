@@ -83,11 +83,11 @@ public partial class CtRegisteredMovement
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtAnimalChange> CtAnimalChanges { get; set; } = new List<CtAnimalChange>();
 
     public virtual ICollection<CtConditionMarker> CtConditionMarkers { get; set; } = new List<CtConditionMarker>();
-
-    public virtual ICollection<CtMovtCorrectSummary> CtMovtCorrectSummaries { get; set; } = new List<CtMovtCorrectSummary>();
 
     public virtual CtCountry? MovCryIdImportNavigation { get; set; }
 

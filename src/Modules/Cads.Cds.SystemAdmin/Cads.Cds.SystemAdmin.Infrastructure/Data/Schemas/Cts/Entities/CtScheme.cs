@@ -35,5 +35,7 @@ public partial class CtScheme
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtClaimType> CtClaimTypes { get; set; } = new List<CtClaimType>();
 }

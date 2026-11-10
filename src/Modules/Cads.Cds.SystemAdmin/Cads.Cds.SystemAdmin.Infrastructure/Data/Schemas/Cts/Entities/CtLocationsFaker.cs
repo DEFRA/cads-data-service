@@ -15,4 +15,6 @@ public partial class CtLocationsFaker
     public string? LocComments { get; set; }
 
     public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
 }

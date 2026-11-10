@@ -26,5 +26,7 @@ public partial class CtMovtCorrSummError
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtMovtCorrectSummary? MseMcs { get; set; }
 }

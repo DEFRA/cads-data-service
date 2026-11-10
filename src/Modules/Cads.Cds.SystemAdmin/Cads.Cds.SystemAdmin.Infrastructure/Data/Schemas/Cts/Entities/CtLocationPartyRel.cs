@@ -41,6 +41,8 @@ public partial class CtLocationPartyRel
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtWebUser> CtWebUsers { get; set; } = new List<CtWebUser>();
 
     public virtual CtLocation? LprLoc { get; set; }

@@ -42,6 +42,8 @@ public partial class CtIssuedDocument
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtLocation? IdoLoc { get; set; }
 
     public virtual CtRegisteredAnimal? IdoRan { get; set; }
