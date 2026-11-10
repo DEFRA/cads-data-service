@@ -28,5 +28,7 @@ public partial class CtSuspenseCharAllocRule
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtAllocRoutine? ScaRou { get; set; }
 }

@@ -36,6 +36,8 @@ public partial class CtAddress
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtLocation? AdrLoc { get; set; }
 
     public virtual CtParty? AdrPar { get; set; }

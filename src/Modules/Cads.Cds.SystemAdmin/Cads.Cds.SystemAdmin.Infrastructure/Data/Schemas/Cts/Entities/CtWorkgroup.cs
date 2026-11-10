@@ -37,6 +37,8 @@ public partial class CtWorkgroup
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtLetter> CtLetterLetWgpIdSentNavigations { get; set; } = new List<CtLetter>();
 
     public virtual ICollection<CtLetter> CtLetterLetWgps { get; set; } = new List<CtLetter>();

@@ -28,6 +28,8 @@ public partial class CtWgAutoallocation
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtAllocRoutine? WgaRou { get; set; }
 
     public virtual CtWorkgroup? WgaWgp { get; set; }

@@ -37,5 +37,7 @@ public partial class CtBreed
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual ICollection<CtRegisteredAnimal> CtRegisteredAnimals { get; set; } = new List<CtRegisteredAnimal>();
 }

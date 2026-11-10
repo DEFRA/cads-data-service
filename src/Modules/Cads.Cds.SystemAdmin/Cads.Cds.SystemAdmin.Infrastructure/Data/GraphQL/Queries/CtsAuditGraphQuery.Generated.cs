@@ -110,6 +110,10 @@ public partial class CtsAuditGraphQuery
     [UseFiltering]  // Enables filtering
     [UseSorting]    // Enables sorting
     public IQueryable<CtConditionMarkerError> GetCtConditionMarkerErrors([Service] CtsAuditSystemAdminDbContext db) => db.CtConditionMarkerErrors;
+    [UsePaging]     // Enables pagination
+    [UseProjection] // Allows selecting nested fields
+    [UseFiltering]  // Enables filtering
+    [UseSorting]    // Enables sorting
     public IQueryable<CtCps167Report> GetCtCps167Reports([Service] CtsAuditSystemAdminDbContext db) => db.CtCps167Reports;
     [UsePaging]     // Enables pagination
     [UseProjection] // Allows selecting nested fields
@@ -121,7 +125,6 @@ public partial class CtsAuditGraphQuery
     [UseFiltering]  // Enables filtering
     [UseSorting]    // Enables sorting
     public IQueryable<CtEartag> GetCtEartags([Service] CtsAuditSystemAdminDbContext db) => db.CtEartags;
-
     [UsePaging]     // Enables pagination
     [UseProjection] // Allows selecting nested fields
     [UseFiltering]  // Enables filtering

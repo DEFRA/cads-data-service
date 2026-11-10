@@ -309,6 +309,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("adr_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.AdrLoc).WithMany(p => p.CtAddresses)
                 .HasForeignKey(d => d.AdrLocId)
@@ -354,6 +357,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("rou_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtAnimalChange>(entity =>
@@ -418,6 +424,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("ach_sex_original");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.AchLocIdDocIssuedNavigation).WithMany(p => p.CtAnimalChanges)
                 .HasForeignKey(d => d.AchLocIdDocIssued)
@@ -492,6 +501,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("anc_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.AncCls).WithMany(p => p.CtAnimalClaims)
                 .HasForeignKey(d => d.AncClsId)
@@ -543,6 +555,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("ase_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.AseAcs).WithMany(p => p.CtAnimalCorrSummErrors)
                 .HasForeignKey(d => d.AseAcsId)
@@ -738,18 +753,13 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("acs_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
-
-            entity.HasOne(d => d.AcsRan).WithMany(p => p.CtAnimalCorrectSummaries)
-                .HasForeignKey(d => d.AcsRanId)
-                .HasConstraintName("fk_ct_animal_correct_summaries_acs_ran_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.AcsRap).WithMany(p => p.CtAnimalCorrectSummaries)
                 .HasForeignKey(d => d.AcsRapId)
                 .HasConstraintName("fk_ct_animal_correct_summaries_acs_rap_id");
-
-            entity.HasOne(d => d.AcsSan).WithMany(p => p.CtAnimalCorrectSummaries)
-                .HasForeignKey(d => d.AcsSanId)
-                .HasConstraintName("fk_ct_animal_correct_summaries_acs_san_id");
 
             entity.HasOne(d => d.AcsVap).WithMany(p => p.CtAnimalCorrectSummaries)
                 .HasForeignKey(d => d.AcsVapId)
@@ -779,6 +789,14 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.HasIndex(e => e.AidRanId, "ct_animal_identifiers_aid_ran_id_idx");
 
             entity.HasIndex(e => e.TransId, "ct_animal_identifiers_trans_id_idx");
+
+            entity.HasIndex(e => new { e.AidRanId, e.AidIdentifierType, e.AidCurrentFlag, e.AidCurrentStatus, e.AidEffectiveFromDate, e.AidId }, "ix_ct_animal_identifiers_current_animal")
+                .IsDescending(false, false, false, false, true, true)
+                .HasFilter("(aid_ran_id IS NOT NULL)");
+
+            entity.HasIndex(e => new { e.AidIdentifier, e.AidRanId, e.AidId }, "ix_ct_animal_identifiers_detail_exact")
+                .IsDescending(false, false, true)
+                .HasFilter("((aid_identifier IS NOT NULL) AND ((aid_identifier_type)::text = 'ET'::text) AND ((aid_current_status)::text = ANY ((ARRAY['1'::character varying, 'L'::character varying])::text[])) AND (aid_effective_to_date IS NULL))");
 
             entity.Property(e => e.AidId)
                 .HasPrecision(12)
@@ -830,14 +848,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("aid_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
-
-            entity.HasOne(d => d.AidAidIdOriginalNavigation).WithMany(p => p.InverseAidAidIdOriginalNavigation)
-                .HasForeignKey(d => d.AidAidIdOriginal)
-                .HasConstraintName("fk_ct_animal_identifiers_aid_aid_id_original");
-
-            entity.HasOne(d => d.AidAidIdPreviousNavigation).WithMany(p => p.InverseAidAidIdPreviousNavigation)
-                .HasForeignKey(d => d.AidAidIdPrevious)
-                .HasConstraintName("fk_ct_animal_identifiers_aid_aid_id_previous");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.AidEid).WithMany(p => p.CtAnimalIdentifiers)
                 .HasForeignKey(d => d.AidEidId)
@@ -850,10 +863,6 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.HasOne(d => d.AidLocIdAssignedNavigation).WithMany(p => p.CtAnimalIdentifiers)
                 .HasForeignKey(d => d.AidLocIdAssigned)
                 .HasConstraintName("fk_ct_animal_identifiers_aid_loc_id_assigned");
-
-            entity.HasOne(d => d.AidRan).WithMany(p => p.CtAnimalIdentifiers)
-                .HasForeignKey(d => d.AidRanId)
-                .HasConstraintName("fk_ct_animal_identifiers_aid_ran_id");
         });
 
         modelBuilder.Entity<CtAnimalRelationship>(entity =>
@@ -869,6 +878,14 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.HasIndex(e => e.AarRanIdParent, "ct_animal_relationships_aar_ran_id_parent_idx");
 
             entity.HasIndex(e => e.TransId, "ct_animal_relationships_trans_id_idx");
+
+            entity.HasIndex(e => new { e.AarRanIdChild, e.AarRelType, e.AarId }, "ix_ct_animal_relationships_child_type_latest")
+                .IsDescending(false, false, true)
+                .HasFilter("(aar_ran_id_child IS NOT NULL)");
+
+            entity.HasIndex(e => new { e.AarRanIdChild, e.AarRelType, e.AarId }, "ix_ct_animal_relationships_detail_live")
+                .IsDescending(false, false, true)
+                .HasFilter("((aar_current_status)::text = 'L'::text)");
 
             entity.Property(e => e.AarId)
                 .HasPrecision(12)
@@ -922,6 +939,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.AarLoc).WithMany(p => p.CtAnimalRelationships)
                 .HasForeignKey(d => d.AarLocId)
@@ -985,6 +1005,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.AstRan).WithMany(p => p.CtAnimalStatuses)
                 .HasForeignKey(d => d.AstRanId)
@@ -1000,6 +1023,10 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.HasIndex(e => e.ApsVapId, "ct_applic_statuses_aps_vap_id_idx");
 
             entity.HasIndex(e => e.TransId, "ct_applic_statuses_trans_id_idx");
+
+            entity.HasIndex(e => new { e.ApsVapId, e.ApsModifiedDate, e.ApsId }, "ix_ct_applic_statuses_application_latest")
+                .IsDescending(false, true, true)
+                .HasFilter("(aps_vap_id IS NOT NULL)");
 
             entity.Property(e => e.ApsId)
                 .HasPrecision(12)
@@ -1025,6 +1052,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("aps_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.ApsVap).WithMany(p => p.CtApplicStatuses)
                 .HasForeignKey(d => d.ApsVapId)
@@ -1067,6 +1097,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("ald_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtBatchRetentionConf>(entity =>
@@ -1088,6 +1121,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("brt_retention_days");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtBreed>(entity =>
@@ -1143,6 +1179,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtClaExtract>(entity =>
@@ -1172,6 +1211,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("cle_run_status");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtClaExtractDetail>(entity =>
@@ -1203,6 +1245,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasMaxLength(30)
                 .HasColumnName("cld_table_name");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CldCle).WithMany(p => p.CtClaExtractDetails)
                 .HasForeignKey(d => d.CldCleId)
@@ -1236,6 +1281,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("cle_run_status");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtClaMiniDetail>(entity =>
@@ -1267,6 +1315,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasMaxLength(30)
                 .HasColumnName("cld_table_name");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CldCle).WithMany(p => p.CtClaMiniDetails)
                 .HasForeignKey(d => d.CldCleId)
@@ -1300,6 +1351,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("cle_run_status");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtClaimStatus>(entity =>
@@ -1334,6 +1388,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("cls_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtClaimType>(entity =>
@@ -1373,6 +1430,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("clt_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CltSch).WithMany(p => p.CtClaimTypes)
                 .HasForeignKey(d => d.CltSchId)
@@ -1427,6 +1487,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CmaCot).WithMany(p => p.CtCmAuthorities)
                 .HasForeignKey(d => d.CmaCotId)
@@ -1484,6 +1547,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CmrCom).WithMany(p => p.CtCmMeasuresResults)
                 .HasForeignKey(d => d.CmrComId)
@@ -1519,6 +1585,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("coa_pid");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtCondVariantGrouping>(entity =>
@@ -1563,6 +1632,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CvgCov).WithMany(p => p.CtCondVariantGroupings)
                 .HasForeignKey(d => d.CvgCovId)
@@ -1631,6 +1703,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.ConCot).WithMany(p => p.CtConditions)
                 .HasForeignKey(d => d.ConCotId)
@@ -1689,6 +1764,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CacCon).WithMany(p => p.CtConditionActivities)
                 .HasForeignKey(d => d.CacConId)
@@ -1795,6 +1873,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.ComCac).WithMany(p => p.CtConditionMarkers)
                 .HasForeignKey(d => d.ComCacId)
@@ -1858,6 +1939,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("cme_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CmeScm).WithMany(p => p.CtConditionMarkerErrors)
                 .HasForeignKey(d => d.CmeScmId)
@@ -1915,6 +1999,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtConditionVariant>(entity =>
@@ -2009,6 +2096,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CovCon).WithMany(p => p.CtConditionVariants)
                 .HasForeignKey(d => d.CovConId)
@@ -2075,6 +2165,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("cty_vet_area");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtCountry>(entity =>
@@ -2133,6 +2226,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.CryCryIdMainEuNavigation).WithMany(p => p.InverseCryCryIdMainEuNavigation)
                 .HasForeignKey(d => d.CryCryIdMainEu)
@@ -2200,6 +2296,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtCps167Report>(entity =>
@@ -2231,6 +2330,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("kns_source_directory");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtCts164HandshakeFileKey>(entity =>
@@ -2255,6 +2357,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("bjk_key");
             entity.Property(e => e.BjkModifiedDate).HasColumnName("bjk_modified_date");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtCtsUser>(entity =>
@@ -2294,6 +2399,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("cus_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtEartag>(entity =>
@@ -2381,6 +2489,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.EtgErf).WithMany(p => p.CtEartags)
                 .HasForeignKey(d => d.EtgErfId)
@@ -2441,6 +2552,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtEartagReason>(entity =>
@@ -2489,6 +2603,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtEartagReasonFlag>(entity =>
@@ -2555,6 +2672,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("fake_data");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.ErfEtr).WithMany(p => p.CtEartagReasonFlags)
                 .HasForeignKey(d => d.ErfEtrId)
@@ -2599,6 +2719,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasMaxLength(2)
                 .HasColumnName("est_usage_code");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.EstErf).WithMany(p => p.CtEartagStagings)
                 .HasForeignKey(d => d.EstErfId)
@@ -2660,6 +2783,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.EttEtf).WithMany(p => p.CtEartagTypes)
                 .HasForeignKey(d => d.EttEtfId)
@@ -2703,6 +2829,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("eid_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.EidIsa).WithMany(p => p.CtElectronicIdentifiers)
                 .HasForeignKey(d => d.EidIsaId)
@@ -2749,6 +2878,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("eml_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtEreportFile>(entity =>
@@ -2776,6 +2908,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("ere_record");
             entity.Property(e => e.EreTimestamp).HasColumnName("ere_timestamp");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtEreportLoadMessage>(entity =>
@@ -2803,6 +2938,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("erm_sleep_period");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtEreportLock>(entity =>
@@ -2824,6 +2962,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("erl_processed");
             entity.Property(e => e.ErlTimestamp).HasColumnName("erl_timestamp");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtEreportProcessMessage>(entity =>
@@ -2845,6 +2986,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("erq_sleep_period");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtExtCetdEartag>(entity =>
@@ -2879,6 +3023,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("cet_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtExtNiDistrict>(entity =>
@@ -2900,6 +3047,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("nid_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtExtSpecialHerd>(entity =>
@@ -2921,6 +3071,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("sph_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtFileLayout>(entity =>
@@ -2964,6 +3117,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("flt_unidata_name");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtHsfSequence>(entity =>
@@ -2982,6 +3138,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("hss_sequence_key");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtInsertUpdateLog>(entity =>
@@ -3027,6 +3186,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("iul_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtIssuedDocument>(entity =>
@@ -3040,6 +3202,10 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.HasIndex(e => e.IdoRanId, "ct_issued_documents_ido_ran_id_idx");
 
             entity.HasIndex(e => e.TransId, "ct_issued_documents_trans_id_idx");
+
+            entity.HasIndex(e => new { e.IdoRanId, e.IdoPassportVersionNumber, e.IdoCreationDate, e.IdoId }, "ix_ct_issued_documents_animal_latest")
+                .IsDescending(false, true, true, true)
+                .HasFilter("(ido_ran_id IS NOT NULL)");
 
             entity.Property(e => e.IdoId)
                 .HasPrecision(12)
@@ -3089,6 +3255,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.IdoLoc).WithMany(p => p.CtIssuedDocuments)
                 .HasForeignKey(d => d.IdoLocId)
@@ -3134,6 +3303,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("isa_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtLabelRequest>(entity =>
@@ -3259,6 +3431,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("lar_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LarLas).WithMany(p => p.CtLabelRequests)
                 .HasForeignKey(d => d.LarLasId)
@@ -3311,6 +3486,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("las_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LasLocIdIdentifyingNavigation).WithMany(p => p.CtLabelSummaryLasLocIdIdentifyingNavigations)
                 .HasForeignKey(d => d.LasLocIdIdentifying)
@@ -3354,6 +3532,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("lda_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtLetter>(entity =>
@@ -3401,6 +3582,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("let_wgp_id_sent");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LetWgp).WithMany(p => p.CtLetterLetWgps)
                 .HasForeignKey(d => d.LetWgpId)
@@ -3460,6 +3644,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LrcLrt).WithMany(p => p.CtLocTypeRelCombs)
                 .HasForeignKey(d => d.LrcLrtId)
@@ -3569,6 +3756,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LocCty).WithMany(p => p.CtLocations)
                 .HasForeignKey(d => d.LocCtyId)
@@ -3629,6 +3819,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtLocationIdentifier>(entity =>
@@ -3642,6 +3835,8 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.HasIndex(e => e.TransId, "ct_location_identifiers_trans_id_idx");
 
             entity.HasIndex(e => new { e.LidIdentifier, e.LidCurrentStatus, e.LidEffectiveToDate, e.LidEffectiveFromDate, e.LidId }, "ix_ct_location_identifiers_cph").IsDescending(false, false, false, true, true);
+
+            entity.HasIndex(e => new { e.LidLocId, e.LidCurrentStatus, e.LidSubIdentifier }, "ix_ct_location_identifiers_detail");
 
             entity.Property(e => e.LidId)
                 .HasPrecision(12)
@@ -3686,6 +3881,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LidLoc).WithMany(p => p.CtLocationIdentifiers)
                 .HasForeignKey(d => d.LidLocId)
@@ -3749,6 +3947,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LprLoc).WithMany(p => p.CtLocationPartyRels)
                 .HasForeignKey(d => d.LprLocId)
@@ -3826,6 +4027,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtLocationRelType>(entity =>
@@ -3889,6 +4093,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtLocationRelationship>(entity =>
@@ -3948,6 +4155,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LlrLocIdChildNavigation).WithMany(p => p.CtLocationRelationshipLlrLocIdChildNavigations)
                 .HasForeignKey(d => d.LlrLocIdChild)
@@ -4039,6 +4249,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LtyLif).WithMany(p => p.CtLocationTypes)
                 .HasForeignKey(d => d.LtyLifId)
@@ -4060,6 +4273,9 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.Property(e => e.LocSourceReference).HasColumnName("loc_source_reference");
             entity.Property(e => e.LocTelNumber).HasColumnName("loc_tel_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtLocrestrictionstoanimal>(entity =>
@@ -4090,6 +4306,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("lra_ran_id");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.LraCom).WithMany()
                 .HasForeignKey(d => d.LraComId)
@@ -4144,6 +4363,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("mce_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.MceRan).WithMany(p => p.CtMgtControlErrors)
                 .HasForeignKey(d => d.MceRanId)
@@ -4165,6 +4387,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("war_id");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
             entity.Property(e => e.WarCurrentModifiedDate).HasColumnName("war_current_modified_date");
             entity.Property(e => e.WarCurrentPid)
                 .HasPrecision(3)
@@ -4215,6 +4440,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("mhs_number");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtMovHst>(entity =>
@@ -4247,6 +4475,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("hst_splitflg");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtMovtCorrSummError>(entity =>
@@ -4286,6 +4517,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("mse_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.MseMcs).WithMany(p => p.CtMovtCorrSummErrors)
                 .HasForeignKey(d => d.MseMcsId)
@@ -4410,18 +4644,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("mcs_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
-
-            entity.HasOne(d => d.McsMov).WithMany(p => p.CtMovtCorrectSummaries)
-                .HasForeignKey(d => d.McsMovId)
-                .HasConstraintName("fk_ct_movt_correct_summaries_mcs_mov_id");
-
-            entity.HasOne(d => d.McsRmo).WithMany(p => p.CtMovtCorrectSummaries)
-                .HasForeignKey(d => d.McsRmoId)
-                .HasConstraintName("fk_ct_movt_correct_summaries_mcs_rmo_id");
-
-            entity.HasOne(d => d.McsSmo).WithMany(p => p.CtMovtCorrectSummaries)
-                .HasForeignKey(d => d.McsSmoId)
-                .HasConstraintName("fk_ct_movt_correct_summaries_mcs_smo_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtMsgtxt>(entity =>
@@ -4440,6 +4665,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("msg_text");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtNonWorkingDay>(entity =>
@@ -4475,6 +4703,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("nwd_year");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtParamGroup>(entity =>
@@ -4534,6 +4765,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.PgpPhd).WithMany(p => p.CtParamGroups)
                 .HasForeignKey(d => d.PgpPhdId)
@@ -4591,6 +4825,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtParamValue>(entity =>
@@ -4606,6 +4843,8 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.HasIndex(e => e.PvlPhdId, "ct_param_value_pvl_phd_id_idx");
 
             entity.HasIndex(e => e.TransId, "ct_param_value_trans_id_idx");
+
+            entity.HasIndex(e => new { e.PvlParam, e.PvlParamValue }, "ix_ct_param_value_detail").HasFilter("((pvl_current_status)::text = '1'::text)");
 
             entity.HasIndex(e => new { e.PvlParam, e.PvlParamValue }, "ix_ct_param_value_lookup");
 
@@ -4653,6 +4892,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.PvlPhd).WithMany(p => p.CtParamValues)
                 .HasForeignKey(d => d.PvlPhdId)
@@ -4718,6 +4960,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.PvgPgp).WithMany(p => p.CtParamValueGroups)
                 .HasForeignKey(d => d.PvgPgpId)
@@ -4743,6 +4988,9 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.Property(e => e.ParTelNumber).HasColumnName("par_tel_number");
             entity.Property(e => e.ParTitle).HasColumnName("par_title");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtParty>(entity =>
@@ -4811,6 +5059,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtPpafGrouping>(entity =>
@@ -4869,6 +5120,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("ppg_welsh_indicator");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.PpgLocIdBirthNavigation).WithMany(p => p.CtPpafGroupingPpgLocIdBirthNavigations)
                 .HasForeignKey(d => d.PpgLocIdBirth)
@@ -4925,6 +5179,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("paf_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.PafEtg).WithMany(p => p.CtPreprintedAppnForms)
                 .HasForeignKey(d => d.PafEtgId)
@@ -4980,6 +5237,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtPs9999AhdbDatum>(entity =>
@@ -5006,6 +5266,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasMaxLength(1)
                 .HasColumnName("sex_of_animal");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtPs9999AhdbMovHistory>(entity =>
@@ -5025,6 +5288,9 @@ public partial class CtsSystemAdminDbContext : DbContext
             entity.Property(e => e.RanId).HasColumnName("ran_id");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtRecdApplicationError>(entity =>
@@ -5064,6 +5330,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("rae_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.RaeRap).WithMany(p => p.CtRecdApplicationErrors)
                 .HasForeignKey(d => d.RaeRapId)
@@ -5107,6 +5376,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("rme_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.RmeRmo).WithMany(p => p.CtRecdMovementErrors)
                 .HasForeignKey(d => d.RmeRmoId)
@@ -5281,6 +5553,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.RapRanIdReservedNavigation).WithMany(p => p.CtReceivedApplications)
                 .HasForeignKey(d => d.RapRanIdReserved)
@@ -5394,6 +5669,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("rmo_version");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtRegisteredAnimal>(entity =>
@@ -5493,6 +5771,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.RanBrd).WithMany(p => p.CtRegisteredAnimals)
                 .HasForeignKey(d => d.RanBrdId)
@@ -5541,6 +5822,8 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .IsDescending(false, true, true, true)
                 .HasFilter("(((mov_current_status)::text <> 'C'::text) AND (mov_ran_id IS NOT NULL))")
                 .HasNullSortOrder(new[] { NullSortOrder.NullsLast, NullSortOrder.NullsLast, NullSortOrder.NullsLast, NullSortOrder.NullsFirst });
+
+            entity.HasIndex(e => new { e.MovRanId, e.MovMovementDate, e.MovId }, "ix_ct_registered_movements_detail").IsDescending(false, true, true);
 
             entity.HasIndex(e => new { e.MovLocId, e.MovDirection, e.MovRanId }, "ix_ct_registered_movements_location").HasFilter("(((mov_current_status)::text <> 'C'::text) AND (mov_ran_id IS NOT NULL) AND (mov_loc_id IS NOT NULL))");
 
@@ -5642,6 +5925,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.MovCryIdImportNavigation).WithMany(p => p.CtRegisteredMovements)
                 .HasForeignKey(d => d.MovCryIdImport)
@@ -5676,6 +5962,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("rte_table_name");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtSbcsExt>(entity =>
@@ -5691,6 +5980,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasMaxLength(20)
                 .HasColumnName("sxt_id");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtScheme>(entity =>
@@ -5739,6 +6031,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("sch_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtStageFile>(entity =>
@@ -5767,6 +6062,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("stf_record");
             entity.Property(e => e.StfTimestamp).HasColumnName("stf_timestamp");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtStageLock>(entity =>
@@ -5789,6 +6087,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("stl_processed");
             entity.Property(e => e.StlTimestamp).HasColumnName("stl_timestamp");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtStageMessage>(entity =>
@@ -5816,6 +6117,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(10)
                 .HasColumnName("stm_sleep_period");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtSublocationType>(entity =>
@@ -5873,6 +6177,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("slt_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtSuspAnimalError>(entity =>
@@ -5912,6 +6219,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("sae_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.SaeSan).WithMany(p => p.CtSuspAnimalErrors)
                 .HasForeignKey(d => d.SaeSanId)
@@ -5961,6 +6271,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("smr_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.SmrScm).WithMany(p => p.CtSuspCmMeasureResults)
                 .HasForeignKey(d => d.SmrScmId)
@@ -6103,6 +6416,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("scm_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.ScmLoc).WithMany(p => p.CtSuspConditionMarkers)
                 .HasForeignKey(d => d.ScmLocId)
@@ -6150,6 +6466,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("sme_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.SmeSmo).WithMany(p => p.CtSuspMovementErrors)
                 .HasForeignKey(d => d.SmeSmoId)
@@ -6329,6 +6648,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(12)
                 .HasColumnName("san_wgp_id");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.SanLocIdInitialNavigation).WithMany(p => p.CtSuspendedAnimalSanLocIdInitialNavigations)
                 .HasForeignKey(d => d.SanLocIdInitial)
@@ -6450,6 +6772,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("smo_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
         });
 
         modelBuilder.Entity<CtSuspenseCharAllocRule>(entity =>
@@ -6492,6 +6817,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("sca_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.ScaRou).WithMany(p => p.CtSuspenseCharAllocRules)
                 .HasForeignKey(d => d.ScaRouId)
@@ -6539,6 +6867,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasPrecision(6)
                 .HasColumnName("swa_version");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
 
             entity.HasOne(d => d.SwaRou).WithMany(p => p.CtSuspenseWgAllocRules)
                 .HasForeignKey(d => d.SwaRouId)
@@ -6573,6 +6904,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("record_type");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
             entity.Property(e => e.VapApplicationType)
                 .HasMaxLength(1)
                 .HasColumnName("vap_application_type");
@@ -6656,6 +6990,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("wur_id");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
             entity.Property(e => e.WurAccessNumber)
                 .HasMaxLength(12)
                 .HasColumnName("wur_access_number");
@@ -6759,6 +7096,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("wga_id");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
             entity.Property(e => e.WgaAllocation)
                 .HasMaxLength(10)
                 .HasColumnName("wga_allocation");
@@ -6813,6 +7153,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("wsa_id");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
             entity.Property(e => e.WsaCurrentModifiedDate).HasColumnName("wsa_current_modified_date");
             entity.Property(e => e.WsaCurrentPid)
                 .HasPrecision(3)
@@ -6866,6 +7209,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("wua_id");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
             entity.Property(e => e.WuaCurrentModifiedDate).HasColumnName("wua_current_modified_date");
             entity.Property(e => e.WuaCurrentPid)
                 .HasPrecision(3)
@@ -6917,6 +7263,9 @@ public partial class CtsSystemAdminDbContext : DbContext
                 .HasColumnName("fake_data");
             entity.Property(e => e.RowNumber).HasColumnName("row_number");
             entity.Property(e => e.TransId).HasColumnName("trans_id");
+            entity.Property(e => e.TransType)
+                .HasDefaultValueSql("'B'::text")
+                .HasColumnName("trans_type");
             entity.Property(e => e.WgpActiveIndicator)
                 .HasMaxLength(1)
                 .HasColumnName("wgp_active_indicator");

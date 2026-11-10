@@ -36,5 +36,7 @@ public partial class CtCmMeasuresResult
 
     public long? TransId { get; set; }
 
+    public string TransType { get; set; } = null!;
+
     public virtual CtConditionMarker? CmrCom { get; set; }
 }
