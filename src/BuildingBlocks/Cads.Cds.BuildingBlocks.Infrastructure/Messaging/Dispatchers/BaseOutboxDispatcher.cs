@@ -68,7 +68,7 @@ public abstract class BaseOutboxDispatcher<TClient, TOutbox>(
 
     protected virtual async Task DispatchPendingAsync(OutboxDispatcherOptions currentOptions, CancellationToken cancellationToken)
     {
-        using var scope = ScopeFactory.CreateScope();
+        await using var scope = ScopeFactory.CreateAsyncScope();
         var repository = scope.ServiceProvider.GetRequiredService<IOutboxRepository<TOutbox>>();
 
         var claimed = await repository.ClaimPendingOutboxMessagesAsync(currentOptions.BatchSize, cancellationToken);
