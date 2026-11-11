@@ -3,7 +3,6 @@ using Cads.Cds.MiBff.Application.Reports.Routing.Abstractions;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Cads.Cds.MiBff.Core.Domain.Constants;
 
 namespace Cads.Cds.MiBff.Application.Reports.Commands.CreateReportJob;
@@ -12,11 +11,7 @@ public class CreateReportJobCommandHandler(
     IMiReportJobRepository reportJobRepository)
     : ICommandHandler<CreateReportJobCommand, Guid>
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new JsonStringEnumConverter() }
-    };
+    private static readonly JsonSerializerOptions SerializerOptions = ReportJobSerializerOptions.Default;
 
     public async Task<Guid> Handle(CreateReportJobCommand command, CancellationToken cancellationToken)
     {

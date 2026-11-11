@@ -1,14 +1,20 @@
+using Cads.Cds.ApiSurface.Messages.Reports;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Publishers;
+using Cads.Cds.BuildingBlocks.Application.Messaging.Serializers;
 using Cads.Cds.BuildingBlocks.Core.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Dispatchers;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Publishers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Services;
 using Cads.Cds.MiBff.Application.Messaging.Clients;
 using Cads.Cds.MiBff.Core.Configuration;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Consumers;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Dispatchers;
+using Cads.Cds.MiBff.Infrastructure.Messaging.Factories;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Publishers;
+using Cads.Cds.MiBff.Infrastructure.Messaging.Serializers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,7 +37,25 @@ public static class ServiceCollectionExtensions
 
         services.AddOutboxDispatcher();
 
+        services.AddMessageHandlers();
+
+        services.AddMessageSerializers();
+
         services.AddMessageConsumers();
+    }
+
+    private static void AddMessageHandlers(this IServiceCollection services)
+    {
+        services.AddSingleton(_ =>
+            new MessageCommandRegistry<MiBffFifoQueueClient>()
+                .Register<ReportJobRequestedMessageCommandFactory>(nameof(ReportJobRequestedMessage).ReplaceSuffix()));
+    }
+
+    private static void AddMessageSerializers(this IServiceCollection services)
+    {
+        services.AddSingleton<IUnwrappedMessageSerializer<ReportJobRequestedMessage>>(
+            new MessageIdentifierSerializer<ReportJobRequestedMessage>(
+                MiBffSerializerContext.Default.ReportJobRequestedMessage));
     }
 
     private static void AddQueueClients(this IServiceCollection services)
