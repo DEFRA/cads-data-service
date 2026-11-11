@@ -44,12 +44,13 @@ public abstract class GenerationScenario<T>(string name,
         request.BusinessKeys ?? allocate lets a bulk request choose its own keys and skip the reserved range.
         A rowCount-only update request allocates fresh keys and “updates” rows that don’t exist.
         Validate this in the request validator: bulk takes no keys, and update requires keys.
+        LANI-848 is done in the Allocator. This is to validate supplied values when it is a bulk or delta/update scenario only.
         */
         var businessKeys = request.BusinessKeys ??
             await new BusinessKeysAllocator().AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
 
         /*
-        TODO: LANI-849 had this so it could be regenerated.
+        TODO: LANI-849 had this so it could be regenerated. Need to fulfil the requirements from LANI-849.
         */
         var seed = Random.Shared.Next();
         var rows = contentGenerator.Generate(businessKeys, seed);
@@ -70,8 +71,15 @@ public abstract class GenerationScenario<T>(string name,
                 Timestamp = fileCreatedDateTime
             });
 
+        var parsedFileName = CtsmFilenameParser.Parse(fileName);
+
         /*
-        TODO: Delta details are not visible here. fileAssembler.Create(fileName, date, rows) has no aud ID or aud type arguments,
+        TODO: LANI-851. This was done by David in the main but doesn't support BULK and DELTA file formats.
+        LANI-851 + LANI-1212 need to be completed so we support both correctly.
+        */
+
+        /*
+        TODO: LANI-1212. Delta details are not visible here. fileAssembler.Create(fileName, date, rows) has no aud ID or aud type arguments,
         so check where the delta layout and U come from.The update scenario also needs the aud IDs allocated per row.
         */
         var content = fileAssembler.Create(fileName, fileCreatedDateTime, rows);
@@ -79,6 +87,7 @@ public abstract class GenerationScenario<T>(string name,
         return new CreateGenerationResponseDto
         {
             FileName = fileName,
+            GroupKey = parsedFileName!.GetGroupKey(),
             Content = content,
             BusinessKeys = businessKeys
         };
