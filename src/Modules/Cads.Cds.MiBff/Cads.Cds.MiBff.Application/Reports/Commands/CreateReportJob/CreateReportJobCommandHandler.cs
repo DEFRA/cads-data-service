@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.MiBff.Application.Reports.Routing.Abstractions;
+using Cads.Cds.MiBff.Core.Domain.Constants;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using System.Text.Json;
