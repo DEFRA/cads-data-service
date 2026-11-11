@@ -9,9 +9,6 @@ using System.Net;
 
 namespace Cads.Cds.MiBff.Infrastructure.Storage.Services;
 
-/// <summary>
-/// Encrypts report output with <see cref="IFileEncryptor"/> and writes it to the CADS internal bucket.
-/// </summary>
 public class S3ReportFileStore(IS3ClientFactory s3ClientFactory, IFileEncryptor fileEncryptor) : IReportFileStore
 {
     private const string EncryptedContentType = "application/octet-stream";

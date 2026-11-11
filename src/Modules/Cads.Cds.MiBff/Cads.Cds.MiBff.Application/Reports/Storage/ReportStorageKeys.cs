@@ -1,11 +1,9 @@
 namespace Cads.Cds.MiBff.Application.Reports.Storage;
 
 /// <summary>
-/// Builds storage keys for generated reports, in the form
-/// <c>mibff-reports/{report}/{reportJobId}</c>, e.g. <c>mibff-reports/gbcattledeaths/3f2b…</c>.
-/// The report segment comes from the query type name with the "Get" prefix and "Query" suffix
-/// removed, lower-cased (GetGbCattleDeathsQuery becomes gbcattledeaths).
-/// </summary>
+/// Builds storage keys for generated reports, in the following form:
+/// mibff-reports/{report-type}/{reportJobId}, example. mibff-reports/gbcattledeaths/3f2b….
+//// </summary>
 public static class ReportStorageKeys
 {
     public const string Prefix = "mibff-reports";
