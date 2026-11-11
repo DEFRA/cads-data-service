@@ -1,9 +1,14 @@
-using Amazon.S3.Model;
+using Cads.Cds.BuildingBlocks.Application.Encryption;
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Exceptions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Streams;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Methods;
 using Cads.Cds.StorageBridge.Application.Imports.Repositories;
@@ -18,10 +23,12 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Npgsql;
 using System.Data.Common;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Cads.Cds.StorageBridge.Infrastructure.Tests.Unit.S3Import.Services;
@@ -40,6 +47,8 @@ public class S3ToPostgresCopyServiceTests
     private readonly Mock<IReadOnlyList<DbCommand>> _actionCommands = new();
     private readonly Mock<ILogger<S3ToPostgresCopyService>> _logger = new Mock<ILogger<S3ToPostgresCopyService>>().EnableAllLogLevels();
     private readonly Mock<IStorageBridgeFileImportRepository> _fileImportRepository = new();
+    private readonly Mock<IFileEncryptor> _fileEncryptorMock = new();
+    private readonly Mock<IOptions<EncryptionConfig>> _encryptionOptionsMock = new();
 
     // Filename template:CTSM_CADS_<env>_<type>_<batchId>_<partno>_<tablename>_<YYYY-MM-DD-hhmmss>.csv
     private const string ValidTestFileName1 = "CTSM_CADS_ENV_DELTA_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
@@ -47,6 +56,12 @@ public class S3ToPostgresCopyServiceTests
     private const string InvalidTestFileName1 = "CTSM_CADS_ENV_XXXX_0001_0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
     private const string InvalidTestFileName2 = "CTSM_CADS_ENV_XXXX_0001__0001_CT_LOCATIONS_2023-10-01-123456.part-0001.csv";
 
+    private static EncryptionConfig EncryptionConfigWith(bool storageEncryptionEnabled) => new()
+    {
+        CurrentKeyId = "V1",
+        StorageEncryptionEnabled = storageEncryptionEnabled,
+        Keys = []
+    };
 
     [Fact]
     public async Task ExecuteAsync_ShouldThrow_WhenImportTypeIsNone()
@@ -58,7 +73,7 @@ public class S3ToPostgresCopyServiceTests
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
         _storageService.Setup(x => x.ListKeysAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<string> { "somekey" });
+            .ReturnsAsync(["somekey"]);
 
         var job = new CreateS3CsvImportJobDto
         {
@@ -78,7 +93,7 @@ public class S3ToPostgresCopyServiceTests
         _fileImportRepository.Setup(x => x.GetByIdAsync(1, It.IsAny<CancellationToken>()))
            .ReturnsAsync(fileImport);
         _storageService.Setup(x => x.ListKeysAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<string> { "somekey" });
+            .ReturnsAsync(["somekey"]);
 
         var job = new CreateS3CsvImportJobDto
         {
@@ -208,57 +223,19 @@ public class S3ToPostgresCopyServiceTests
         result.Should().Be(12);
     }
 
+    // CopyFileToStagingAsync (takes the already-opened source stream)
+
     [Fact]
-    public async Task GivenNullableResponseStream_CopyFileToStagingAsync_ShouldReturnEmpty()
+    public async Task GivenNullSourceStream_CopyFileToStagingAsync_ShouldReturnEmptyAndStageNothing()
     {
         var service = CreateService();
 
-        var outputStream = new MemoryStream();
-        var writer = new NonDisposingStreamWriter(outputStream);
+        var result = await InvokeCopyFileToStagingAsync(service, CreateFileExecutionContext(), source: null);
 
-        _storageService
-            .Setup(x => x.GetObjectResponseAsync(ValidTestFileName1, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetObjectResponse());
-
-        var method = typeof(S3ToPostgresCopyService)
-            .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        var fieldInfo = typeof(S3ToPostgresCopyService).GetField("_storageService",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-
-        fieldInfo?.SetValue(service, _storageService.Object);
-
-        var importContext = new ImportExecutionContext(
-            new FileImport(),
-            new ImportParameters
-            {
-                ImportActionType = ImportActionType.Bulk,
-                ImportDataType = ImportDataType.CtLocations,
-                SchemaName = SchemaName.Cts,
-            },
-            '|',
-            _factory.Object,
-            _normaliser.Object,
-            _dbContext.Object,
-            _dbCommand.Object,
-            _actionCommands.Object);
-        var fileExecutionContext = new FileExecutionContext
-        (
-            importContext,
-            ValidTestFileName1
-        );
-
-        await (Task)method!.Invoke(service,
-            [
-                fileExecutionContext,
-                false,
-                CancellationToken.None
-            ])!;
-
-        writer.Flush();
-
-        var output = Encoding.UTF8.GetString(outputStream.ToArray());
-        output.Should().BeNullOrEmpty();
+        result.Should().BeEmpty();
+        _factory.Verify(
+            x => x.CreateTextImport(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<char>(), It.IsAny<List<string>>()),
+            Times.Never);
     }
 
     [Fact]
@@ -269,52 +246,12 @@ public class S3ToPostgresCopyServiceTests
         var outputStream = new MemoryStream();
         var writer = new NonDisposingStreamWriter(outputStream);
 
-        var response = new GetObjectResponse
-        {
-            ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes("record_type|col2\nA\"B|C\nT|END"))
-        };
-
         _factory.Setup(x => x.CreateTextImport(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<char>(), It.IsAny<List<string>>()))
             .Returns(writer);
 
-        _storageService
-            .Setup(x => x.GetObjectResponseAsync(ValidTestFileName1, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(response);
+        var source = new MemoryStream(Encoding.UTF8.GetBytes("record_type|col2\nA\"B|C\nT|END"));
 
-        var method = typeof(S3ToPostgresCopyService)
-            .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-
-        var fieldInfo = typeof(S3ToPostgresCopyService).GetField("_storageService",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-
-        fieldInfo?.SetValue(service, _storageService.Object);
-
-        var importContext = new ImportExecutionContext(
-            new FileImport(),
-            new ImportParameters
-            {
-                ImportActionType = ImportActionType.Bulk,
-                ImportDataType = ImportDataType.CtLocations,
-                SchemaName = SchemaName.Cts,
-            },
-            '|',
-            _factory.Object,
-            _normaliser.Object,
-            _dbContext.Object,
-            _dbCommand.Object,
-            _actionCommands.Object);
-        var fileExecutionContext = new FileExecutionContext
-        (
-            importContext,
-            ValidTestFileName1
-        );
-
-        await (Task)method!.Invoke(service,
-            [
-            fileExecutionContext,
-            false,
-            CancellationToken.None
-            ])!;
+        await InvokeCopyFileToStagingAsync(service, CreateFileExecutionContext(), source);
 
         writer.Flush();
         var output = Encoding.UTF8.GetString(outputStream.ToArray());
@@ -322,7 +259,126 @@ public class S3ToPostgresCopyServiceTests
         output.Should().Be("A\"\"B|C\n");
     }
 
-    private S3ToPostgresCopyService CreateService()
+    // OpenSourceAsync: download -> (optional) decrypt
+
+    [Fact]
+    public async Task OpenSourceAsync_ShouldReturnNull_WhenDownloadedStreamIsNull()
+    {
+        var service = CreateService(storageEncryptionEnabled: true);
+
+        var result = await InvokeOpenSourceAsync(service, downloaded: null);
+
+        result.Should().BeNull();
+        VerifyDecryptNeverCalled();
+    }
+
+    [Fact]
+    public async Task OpenSourceAsync_ShouldReturnDownloadedStreamUntouched_WhenStorageEncryptionDisabled()
+    {
+        var service = CreateService(storageEncryptionEnabled: false);
+        using var downloaded = new MemoryStream(Encoding.UTF8.GetBytes("record_type|col2\nA|B"));
+
+        var result = await InvokeOpenSourceAsync(service, downloaded);
+
+        result.Should().BeSameAs(downloaded);
+        VerifyDecryptNeverCalled();
+    }
+
+    [Fact]
+    public async Task OpenSourceAsync_ShouldReturnDecryptedPlaintext_WhenStorageEncryptionEnabled()
+    {
+        var service = CreateService(storageEncryptionEnabled: true);
+        var plaintext = Encoding.UTF8.GetBytes("record_type|col2\nA|B\nT|END");
+        using var downloaded = new MemoryStream([1, 2, 3]); // content is irrelevant, the encryptor is mocked
+
+        _fileEncryptorMock
+            .Setup(x => x.DecryptAsync(downloaded, It.IsAny<Stream>(), It.IsAny<long?>(), It.IsAny<Action<int, string>?>(), It.IsAny<CancellationToken>()))
+            .Callback<Stream, Stream, long?, Action<int, string>?, CancellationToken>((_, output, _, _, _) => output.Write(plaintext))
+            .Returns(Task.CompletedTask);
+
+        var result = await InvokeOpenSourceAsync(service, downloaded);
+
+        result.Should().NotBeNull();
+        result.Should().NotBeSameAs(downloaded);
+
+        var tempPath = ((FileStream)result!).Name;
+        File.Exists(tempPath).Should().BeTrue();
+
+        using (var reader = new MemoryStream())
+        {
+            await result!.CopyToAsync(reader, TestContext.Current.CancellationToken);
+            reader.ToArray().Should().Equal(plaintext);
+        }
+
+        await result!.DisposeAsync();
+        File.Exists(tempPath).Should().BeFalse("the decrypted temp file must be deleted when the stream is disposed");
+    }
+
+    [Fact]
+    public async Task OpenSourceAsync_ShouldPropagateAuthenticationFailure_WhenDecryptionFails()
+    {
+        var service = CreateService(storageEncryptionEnabled: true);
+        using var downloaded = new MemoryStream([1, 2, 3]);
+
+        _fileEncryptorMock
+            .Setup(x => x.DecryptAsync(It.IsAny<Stream>(), It.IsAny<Stream>(), It.IsAny<long?>(), It.IsAny<Action<int, string>?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new EncryptedFileAuthenticationException("tampered", new CryptographicException()));
+
+        await Assert.ThrowsAsync<EncryptedFileAuthenticationException>(() => InvokeOpenSourceAsync(service, downloaded));
+    }
+
+    [Fact]
+    public async Task OpenSourceAsync_WithRealEncryptor_ShouldDecryptSoStagingSeesPlaintext()
+    {
+        var encryptor = CreateRealEncryptor();
+        var service = CreateService(storageEncryptionEnabled: true, fileEncryptor: encryptor);
+
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, "record_type|col2\nA\"B|C\nT|END");
+
+        var outputStream = new MemoryStream();
+        var writer = new NonDisposingStreamWriter(outputStream);
+        _factory.Setup(x => x.CreateTextImport(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<char>(), It.IsAny<List<string>>()))
+            .Returns(writer);
+
+        await using var source = await InvokeOpenSourceAsync(service, encrypted);
+        await InvokeCopyFileToStagingAsync(service, CreateFileExecutionContext(), source);
+
+        writer.Flush();
+        Encoding.UTF8.GetString(outputStream.ToArray()).Replace("\r\n", "\n").Should().Be("A\"\"B|C\n");
+    }
+
+    [Fact]
+    public async Task OpenSourceAsync_WithRealEncryptor_ShouldRejectTamperedFile_AndStageNothing()
+    {
+        var encryptor = CreateRealEncryptor();
+        var service = CreateService(storageEncryptionEnabled: true, fileEncryptor: encryptor);
+
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, "record_type|col2\nA|B\nT|END");
+        var bytes = encrypted.ToArray();
+        bytes[^1] ^= 0x01; // corrupt the final authentication tag
+        using var tampered = new MemoryStream(bytes);
+
+        await Assert.ThrowsAsync<EncryptedFileAuthenticationException>(() => InvokeOpenSourceAsync(service, tampered));
+
+        _factory.Verify(
+            x => x.CreateTextImport(It.IsAny<ImportDataType>(), It.IsAny<SchemaName>(), It.IsAny<char>(), It.IsAny<List<string>>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task OpenSourceAsync_WithRealEncryptor_ShouldRejectPlaintextFile_WhenEncryptionEnabled()
+    {
+        // Guards the "flag turned on while plaintext parts remain" case: fail loudly rather than import garbage.
+        var encryptor = CreateRealEncryptor();
+        var service = CreateService(storageEncryptionEnabled: true, fileEncryptor: encryptor);
+        using var plaintext = new MemoryStream(Encoding.UTF8.GetBytes(new string('x', 500)));
+
+        await Assert.ThrowsAsync<EncryptedFileFormatException>(() => InvokeOpenSourceAsync(service, plaintext));
+    }
+
+    // Helpers
+
+    private S3ToPostgresCopyService CreateService(bool storageEncryptionEnabled = false, IFileEncryptor? fileEncryptor = null)
     {
         _factoryProvider
           .Setup(x => x.Create(It.IsAny<NpgsqlConnection>()))
@@ -344,9 +400,72 @@ public class S3ToPostgresCopyServiceTests
 
         _scopeFactory.Setup(x => x.CreateScope()).Returns(_scope.Object);
 
+        _encryptionOptionsMock
+            .Setup(x => x.Value)
+            .Returns(EncryptionConfigWith(storageEncryptionEnabled));
+
         return new S3ToPostgresCopyService(
             _scopeFactory.Object,
+            fileEncryptor ?? _fileEncryptorMock.Object,
+            _encryptionOptionsMock.Object,
             _logger.Object);
+    }
+
+    private void VerifyDecryptNeverCalled() =>
+        _fileEncryptorMock.Verify(
+            x => x.DecryptAsync(It.IsAny<Stream>(), It.IsAny<Stream>(), It.IsAny<long?>(), It.IsAny<Action<int, string>?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+    private static FileEncryptor CreateRealEncryptor() =>
+        new(new InMemoryMasterKeyProvider(TestEncryptionKeyProvider.CurrentKeyId, TestEncryptionKeyProvider.Keys));
+
+    private FileExecutionContext CreateFileExecutionContext()
+    {
+        var importContext = new ImportExecutionContext(
+            new FileImport(),
+            new ImportParameters
+            {
+                ImportActionType = ImportActionType.Bulk,
+                ImportDataType = ImportDataType.CtLocations,
+                SchemaName = SchemaName.Cts,
+            },
+            '|',
+            _factory.Object,
+            _normaliser.Object,
+            _dbContext.Object,
+            _dbCommand.Object,
+            _actionCommands.Object);
+
+        return new FileExecutionContext(importContext, ValidTestFileName1);
+    }
+
+    private static async Task<List<string>> InvokeCopyFileToStagingAsync(
+        S3ToPostgresCopyService service,
+        FileExecutionContext fileExecutionContext,
+        Stream? source)
+    {
+        var method = typeof(S3ToPostgresCopyService)
+            .GetMethod("CopyFileToStagingAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        return await (Task<List<string>>)method!.Invoke(service,
+            [
+                fileExecutionContext,
+                source,
+                false,
+                CancellationToken.None
+            ])!;
+    }
+
+    private static async Task<Stream?> InvokeOpenSourceAsync(S3ToPostgresCopyService service, Stream? downloaded)
+    {
+        var method = MethodInfoUtility.GetPrivate<S3ToPostgresCopyService>("OpenSourceAsync");
+
+        return await (Task<Stream?>)method!.Invoke(service,
+            [
+                downloaded,
+                ValidTestFileName1,
+                CancellationToken.None
+            ])!;
     }
 
     private static string? InvokeSanitise(string input)

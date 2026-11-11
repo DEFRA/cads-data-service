@@ -1,4 +1,4 @@
-namespace Cads.Cds.MiBff.Core.Domain.Entities;
+namespace Cads.Cds.MiBff.Core.Domain.Constants;
 
 public static class ReportJobOutboxSubjects
 {
