@@ -3,8 +3,6 @@ using Cads.Cds.MiBff.Core.Domain.Constants;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using System.Text.Json;
-using Cads.Cds.MiBff.Core.Domain.Constants;
-using System.Text.Json.Serialization;
 
 namespace Cads.Cds.MiBff.Application.Reports.Commands.CreateReportJob;
 
