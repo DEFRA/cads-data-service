@@ -27,9 +27,12 @@ public class ReportJobProcessor(
 
         if (IsFinalised(job))
         {
-            logger.LogInformation(
-                "Skipping report job {ReportJobId} as it is already in status {Status}.",
-                job.ReportJobId, job.Status);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "Skipping report job {ReportJobId} as it is already in status {Status}.",
+                    job.ReportJobId, job.Status);
+            }
 
             return;
         }
@@ -45,9 +48,12 @@ public class ReportJobProcessor(
                 completedAt: DateTimeOffset.UtcNow,
                 cancellationToken: cancellationToken);
 
-            logger.LogInformation(
-                "Report job {ReportJobId} for {ReportKey} completed and stored at {StorageKey}.",
-                job.ReportJobId, job.ReportKey, storageKey);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "Report job {ReportJobId} for {ReportKey} completed and stored at {StorageKey}.",
+                    job.ReportJobId, job.ReportKey, storageKey);
+            }
         }
         catch (Exception ex) when (ex is not RetryableException and not OperationCanceledException)
         {
