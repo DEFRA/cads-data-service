@@ -2,7 +2,10 @@ using Amazon.S3.Model;
 using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.SystemAdmin.Controllers.Requests.Imports;
@@ -87,11 +90,18 @@ public class FileImportWithMessageProcessingTests(ApiContainerFixture apiContain
         var fileData = $"{s_locationsHeader}\n" +
                        $"{locationsDataRow}";
 
+        var encryptor = new FileEncryptor(
+            new InMemoryMasterKeyProvider(
+                TestEncryptionKeyProvider.CurrentKeyId,
+                TestEncryptionKeyProvider.Keys));
+
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, fileData);
+
         await apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
             Key = importFileName,
-            ContentBody = fileData
+            InputStream = encrypted
         }, TestContext.Current.CancellationToken);
     }
 

@@ -1,9 +1,10 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.MiBff.Application.Reports.Routing.Abstractions;
+using Cads.Cds.MiBff.Core.Domain.Constants;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using System.Text.Json;
 using Cads.Cds.MiBff.Core.Domain.Constants;
+using System.Text.Json.Serialization;
 
 namespace Cads.Cds.MiBff.Application.Reports.Commands.CreateReportJob;
 

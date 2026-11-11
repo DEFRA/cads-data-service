@@ -2,7 +2,10 @@ using Amazon.S3.Model;
 using Cads.Cds.ApiSurface.Dtos.Imports;
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Schema;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Logging;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
@@ -63,11 +66,18 @@ public class S3CsvImportEndpointTests
         var fileData = $"{TestDataFileConstants.LocationsDataRow1}\n" +
                        $"{TestDataFileConstants.LocationsDataRow2}";
 
+        var encryptor = new FileEncryptor(
+            new InMemoryMasterKeyProvider(
+                TestEncryptionKeyProvider.CurrentKeyId,
+                TestEncryptionKeyProvider.Keys));
+
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, fileData);
+
         await _apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
             Key = testKey,
-            ContentBody = fileData
+            InputStream = encrypted
         }, TestContext.Current.CancellationToken);
 
         var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest(testFileName));
@@ -84,11 +94,18 @@ public class S3CsvImportEndpointTests
 
         var fileData = $"{TestDataFileConstants.LocationsHeader}";
 
+        var encryptor = new FileEncryptor(
+            new InMemoryMasterKeyProvider(
+                TestEncryptionKeyProvider.CurrentKeyId,
+                TestEncryptionKeyProvider.Keys));
+
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, fileData);
+
         await _apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
             Key = testKey,
-            ContentBody = fileData
+            InputStream = encrypted
         }, TestContext.Current.CancellationToken);
 
         var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest(testFileName));
@@ -109,11 +126,18 @@ public class S3CsvImportEndpointTests
                        $"{TestDataFileConstants.LocationsDataRow1}\n" +
                        $"{TestDataFileConstants.InvalidLocationsDataRow1}";
 
+        var encryptor = new FileEncryptor(
+            new InMemoryMasterKeyProvider(
+                TestEncryptionKeyProvider.CurrentKeyId,
+                TestEncryptionKeyProvider.Keys));
+
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, fileData);
+
         await _apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
             Key = testKey,
-            ContentBody = fileData
+            InputStream = encrypted
         }, TestContext.Current.CancellationToken);
 
         var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest(testFileName));
@@ -134,11 +158,18 @@ public class S3CsvImportEndpointTests
                        $"{TestDataFileConstants.LocationsDataRow1}\n" +
                        $"{TestDataFileConstants.LocationsDataRow2}";
 
+        var encryptor = new FileEncryptor(
+            new InMemoryMasterKeyProvider(
+                TestEncryptionKeyProvider.CurrentKeyId,
+                TestEncryptionKeyProvider.Keys));
+
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, fileData);
+
         await _apiContainerFixture.LocalStackFixture.S3Client.PutObjectAsync(new PutObjectRequest
         {
             BucketName = LocalStackFixture.CadsInternalBucketName,
             Key = testKey,
-            ContentBody = fileData
+            InputStream = encrypted
         }, TestContext.Current.CancellationToken);
 
         var response = await ExecuteTest(ValidS3CsvImportWithSourceKeyRequest(testFileName));
