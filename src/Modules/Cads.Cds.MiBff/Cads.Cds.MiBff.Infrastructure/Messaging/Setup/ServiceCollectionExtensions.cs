@@ -80,7 +80,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IOutboxDispatcher<MiBffFifoQueueClient>, MiReportJobOutboxDispatcher>();
         services.AddHostedService<ReportJobOutboxDispatcherListener>();
     }
-    
+
     private static void AddMessageConsumers(this IServiceCollection services)
     {
         services.AddHostedService<MiBffReportFifoQueueListener>()
