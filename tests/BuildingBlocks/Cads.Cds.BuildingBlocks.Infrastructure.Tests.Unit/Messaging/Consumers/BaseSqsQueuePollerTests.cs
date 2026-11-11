@@ -27,7 +27,7 @@ public class BaseSqsQueuePollerTests
 {
     private readonly Mock<IServiceScopeFactory> _scopeFactoryMock = new();
     private readonly Mock<IAmazonSQS> _sqsMock = new();
-    private readonly TestMessageCommandRegistry _messageCommandRegistry = new();
+    private readonly MessageCommandRegistry<TestFifoQueueClient> _messageCommandRegistry = new();
     private readonly Mock<IOptionsMonitor<QueueConsumerOptions>> _optionsMonitorMock = new();
     private readonly Mock<IQueueAdminService<TestFifoQueueClient>> _queueAdminServiceMock = new();
     private readonly Mock<IQueuePollerObserver<MessageType>> _observerMock = new();
@@ -38,6 +38,9 @@ public class BaseSqsQueuePollerTests
     private readonly Mock<IServiceScope> _scopeMock = new();
 
     private readonly TestFifoQueueClient _testFifoQueueClient = new();
+
+    // When set, used instead of _scopeFactoryMock so tests can exercise a real DI container.
+    private IServiceScopeFactory? _scopeFactoryOverride;
 
     private readonly QueueConsumerOptions _queueConsumerOptions = new()
     {
@@ -58,7 +61,7 @@ public class BaseSqsQueuePollerTests
         _loggerMock.EnableAllLogLevels();
 
         return new TestFifoQueuePoller(
-            _scopeFactoryMock.Object,
+            _scopeFactoryOverride ?? _scopeFactoryMock.Object,
             _sqsMock.Object,
             _messageCommandRegistry,
             _optionsMonitorMock.Object,
@@ -174,12 +177,78 @@ public class BaseSqsQueuePollerTests
 
         await RunUntilObserved(messageHandled);
 
+        _mediatorMock.Verify(m => m.Send(
+            It.Is<TestImportMessageCommand>(c => c.Message.Payload == payload),
+            It.IsAny<CancellationToken>()), Times.Once);
+
+        _scopeMock.Verify(s => s.Dispose(), Times.Once);
+
         _sqsMock.Verify(x => x.DeleteMessageAsync(
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
 
         _observerMock.Verify(x => x.OnMessageHandled(
             It.IsAny<string>(), It.IsAny<DateTime>(),
             It.IsAny<MessageType?>(), It.IsAny<Message>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task PollMessagesAsync_WhenScopeContainsAsyncOnlyDisposable_ProcessesAndDeletesMessage()
+    {
+        var testImportMessage = new TestImportMessage { Identifier = Guid.NewGuid().ToString() };
+        var payload = JsonSerializer.Serialize(testImportMessage, JsonDefaults.DefaultOptionsWithStringEnumConversion);
+        var messageHandled = new TaskCompletionSource();
+        AsyncOnlyDisposable? resolved = null;
+
+        _sqsMock
+            .Setup(x => x.ReceiveMessageAsync(It.IsAny<ReceiveMessageRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(async (ReceiveMessageRequest _, CancellationToken token) =>
+            {
+                await Task.Delay(100, token);
+                token.ThrowIfCancellationRequested();
+                return GetReceiveMessageResponseArgs(payload);
+            });
+
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<TestImportMessageCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(testImportMessage);
+
+        _observerMock
+            .Setup(o => o.OnMessageHandled(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<MessageType?>(), It.IsAny<Message>()))
+            .Callback(() => messageHandled.TrySetResult());
+
+        // Mirrors a handler chain that resolves a unit of work which only implements IAsyncDisposable.
+        var services = new ServiceCollection();
+        services.AddScoped<AsyncOnlyDisposable>();
+        services.AddScoped<IMediator>(sp =>
+        {
+            resolved = sp.GetRequiredService<AsyncOnlyDisposable>();
+            return _mediatorMock.Object;
+        });
+        await using var provider = services.BuildServiceProvider();
+        _scopeFactoryOverride = provider.GetRequiredService<IServiceScopeFactory>();
+
+        await RunUntilObserved(messageHandled);
+
+        resolved.Should().NotBeNull();
+        resolved!.Disposed.Should().BeTrue();
+
+        _sqsMock.Verify(x => x.DeleteMessageAsync(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        _queueAdminServiceMock.Verify(x => x.MoveToDeadLetterQueueAsync(
+            It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
+            It.IsAny<Exception>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    public sealed class AsyncOnlyDisposable : IAsyncDisposable
+    {
+        public bool Disposed { get; private set; }
+
+        public ValueTask DisposeAsync()
+        {
+            Disposed = true;
+            return ValueTask.CompletedTask;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -379,7 +448,9 @@ public class BaseSqsQueuePollerTests
 
         _queueAdminServiceMock.Verify(x => x.MoveToDeadLetterQueueAsync(
             It.IsAny<Message>(), It.IsAny<string>(), It.IsAny<string?>(),
-            It.IsAny<InvalidOperationException>(), It.IsAny<CancellationToken>()), Times.Once);
+            It.IsAny<NonRetryableException>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        _mediatorMock.Verify(m => m.Send(It.IsAny<IMessageProcessingCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -425,47 +496,17 @@ public class BaseSqsQueuePollerTests
     public class TestFifoQueuePoller(
         IServiceScopeFactory scopeFactory,
         IAmazonSQS sqs,
-        TestMessageCommandRegistry registry,
+        MessageCommandRegistry<TestFifoQueueClient> registry,
         IOptionsMonitor<QueueConsumerOptions> options,
         TestFifoQueueClient client,
         IQueueAdminService<TestFifoQueueClient> queueAdminService,
         IQueuePollerObserver<MessageType> observer,
         ILogger<TestFifoQueuePoller> logger)
-        : BaseSqsQueuePoller<TestFifoQueueClient>(scopeFactory, sqs, options, client, queueAdminService, observer, logger)
-    {
-        protected override async Task<MessageType?> ProcessMessageAsync(
-            UnwrappedMessage message,
-            CancellationToken cancellationToken)
-        {
-            using var scope = ScopeFactory.CreateScope();
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            var command = registry.CreateCommand(message);
-            return await mediator.Send(command, cancellationToken);
-        }
-    }
+        : MediatorSqsQueuePoller<TestFifoQueueClient>(scopeFactory, sqs, registry, options, client, queueAdminService, observer, logger);
 
     public class TestFifoQueueClient : IQueueClient
     {
         public string ClientName => GetType().Name;
-    }
-
-    public sealed class TestMessageCommandRegistry
-    {
-        private readonly Dictionary<string, IMessageCommandFactory> _map = [];
-
-        public void Register<TFactory>(string subject)
-            where TFactory : IMessageCommandFactory, new()
-        {
-            _map[subject] = new TFactory();
-        }
-
-        public IMessageProcessingCommand CreateCommand(UnwrappedMessage message)
-        {
-            if (!_map.TryGetValue(message.Subject, out var factory))
-                throw new InvalidOperationException($"No command registered for subject {message.Subject}");
-
-            return factory.Create(message);
-        }
     }
 
     public class TestImportMessage : MessageType

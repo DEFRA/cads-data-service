@@ -2,6 +2,7 @@ using Amazon.SQS.Model;
 using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.ApiSurface.Messages.Imports;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
+using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Observers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Messaging;
@@ -46,7 +47,7 @@ public class StorageBridgeFifoQueuePollerTests(StorageBridgeTestFixture testFixt
         var (MessageId, Exception) = await queuePollerObserver.MessageFailed;
 
         MessageId.Should().NotBeNull().And.Be(messageId);
-        Exception.Should().BeOfType<InvalidOperationException>();
+        Exception.Should().BeOfType<NonRetryableException>();
         Exception.Message.Should().Be($"No command registered for subject NonRegisteredTest");
     }
 
