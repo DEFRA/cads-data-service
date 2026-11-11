@@ -19,6 +19,8 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
     public string? SqsEndpoint { get; private set; }
     public string? CadsFifoQueueUrl { get; private set; }
     public string? CadsFifoDeadLetterQueueUrl { get; private set; }
+    public string? CadsMiReportsFifoQueueUrl { get; private set; }
+    public string? CadsMiReportsFifoDeadLetterQueueUrl { get; private set; }
     public string? CadsStandardQueueUrl { get; private set; }
     public string? CadsStandardDeadLetterQueueUrl { get; private set; }
 
@@ -141,6 +143,43 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
             }
         });
 
+        // Dedicated FIFO queue + DLQ for async MI report generation (MiBff outbox dispatcher).
+        var miReportsDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest
+        {
+            QueueName = TestSqsConstants.CadsMiReportsFifoDeadLetterQueueName,
+            Attributes = new Dictionary<string, string>
+            {
+                { QueueAttributeName.FifoQueue, "true" }
+            }
+        });
+        var miReportsDlqAttr = await SqsClient.GetQueueAttributesAsync(new GetQueueAttributesRequest
+        {
+            QueueUrl = miReportsDlqCreated.QueueUrl,
+            AttributeNames = ["QueueArn"]
+        });
+
+        var miReportsQueueCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest
+        {
+            QueueName = TestSqsConstants.CadsMiReportsFifoQueueName,
+            Attributes = new Dictionary<string, string>
+            {
+                { QueueAttributeName.FifoQueue, "true" }
+            }
+        });
+
+        CadsMiReportsFifoQueueUrl = miReportsQueueCreated.QueueUrl;
+        CadsMiReportsFifoDeadLetterQueueUrl = miReportsDlqCreated.QueueUrl;
+
+        var miReportsRedrivePolicy = $"{{\"deadLetterTargetArn\":\"{miReportsDlqAttr.QueueARN}\",\"maxReceiveCount\":\"3\"}}";
+        await SqsClient.SetQueueAttributesAsync(new SetQueueAttributesRequest
+        {
+            QueueUrl = CadsMiReportsFifoQueueUrl,
+            Attributes = new Dictionary<string, string>
+            {
+                { "RedrivePolicy", miReportsRedrivePolicy }
+            }
+        });
+
         // Standard (non-FIFO) queue + DLQ, dedicated to SqsAdmin integration tests.
         var standardDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest
         {
@@ -180,6 +219,8 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
 
         await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsFifoDeadLetterQueueName, ["All"], CancellationToken.None);
         await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsFifoQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsMiReportsFifoDeadLetterQueueName, ["All"], CancellationToken.None);
+        await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsMiReportsFifoQueueName, ["All"], CancellationToken.None);
         await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsStandardDeadLetterQueueName, ["All"], CancellationToken.None);
         await SqsClient.GetQueueAttributesAsync(TestSqsConstants.CadsStandardQueueName, ["All"], CancellationToken.None);
     }
