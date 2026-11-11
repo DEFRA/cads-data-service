@@ -1,6 +1,8 @@
+using Cads.Cds.BuildingBlocks.Core.Domain.Outbox;
+
 namespace Cads.Cds.MiBff.Core.Domain.Entities;
 
-public class MiReportJobOutbox
+public class MiReportJobOutbox : IOutboxMessage
 {
     public Guid OutboxId { get; set; }
     public Guid ReportJobId { get; set; }
@@ -18,6 +20,7 @@ public class MiReportJobOutbox
 public static class ReportJobOutboxStatus
 {
     public const string Pending = "pending";
+    public const string Dispatching = "dispatching";
     public const string Dispatched = "dispatched";
     public const string Failed = "failed";
 }

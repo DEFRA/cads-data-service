@@ -71,6 +71,43 @@ public class MiReportJobRepository(MiBffWriteDbContext writeDbContext, IMiBffUni
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<MiReportJobOutbox>> ClaimPendingOutboxMessagesAsync(
+        int batchSize,
+        CancellationToken cancellationToken = default)
+    {
+        // Delegates the claim+lock+flip logic to the cads.claim_pending_report_job_outbox_messages
+        // Postgres function (see 0000_013_mi_report_job_tables.postgresql.sql), which uses
+        // FOR UPDATE SKIP LOCKED internally so concurrent dispatcher replicas never claim the
+        // same pending row. No explicit transaction needed - the function body runs atomically.
+        const string sql = "SELECT * FROM cads.claim_pending_report_job_outbox_messages({0})";
+
+        return await writeDbContext.ReportJobOutboxMessages
+            .FromSqlRaw(sql, batchSize)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task MarkOutboxDispatchFailedAsync(
+        Guid outboxId,
+        string error,
+        int maxAttempts,
+        CancellationToken cancellationToken = default)
+    {
+        var outboxMessage = await writeDbContext.ReportJobOutboxMessages
+            .SingleOrDefaultAsync(o => o.OutboxId == outboxId, cancellationToken);
+
+        if (outboxMessage is null)
+            return;
+
+        outboxMessage.Attempts += 1;
+        outboxMessage.LastError = error.Length > 2000 ? error[..2000] : error;
+        outboxMessage.Status = outboxMessage.Attempts >= maxAttempts
+            ? ReportJobOutboxStatus.Failed
+            : ReportJobOutboxStatus.Pending;
+
+        await writeDbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task DeleteDispatchedOutboxMessagesAsync(
         IEnumerable<Guid> outboxIds,
         CancellationToken cancellationToken = default)

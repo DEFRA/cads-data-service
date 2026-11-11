@@ -7,6 +7,8 @@ services:
       Postgres__DefaultConnection: Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
       Postgres__ReadOnlyConnection: Host=cads-postgres;Port=5432;Database=cads_data_service;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
       Modules__Ingester__Storage__CadsIngester__BucketName: cads-internal-bucket
+      Modules__MiBff__Queues__CadsMiReports__QueueUrl: http://cads-localstack:4566/000000000000/cads-mi-reports-queue.fifo
+      Modules__MiBff__Queues__CadsMiReports__DlqQueueUrl: http://cads-localstack:4566/000000000000/cads-mi-reports-queue-deadletter.fifo
       Modules__StorageBridge__Queues__CadsCds__QueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue.fifo
       Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue-deadletter.fifo
       Modules__StorageBridge__Storage__CadsInternal__BucketName: cads-internal-bucket
@@ -17,6 +19,8 @@ services:
       Modules__StorageBridge__Storage__StorageManager__Salt: ${STORAGE_MANAGER_SALT:-test-salt}
       Modules__SystemAdmin__Queues__CadsCds__QueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue.fifo
       Modules__SystemAdmin__Queues__CadsCds__DlqQueueUrl: http://cads-localstack:4566/000000000000/cads-cds-queue-deadletter.fifo
+      Modules__SystemAdmin__Queues__CadsMiReports__QueueUrl: http://cads-localstack:4566/000000000000/cads-mi-reports-queue.fifo
+      Modules__SystemAdmin__Queues__CadsMiReports__DlqQueueUrl: http://cads-localstack:4566/000000000000/cads-mi-reports-queue-deadletter.fifo
       Modules__SystemAdmin__ImportsDeduplication__BucketName: cads-external-bucket
       Modules__SystemAdmin__ImportsDeduplication__EnvironmentName: PreProd
       Modules__SystemAdmin__EnableAdminEndpoints: "true"
@@ -38,8 +42,8 @@ services:
       AuthenticationConfiguration__AzureAD__MetadataAddress: http://cads-oidc-mock/.well-known/openid-configuration
       AuthenticationConfiguration__AzureAD__RequireHttpsMetadata: "false"
       AuthenticationConfiguration__AzureAD__ValidateIssuer: "false"
-      Encryption__CurrentKeyId: ${ENCRYPTION_CURRENTKEYID:-V1},
-      Encryption__Keys__${ENCRYPTION_CURRENTKEYID:-V1}: ${ENCRYPTION_KEY:-dGVzdC1lbmNyeXB0aW9uLWtleQ==} 
+      Encryption__CurrentKeyId: ${ENCRYPTION_CURRENTKEYID:-V1}
+      Encryption__Keys__V1: ${ENCRYPTION_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
