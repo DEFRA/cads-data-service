@@ -2,10 +2,10 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.SystemAdmin.Application.Generation.Dispatchers;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Endpoints.Generation.Requests;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsAudit.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cads.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsAudit.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.Utils;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
@@ -28,16 +28,16 @@ public static class GenerationEndpointExtensions
         app.MapGet($"{generationRouteSegment}/scenarios", GetScenarios)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet($"{generationRouteSegment}/cads/{{tableName}}/dependencies", GetDependencies<CadsSystemAdminDbContext>)
+        app.MapGet($"{generationRouteSegment}/cads/{{tableName}}/dependencies", GetDependencies<CadsGQDbContext>)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet($"{generationRouteSegment}/cts/{{tableName}}/dependencies", GetDependencies<CtsSystemAdminDbContext>)
+        app.MapGet($"{generationRouteSegment}/cts/{{tableName}}/dependencies", GetDependencies<CtsGQDbContext>)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet($"{generationRouteSegment}/cts-audit/{{tableName}}/dependencies", GetDependencies<CtsAuditSystemAdminDbContext>)
+        app.MapGet($"{generationRouteSegment}/cts-audit/{{tableName}}/dependencies", GetDependencies<CtsAuditGQDbContext>)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
-        app.MapGet($"{generationRouteSegment}/cts-transactions/{{tableName}}/dependencies", GetDependencies<CtsTransactionsSystemAdminDbContext>)
+        app.MapGet($"{generationRouteSegment}/cts-transactions/{{tableName}}/dependencies", GetDependencies<CtsTransactionsGQDbContext>)
            .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
     }
 

@@ -1,0 +1,16 @@
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Entities;
+
+public partial class CtExtSpecialHerd
+{
+    public string? SphHerdCode { get; set; }
+
+    public string? SphHerdRegion { get; set; }
+
+    public decimal? SphVersion { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+}
