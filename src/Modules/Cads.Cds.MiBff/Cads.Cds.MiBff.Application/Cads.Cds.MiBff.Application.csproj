@@ -20,4 +20,8 @@
     <Folder Include="Queries\Ukv\Cohorts\Validators\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.15" />
+  </ItemGroup>
+
 </Project>
