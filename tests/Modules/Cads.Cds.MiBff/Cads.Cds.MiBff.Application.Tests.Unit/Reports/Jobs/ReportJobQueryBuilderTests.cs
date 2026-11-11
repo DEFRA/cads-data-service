@@ -26,13 +26,13 @@ public class ReportJobQueryBuilderTests
     private static MiReportJob NewJob(
         string reportKey = GetGbCattleDeathsQuery.ExpectedKey,
         string requestPayload = "{\"reportKey\":\"gb_cattle_deaths\",\"year\":2024}") => new()
-    {
-        ReportJobId = Guid.NewGuid(),
-        ReportKey = reportKey,
-        ExternalSubject = "user@example.test",
-        RequestPayload = requestPayload,
-        Status = ReportJobStatus.Pending
-    };
+        {
+            ReportJobId = Guid.NewGuid(),
+            ReportKey = reportKey,
+            ExternalSubject = "user@example.test",
+            RequestPayload = requestPayload,
+            Status = ReportJobStatus.Pending
+        };
 
     [Fact]
     public void Build_WithGbCattleDeathsJob_ReturnsQueryFromStoredPayload()
