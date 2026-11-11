@@ -1,0 +1,14 @@
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Entities;
+
+public partial class CtHsfSequence
+{
+    public string? HssSequenceKey { get; set; }
+
+    public decimal? HssSequence { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+}
