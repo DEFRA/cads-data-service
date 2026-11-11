@@ -1,5 +1,5 @@
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Entities;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using Microsoft.EntityFrameworkCore;
@@ -8,13 +8,13 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.ContentGenerators;
 
 public class ContentGeneratorTests
 {
-    private static CtsTransactionsSystemAdminDbContext CreateDbContext(string dbName)
+    private static CtsTransactionsGQDbContext CreateDbContext(string dbName)
     {
-        var options = new DbContextOptionsBuilder<CtsTransactionsSystemAdminDbContext>()
+        var options = new DbContextOptionsBuilder<CtsTransactionsGQDbContext>()
             .UseInMemoryDatabase(dbName)
             .Options;
 
-        return new CtsTransactionsSystemAdminDbContext(options);
+        return new CtsTransactionsGQDbContext(options);
     }
 
     [Fact]
