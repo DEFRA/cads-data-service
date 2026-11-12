@@ -4,4 +4,3 @@ public interface IReportKeyModelRegistry
 {
     bool TryGetModelType(string reportKey, out Type? modelType);
 }
-
