@@ -12,7 +12,7 @@ public class ScenarioGenerationDispatcherTests
     public async Task DispatchAsync_UnknownScenario_ThrowsGenerationValidationException()
     {
         // Arrange
-        var dispatcher = new ScenarioGenerationDispatcher(Array.Empty<IGenerationScenario>());
+        var dispatcher = new ScenarioGenerationDispatcher([]);
         var request = new CreateGenerationRequestDto { Scenario = "NonExisting", RowCount = 1 };
 
         // Act & Assert
@@ -24,7 +24,13 @@ public class ScenarioGenerationDispatcherTests
     public async Task DispatchAsync_KnownScenario_InvokesScenarioExecuteAndReturnsResult()
     {
         // Arrange
-        var expected = new CreateGenerationResponseDto { FileName = "file.txt", Content = "content", BusinessKeys = new decimal[] { 1m, 2m } };
+        var expected = new CreateGenerationResponseDto
+        {
+            FileName = "CTSM_CADS_PROD_BULK_00003_004_CT_ANIMAL_STATUSES_2026-08-23-092214.CSV",
+            GroupKey = "CTSM_CADS_PROD_BULK_00003_CT_ANIMAL_STATUSES",
+            Content = "content",
+            BusinessKeys = [1m, 2m]
+        };
         var mockScenario = new Mock<IGenerationScenario>();
         mockScenario.SetupGet(s => s.Name).Returns("TestScenario");
         mockScenario
@@ -32,7 +38,7 @@ public class ScenarioGenerationDispatcherTests
             .ReturnsAsync(expected)
             .Verifiable();
 
-        var dispatcher = new ScenarioGenerationDispatcher(new[] { mockScenario.Object });
+        var dispatcher = new ScenarioGenerationDispatcher([mockScenario.Object]);
         var request = new CreateGenerationRequestDto { Scenario = "TestScenario", RowCount = 10 };
 
         // Act

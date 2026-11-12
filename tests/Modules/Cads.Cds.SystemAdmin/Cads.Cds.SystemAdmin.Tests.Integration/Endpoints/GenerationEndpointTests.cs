@@ -35,6 +35,9 @@ public class GenerationEndpointTests(ApiContainerFixture apiContainerFixture)
         dto.FileName.Should().NotBeNullOrEmpty();
         dto.FileName.Should().Contain("CT_LOCATIONS");
         dto.FileName.Should().Contain("BULK");
+        dto.GroupKey.Should().NotBeNullOrEmpty();
+        dto.GroupKey.Should().Contain("CT_LOCATIONS");
+        dto.GroupKey.Should().Contain("BULK");
         dto.BusinessKeys.Should().NotBeNull();
         dto.BusinessKeys.Should().HaveCount(10);
 
@@ -101,11 +104,14 @@ public class GenerationEndpointTests(ApiContainerFixture apiContainerFixture)
             response,
             TestContext.Current.CancellationToken);
 
-
         dto.Should().NotBeNull();
         dto.FileName.Should().NotBeNullOrEmpty();
         dto.FileName.Should().Contain("CT_LOCATIONS");
         dto.FileName.Should().Contain("ETE");
+
+        dto.GroupKey.Should().NotBeNullOrEmpty();
+        dto.GroupKey.Should().Contain("CT_LOCATIONS");
+        dto.GroupKey.Should().Contain("ETE");
 
         dto.BusinessKeys.Should().NotBeNull();
         dto.BusinessKeys.Should().HaveCount(10);
@@ -157,11 +163,14 @@ public class GenerationEndpointTests(ApiContainerFixture apiContainerFixture)
             response,
             TestContext.Current.CancellationToken);
 
-
         dto.Should().NotBeNull();
         dto.FileName.Should().NotBeNullOrEmpty();
         dto.FileName.Should().Contain("CT_LOCATIONS");
         dto.FileName.Should().Contain("ETE");
+
+        dto.GroupKey.Should().NotBeNullOrEmpty();
+        dto.GroupKey.Should().Contain("CT_LOCATIONS");
+        dto.GroupKey.Should().Contain("ETE");
 
         dto.BusinessKeys.Should().NotBeNull();
         dto.BusinessKeys.Should().HaveCount(10);
