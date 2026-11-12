@@ -7,6 +7,9 @@ public class CreateGenerationResponseDto
     [JsonPropertyName("filename")]
     public required string FileName { get; set; }
 
+    [JsonPropertyName("groupKey")]
+    public required string GroupKey { get; set; }
+
     [JsonPropertyName("content")]
     public required string Content { get; set; }
 

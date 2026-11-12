@@ -58,9 +58,7 @@ public static class GenerationEndpointExtensions
 
         var result = await dispatcher.DispatchAsync(createGenerationRequestDto, cancellationToken);
 
-        var response = new CreateGenerationResponseDto { BusinessKeys = result.BusinessKeys, Content = result.Content, FileName = result.FileName };
-
-        return Results.Ok(response);
+        return Results.Ok(result);
     }
 
     private static async Task<IResult> GetScenarios(IScenarioGenerationDispatcher dispatcher)
