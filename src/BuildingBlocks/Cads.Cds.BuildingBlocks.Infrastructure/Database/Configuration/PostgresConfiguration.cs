@@ -17,6 +17,8 @@ public class PostgresConfiguration
     public string Name { get; init; } = string.Empty;
     public string User { get; init; } = string.Empty;
     public string? Password { get; init; }
+    // Default Npgsql command timeout (seconds) applied to every pool unless overridden per-pool. Npgsql's own default is 30s.
+    public int CommandTimeoutSeconds { get; init; } = 60;
     // Optional per-module pool settings keyed by PostgresPools identifier; unset values fall back to the settings above
     public IReadOnlyDictionary<string, PostgresPoolConfiguration> Pools { get; init; } = new Dictionary<string, PostgresPoolConfiguration>();
 }

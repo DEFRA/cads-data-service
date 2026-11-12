@@ -11,4 +11,7 @@ public class PostgresPoolConfiguration
     public string? ApplicationName { get; init; }
     public int? MaximumPoolSize { get; init; }
     public int? MinimumPoolSize { get; init; }
+
+    // Overrides Postgres:CommandTimeoutSeconds for this pool. Use for pools that call long-running functions/queries.
+    public int? CommandTimeoutSeconds { get; init; }
 }

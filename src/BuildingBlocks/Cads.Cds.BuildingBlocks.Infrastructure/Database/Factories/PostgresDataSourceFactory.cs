@@ -78,7 +78,7 @@ public sealed class PostgresDataSourceFactory(
                 ? CreatePasswordConnectionStringBuilder(pool, isReadPool)
                 : CreateStandardConnectionStringBuilder(pool, isReadPool);
 
-        ApplyPoolSettings(connectionStringBuilder, pool);
+        ApplyPoolSettings(connectionStringBuilder, pool, config);
 
         return connectionStringBuilder;
     }
@@ -121,14 +121,16 @@ public sealed class PostgresDataSourceFactory(
             Port = isReadPool ? config.ReadOnlyPort : config.DefaultPort,
             Database = config.Name,
             Username = config.User,
-            CommandTimeout = 60,
             TcpKeepAlive = true,
             TcpKeepAliveTime = 30,
             SslMode = SslMode.Require // AWS RDS requires SSL
         };
     }
 
-    private static void ApplyPoolSettings(NpgsqlConnectionStringBuilder connectionStringBuilder, PostgresPoolConfiguration pool)
+    private static void ApplyPoolSettings(
+        NpgsqlConnectionStringBuilder connectionStringBuilder,
+        PostgresPoolConfiguration pool,
+        PostgresConfiguration config)
     {
         if (pool.ApplicationName is not null)
         {
@@ -144,6 +146,10 @@ public sealed class PostgresDataSourceFactory(
         {
             connectionStringBuilder.MinPoolSize = pool.MinimumPoolSize.Value;
         }
+
+        // Applied for every connection path (standard/password/IAM) so a plain connection string
+        // can't silently fall back to Npgsql's default 30s CommandTimeout.
+        connectionStringBuilder.CommandTimeout = pool.CommandTimeoutSeconds ?? config.CommandTimeoutSeconds;
     }
 
     [ExcludeFromCodeCoverage]
