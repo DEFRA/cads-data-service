@@ -31,6 +31,43 @@ public class S3ReportFileStore(IS3ClientFactory s3ClientFactory, IFileEncryptor 
         await PutAsync(key, encrypted, cancellationToken);
     }
 
+    public async Task<Stream> GetAsync(string key, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
+        var response = await GetObjectAsync(key, cancellationToken);
+
+        await using var encryptedStream = response.ResponseStream;
+        var decrypted = new MemoryStream();
+
+        await fileEncryptor.DecryptAsync(encryptedStream, decrypted, cancellationToken: cancellationToken);
+
+        decrypted.Position = 0;
+        return decrypted;
+    }
+
+    private async Task<GetObjectResponse> GetObjectAsync(string key, CancellationToken cancellationToken)
+    {
+        var client = s3ClientFactory.GetClientInfo<MiBffInternalStorageClient>();
+
+        try
+        {
+            return await client.Client.GetObjectAsync(new GetObjectRequest
+            {
+                BucketName = client.BucketName,
+                Key = key
+            }, cancellationToken);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw new NotFoundException("Report file", key);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode is >= HttpStatusCode.InternalServerError or HttpStatusCode.TooManyRequests)
+        {
+            throw new RetryableException($"Transient failure reading report at {key}.", ex);
+        }
+    }
+
     private async Task PutAsync(string key, Stream body, CancellationToken cancellationToken)
     {
         var client = s3ClientFactory.GetClientInfo<MiBffInternalStorageClient>();
