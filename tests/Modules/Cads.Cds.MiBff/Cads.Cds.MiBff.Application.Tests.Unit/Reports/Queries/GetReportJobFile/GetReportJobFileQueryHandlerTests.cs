@@ -61,7 +61,7 @@ public class GetReportJobFileQueryHandlerTests
             .Setup(r => r.TryGetModelType(It.IsAny<string>(), out It.Ref<Type?>.IsAny))
             .Returns(false);
 
-    private void SeedModelType(Type modelType) =>
+    private void SeedModelType(Type? modelType) =>
         _modelRegistryMock
             .Setup(r => r.TryGetModelType(ReportKey, out modelType))
             .Returns(true);
