@@ -126,4 +126,59 @@ public class S3ReportFileStoreTests
         await act.Should().ThrowAsync<InvalidOperationException>();
         _s3Mock.Verify(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    [Fact]
+    public async Task GetAsync_DownloadsAndDecryptsContentFromInternalBucket()
+    {
+        _encryptorMock
+            .Setup(e => e.DecryptAsync(It.IsAny<Stream>(), It.IsAny<Stream>(), It.IsAny<long?>(),
+                It.IsAny<Action<int, string>?>(), It.IsAny<CancellationToken>()))
+            .Returns(async (Stream input, Stream output, long? _, Action<int, string>? _, CancellationToken ct) =>
+            {
+                await input.CopyToAsync(output, ct);
+            });
+
+        GetObjectRequest? capturedRequest = null;
+        _s3Mock
+            .Setup(s => s.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .Callback((GetObjectRequest request, CancellationToken _) => capturedRequest = request)
+            .ReturnsAsync(new GetObjectResponse { ResponseStream = new MemoryStream("ENC:[{\"a\":1}]"u8.ToArray()) });
+
+        await using var result = await CreateSut().GetAsync(Key, TestContext.Current.CancellationToken);
+
+        using var buffer = new MemoryStream();
+        await result.CopyToAsync(buffer, TestContext.Current.CancellationToken);
+
+        capturedRequest.Should().NotBeNull();
+        capturedRequest!.BucketName.Should().Be(BucketName);
+        capturedRequest.Key.Should().Be(Key);
+        buffer.ToArray().Should().Equal("ENC:[{\"a\":1}]"u8.ToArray());
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenObjectNotFound_ThrowsNotFound()
+    {
+        _s3Mock
+            .Setup(s => s.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new AmazonS3Exception("missing") { StatusCode = HttpStatusCode.NotFound });
+
+        var act = () => CreateSut().GetAsync(Key, TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<NotFoundException>();
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    [InlineData(HttpStatusCode.ServiceUnavailable)]
+    [InlineData(HttpStatusCode.TooManyRequests)]
+    public async Task GetAsync_WhenS3FailsTransiently_ThrowsRetryable(HttpStatusCode statusCode)
+    {
+        _s3Mock
+            .Setup(s => s.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new AmazonS3Exception("unavailable") { StatusCode = statusCode });
+
+        var act = () => CreateSut().GetAsync(Key, TestContext.Current.CancellationToken);
+
+        await act.Should().ThrowAsync<RetryableException>().WithInnerException(typeof(AmazonS3Exception));
+    }
 }
