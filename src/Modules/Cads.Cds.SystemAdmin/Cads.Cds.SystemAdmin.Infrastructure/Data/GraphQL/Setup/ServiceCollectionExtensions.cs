@@ -1,9 +1,8 @@
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Queries;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsAudit.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
-using HotChocolate.Execution.Configuration;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cads.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsAudit.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,7 +22,7 @@ public static class ServiceCollectionExtensions
             .AllowIntrospectionWhen(enableIntrospection)
             .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
-            .AddTypeExtension<ErdQuery<CadsSystemAdminDbContext>>()
+            .AddTypeExtension<ErdQuery<CadsGQDbContext>>()
             .AddTypeExtension<CadsGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -36,7 +35,7 @@ public static class ServiceCollectionExtensions
             .AllowIntrospectionWhen(enableIntrospection)
             .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
-            .AddTypeExtension<ErdQuery<CtsSystemAdminDbContext>>()
+            .AddTypeExtension<ErdQuery<CtsGQDbContext>>()
             .AddTypeExtension<CtsGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -49,7 +48,7 @@ public static class ServiceCollectionExtensions
             .AllowIntrospectionWhen(enableIntrospection)
             .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
-            .AddTypeExtension<ErdQuery<CtsAuditSystemAdminDbContext>>()
+            .AddTypeExtension<ErdQuery<CtsAuditGQDbContext>>()
             .AddTypeExtension<CtsAuditGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -62,7 +61,7 @@ public static class ServiceCollectionExtensions
             .AllowIntrospectionWhen(enableIntrospection)
             .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
-            .AddTypeExtension<ErdQuery<CtsTransactionsSystemAdminDbContext>>()
+            .AddTypeExtension<ErdQuery<CtsTransactionsGQDbContext>>()
             .AddTypeExtension<CtsTransactionsGraphQuery>()
             .AddProjections()
             .AddFiltering()

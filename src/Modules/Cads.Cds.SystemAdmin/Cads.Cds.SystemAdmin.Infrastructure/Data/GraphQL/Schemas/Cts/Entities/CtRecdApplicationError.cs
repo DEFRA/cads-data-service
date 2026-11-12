@@ -1,0 +1,32 @@
+using System;
+
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Entities;
+
+public partial class CtRecdApplicationError
+{
+    public decimal RaeId { get; set; }
+
+    public decimal? RaeRapId { get; set; }
+
+    public string? RaeAttributeName { get; set; }
+
+    public string? RaeErrorCode { get; set; }
+
+    public string? RaeCurrentStatus { get; set; }
+
+    public string? RaeCurrentUser { get; set; }
+
+    public DateOnly? RaeCurrentModifiedDate { get; set; }
+
+    public decimal? RaeCurrentPid { get; set; }
+
+    public decimal? RaeVersion { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+
+    public virtual CtReceivedApplication? RaeRap { get; set; }
+}

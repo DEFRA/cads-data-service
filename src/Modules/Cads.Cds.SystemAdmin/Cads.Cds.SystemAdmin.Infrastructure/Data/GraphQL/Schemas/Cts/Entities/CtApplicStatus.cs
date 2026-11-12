@@ -1,0 +1,30 @@
+using System;
+
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Entities;
+
+public partial class CtApplicStatus
+{
+    public decimal ApsId { get; set; }
+
+    public decimal? ApsVapId { get; set; }
+
+    public string? ApsUser { get; set; }
+
+    public string? ApsStatus { get; set; }
+
+    public DateOnly? ApsModifiedDate { get; set; }
+
+    public decimal? ApsPid { get; set; }
+
+    public string? ApsIntendedAction { get; set; }
+
+    public decimal? ApsVersion { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+
+    public virtual CtValidApplication? ApsVap { get; set; }
+}
