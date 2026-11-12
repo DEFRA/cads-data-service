@@ -19,5 +19,3 @@ public class ReportKeyModelRegistry : IReportKeyModelRegistry
     public bool TryGetModelType(string reportKey, out Type? modelType)
         => ModelTypesByReportKey.TryGetValue(reportKey, out modelType);
 }
-
-
