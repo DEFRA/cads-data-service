@@ -42,7 +42,7 @@ public class GetReportJobFileQueryHandler(
 
         var decrypted = await reportFileStore.GetAsync(storageKey, cancellationToken);
 
-        if(!reportKeyModelRegistry.TryGetModelType(job.ReportKey, out var modelType))
+        if (!reportKeyModelRegistry.TryGetModelType(job.ReportKey, out var modelType))
         {
             throw new NonRetryableException($"Report job {request.JobId} does not have a valid model type.");
         }

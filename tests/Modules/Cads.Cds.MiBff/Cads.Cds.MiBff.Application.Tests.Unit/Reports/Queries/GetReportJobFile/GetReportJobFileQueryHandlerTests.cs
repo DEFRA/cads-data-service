@@ -116,8 +116,6 @@ public class GetReportJobFileQueryHandlerTests
             TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<NonRetryableException>();
-        // var expectedKey = ReportStorageKeys.For(typeof(GetGbCattleDeathsQuery), _jobId);
-        // _fileStoreMock.Verify(s => s.GetAsync(expectedKey, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -172,7 +170,3 @@ public class GetReportJobFileQueryHandlerTests
         _generatorMock.Verify(g => g.Generate(It.Is<List<MiDeathSummary>>(d => d.Count == 1 && d[0].DeathYear == 2024)), Times.Once);
     }
 }
-
-
-
-

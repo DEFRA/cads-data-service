@@ -43,5 +43,3 @@ public class ReportKeyModelRegistryTests
         modelType.Should().BeNull();
     }
 }
-
-
