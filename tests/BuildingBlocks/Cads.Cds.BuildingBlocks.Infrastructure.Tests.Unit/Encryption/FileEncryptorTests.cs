@@ -4,6 +4,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Exceptions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Models;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using System.Security.Cryptography;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Encryption;
@@ -421,6 +422,49 @@ public class FileEncryptorTests
     public void MasterKeyOfWrongLength_IsRejected() =>
         Assert.Throws<ArgumentException>(() => new InMemoryMasterKeyProvider("k",
             new Dictionary<string, byte[]> { ["k"] = new byte[16] }));
+
+    // ---- DecryptToStreamAsync --------------------------------------------------------------------------
+
+    [Fact]
+    public async Task EncryptionUtilities_EncryptAndDecryptRoundTrip()
+    {
+        var encryptor = Enc();
+        const string plaintext = "Testing the encryption utility round trip.";
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, plaintext);
+
+        var decrypted = await EncryptionUtilities.DecryptAsync(encryptor, encrypted);
+
+        Assert.Equal(plaintext, decrypted);
+    }
+
+    [Fact]
+    public async Task DecryptToStream_ReturnsReadableAuthenticatedPlaintext()
+    {
+        var enc = Enc();
+        var plaintext = Data(9000);
+        var ciphertext = await EncryptAsync(enc, plaintext);
+
+        using var decrypted = await enc.DecryptToStreamAsync(
+            new MemoryStream(ciphertext),
+            cancellationToken: TestContext.Current.CancellationToken);
+        using var output = new MemoryStream();
+        await decrypted.CopyToAsync(output, TestContext.Current.CancellationToken);
+
+        Assert.Equal(plaintext, output.ToArray());
+    }
+
+    [Fact]
+    public async Task DecryptToStream_ThrowsWhenCiphertextIsTampered()
+    {
+        var enc = Enc();
+        var ciphertext = await EncryptAsync(enc, Data(3 * 4096));
+        ciphertext[^1] ^= 1;
+
+        await Assert.ThrowsAsync<EncryptedFileAuthenticationException>(
+            () => enc.DecryptToStreamAsync(
+                new MemoryStream(ciphertext),
+                cancellationToken: TestContext.Current.CancellationToken));
+    }
 
     // ---- DecryptToFileAsync -----------------------------------------------------------------------------
 

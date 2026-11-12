@@ -5,6 +5,30 @@ namespace Cads.Cds.BuildingBlocks.Application.Extensions;
 public static class FileEncryptorExtensions
 {
     /// <summary>
+    /// Decrypts into memory and returns plaintext only after the entire file has authenticated.
+    /// The caller owns and must dispose the returned stream.
+    /// </summary>
+    public static async Task<Stream> DecryptToStreamAsync(this IFileEncryptor encryptor, Stream input,
+        long? totalBytes = null, Action<int, string>? progress = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(encryptor);
+        ArgumentNullException.ThrowIfNull(input);
+
+        var plaintext = new MemoryStream();
+        try
+        {
+            await encryptor.DecryptAsync(input, plaintext, totalBytes, progress, cancellationToken).ConfigureAwait(false);
+            plaintext.Position = 0;
+            return plaintext;
+        }
+        catch
+        {
+            await plaintext.DisposeAsync().ConfigureAwait(false);
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Decrypts into a temporary file next to <paramref name="destinationPath"/> and moves it into place only after
     /// the whole file has authenticated. On any failure the temporary file is deleted and the destination is untouched.
     /// </summary>
