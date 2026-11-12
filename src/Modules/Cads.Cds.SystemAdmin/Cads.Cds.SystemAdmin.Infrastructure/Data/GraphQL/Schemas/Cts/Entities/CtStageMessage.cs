@@ -1,0 +1,20 @@
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Entities;
+
+public partial class CtStageMessage
+{
+    public string? StmDirectoryKey { get; set; }
+
+    public string? StmFileType { get; set; }
+
+    public string? StmFilePrefix { get; set; }
+
+    public string? StmFileSuffix { get; set; }
+
+    public decimal? StmSleepPeriod { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+}
