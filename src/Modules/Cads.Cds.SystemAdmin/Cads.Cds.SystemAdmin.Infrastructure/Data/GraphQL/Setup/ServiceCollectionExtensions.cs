@@ -1,21 +1,29 @@
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Queries;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cads.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.Cts.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsAudit.Contexts;
-using Cads.Cds.SystemAdmin.Infrastructure.Data.Schemas.CtsTransactions.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cads.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsAudit.Contexts;
+using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
+using HotChocolate.Execution.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Setup;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureSystemAdminGraphQL(this IServiceCollection services)
+    private const int MaxExecutionDepth = 4;
+
+    public static IServiceCollection ConfigureSystemAdminGraphQL(this IServiceCollection services, IConfiguration config)
     {
+        var enableIntrospection = config.GetValue("Modules:SystemAdmin:EnableGraphQlIntrospection", false);
+
         services
             .AddGraphQLServer("CadsSchema")
             .AddAuthorization()
+            .AllowIntrospectionWhen(enableIntrospection)
+            .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
-            .AddTypeExtension<ErdQuery<CadsSystemAdminDbContext>>()
+            .AddTypeExtension<ErdQuery<CadsGQDbContext>>()
             .AddTypeExtension<CadsGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -25,8 +33,10 @@ public static class ServiceCollectionExtensions
         services
             .AddGraphQLServer("CtsSchema")
             .AddAuthorization()
+            .AllowIntrospectionWhen(enableIntrospection)
+            .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
-            .AddTypeExtension<ErdQuery<CtsSystemAdminDbContext>>()
+            .AddTypeExtension<ErdQuery<CtsGQDbContext>>()
             .AddTypeExtension<CtsGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -36,8 +46,10 @@ public static class ServiceCollectionExtensions
         services
             .AddGraphQLServer("CtsAuditSchema")
             .AddAuthorization()
+            .AllowIntrospectionWhen(enableIntrospection)
+            .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
-            .AddTypeExtension<ErdQuery<CtsAuditSystemAdminDbContext>>()
+            .AddTypeExtension<ErdQuery<CtsAuditGQDbContext>>()
             .AddTypeExtension<CtsAuditGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -47,8 +59,10 @@ public static class ServiceCollectionExtensions
         services
             .AddGraphQLServer("CtsTransactionsSchema")
             .AddAuthorization()
+            .AllowIntrospectionWhen(enableIntrospection)
+            .AddMaxExecutionDepthRule(MaxExecutionDepth, skipIntrospectionFields: true)
             .AddQueryType(q => q.Name("Query"))
-            .AddTypeExtension<ErdQuery<CtsTransactionsSystemAdminDbContext>>()
+            .AddTypeExtension<ErdQuery<CtsTransactionsGQDbContext>>()
             .AddTypeExtension<CtsTransactionsGraphQuery>()
             .AddProjections()
             .AddFiltering()
@@ -57,4 +71,7 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    private static IRequestExecutorBuilder AllowIntrospectionWhen(this IRequestExecutorBuilder builder, bool enabled)
+        => enabled ? builder.DisableIntrospection(false) : builder;
 }
