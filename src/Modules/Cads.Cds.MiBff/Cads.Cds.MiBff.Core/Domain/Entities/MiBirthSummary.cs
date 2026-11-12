@@ -14,7 +14,7 @@ public class MiBirthSummary
 
     public string BreedType { get; set; } = string.Empty;
 
-    public string Breed { get; set; } = string.Empty;
+    public string? Breed { get; set; }
 
     public string? Sex { get; set; }
 
