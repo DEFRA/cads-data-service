@@ -1,0 +1,20 @@
+using System;
+
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Entities;
+
+public partial class CtStageLock
+{
+    public string? StlFileType { get; set; }
+
+    public string? StlFileName { get; set; }
+
+    public string? StlProcessed { get; set; }
+
+    public DateOnly? StlTimestamp { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+}
