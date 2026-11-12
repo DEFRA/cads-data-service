@@ -31,4 +31,3 @@ public static class OpenXmlReportGeneratorExtensions
         return (MemoryStream)generic.Invoke(generator, [data])!;
     }
 }
-

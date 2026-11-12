@@ -5,4 +5,3 @@ public enum ReportFileType
     Xlsx,
     Json
 }
-

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Cads.Cds.MiBff.Application.Reports.Commands;
 
- static class ReportJobSerializerOptions
+static class ReportJobSerializerOptions
 {
     public static readonly JsonSerializerOptions Default = new()
     {
