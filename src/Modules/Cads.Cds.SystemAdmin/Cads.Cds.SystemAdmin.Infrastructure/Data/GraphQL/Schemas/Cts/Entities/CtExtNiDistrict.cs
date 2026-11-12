@@ -1,0 +1,16 @@
+namespace Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.Cts.Entities;
+
+public partial class CtExtNiDistrict
+{
+    public string? NidElectoralDistrict { get; set; }
+
+    public decimal? NidVersion { get; set; }
+
+    public string? NidHerdCode { get; set; }
+
+    public decimal? RowNumber { get; set; }
+
+    public long? TransId { get; set; }
+
+    public string TransType { get; set; } = null!;
+}
