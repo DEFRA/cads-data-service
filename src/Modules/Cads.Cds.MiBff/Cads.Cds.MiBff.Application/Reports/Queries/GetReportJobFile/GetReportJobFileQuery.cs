@@ -9,4 +9,3 @@ public class GetReportJobFileQuery : IQuery<IReportResult>
     public required Guid JobId { get; init; }
     public ReportFileType FileType { get; init; } = ReportFileType.Xlsx;
 }
-
