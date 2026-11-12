@@ -1,7 +1,11 @@
 using Amazon.S3;
 using Amazon.S3.Model;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Models;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.StorageBridge.Endpoints.Responses;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Crypto;
 using Cads.Cds.StorageBridge.Testing.Support.Constants;
@@ -178,6 +182,46 @@ public class StorageManagementQueryEndpointTests : IClassFixture<StorageManageme
                 r.Key == "data/one.csv"),
             It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task GivenFileEncryptorEncryptedInternalObject_WhenObjectFetched_ShouldReturnDecryptedContent()
+    {
+        const string key = "data/encrypted.txt";
+        const string body = "Sensitive data encrypted before being stored in S3.";
+        var encryptor = new FileEncryptor(new InMemoryMasterKeyProvider(
+            TestEncryptionKeyProvider.CurrentKeyId,
+            TestEncryptionKeyProvider.Keys));
+        using var encrypted = await EncryptionUtilities.EncryptAsync(encryptor, body);
+        var ciphertext = encrypted.ToArray();
+        ciphertext.Should().NotEqual(Encoding.UTF8.GetBytes(body));
+
+        using var factory = new StorageBridgeWebApplicationFactory(useFakeAuth: true, storageEncryptionEnabled: true);
+        using var client = factory.CreateClient();
+        client.AddJwt();
+
+        var s3Response = new GetObjectResponse
+        {
+            ResponseStream = new MemoryStream(ciphertext)
+        };
+        s3Response.Headers.ContentType = "text/plain";
+        factory.AmazonS3Mock
+            .Setup(x => x.GetObjectAsync(It.IsAny<GetObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(s3Response);
+
+        var response = await client.GetAsync(
+            $"{Endpoint}/buckets/CadsInternalClient/object?key={Uri.EscapeDataString(key)}",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("text/plain");
+        (await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(body);
+
+        factory.AmazonS3Mock.Verify(x => x.GetObjectAsync(
+            It.Is<GetObjectRequest>(r =>
+                r.BucketName == TestS3Constants.TestCadsInternalBucketName &&
+                r.Key == key),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

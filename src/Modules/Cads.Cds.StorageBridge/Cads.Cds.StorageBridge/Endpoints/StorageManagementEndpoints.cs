@@ -1,6 +1,9 @@
 using Amazon.S3;
 using Amazon.S3.Model;
+using Cads.Cds.BuildingBlocks.Application.Encryption;
+using Cads.Cds.BuildingBlocks.Application.Extensions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.StorageBridge.Endpoints.Responses;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
@@ -10,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Security.Cryptography;
 
@@ -147,20 +151,41 @@ public static class StorageManagementEndpoints
         CancellationToken cancellationToken) =>
         clientName switch
         {
-            nameof(CadsInternalClient) => GetClientObject<CadsInternalClient>(services, key, decryptCtsm: false, cancellationToken),
-            nameof(CadsExternalClient) => GetClientObject<CadsExternalClient>(services, key, decryptCtsm: true, cancellationToken),
+            nameof(CadsInternalClient) => GetInternalClientObject(services, key, cancellationToken),
+            nameof(CadsExternalClient) => GetExternalClientObject(services, key, cancellationToken),
             _ => Task.FromResult(UnknownClient(clientName))
         };
 
-    private static async Task<IResult> GetClientObject<T>(IServiceProvider services, string key, bool decryptCtsm, CancellationToken cancellationToken)
-        where T : IStorageClient, new()
+    private static async Task<IResult> GetInternalClientObject(IServiceProvider services, string key, CancellationToken cancellationToken)
     {
-        var manager = services.GetRequiredService<IStorageManager<T>>();
+        var manager = services.GetRequiredService<IStorageManager<CadsInternalClient>>();
 
         try
         {
             var response = await manager.GetObjectResponseAsync(key, cancellationToken);
-            var (stream, contentType) = DecodeObjectStream(services, key, decryptCtsm, response);
+            var contentType = response.Headers.ContentType ?? "application/octet-stream";
+            var encryptionEnabled = services.GetRequiredService<IOptions<EncryptionConfig>>().Value.StorageEncryptionEnabled;
+            var fileEncryptor = services.GetRequiredService<IFileEncryptor>();
+            var stream = encryptionEnabled
+                ? await fileEncryptor.DecryptToStreamAsync(response.ResponseStream, cancellationToken: cancellationToken)
+                : response.ResponseStream;
+
+            return Results.Stream(stream, contentType);
+        }
+        catch (AmazonS3Exception e) when (e.StatusCode == HttpStatusCode.NotFound)
+        {
+            return Results.NotFound();
+        }
+    }
+
+    private static async Task<IResult> GetExternalClientObject(IServiceProvider services, string key, CancellationToken cancellationToken)
+    {
+        var manager = services.GetRequiredService<IStorageManager<CadsExternalClient>>();
+
+        try
+        {
+            var response = await manager.GetObjectResponseAsync(key, cancellationToken);
+            var (stream, contentType) = DecodeObjectStream(services, key, true, response);
 
             return Results.Stream(stream, contentType);
         }
@@ -203,37 +228,29 @@ public static class StorageManagementEndpoints
         CancellationToken cancellationToken) =>
         clientName switch
         {
-            nameof(CadsInternalClient) => GetClientObjectRows<CadsInternalClient>(services, key, decryptCtsm: false, startRow, rowCount, delimiter, cancellationToken),
-            nameof(CadsExternalClient) => GetClientObjectRows<CadsExternalClient>(services, key, decryptCtsm: true, startRow, rowCount, delimiter, cancellationToken),
+            nameof(CadsInternalClient) => GetInternalClientObjectRows(services, key, startRow, rowCount, delimiter, cancellationToken),
+            nameof(CadsExternalClient) => GetExternalClientObjectRows(services, key, decryptCtsm: true, startRow, rowCount, delimiter, cancellationToken),
             _ => Task.FromResult(UnknownClient(clientName))
         };
 
-    private static async Task<IResult> GetClientObjectRows<T>(IServiceProvider services, string key, bool decryptCtsm, int startRow, int rowCount, string delimiter, CancellationToken cancellationToken)
-        where T : IStorageClient, new()
+    private static async Task<IResult> GetInternalClientObjectRows(IServiceProvider services, string key, int startRow, int rowCount, string delimiter, CancellationToken cancellationToken)
     {
-        if (startRow < 1)
-        {
-            return Results.BadRequest("startRow must be 1 or greater");
-        }
-
-        if (rowCount < 1 || rowCount > MaxRowSliceCount)
-        {
-            return Results.BadRequest($"rowCount must be between 1 and {MaxRowSliceCount}");
-        }
-
-        if (string.IsNullOrEmpty(delimiter))
-        {
-            return Results.BadRequest("delimiter is required");
-        }
-
-        var manager = services.GetRequiredService<IStorageManager<T>>();
+        var manager = services.GetRequiredService<IStorageManager<CadsInternalClient>>();
 
         try
         {
+            ValidateRowSliceParameters(startRow, rowCount, delimiter);
+
             // Disposing before the body is drained aborts the storage download,
             // so completing the slice early stops pulling the rest of the object.
             using var response = await manager.GetObjectResponseAsync(key, cancellationToken);
-            var stream = DecodeObjectStream(services, key, decryptCtsm, response).Stream;
+
+            var encryptionEnabled = services.GetRequiredService<IOptions<EncryptionConfig>>().Value.StorageEncryptionEnabled;
+            var fileEncryptor = services.GetRequiredService<IFileEncryptor>();
+
+            var stream = encryptionEnabled
+                ? await fileEncryptor.DecryptToStreamAsync(response.ResponseStream, cancellationToken: cancellationToken)
+                : response.ResponseStream;
 
             return Results.Ok(await StorageRowSliceReader.ReadAsync(stream, startRow, rowCount, delimiter, cancellationToken));
         }
@@ -244,6 +261,51 @@ public static class StorageManagementEndpoints
         catch (InvalidDataException e)
         {
             return Results.BadRequest(e.Message);
+        }
+    }
+
+    private static async Task<IResult> GetExternalClientObjectRows(IServiceProvider services, string key, bool decryptCtsm, int startRow, int rowCount, string delimiter, CancellationToken cancellationToken)
+    {
+        var manager = services.GetRequiredService<IStorageManager<CadsExternalClient>> ();
+
+        try
+        {
+            ValidateRowSliceParameters(startRow, rowCount, delimiter);
+
+            // Disposing before the body is drained aborts the storage download,
+            // so completing the slice early stops pulling the rest of the object.
+            using var response = await manager.GetObjectResponseAsync(key, cancellationToken);
+            var stream = DecodeObjectStream(services, key, decryptCtsm, response).Stream;
+
+            return Results.Ok(await StorageRowSliceReader.ReadAsync(stream, startRow, rowCount, delimiter, cancellationToken));
+        }
+        catch(ArgumentException e)
+        {
+            return Results.BadRequest(e.Message);
+        }
+        catch (AmazonS3Exception e) when (e.StatusCode == HttpStatusCode.NotFound)
+        {
+            return Results.NotFound();
+        }
+        catch (InvalidDataException e)
+        {
+            return Results.BadRequest(e.Message);
+        }
+    }
+
+    private static void ValidateRowSliceParameters(int startRow, int rowCount, string delimiter)
+    {
+        if (startRow < 1)
+        {
+            throw new ArgumentException("startRow must be 1 or greater", nameof(startRow));
+        }
+        if (rowCount < 1 || rowCount > MaxRowSliceCount)
+        {
+            throw new ArgumentException($"rowCount must be between 1 and {MaxRowSliceCount}", nameof(rowCount));
+        }
+        if (string.IsNullOrEmpty(delimiter))
+        {
+            throw new ArgumentException("delimiter is required", nameof(delimiter));
         }
     }
 
