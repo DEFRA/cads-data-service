@@ -11,6 +11,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReportRegistry>(_ =>
             new ReportRegistry([typeof(IReportHandler).Assembly]));
 
+        services.AddSingleton<IReportKeyModelRegistry, ReportKeyModelRegistry>();
+
         var handlerTypes = Assembly.GetExecutingAssembly()
             .GetTypes()
             .Where(t => !t.IsAbstract && typeof(IReportHandler).IsAssignableFrom(t));
