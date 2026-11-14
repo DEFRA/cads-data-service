@@ -2,13 +2,13 @@ using Cads.Cds.ApiSurface.Messages.Imports;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Serializers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Extensions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Factories;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Services;
 using Cads.Cds.StorageBridge.Application.Messaging.Clients;
 using Cads.Cds.StorageBridge.Core.Configuration;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Serializers;
-using Cads.Cds.StorageBridge.Infrastructure.Messaging.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,14 +36,9 @@ public static class ServiceCollectionExtensions
 
     private static void AddMessageHandlers(this IServiceCollection services)
     {
-        services.AddSingleton(sp =>
-        {
-            var registry = new StorageBridgeMessageCommandRegistry();
-
-            registry.Register<S3ToPostgresCopyMessageCommandFactory>(nameof(S3ToPostgresCopyMessage).ReplaceSuffix());
-
-            return registry;
-        });
+        services.AddSingleton(_ =>
+            new MessageCommandRegistry<StorageBridgeFifoQueueClient>()
+                .Register<S3ToPostgresCopyMessageCommandFactory>(nameof(S3ToPostgresCopyMessage).ReplaceSuffix()));
     }
 
     private static void AddMessageSerializers(this IServiceCollection services)
@@ -69,6 +64,6 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<StorageBridgeFifoQueueListener>()
             .AddSingleton<IQueuePoller<StorageBridgeFifoQueueClient>, StorageBridgeFifoQueuePoller>();
 
-        services.AddSingleton<IQueueAdminService<StorageBridgeFifoQueueClient>, StorageBridgeFifoQueueAdminService>();
+        services.AddSingleton<IQueueAdminService<StorageBridgeFifoQueueClient>, DeadLetterQueueAdminService<StorageBridgeFifoQueueClient>>();
     }
 }

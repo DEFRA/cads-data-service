@@ -4,6 +4,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Json;
 using Cads.Cds.MiBff.Application.Queries.Reports;
 using Cads.Cds.MiBff.Application.Reports.Commands.CreateReportJob;
+using Cads.Cds.MiBff.Application.Reports.Queries.GetReportJobFile;
 using Cads.Cds.MiBff.Application.Reports.Queries.GetReportJobStatus;
 using Cads.Cds.MiBff.Application.Reports.Requests;
 using Cads.Cds.MiBff.Application.Reports.Routing.Abstractions;
@@ -125,6 +126,39 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
         var result = await _mediator.Send(query, cancellationToken);
 
         return Ok(result);
+    }
+
+    [Authorize(Policy = "ReportAccess")]
+    [HttpGet("{reportKey}/job/{jobId:guid}")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(OkObjectResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetReportJobFile(
+        [FromRoute] string reportKey,
+        [FromRoute] Guid jobId,
+        [FromQuery] string? fileType,
+        CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<ReportFileType>(fileType ?? nameof(ReportFileType.Xlsx), ignoreCase: true, out var parsedFileType))
+            return BadRequest("Invalid fileType. Expected 'json' or 'xlsx'.");
+
+        var query = new GetReportJobFileQuery
+        {
+            ReportKey = reportKey,
+            JobId = jobId,
+            FileType = parsedFileType
+        };
+
+        var result = await _mediator.Send(query, cancellationToken);
+
+        return result switch
+        {
+            FileReportResult file => this.XlsxFile(file),
+            JsonReportResult json => Ok(json.Payload),
+            _ => BadRequest("Unknown report result type")
+        };
     }
 
     private async Task<GetReportRequest?> DeserialiseReportRequest(Type requestType, CancellationToken cancellationToken)

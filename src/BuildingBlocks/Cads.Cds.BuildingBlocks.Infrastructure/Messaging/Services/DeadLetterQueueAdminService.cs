@@ -1,17 +1,23 @@
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Cads.Cds.BuildingBlocks.Application.Messaging.Clients;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Constants;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
-using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Services;
-using Cads.Cds.StorageBridge.Application.Messaging.Clients;
 using Microsoft.Extensions.Logging;
 
-namespace Cads.Cds.StorageBridge.Infrastructure.Messaging.Services;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Services;
 
-public class StorageBridgeFifoQueueAdminService(
+/// <summary>
+/// Generic, reusable <see cref="IQueueAdminService{T}"/> implementation that moves a failed
+/// message onto its module's dead-letter queue. Module-specific admin services only need to
+/// derive from this class (or be registered directly against it) - there is no per-module
+/// customisation required for DLQ handling.
+/// </summary>
+public class DeadLetterQueueAdminService<TClient>(
     IAmazonSQS sqs,
-    ILogger<StorageBridgeFifoQueueAdminService> logger)
-    : IQueueAdminService<StorageBridgeFifoQueueClient>
+    ILogger<DeadLetterQueueAdminService<TClient>> logger)
+    : IQueueAdminService<TClient>
+    where TClient : IQueueClient
 {
     public async Task<bool> MoveToDeadLetterQueueAsync(
         Message message,
