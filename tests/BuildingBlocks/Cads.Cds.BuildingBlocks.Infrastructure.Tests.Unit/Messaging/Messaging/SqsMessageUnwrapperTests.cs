@@ -1,13 +1,13 @@
 using Amazon.SQS.Model;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Extensions;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using FluentAssertions;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Messaging.Messaging;
 
 public class SqsMessageUnwrapperTests
 {
-    private const string Payload = "{\"id\":\"00000000-0000-0000-0000-000000000001\", \"message\":\"Test message 1\"}";
     private const string SubjectKey = "Subject";
     private const string CorrelationIdKey = "CorrelationId";
 
@@ -27,7 +27,7 @@ public class SqsMessageUnwrapperTests
         var message = new Message
         {
             MessageId = "raw-id",
-            Body = Payload,
+            Body = TestDataPayloadHelper.SqsMessagePayload,
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
             {
                 [SubjectKey] = new() { DataType = "String" },
@@ -50,7 +50,7 @@ public class SqsMessageUnwrapperTests
         var message = BuildSqsMessage(messageId, correlationId, "PlaceholderMessage");
         var result = message.Unwrap();
 
-        VerifyUnwrappedMessage(messageId, correlationId, "Placeholder", Payload, result);
+        VerifyUnwrappedMessage(messageId, correlationId, "Placeholder", TestDataPayloadHelper.SqsMessagePayload, result);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public class SqsMessageUnwrapperTests
         var message = new Message
         {
             MessageId = "123",
-            Body = Payload,
+            Body = TestDataPayloadHelper.SqsMessagePayload,
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
             {
                 [CorrelationIdKey] = new() { DataType = "String", StringValue = "ABC" }
@@ -77,7 +77,7 @@ public class SqsMessageUnwrapperTests
         var message = new Message
         {
             MessageId = "123",
-            Body = Payload,
+            Body = TestDataPayloadHelper.SqsMessagePayload,
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
             {
                 [SubjectKey] = new() { DataType = "String", StringValue = "TestSubject" }
@@ -110,7 +110,7 @@ public class SqsMessageUnwrapperTests
         var message = new Message
         {
             MessageId = "123",
-            Body = Payload,
+            Body = TestDataPayloadHelper.SqsMessagePayload,
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
             {
                 ["A"] = new() { DataType = "String", StringValue = "ValueA" },
@@ -146,7 +146,7 @@ public class SqsMessageUnwrapperTests
         return new Message
         {
             MessageId = messageId,
-            Body = Payload,
+            Body = TestDataPayloadHelper.SqsMessagePayload,
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
             {
                 [SubjectKey] = new() { DataType = "String", StringValue = subject },

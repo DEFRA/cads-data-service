@@ -4,6 +4,7 @@ using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
@@ -21,15 +22,13 @@ public class FileImportWithMessageProcessingTests(ApiContainerFixture apiContain
 
     private readonly PostgresDb _postgresDb = new(apiContainerFixture.PostgresFixture.HostConnectionString);
 
-    private static string s_locationsHeader =>
-        "record_type|record_count|loc_id|loc_slt_id|loc_lty_id|loc_cty_id|loc_receive_labels_flag|loc_effective_from|loc_effective_to|loc_cessation_reason|loc_premises_type|loc_comments|loc_map_reference|loc_source_identifier|loc_source_reference|loc_tel_number|loc_mobile_number|loc_fax_number|loc_email_address|loc_current_status|loc_current_user|loc_current_modified_date|loc_current_pid|loc_reason_code|loc_version|loc_receive_ppaf_flag";
-
     private const int ProcessingTimeCircuitBreakerSeconds = 30;
 
     [Fact]
     public async Task GivenFileImportStatusRecord_WhenUpdateToSplitRequested_ShouldSucceedAndProcessImport()
     {
         var testScenarioUniqueId = new Random().Next(1000, 9999);
+
         var importFileName
             = $"CTSM_CADS_ENV_BULK_{testScenarioUniqueId}_0001_CT_LOCATIONS_2026-01-01-012345.csv";
         var importFileKey = $"import/cts/bulk/CTSM_CADS_ENV_BULK_{testScenarioUniqueId}_0001_CT_LOCATIONS_2026-01-01-012345/{importFileName}";
@@ -87,7 +86,7 @@ public class FileImportWithMessageProcessingTests(ApiContainerFixture apiContain
 
     private async Task UploadFileToS3BucketAsync(string importFileName, string locationsDataRow)
     {
-        var fileData = $"{s_locationsHeader}\n" +
+        var fileData = $"{TestDataFileConstants.LocationsHeader}\n" +
                        $"{locationsDataRow}";
 
         var encryptor = new FileEncryptor(

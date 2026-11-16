@@ -16,4 +16,14 @@ public static class EncryptionUtilities
         encrypted.Position = 0;
         return encrypted;
     }
+
+    public static async Task<string> DecryptAsync(FileEncryptor encryptor, Stream encrypted)
+    {
+        using var plaintext = new MemoryStream();
+        await encryptor.DecryptAsync(
+            encrypted,
+            plaintext,
+            cancellationToken: TestContext.Current.CancellationToken);
+        return Encoding.UTF8.GetString(plaintext.ToArray());
+    }
 }

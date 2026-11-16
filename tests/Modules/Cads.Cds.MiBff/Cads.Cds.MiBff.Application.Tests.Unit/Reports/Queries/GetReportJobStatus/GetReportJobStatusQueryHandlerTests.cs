@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.MiBff.Application.Reports.Queries.GetReportJobStatus;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
@@ -17,7 +18,7 @@ public class GetReportJobStatusQueryHandlerTests
             ReportJobId = jobId,
             ReportKey = "report_a",
             ExternalSubject = "user@example.test",
-            RequestPayload = "{}",
+            RequestPayload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobStatus.Pending,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
@@ -42,7 +43,7 @@ public class GetReportJobStatusQueryHandlerTests
             ReportJobId = jobId,
             ReportKey = "report_a",
             ExternalSubject = "user@example.test",
-            RequestPayload = "{}",
+            RequestPayload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobStatus.Complete,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow

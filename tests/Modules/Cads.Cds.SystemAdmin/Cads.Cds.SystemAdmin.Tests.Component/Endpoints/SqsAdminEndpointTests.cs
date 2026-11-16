@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.SystemAdmin.Core.DTOs.SqsAdmin;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Tests.Component.TestFixtures;
 using FluentAssertions;
@@ -224,7 +225,7 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     {
         var messages = new List<QueueMessageDto>
         {
-            new("dlq-1", "{\"foo\":1}", new Dictionary<string, string>(), DateTimeOffset.UtcNow)
+            new("dlq-1", TestDataPayloadHelper.SamplePayload, new Dictionary<string, string>(), DateTimeOffset.UtcNow)
         };
 
         testFixture.Factory.SqsAdminServiceMock
@@ -334,7 +335,7 @@ public class SqsAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassF
     {
         var messages = new List<QueueMessageDto>
         {
-            new("msg-1", "{\"foo\":1}", new Dictionary<string, string>(), DateTimeOffset.UtcNow)
+            new("msg-1", TestDataPayloadHelper.SamplePayload, new Dictionary<string, string>(), DateTimeOffset.UtcNow)
         };
 
         testFixture.Factory.SqsAdminServiceMock

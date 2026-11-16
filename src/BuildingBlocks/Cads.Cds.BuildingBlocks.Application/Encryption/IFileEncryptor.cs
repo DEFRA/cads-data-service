@@ -18,8 +18,10 @@ public interface IFileEncryptor
     /// Plaintext is written chunk by chunk as each chunk authenticates, but the file is only known to be
     /// complete and untampered once this method returns without throwing. If it throws
     /// <see cref="EncryptedFileAuthenticationException"/> or <see cref="EncryptedFileFormatException"/>,
-    /// discard everything written to <paramref name="output"/>. Prefer
-    /// <see cref="FileEncryptorExtensions.DecryptToFileAsync"/>, which does this for you.
+    /// discard everything written to <paramref name="output"/>. Use
+    /// <see cref="FileEncryptorExtensions.DecryptToFileAsync"/> or
+    /// <see cref="FileEncryptorExtensions.DecryptToStreamAsync"/> when plaintext must not be exposed until
+    /// the complete file has authenticated.
     /// </remarks>
     /// <param name="totalBytes">Encrypted length, if known, for progress reporting.</param>
     Task DecryptAsync(Stream input, Stream output, long? totalBytes = null,

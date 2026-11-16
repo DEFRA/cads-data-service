@@ -1,5 +1,6 @@
 using Cads.Cds.ApiSurface.Messages.Reports;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Dispatchers;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Publishers;
 using Cads.Cds.MiBff.Application.Messaging.Clients;
 using Cads.Cds.MiBff.Core.Domain.Entities;
@@ -84,7 +85,7 @@ public class MiReportJobOutboxDispatcherTests(MiBffTestFixture testFixture) : IC
             OutboxId = outboxId,
             ReportJobId = Guid.NewGuid(),
             Subject = "report.job.requested",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Dispatching,
             CreatedAt = DateTimeOffset.UtcNow
         });
