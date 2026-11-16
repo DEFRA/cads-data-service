@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
+using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
@@ -10,8 +11,11 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationSce
 public class CtLocationUpdateScenario(
     CtsTransactionsGQDbContext dbContext,
     IFileNameGenerator fileNameGenerator,
-    IFileAssembler fileAssembler)
-    : GenerationScenario<CtLocation>("ct_location_update_scenario", ImportActionType.Delta, dbContext, fileNameGenerator, fileAssembler)
+    IFileAssembler fileAssembler,
+    IContentGeneratorFactory contentGeneratorFactory,
+    IEnvelopeTableResolver envelopeTableResolver)
+    : GenerationScenario<CtLocation>(
+        "ct_location_update_scenario", ImportActionType.Delta, dbContext, fileNameGenerator, fileAssembler, contentGeneratorFactory, envelopeTableResolver)
 {
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =
         new RuleBuilder<CtLocation>([])
@@ -26,11 +30,12 @@ public class CtLocationUpdateScenario(
             .RuleFor(r => r.LocPremisesType, () => "FARM")
             .RuleFor(r => r.LocReasonCode, () => "01");
 
-    // configure the per-item transform for bulk generation
+    protected override string? AudType { get; init; } = "U";
+
+    // configure the per-item transform for update generation
     protected override Func<CtLocation, decimal, CtLocation>? Transform { get; init; } =
         (entity, key) =>
         {
-            entity.TransType = "U";
             entity.LocId = key;
             return entity;
         };
