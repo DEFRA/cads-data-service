@@ -19,4 +19,8 @@
     <ProjectReference Include="..\..\..\..\src\Modules\Cads.Cds.SystemAdmin\Cads.Cds.SystemAdmin\Cads.Cds.SystemAdmin.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Payloads\" />
+  </ItemGroup>
+
 </Project>
