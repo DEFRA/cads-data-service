@@ -1,0 +1,64 @@
+{
+  "Event": {
+    "RecordID": "record-14567413",
+    "EventID": "event-8308310",
+    "EventType": "Movement",
+    "ActionType": "New",
+    "CreatedBy": "WA",
+    "CreatedDate": "2026-03-23T12:00:00Z",
+    "Species": "Sheep",
+    "AnimalMovement": {
+      "DepartureRegion": "WA",
+      "MovementGroup": "2474189",
+      "MovementType": "01",
+      "MovementStatus": "Completed",
+      "SupplierType": "Receiver",
+      "DepartureDate": "2026-03-23",
+      "DepartureLocation": "55/015/0071",
+      "DepartureCoreID": "98005647",
+      "DepartureLocationType": "Agricultural Holding",
+      "DeparturePremisesActivity": "AH",
+      "ArrivalDate": "2026-03-23",
+      "DestinationLocation": "55/014/0006",
+      "DestinationCoreID": "98045305",
+      "DestinationLocationType": "Agricultural Holding",
+      "DestinationPremisesActivity": "AH",
+      "NumberOfAnimals": 3,
+      "NumberOfDOAs": 0,
+      "NumberOfReads": 3,
+      "LoadingTimestamp": "2026-03-23T10:00:00Z",
+      "ExpectedJourneyDuration": "02:00:00",
+      "UnloadingTimestamp": "2026-03-23T12:00:00Z",
+      "AnimalTransporter": "01",
+      "HaulierDetails": {
+        "HaulierID": "haulier-123",
+        "HaulierCompanyName": "Test Haulier",
+        "HaulierAddressLine1": "1 Test Street",
+        "HaulierAddressLine2": "Test District",
+        "HaulierAddressLine3": "Test Town",
+        "HaulierAddressLine4": "Test County",
+        "HaulierPostcode": "CF10 1AA",
+        "HaulierTelephone": "01234567890",
+        "HaulierEmail": "test.haulier@example.com",
+        "TotalVehicles": 1,
+        "VehicleDetails": [
+          {
+            "VehicleRegistrationNumber": "AB12 CDE",
+            "DriverName": "Test Driver",
+            "TrailerIdentificationNumber": "TRAILER-123",
+            "TransportAuthorisationNumber": "AUTH-123"
+          }
+        ]
+      },
+      "LotNumber": "LOT-123",
+      "CrossBorderMovementID": "",
+      "DestinationRegion": "WA",
+      "CrossBorderSource": "WA",
+      "MovementDirection": "ON",
+      "WithinBusinessMovement": "NO",
+      "WithinBusinessMainCPH": "55/015/0071",
+      "InitialWithinBusinessLocation": "55/015/0071",
+      "EmergencySlaughter": "NO"
+    }
+  }
+}
