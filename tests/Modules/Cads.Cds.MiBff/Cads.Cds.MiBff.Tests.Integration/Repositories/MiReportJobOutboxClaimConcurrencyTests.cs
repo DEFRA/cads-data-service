@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
@@ -27,7 +28,7 @@ public class MiReportJobOutboxClaimConcurrencyTests(ApiContainerFixture apiConta
             ReportJobId = Guid.NewGuid(),
             ReportKey = "concurrency_test_report",
             ExternalSubject = "integration-test-user",
-            RequestPayload = "{}",
+            RequestPayload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobStatus.Pending,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
@@ -46,7 +47,7 @@ public class MiReportJobOutboxClaimConcurrencyTests(ApiContainerFixture apiConta
                 OutboxId = outboxId,
                 ReportJobId = reportJob.ReportJobId,
                 Subject = "report.job.requested",
-                Payload = "{}",
+                Payload = TestDataPayloadHelper.EmptyJsonObject,
                 Status = ReportJobOutboxStatus.Pending,
                 CreatedAt = DateTimeOffset.UtcNow.AddMilliseconds(i)
             }, TestContext.Current.CancellationToken);
