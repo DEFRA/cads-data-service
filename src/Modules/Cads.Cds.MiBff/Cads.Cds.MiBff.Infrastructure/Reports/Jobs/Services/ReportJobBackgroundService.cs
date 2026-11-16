@@ -14,7 +14,7 @@ public class ReportJobBackgroundService(
 {
     protected override async Task HandleAsync(ProcessReportJobDto job, CancellationToken cancellationToken)
     {
-        using var scope = scopeFactory.CreateScope();
+        await using var scope = scopeFactory.CreateAsyncScope();
 
         var processor = scope.ServiceProvider.GetRequiredService<IReportJobProcessor>();
 
