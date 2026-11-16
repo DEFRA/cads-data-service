@@ -1,6 +1,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Services;
 using FluentAssertions;
 using Moq;
@@ -12,7 +13,6 @@ public class StorageServiceTests
     private const string BucketName = "test-bucket";
     private const string SourceKey = "sql-scripts/insert_animals.sql";
     private const string TargetKey = "data-seed/file-error/insert_animals.sql";
-    private const string Payload = "INSERT INTO animals VALUES (1, 'Cow');";
 
     private readonly Mock<IAmazonS3> _s3 = new();
     private readonly Mock<IS3ClientFactory> _factory = new();
@@ -41,13 +41,13 @@ public class StorageServiceTests
 
         var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
-        await sut.WriteAsync(SourceKey, Payload, TestContext.Current.CancellationToken);
+        await sut.WriteAsync(SourceKey, TestDataFileConstants.AnimalInsertSqlStatement, TestContext.Current.CancellationToken);
 
         _s3.Verify(s => s.PutObjectAsync(
             It.Is<PutObjectRequest>(r =>
                 r.BucketName == BucketName &&
                 r.Key == SourceKey &&
-                r.ContentBody == Payload),
+                r.ContentBody == TestDataFileConstants.AnimalInsertSqlStatement),
             It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -61,7 +61,7 @@ public class StorageServiceTests
         var sut = new StorageService<TestClient>(_factory.Object, _reader.Object);
 
         await Assert.ThrowsAsync<AmazonS3Exception>(() =>
-            sut.WriteAsync(SourceKey, Payload, TestContext.Current.CancellationToken));
+            sut.WriteAsync(SourceKey, TestDataFileConstants.AnimalInsertSqlStatement, TestContext.Current.CancellationToken));
     }
 
     // -----------------------------------------------------------------------
