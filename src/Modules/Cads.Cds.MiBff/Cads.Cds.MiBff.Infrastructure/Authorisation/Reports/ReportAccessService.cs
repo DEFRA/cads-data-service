@@ -1,5 +1,5 @@
-using AutoMapper;
 using Cads.Cds.MiBff.Application.Reports.Authorisation;
+using Cads.Cds.MiBff.Application.Reports.Mappings;
 using Cads.Cds.MiBff.Core.Domain.Repositories;
 using Cads.Cds.MiBff.Core.DTOs.Reports;
 
@@ -7,8 +7,7 @@ namespace Cads.Cds.MiBff.Infrastructure.Authorisation.Reports;
 
 public class ReportAccessService(
     IMiEffectiveReportPermissionRepository effectiveReportPermissionRepository,
-    IMiEffectiveReportAllPermissionRepository effectiveReportAllPermissionRepository,
-    IMapper mapper) : IReportAccessService
+    IMiEffectiveReportAllPermissionRepository effectiveReportAllPermissionRepository) : IReportAccessService
 {
     public async Task<IEnumerable<ReportDto>> GetUserReportsAsync(
         string identifier,
@@ -16,7 +15,7 @@ public class ReportAccessService(
     {
         var reports = await effectiveReportPermissionRepository.GetActiveByExternalSubjectAsync(identifier, cancellationToken);
 
-        return mapper.Map<IEnumerable<ReportDto>>(reports);
+        return reports.Select(ReportDtoMapper.Map);
     }
 
     public async Task<bool> HasReportAccessAsync(
