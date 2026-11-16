@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Messaging.Commands;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Factories;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.StorageBridge.Application.Messaging.Commands;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Factories;
 using FluentAssertions;
@@ -23,7 +24,7 @@ public class StorageBridgeMessageCommandRegistryTests
         {
             Subject = Subject,
             MessageId = "123",
-            Payload = "{}"
+            Payload = TestDataPayloadHelper.EmptyJsonObject
         };
 
         var command = _registry.CreateCommand(message);
@@ -38,7 +39,7 @@ public class StorageBridgeMessageCommandRegistryTests
         {
             Subject = "UnknownSubject",
             MessageId = "123",
-            Payload = "{}"
+            Payload = TestDataPayloadHelper.EmptyJsonObject
         };
 
         var act = () => _registry.CreateCommand(message);
@@ -57,7 +58,7 @@ public class StorageBridgeMessageCommandRegistryTests
         {
             Subject = Subject,
             MessageId = "ABC",
-            Payload = "{\"test\":1}",
+            Payload = TestDataPayloadHelper.SampleJsonPayload,
             CorrelationId = "Corr-123"
         };
 
@@ -67,7 +68,7 @@ public class StorageBridgeMessageCommandRegistryTests
 
         var typed = (ProcessS3ToPostgresCopyMessageCommand)command;
         typed.Message.MessageId.Should().Be("ABC");
-        typed.Message.Payload.Should().Be("{\"test\":1}");
+        typed.Message.Payload.Should().Be(TestDataPayloadHelper.SampleJsonPayload);
         typed.Message.CorrelationId.Should().Be("Corr-123");
     }
 
@@ -81,7 +82,7 @@ public class StorageBridgeMessageCommandRegistryTests
         {
             Subject = Subject,
             MessageId = "XYZ",
-            Payload = "{}"
+            Payload = TestDataPayloadHelper.EmptyJsonObject
         };
 
         var command = _registry.CreateCommand(message);
@@ -95,8 +96,8 @@ public class StorageBridgeMessageCommandRegistryTests
         _registry.Register<S3ToPostgresCopyMessageCommandFactory>(Subject);
         _registry.Register<TestMessageCommandFactory>(OtherSubject);
 
-        var csvMessage = new UnwrappedMessage { Subject = Subject, MessageId = "1", Payload = "{}" };
-        var otherMessage = new UnwrappedMessage { Subject = OtherSubject, MessageId = "2", Payload = "{}" };
+        var csvMessage = new UnwrappedMessage { Subject = Subject, MessageId = "1", Payload = TestDataPayloadHelper.EmptyJsonObject };
+        var otherMessage = new UnwrappedMessage { Subject = OtherSubject, MessageId = "2", Payload = TestDataPayloadHelper.EmptyJsonObject };
 
         _registry.CreateCommand(csvMessage).Should().BeOfType<ProcessS3ToPostgresCopyMessageCommand>();
         _registry.CreateCommand(otherMessage).Should().BeOfType<TestMessageProcessingCommand>();
