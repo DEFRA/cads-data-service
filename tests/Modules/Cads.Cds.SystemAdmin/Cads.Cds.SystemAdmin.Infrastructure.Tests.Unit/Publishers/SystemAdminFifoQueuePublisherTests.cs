@@ -6,6 +6,7 @@ using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.SystemAdmin.Application.Messaging.Clients;
 using Cads.Cds.SystemAdmin.Infrastructure.Messaging.Publishers;
 using FluentAssertions;
@@ -88,7 +89,7 @@ public class SystemAdminFifoQueuePublisherTests
     public async Task PublishAsync_ShouldThrowPublishFailedException_WhenSqsSendFails()
     {
         var message = new { Content = "Test message" };
-        var sendRequest = new SendMessageRequest { QueueUrl = TestSqsConstants.TestQueueUrl, MessageBody = "serialized message" };
+        var sendRequest = new SendMessageRequest { QueueUrl = TestSqsConstants.TestQueueUrl, MessageBody = TestDataPayloadHelper.SerializedSqsMessageBody };
         var metadata = new FifoMessageMetadata("Group", "Dedup", "MyCorrelationId");
         var innerException = new Exception("SQS service unavailable");
 
@@ -119,7 +120,7 @@ public class SystemAdminFifoQueuePublisherTests
         var sendRequest = new SendMessageRequest
         {
             QueueUrl = TestSqsConstants.TestQueueUrl,
-            MessageBody = "serialized message"
+            MessageBody = TestDataPayloadHelper.SerializedSqsMessageBody
         };
 
         var metadata = new FifoMessageMetadata(
@@ -161,7 +162,7 @@ public class SystemAdminFifoQueuePublisherTests
     public async Task PublishAsync_ShouldMarkExceptionAsTransient_WhenAmazonSqsExceptionHasRetryableStatusCode(HttpStatusCode statusCode)
     {
         var message = new { Content = "Test message" };
-        var sendRequest = new SendMessageRequest { QueueUrl = TestSqsConstants.TestQueueUrl, MessageBody = "serialized message" };
+        var sendRequest = new SendMessageRequest { QueueUrl = TestSqsConstants.TestQueueUrl, MessageBody = TestDataPayloadHelper.SerializedSqsMessageBody };
         var metadata = new FifoMessageMetadata("Group", "Dedup", "MyCorrelationId");
 
         var sut = CreateSut();
@@ -184,7 +185,7 @@ public class SystemAdminFifoQueuePublisherTests
     public async Task PublishAsync_ShouldMarkExceptionAsNonTransient_WhenAmazonSqsExceptionHasNonRetryableStatusCode()
     {
         var message = new { Content = "Test message" };
-        var sendRequest = new SendMessageRequest { QueueUrl = TestSqsConstants.TestQueueUrl, MessageBody = "serialized message" };
+        var sendRequest = new SendMessageRequest { QueueUrl = TestSqsConstants.TestQueueUrl, MessageBody = TestDataPayloadHelper.SerializedSqsMessageBody };
         var metadata = new FifoMessageMetadata("Group", "Dedup", "MyCorrelationId");
 
         var sut = CreateSut();
@@ -207,7 +208,7 @@ public class SystemAdminFifoQueuePublisherTests
     public async Task PublishAsync_ShouldMarkExceptionAsNonTransient_WhenExceptionIsNotAnAmazonSqsException()
     {
         var message = new { Content = "Test message" };
-        var sendRequest = new SendMessageRequest { QueueUrl = TestSqsConstants.TestQueueUrl, MessageBody = "serialized message" };
+        var sendRequest = new SendMessageRequest { QueueUrl = TestSqsConstants.TestQueueUrl, MessageBody = TestDataPayloadHelper.SerializedSqsMessageBody };
         var metadata = new FifoMessageMetadata("Group", "Dedup", "MyCorrelationId");
 
         var sut = CreateSut();
