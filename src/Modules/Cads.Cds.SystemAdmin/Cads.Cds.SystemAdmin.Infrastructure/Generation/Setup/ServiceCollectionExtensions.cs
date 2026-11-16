@@ -35,5 +35,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IBusinessKeysAllocator, BusinessKeysAllocator>();
         services.AddTransient<IFileAssembler, FileAssembler>();
         services.AddTransient<IFileNameGenerator, FileNameGenerator>();
+        services.AddTransient<IEnvelopeValueFormatter, EnvelopeValueFormatter>();
+        services.AddTransient<IBusinessRowMapper, BusinessRowMapper>();
+        services.AddTransient<IContentGeneratorFactory, ContentGeneratorFactory>();
     }
 }

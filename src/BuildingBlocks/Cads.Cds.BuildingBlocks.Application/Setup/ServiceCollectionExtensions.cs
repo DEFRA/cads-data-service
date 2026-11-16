@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Application.OpenXml;
 using Cads.Cds.BuildingBlocks.Core.OpenXml;
@@ -15,6 +16,9 @@ public static class ServiceCollectionExtensions
 
         // Singleton so the batch id counter that keeps generated filenames apart is shared for the run.
         services.AddSingleton<ICtsmFilenameGenerator, CtsmFilenameGenerator>();
+
+        services.AddTransient<IImportDataTypeLookup, ImportDataTypeLookup>();
+        services.AddTransient<IPipelineColumns, PipelineColumns>();
 
         return services;
     }
