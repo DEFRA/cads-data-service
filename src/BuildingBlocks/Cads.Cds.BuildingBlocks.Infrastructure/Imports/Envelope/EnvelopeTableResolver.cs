@@ -1,20 +1,25 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
+using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
 
 public sealed class EnvelopeTableResolver(
     ITablePrefixResolver tablePrefixResolver,
-    IBusinessColumnResolver businessColumnResolver) : IEnvelopeTableResolver
+    IBusinessColumnResolver businessColumnResolver,
+    IEntityTypeStore entityTypeStore) : IEnvelopeTableResolver
 {
     public EnvelopeTable Resolve(IReadOnlyEntityType entityType)
     {
         ArgumentNullException.ThrowIfNull(entityType);
 
+        var businessColumns = businessColumnResolver.Resolve(entityType);
+        var businessColumnNames = businessColumns.Select(b => b.Name).ToArray();
+
         return new EnvelopeTable(
-            EntityTypeStore.GetTable(entityType).Name,
+            entityTypeStore.GetTable(entityType).Name,
             tablePrefixResolver.Resolve(entityType),
-            [.. businessColumnResolver.Resolve(entityType).Select(c => c.Name)]);
+            businessColumnNames);
     }
 
     public EnvelopeTable Resolve(IReadOnlyModel model, Type clrType)
@@ -23,7 +28,7 @@ public sealed class EnvelopeTableResolver(
         ArgumentNullException.ThrowIfNull(clrType);
 
         var entityType = model.FindEntityType(clrType)
-            ?? throw new InvalidOperationException($"Entity '{clrType.Name}' is not mapped in the model.");
+                         ?? throw new InvalidOperationException($"Entity '{clrType.Name}' is not mapped in the model.");
 
         return Resolve(entityType);
     }

@@ -103,7 +103,7 @@ public abstract class GenerationScenario<T>(string name,
         var audIds = await new BusinessKeysAllocator().AllocateAsync(tableName, rowCount, ct);
 
         return new FileAssemblyOptions(
-            FileLayout.Delta,
+            ImportActionType.Delta,
             AudType,
             [.. audIds.Select(id => (long)id)]);
     }
