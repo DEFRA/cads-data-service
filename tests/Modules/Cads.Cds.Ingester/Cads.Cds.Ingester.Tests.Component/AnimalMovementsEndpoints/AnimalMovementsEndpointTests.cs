@@ -20,7 +20,7 @@ public class AnimalMovementsEndpointTests(IngesterTestFixture testFixture) : ICl
         // Arrange
         var nation = Nation.Wales;
         var requestBody = TestDataPayloadFactory.CreatePayload<V1.AnimalMovementMessage>();
-        
+
         var payload = JsonConvert.SerializeObject(requestBody);
         var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpointV1, nation);
 
@@ -42,10 +42,10 @@ public class AnimalMovementsEndpointTests(IngesterTestFixture testFixture) : ICl
         // Arrange
         var nation = Nation.Wales;
         var requestBody = TestDataPayloadFactory.CreatePayload<V2.EventMessage>();
-        
+
         var payload = JsonConvert.SerializeObject(requestBody);
         var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpointV2, nation);
-     
+
         // Act
         var result = await testFixture.HttpClient.PostAsync(endpoint, new StringContent(payload, Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
