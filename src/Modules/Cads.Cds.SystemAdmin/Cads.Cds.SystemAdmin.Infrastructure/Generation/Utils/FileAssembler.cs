@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using System;
@@ -34,7 +35,7 @@ public class FileAssembler(IEnvelopeValueFormatter valueFormatter, IPipelineColu
 
         Validate(table, rows, options);
 
-        var isDelta = options.Layout == FileLayout.Delta;
+        var isDelta = options.ActionType == ImportActionType.Delta;
         var envelopeDateTime = valueFormatter.FormatEnvelopeDateTime(fileCreatedDateTime);
         var writer = new EnvelopeWriter();
         string[] audColumns = isDelta ? [.. pipelineColumns.AudColumns(table.Prefix).Select(c => c.ToUpperInvariant())] : [];
@@ -81,14 +82,14 @@ public class FileAssembler(IEnvelopeValueFormatter valueFormatter, IPipelineColu
         if (table.BusinessColumns.Count == 0)
             throw new ArgumentException($"Table '{table.TableName}' has no business columns.", nameof(table));
 
-        switch (options.Layout)
+        switch (options.ActionType)
         {
-            case FileLayout.Bulk:
+            case ImportActionType.Bulk:
                 if (options.AudType is not null || options.AudIds is not null || options.AudDateTime is not null)
                     throw new ArgumentException("A bulk file must not carry aud options.", nameof(options));
                 break;
 
-            case FileLayout.Delta:
+            case ImportActionType.Delta:
                 if (options.AudType is not { } audType || !FileAssemblyOptions.ValidAudTypes.Contains(audType))
                     throw new ArgumentException(
                         $"A delta file needs an aud type of {string.Join(", ", FileAssemblyOptions.ValidAudTypes)}; got '{options.AudType}'.",
@@ -101,7 +102,7 @@ public class FileAssembler(IEnvelopeValueFormatter valueFormatter, IPipelineColu
                 break;
 
             default:
-                throw new ArgumentException($"Unsupported layout '{options.Layout}'.", nameof(options));
+                throw new ArgumentException($"Unsupported action type '{options.ActionType}'.", nameof(options));
         }
 
         var expected = new HashSet<string>(table.BusinessColumns, StringComparer.Ordinal);

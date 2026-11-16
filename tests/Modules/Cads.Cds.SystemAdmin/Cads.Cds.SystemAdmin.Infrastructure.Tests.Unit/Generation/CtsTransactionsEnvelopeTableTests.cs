@@ -3,6 +3,7 @@ using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
+using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -13,7 +14,7 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation;
 /// <summary>Prefix and business-column resolution against the real cts_transactions model.</summary>
 public class CtsTransactionsEnvelopeTableTests
 {
-    private readonly TablePrefixResolver _prefixResolver = new();
+    private readonly ITablePrefixResolver _prefixResolver = CreateTablePrefixResolver();
     private readonly IEnvelopeTableResolver _tableResolver = CreateEnvelopeTableResolver();
     private readonly PipelineColumns _pipelineColumns = new();
     private readonly ImportDataTypeLookup _importDataTypeLookup = new();
