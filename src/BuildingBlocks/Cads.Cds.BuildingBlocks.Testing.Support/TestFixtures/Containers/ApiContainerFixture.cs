@@ -58,6 +58,8 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AWS__ServiceURL", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Modules__Ingester__Storage__CadsIngester__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__MiBff__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
+          .WithEnvironment("Modules__MiBff__Queues__CadsMiReports__QueueUrl", LocalStackFixture.CadsMiReportsFifoQueueUrl)
+          .WithEnvironment("Modules__MiBff__Queues__CadsMiReports__DlqQueueUrl", LocalStackFixture.CadsMiReportsFifoDeadLetterQueueUrl)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__BucketName", LocalStackFixture.CadsExternalBucketName)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__AccessKeySecretName", "IMB_S3_ACCESS_KEY")
@@ -69,6 +71,8 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsFifoDeadLetterQueueUrl)
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCdsStandard__QueueUrl", LocalStackFixture.CadsStandardQueueUrl)
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCdsStandard__DlqQueueUrl", LocalStackFixture.CadsStandardDeadLetterQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsMiReports__QueueUrl", LocalStackFixture.CadsMiReportsFifoQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsMiReports__DlqQueueUrl", LocalStackFixture.CadsMiReportsFifoDeadLetterQueueUrl)
           // "Name" is required by QueuePublisherOptions, which binds against this same
           // "Modules:SystemAdmin:Queues" section (shared with SqsAdminQueueOptions).
           // Without it, config binding for this entry throws at startup, breaking the
