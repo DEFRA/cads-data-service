@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
+using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -8,13 +8,14 @@ namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Imports.Envelope;
 
 public class EnvelopeResolverTests
 {
-    private readonly TablePrefixResolver _prefixResolver = new();
+    private static readonly EntityTypeStore EntityTypeStore = new();
+    private readonly TablePrefixResolver _prefixResolver = new(EntityTypeStore);
     private readonly PipelineColumns _pipelineColumns = new();
     private readonly BusinessColumnResolver _columnResolver;
 
     public EnvelopeResolverTests()
     {
-        _columnResolver = new BusinessColumnResolver(_prefixResolver, _pipelineColumns, new ImportDataTypeLookup());
+        _columnResolver = new BusinessColumnResolver(_prefixResolver, _pipelineColumns, new ImportDataTypeLookup(), EntityTypeStore);
     }
 
     private sealed class Widget

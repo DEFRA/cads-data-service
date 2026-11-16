@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
+using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using System.Collections.Generic;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;

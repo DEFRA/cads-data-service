@@ -3,18 +3,19 @@ using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 
 public sealed class BusinessColumnResolver(
     ITablePrefixResolver tablePrefixResolver,
     IPipelineColumns pipelineColumns,
-    IImportDataTypeLookup importDataTypeLookup) : IBusinessColumnResolver
+    IImportDataTypeLookup importDataTypeLookup,
+    IEntityTypeStore entityTypeStore) : IBusinessColumnResolver
 {
     public IReadOnlyList<BusinessColumn> Resolve(IReadOnlyEntityType entityType)
     {
         ArgumentNullException.ThrowIfNull(entityType);
 
-        var tableName = EntityTypeStore.GetTable(entityType).Name;
+        var tableName = entityTypeStore.GetTable(entityType).Name;
 
         return Resolve(entityType, importDataTypeLookup.GetBusinessKey(tableName));
     }
@@ -24,7 +25,7 @@ public sealed class BusinessColumnResolver(
         ArgumentNullException.ThrowIfNull(entityType);
         ArgumentException.ThrowIfNullOrWhiteSpace(businessKey);
 
-        var storeObject = EntityTypeStore.GetTable(entityType);
+        var storeObject = entityTypeStore.GetTable(entityType);
         var prefix = tablePrefixResolver.Resolve(entityType);
 
         // EF Core returns properties key-first then alphabetically, not in DDL order. The scaffolded CLR

@@ -1,9 +1,11 @@
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using System.Globalization;
+using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using static Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.EnvelopeTestHelpers;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation;
@@ -325,7 +327,7 @@ public class FileAssemblerTests
         var (table, rows) = Rows(Location(1), Location(2));
 
         Assert.Throws<ArgumentException>(() => _assembler.Create(DeltaFileName, Created, table, rows, FileAssemblyOptions.Delta("U", [1])));
-        Assert.Throws<ArgumentException>(() => _assembler.Create(DeltaFileName, Created, table, rows, new FileAssemblyOptions(FileLayout.Delta, "U")));
+        Assert.Throws<ArgumentException>(() => _assembler.Create(DeltaFileName, Created, table, rows, new FileAssemblyOptions(ImportActionType.Delta, "U")));
     }
 
     [Theory]
@@ -337,7 +339,7 @@ public class FileAssemblerTests
         var (table, rows) = Rows(Location(1));
 
         Assert.Throws<ArgumentException>(() => _assembler.Create(DeltaFileName, Created, table, rows,
-            new FileAssemblyOptions(FileLayout.Delta, audType, [1])));
+            new FileAssemblyOptions(ImportActionType.Delta, audType, [1])));
     }
 
     [Fact]
@@ -345,9 +347,9 @@ public class FileAssemblerTests
     {
         var (table, rows) = Rows(Location(1));
 
-        Assert.Throws<ArgumentException>(() => _assembler.Create(BulkFileName, Created, table, rows, new FileAssemblyOptions(FileLayout.Bulk, AudType: "U")));
-        Assert.Throws<ArgumentException>(() => _assembler.Create(BulkFileName, Created, table, rows, new FileAssemblyOptions(FileLayout.Bulk, AudIds: [1])));
-        Assert.Throws<ArgumentException>(() => _assembler.Create(BulkFileName, Created, table, rows, new FileAssemblyOptions(FileLayout.Bulk, AudDateTime: Created)));
+        Assert.Throws<ArgumentException>(() => _assembler.Create(BulkFileName, Created, table, rows, new FileAssemblyOptions(ImportActionType.Bulk, AudType: "U")));
+        Assert.Throws<ArgumentException>(() => _assembler.Create(BulkFileName, Created, table, rows, new FileAssemblyOptions(ImportActionType.Bulk, AudIds: [1])));
+        Assert.Throws<ArgumentException>(() => _assembler.Create(BulkFileName, Created, table, rows, new FileAssemblyOptions(ImportActionType.Bulk, AudDateTime: Created)));
     }
 
     [Fact]

@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 
-internal static class EntityTypeStore
+public sealed class EntityTypeStore : IEntityTypeStore
 {
-    public static StoreObjectIdentifier GetTable(IReadOnlyEntityType entityType)
+    public StoreObjectIdentifier GetTable(IReadOnlyEntityType entityType)
     {
         var tableName = entityType.GetTableName()
             ?? throw new InvalidOperationException($"Entity '{entityType.DisplayName()}' is not mapped to a table.");

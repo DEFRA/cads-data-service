@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
+using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
@@ -19,11 +20,14 @@ internal static class EnvelopeTestHelpers
         return new CtsTransactionsGQDbContext(options);
     }
 
+    public static ITablePrefixResolver CreateTablePrefixResolver() =>
+        new TablePrefixResolver(new EntityTypeStore());
+
     public static IBusinessColumnResolver CreateBusinessColumnResolver() =>
-        new BusinessColumnResolver(new TablePrefixResolver(), new PipelineColumns(), new ImportDataTypeLookup());
+        new BusinessColumnResolver(CreateTablePrefixResolver(), new PipelineColumns(), new ImportDataTypeLookup(), new EntityTypeStore());
 
     public static IEnvelopeTableResolver CreateEnvelopeTableResolver() =>
-        new EnvelopeTableResolver(new TablePrefixResolver(), CreateBusinessColumnResolver());
+        new EnvelopeTableResolver(CreateTablePrefixResolver(), CreateBusinessColumnResolver(), new EntityTypeStore());
 
     public static IContentGeneratorFactory CreateContentGeneratorFactory() =>
         new ContentGeneratorFactory(CreateBusinessColumnResolver(), new BusinessRowMapper());

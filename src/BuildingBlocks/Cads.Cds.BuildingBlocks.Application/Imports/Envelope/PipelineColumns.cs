@@ -22,7 +22,7 @@ public sealed class PipelineColumns : IPipelineColumns
     /// <item><c>fake_data</c>: real files don't carry it, so its default applies.</item>
     /// </list>
     /// </summary>
-    private static readonly IReadOnlySet<string> Fixed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly IReadOnlySet<string> s_fixed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "trans_id",
         "trans_type",
@@ -38,20 +38,20 @@ public sealed class PipelineColumns : IPipelineColumns
     /// The audit column suffixes. Prefixed with the 3-character table prefix, they are real columns of every
     /// <c>cts_transactions</c> table. A delta envelope writes them at fixed positions; they never come from the entity.
     /// </summary>
-    private static readonly IReadOnlyList<string> AudSuffixes = [AudIdSuffix, AudTypeSuffix, AudDateTimeSuffix];
+    private static readonly IReadOnlyList<string> s_audSuffixes = [AudIdSuffix, AudTypeSuffix, AudDateTimeSuffix];
 
     public IReadOnlyList<string> AudColumns(string prefix)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(prefix);
 
-        return [.. AudSuffixes.Select(suffix => prefix.ToLowerInvariant() + suffix)];
+        return [.. s_audSuffixes.Select(suffix => prefix.ToLowerInvariant() + suffix)];
     }
 
     public bool IsExcluded(string column, string prefix)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(column);
 
-        return Fixed.Contains(column)
+        return s_fixed.Contains(column)
             || AudColumns(prefix).Contains(column, StringComparer.OrdinalIgnoreCase);
     }
 }
