@@ -4,9 +4,9 @@ using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.SystemAdmin.Endpoints.SqsAdmin.Responses;
 using Cads.Cds.SystemAdmin.Testing.Support.ApiClients;
 using Cads.Cds.SystemAdmin.Testing.Support.Factories.Authorization;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using FluentAssertions;
 using System.Net;
-using System.Text.Json;
 
 namespace Cads.Cds.SystemAdmin.Tests.Integration.Endpoints;
 
@@ -92,7 +92,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         await Sqs.SendMessageAsync(new SendMessageRequest
         {
             QueueUrl = DlqUrl,
-            MessageBody = JsonSerializer.Serialize(new { test = Guid.NewGuid().ToString("N") })
+            MessageBody = TestDataPayloadHelper.CreateTestPayload(Guid.NewGuid().ToString("N"))
         }, TestContext.Current.CancellationToken);
 
         var dlqDto = await PollUntilAsync(
@@ -136,7 +136,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         await Sqs.SendMessageAsync(new SendMessageRequest
         {
             QueueUrl = DlqUrl,
-            MessageBody = JsonSerializer.Serialize(new { test = dedupId })
+            MessageBody = TestDataPayloadHelper.CreateTestPayload(dedupId)
         }, TestContext.Current.CancellationToken);
 
         var dto = await PollUntilAsync(
@@ -184,7 +184,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         await Sqs.SendMessageAsync(new SendMessageRequest
         {
             QueueUrl = MainQueueUrl,
-            MessageBody = JsonSerializer.Serialize(new { test = dedupId })
+            MessageBody = TestDataPayloadHelper.CreateTestPayload(dedupId)
         }, TestContext.Current.CancellationToken);
 
         var dto = await PollUntilAsync(
@@ -246,7 +246,7 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         await Sqs.SendMessageAsync(new SendMessageRequest
         {
             QueueUrl = DlqUrl,
-            MessageBody = JsonSerializer.Serialize(new { test = dedupId })
+            MessageBody = TestDataPayloadHelper.CreateTestPayload(dedupId)
         }, TestContext.Current.CancellationToken);
 
 
@@ -323,13 +323,13 @@ public class SqsAdminEndpointTests(ApiContainerFixture apiContainerFixture)
         await Sqs.SendMessageAsync(new SendMessageRequest
         {
             QueueUrl = DlqUrl,
-            MessageBody = JsonSerializer.Serialize(new { test = targetDedupId })
+            MessageBody = TestDataPayloadHelper.CreateTestPayload(targetDedupId)
         }, TestContext.Current.CancellationToken);
 
         await Sqs.SendMessageAsync(new SendMessageRequest
         {
             QueueUrl = DlqUrl,
-            MessageBody = JsonSerializer.Serialize(new { test = otherDedupId })
+            MessageBody = TestDataPayloadHelper.CreateTestPayload(otherDedupId)
         }, TestContext.Current.CancellationToken);
 
         var messagesDto = await PollUntilAsync(

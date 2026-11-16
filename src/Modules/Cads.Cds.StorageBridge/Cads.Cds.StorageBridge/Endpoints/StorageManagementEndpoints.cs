@@ -262,6 +262,10 @@ public static class StorageManagementEndpoints
         {
             return Results.BadRequest(e.Message);
         }
+        catch (Exception e)
+        {
+            return Results.BadRequest(e.Message);
+        }
     }
 
     private static async Task<IResult> GetExternalClientObjectRows(IServiceProvider services, string key, bool decryptCtsm, int startRow, int rowCount, string delimiter, CancellationToken cancellationToken)

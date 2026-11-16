@@ -4,6 +4,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Models;
 using Cads.Cds.BuildingBlocks.Testing.Support.Constants;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Authorization;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.StorageBridge.Endpoints.Responses;
@@ -305,29 +306,29 @@ public class StorageManagementQueryEndpointTests : IClassFixture<StorageManageme
     [Fact]
     public async Task GivenInternalClient_WhenRowsRead_ShouldReturnRequestedSliceOnly()
     {
-        SetupGetObject("row1\nrow2\nrow3\nrow4\nrow5", contentType: "text/csv");
+        SetupGetObject($"{TestDataFileConstants.LocationsHeader}\n{TestDataFileConstants.LocationsDataRow1}\n{TestDataFileConstants.LocationsDataRow2}\n{TestDataFileConstants.LocationsDataRow3}\n{TestDataFileConstants.LocationsDataRow4}\n{TestDataFileConstants.LocationsDataRow5}", contentType: "text/csv");
 
         var slice = await ReadRowsAsync("CadsInternalClient", "data/one.csv", startRow: 2, rowCount: 2, "\n");
 
-        slice.Rows.Should().Equal("row2", "row3");
+        slice.Rows.Should().Equal(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
         slice.ReachedEnd.Should().BeFalse();
     }
 
     [Fact]
     public async Task GivenSliceReachingEndOfObject_WhenRowsRead_ShouldFlagReachedEnd()
     {
-        SetupGetObject("row1\nrow2\nrow3\n", contentType: "text/csv");
+        SetupGetObject($"{TestDataFileConstants.LocationsHeader}\n{TestDataFileConstants.LocationsDataRow1}\n{TestDataFileConstants.LocationsDataRow2}\n", contentType: "text/csv");
 
         var slice = await ReadRowsAsync("CadsInternalClient", "data/one.csv", startRow: 2, rowCount: 10, "\n");
 
-        slice.Rows.Should().Equal("row2", "row3");
+        slice.Rows.Should().Equal(TestDataFileConstants.LocationsDataRow1, TestDataFileConstants.LocationsDataRow2);
         slice.ReachedEnd.Should().BeTrue();
     }
 
     [Fact]
     public async Task GivenStartRowPastEndOfObject_WhenRowsRead_ShouldReturnNoRows()
     {
-        SetupGetObject("row1\nrow2", contentType: "text/csv");
+        SetupGetObject($"{TestDataFileConstants.LocationsHeader}\n{TestDataFileConstants.LocationsDataRow1}\n{TestDataFileConstants.LocationsDataRow2}", contentType: "text/csv");
 
         var slice = await ReadRowsAsync("CadsInternalClient", "data/one.csv", startRow: 10, rowCount: 5, "\n");
 
@@ -446,12 +447,27 @@ public class StorageManagementQueryEndpointTests : IClassFixture<StorageManageme
             });
     }
 
-    private void SetupGetObject(string body, string contentType)
+    private void SetupGetObject(string body, string contentType, bool encrypted = true)
     {
+        Stream responseStream;
+
+        if (encrypted)
+        {
+            var encryptor = new FileEncryptor(new InMemoryMasterKeyProvider(
+                TestEncryptionKeyProvider.CurrentKeyId,
+                TestEncryptionKeyProvider.Keys));
+            responseStream = EncryptionUtilities.EncryptAsync(encryptor, body).GetAwaiter().GetResult();
+        }
+        else
+        {
+            responseStream = new MemoryStream(Encoding.UTF8.GetBytes(body));
+        }
+
         var response = new GetObjectResponse
         {
-            ResponseStream = new MemoryStream(Encoding.UTF8.GetBytes(body))
+            ResponseStream = responseStream
         };
+
         response.Headers.ContentType = contentType;
 
         _testFixture.Factory.AmazonS3Mock
