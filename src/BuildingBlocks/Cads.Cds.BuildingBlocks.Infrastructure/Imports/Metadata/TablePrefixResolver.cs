@@ -27,9 +27,9 @@ public sealed class TablePrefixResolver(IEntityTypeStore entityTypeStore) : ITab
         {
             throw new InvalidOperationException($"Table '{storeObject.DisplayName()}' has no column ending in '{PipelineColumns.AudIdSuffix}', so its prefix can't be resolved.");
         }
-        
+
         var tablePrefix = audIdColumns[0][..^PipelineColumns.AudIdSuffix.Length].ToUpperInvariant();
-        
+
         return tablePrefix;
     }
 }
