@@ -1,6 +1,7 @@
 using Cads.Cds.ApiSurface.Messages.Reports;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Dispatchers;
 using FluentAssertions;
@@ -15,7 +16,7 @@ namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Messaging.Dispatchers;
 /// </summary>
 public class MiReportJobOutboxDispatcherTests
 {
-    private static MiReportJobOutbox CreateOutbox(Guid? reportJobId = null, string payload = "{}")
+    private static MiReportJobOutbox CreateOutbox(Guid? reportJobId = null, string payload = TestDataPayloadHelper.EmptyJsonObject)
         => new()
         {
             OutboxId = Guid.NewGuid(),
@@ -30,7 +31,9 @@ public class MiReportJobOutboxDispatcherTests
     public void BuildMessage_WithFullPayload_UsesParsedJobIdAndReportKey()
     {
         var reportJobId = Guid.NewGuid();
-        var outbox = CreateOutbox(Guid.NewGuid(), $$"""{"reportJobId":"{{reportJobId}}","reportKey":"gb_cattle_registrations"}""");
+        var outbox = CreateOutbox(
+            Guid.NewGuid(),
+            TestDataPayloadHelper.CreateReportJobRequestedPayload(reportJobId.ToString(), "gb_cattle_registrations"));
 
         var message = InvokeBuildMessage(outbox);
 
@@ -42,7 +45,7 @@ public class MiReportJobOutboxDispatcherTests
     [Fact]
     public void BuildMessage_WithEmptyPayload_FallsBackToOutboxReportJobIdAndEmptyReportKey()
     {
-        var outbox = CreateOutbox(payload: "{}");
+        var outbox = CreateOutbox(payload: TestDataPayloadHelper.EmptyJsonObject);
 
         var message = InvokeBuildMessage(outbox);
 
@@ -66,7 +69,8 @@ public class MiReportJobOutboxDispatcherTests
     [Fact]
     public void BuildMessage_WithNonGuidJobIdInPayload_FallsBackToOutboxReportJobId()
     {
-        var outbox = CreateOutbox(payload: """{"reportJobId":"not-a-guid","reportKey":"holdings_summary"}""");
+        var outbox = CreateOutbox(
+            payload: TestDataPayloadHelper.CreateReportJobRequestedPayload("not-a-guid", "holdings_summary"));
 
         var message = InvokeBuildMessage(outbox);
 
