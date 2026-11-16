@@ -1,4 +1,5 @@
 using Cads.Cds.ApiSurface.Messages.Reports;
+using Cads.Cds.BuildingBlocks.Application.Jobs.Services;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Models;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Serializers;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
@@ -9,12 +10,12 @@ using Moq;
 
 namespace Cads.Cds.MiBff.Application.Tests.Unit.Reports.Commands.ProcessReportJob;
 
-public class ProcessReportJobRequestedMessageCommandHandlerTests
+public class ReportRequestedMessageCommandHandlerTests
 {
     private readonly Mock<IUnwrappedMessageSerializer<ReportJobRequestedMessage>> _serializerMock = new();
-    private readonly Mock<IReportJobProcessor> _processorMock = new();
+    private readonly Mock<IJobEnqueuer<ProcessReportJobDto>> _jobEnqueuerMock = new();
 
-    private ProcessReportJobRequestedMessageCommandHandler CreateSut() => new(_serializerMock.Object, _processorMock.Object);
+    private ReportRequestedMessageCommandHandler CreateSut() => new(_serializerMock.Object, _jobEnqueuerMock.Object);
 
     private static ProcessReportJobRequestedMessageCommand NewCommand() => new(new UnwrappedMessage
     {
@@ -25,7 +26,7 @@ public class ProcessReportJobRequestedMessageCommandHandlerTests
     });
 
     [Fact]
-    public async Task Handle_WithValidMessage_ProcessesJobAndReturnsMessage()
+    public async Task Handle_WithValidMessage_EnqueuesJobAndReturnsMessage()
     {
         var jobId = Guid.NewGuid();
         var message = new ReportJobRequestedMessage { Id = Guid.NewGuid(), JobId = jobId, ReportKey = "gb_cattle_deaths" };
@@ -34,26 +35,32 @@ public class ProcessReportJobRequestedMessageCommandHandlerTests
         var result = await CreateSut().Handle(NewCommand(), TestContext.Current.CancellationToken);
 
         result.Should().BeSameAs(message);
-        _processorMock.Verify(p => p.ProcessAsync(jobId, It.IsAny<CancellationToken>()), Times.Once);
+        _jobEnqueuerMock.Verify(
+            e => e.EnqueueAsync(
+                It.Is<ProcessReportJobDto>(j => j.ReportJobId == jobId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
-    public async Task Handle_WhenMessageCannotBeDeserialised_ThrowsNonRetryableWithoutProcessing()
+    public async Task Handle_WhenMessageCannotBeDeserialised_ThrowsNonRetryableWithoutEnqueuing()
     {
         _serializerMock.Setup(s => s.Deserialize(It.IsAny<UnwrappedMessage>())).Returns((ReportJobRequestedMessage?)null);
 
         var act = () => CreateSut().Handle(NewCommand(), TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<NonRetryableException>().WithMessage("*Deserialisation failed*msg-1*corr-1*");
-        _processorMock.Verify(p => p.ProcessAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _jobEnqueuerMock.Verify(
+            e => e.EnqueueAsync(It.IsAny<ProcessReportJobDto>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
-    public async Task Handle_WhenProcessorThrows_PropagatesException()
+    public async Task Handle_WhenEnqueueThrows_PropagatesException()
     {
         _serializerMock.Setup(s => s.Deserialize(It.IsAny<UnwrappedMessage>()))
             .Returns(new ReportJobRequestedMessage { JobId = Guid.NewGuid() });
-        _processorMock.Setup(p => p.ProcessAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        _jobEnqueuerMock.Setup(e => e.EnqueueAsync(It.IsAny<ProcessReportJobDto>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new RetryableException("later"));
 
         var act = () => CreateSut().Handle(NewCommand(), TestContext.Current.CancellationToken);
