@@ -270,7 +270,7 @@ public static class StorageManagementEndpoints
 
     private static async Task<IResult> GetExternalClientObjectRows(IServiceProvider services, string key, bool decryptCtsm, int startRow, int rowCount, string delimiter, CancellationToken cancellationToken)
     {
-        var manager = services.GetRequiredService<IStorageManager<CadsExternalClient>> ();
+        var manager = services.GetRequiredService<IStorageManager<CadsExternalClient>>();
 
         try
         {
@@ -283,7 +283,7 @@ public static class StorageManagementEndpoints
 
             return Results.Ok(await StorageRowSliceReader.ReadAsync(stream, startRow, rowCount, delimiter, cancellationToken));
         }
-        catch(ArgumentException e)
+        catch (ArgumentException e)
         {
             return Results.BadRequest(e.Message);
         }
