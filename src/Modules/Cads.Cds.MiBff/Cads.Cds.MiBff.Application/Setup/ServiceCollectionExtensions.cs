@@ -35,12 +35,6 @@ public static class ServiceCollectionExtensions
         services.RegisterAdapters();
         services.RegisterServices();
 
-        // AutoMapper configuration
-        services.AddAutoMapper(cfg =>
-        {
-            cfg.AddMaps(typeof(IMiBffApplicationMarker).Assembly);
-        });
-
         services.ConfigureMiBffReportsRouting();
         services.ConfigureMiBffReportsDefinitions();
 
