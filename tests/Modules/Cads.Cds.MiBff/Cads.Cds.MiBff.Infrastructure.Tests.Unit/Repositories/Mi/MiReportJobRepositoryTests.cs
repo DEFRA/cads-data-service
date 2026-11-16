@@ -1,4 +1,5 @@
 using Cads.Cds.BuildingBlocks.Infrastructure.Persistence.Factories;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.MiBff.Core.Domain.Entities;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Contexts;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Repositories;
@@ -125,7 +126,7 @@ public class MiReportJobRepositoryTests : IDisposable
             OutboxId = Guid.NewGuid(),
             ReportJobId = reportJobId,
             Subject = "report.job.created",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Pending,
             CreatedAt = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero)
         };
@@ -135,7 +136,7 @@ public class MiReportJobRepositoryTests : IDisposable
             OutboxId = Guid.NewGuid(),
             ReportJobId = reportJobId,
             Subject = "report.job.created",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Pending,
             CreatedAt = new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero)
         };
@@ -145,7 +146,7 @@ public class MiReportJobRepositoryTests : IDisposable
             OutboxId = Guid.NewGuid(),
             ReportJobId = reportJobId,
             Subject = "report.job.created",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Dispatched,
             CreatedAt = new DateTimeOffset(2026, 1, 3, 0, 0, 0, TimeSpan.Zero),
             DispatchedAt = DateTimeOffset.UtcNow
@@ -174,7 +175,7 @@ public class MiReportJobRepositoryTests : IDisposable
                 OutboxId = Guid.NewGuid(),
                 ReportJobId = reportJobId,
                 Subject = "report.job.created",
-                Payload = "{}",
+                Payload = TestDataPayloadHelper.EmptyJsonObject,
                 Status = ReportJobOutboxStatus.Pending,
                 CreatedAt = DateTimeOffset.UtcNow.AddMinutes(i)
             }, TestContext.Current.CancellationToken);
@@ -198,7 +199,7 @@ public class MiReportJobRepositoryTests : IDisposable
             OutboxId = Guid.NewGuid(),
             ReportJobId = reportJobId,
             Subject = "report.job.created",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Dispatched,
             CreatedAt = DateTimeOffset.UtcNow,
             DispatchedAt = DateTimeOffset.UtcNow
@@ -209,7 +210,7 @@ public class MiReportJobRepositoryTests : IDisposable
             OutboxId = Guid.NewGuid(),
             ReportJobId = reportJobId,
             Subject = "report.job.created",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Pending,
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -250,7 +251,7 @@ public class MiReportJobRepositoryTests : IDisposable
             OutboxId = Guid.NewGuid(),
             ReportJobId = reportJobId,
             Subject = "report.job.created",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Dispatching,
             Attempts = 1,
             CreatedAt = DateTimeOffset.UtcNow
@@ -284,7 +285,7 @@ public class MiReportJobRepositoryTests : IDisposable
             OutboxId = Guid.NewGuid(),
             ReportJobId = reportJobId,
             Subject = "report.job.created",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Dispatching,
             Attempts = 4,
             CreatedAt = DateTimeOffset.UtcNow
@@ -339,7 +340,7 @@ public class MiReportJobRepositoryTests : IDisposable
             ReportJobId = reportJobId,
             ReportKey = "report_a",
             ExternalSubject = "user@example.test",
-            RequestPayload = "{}",
+            RequestPayload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobStatus.Pending,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
@@ -355,7 +356,7 @@ public class MiReportJobRepositoryTests : IDisposable
             OutboxId = outboxId,
             ReportJobId = reportJobId,
             Subject = "report.job.created",
-            Payload = "{}",
+            Payload = TestDataPayloadHelper.EmptyJsonObject,
             Status = ReportJobOutboxStatus.Pending,
             CreatedAt = DateTimeOffset.UtcNow
         };
