@@ -1,10 +1,12 @@
 using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Observers;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Consumers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Specimens.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestDoubles.Observers;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
+using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers.Configuration;
 using Cads.Cds.StorageBridge.Application.Messaging.Clients;
 using Cads.Cds.StorageBridge.Application.Uow;
 using Cads.Cds.StorageBridge.Infrastructure.Messaging.Consumers;
@@ -20,13 +22,15 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using System.Threading.Channels;
 
 namespace Cads.Cds.StorageBridge.Tests.Component.TestFixtures;
 
 public class StorageBridgeWebApplicationFactory(
     IDictionary<string, string?>? configOverrides = null,
-    bool useFakeAuth = false) : WebAppFactoryBase<Program>(
+    bool useFakeAuth = false,
+    bool storageEncryptionEnabled = false) : WebAppFactoryBase<Program>(
         configOverrides: configOverrides,
         useFakeAuth: useFakeAuth)
 {
@@ -42,6 +46,18 @@ public class StorageBridgeWebApplicationFactory(
 
         builder.ConfigureTestServices(services =>
         {
+            services.RemoveAll<IOptions<EncryptionConfig>>();
+            services.AddSingleton<IOptions<EncryptionConfig>>(Options.Create(new EncryptionConfig
+            {
+                CurrentKeyId = TestEncryptionConfiguration.CurrentKeyId,
+                StorageEncryptionEnabled = storageEncryptionEnabled,
+                Keys = new Dictionary<string, string>
+                {
+                    [TestEncryptionConfiguration.CurrentKeyId] = TestEncryptionConfiguration.CurrentKeyBase64
+                }
+
+            }));
+
             ConfigurePersistence(services);
             OverrideS3ImportChannels(services);
             OverrideMessageConsumers(services);

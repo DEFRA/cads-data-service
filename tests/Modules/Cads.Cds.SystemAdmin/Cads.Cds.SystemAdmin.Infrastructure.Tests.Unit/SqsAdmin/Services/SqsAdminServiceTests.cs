@@ -4,6 +4,7 @@ using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.SystemAdmin.Core.Configuration;
 using Cads.Cds.SystemAdmin.Core.DTOs.SqsAdmin;
 using Cads.Cds.SystemAdmin.Infrastructure.SqsAdmin.Services;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -148,7 +149,7 @@ public class SqsAdminServiceTests
                     new Message
                     {
                         MessageId = "msg-1",
-                        Body = "{\"foo\":\"bar\"}",
+                        Body = TestDataPayloadHelper.SampleStringPayload,
                         Attributes = new Dictionary<string, string>
                         {
                             ["SentTimestamp"] = sentAt.ToUnixTimeMilliseconds().ToString()
@@ -161,7 +162,7 @@ public class SqsAdminServiceTests
 
         result.Should().ContainSingle();
         result[0].MessageId.Should().Be("msg-1");
-        result[0].Body.Should().Be("{\"foo\":\"bar\"}");
+        result[0].Body.Should().Be(TestDataPayloadHelper.SampleStringPayload);
         result[0].SentTimestamp.Should().NotBeNull();
     }
 
@@ -295,7 +296,7 @@ public class SqsAdminServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ReceiveMessageResponse
             {
-                Messages = [new Message { MessageId = "dlq-1", Body = "dead" }]
+                Messages = [new Message { MessageId = "dlq-1", Body = TestDataPayloadHelper.SqsDeadMessageBody }]
             });
 
         var result = await sut.PeekDlqMessagesAsync(new PeekMessagesRequestDto(QueueName, 5), CancellationToken.None);
@@ -380,8 +381,8 @@ public class SqsAdminServiceTests
 
         var messages = new List<Message>
         {
-            new() { MessageId = "m1", Body = "b1", ReceiptHandle = "r1" },
-            new() { MessageId = "m2", Body = "b2", ReceiptHandle = "r2" }
+            new() { MessageId = "m1", Body = TestDataPayloadHelper.SqsMessageBody1, ReceiptHandle = "r1" },
+            new() { MessageId = "m2", Body = TestDataPayloadHelper.SqsMessageBody2, ReceiptHandle = "r2" }
         };
 
         SetupSingleReceiveThenEmpty(messages);
@@ -412,8 +413,8 @@ public class SqsAdminServiceTests
 
         var messages = new List<Message>
         {
-            new() { MessageId = "m1", Body = "b1", ReceiptHandle = "r1" },
-            new() { MessageId = "m2", Body = "b2", ReceiptHandle = "r2" }
+            new() { MessageId = "m1", Body = TestDataPayloadHelper.SqsMessageBody1, ReceiptHandle = "r1" },
+            new() { MessageId = "m2", Body = TestDataPayloadHelper.SqsMessageBody2, ReceiptHandle = "r2" }
         };
 
         SetupSingleReceiveThenEmpty(messages);
@@ -477,7 +478,7 @@ public class SqsAdminServiceTests
         var message = new Message
         {
             MessageId = "m1",
-            Body = "b1",
+            Body = TestDataPayloadHelper.SqsMessageBody1,
             ReceiptHandle = "r1",
             // No system Attributes populated - simulating LocalStack's unreliable FIFO support.
             MessageAttributes = new Dictionary<string, MessageAttributeValue>
@@ -539,8 +540,8 @@ public class SqsAdminServiceTests
 
         var messages = new List<Message>
         {
-            new() { MessageId = "m1", Body = "b1", ReceiptHandle = "r1" },
-            new() { MessageId = "m2", Body = "b2", ReceiptHandle = "r2" }
+            new() { MessageId = "m1", Body = TestDataPayloadHelper.SqsMessageBody1, ReceiptHandle = "r1" },
+            new() { MessageId = "m2", Body = TestDataPayloadHelper.SqsMessageBody2, ReceiptHandle = "r2" }
         };
 
         SetupSingleReceiveThenEmpty(messages);
@@ -559,11 +560,11 @@ public class SqsAdminServiceTests
         result.Failed.Should().Be(0);
 
         _sqsMock.Verify(x => x.SendMessageAsync(
-            It.Is<SendMessageRequest>(r => r.MessageBody == "b2"),
+            It.Is<SendMessageRequest>(r => r.MessageBody == TestDataPayloadHelper.SqsMessageBody2),
             It.IsAny<CancellationToken>()), Times.Once);
         _sqsMock.Verify(x => x.DeleteMessageAsync(DlqUrl, "r2", It.IsAny<CancellationToken>()), Times.Once);
         _sqsMock.Verify(x => x.SendMessageAsync(
-            It.Is<SendMessageRequest>(r => r.MessageBody == "b1"),
+            It.Is<SendMessageRequest>(r => r.MessageBody == TestDataPayloadHelper.SqsMessageBody1),
             It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -574,7 +575,7 @@ public class SqsAdminServiceTests
 
         var messages = new List<Message>
         {
-            new() { MessageId = "m1", Body = "b1", ReceiptHandle = "r1" }
+            new() { MessageId = "m1", Body = TestDataPayloadHelper.SqsMessageBody1, ReceiptHandle = "r1" }
         };
 
         SetupSingleReceiveThenEmpty(messages);
@@ -597,7 +598,7 @@ public class SqsAdminServiceTests
     {
         var sut = CreateSut();
 
-        SetupSingleReceiveThenEmpty([new Message { MessageId = "other", Body = "b1", ReceiptHandle = "r1" }]);
+        SetupSingleReceiveThenEmpty([new Message { MessageId = "other", Body = TestDataPayloadHelper.SqsMessageBody1, ReceiptHandle = "r1" }]);
 
         var action = () => sut.ReplayDlqMessageAsync(new ReplayDlqMessageRequestDto(QueueName, "missing"), CancellationToken.None);
 
@@ -611,9 +612,9 @@ public class SqsAdminServiceTests
 
         var messages = new List<Message>
         {
-            new() { MessageId = "m1", Body = "b1", ReceiptHandle = "r1" },
-            new() { MessageId = "m2", Body = "b2", ReceiptHandle = "r2" },
-            new() { MessageId = "m3", Body = "b3", ReceiptHandle = "r3" }
+            new() { MessageId = "m1", Body = TestDataPayloadHelper.SqsMessageBody1, ReceiptHandle = "r1" },
+            new() { MessageId = "m2", Body = TestDataPayloadHelper.SqsMessageBody2, ReceiptHandle = "r2" },
+            new() { MessageId = "m3", Body = TestDataPayloadHelper.SqsMessageBody3, ReceiptHandle = "r3" }
         };
 
         SetupSingleReceiveThenEmpty(messages);
@@ -650,7 +651,7 @@ public class SqsAdminServiceTests
     {
         var sut = CreateSut();
 
-        SetupSingleReceiveThenEmpty([new Message { MessageId = "other", Body = "b1", ReceiptHandle = "r1" }]);
+        SetupSingleReceiveThenEmpty([new Message { MessageId = "other", Body = TestDataPayloadHelper.SqsMessageBody1, ReceiptHandle = "r1" }]);
 
         _sqsMock
             .Setup(x => x.ChangeMessageVisibilityBatchAsync(It.IsAny<ChangeMessageVisibilityBatchRequest>(), It.IsAny<CancellationToken>()))
@@ -676,8 +677,8 @@ public class SqsAdminServiceTests
 
         var messages = new List<Message>
         {
-            new() { MessageId = "m1", Body = "b1", ReceiptHandle = "r1" },
-            new() { MessageId = "m2", Body = "b2", ReceiptHandle = "r2" }
+            new() { MessageId = "m1", Body = TestDataPayloadHelper.SqsMessageBody1, ReceiptHandle = "r1" },
+            new() { MessageId = "m2", Body = TestDataPayloadHelper.SqsMessageBody2, ReceiptHandle = "r2" }
         };
 
         SetupSingleReceiveThenEmpty(messages);
