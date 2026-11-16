@@ -1,19 +1,17 @@
 using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.ApiSurface.Messages.Reports;
 using Cads.Cds.BuildingBlocks.Application.Commands;
+using Cads.Cds.BuildingBlocks.Application.Jobs.Services;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Serializers;
+using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
 using Cads.Cds.MiBff.Application.Reports.Jobs;
 
 namespace Cads.Cds.MiBff.Application.Reports.Commands.ProcessReportJob;
 
-/// <summary>
-/// Consumes a <see cref="ReportJobRequestedMessage"/> from the MiBff FIFO queue and hands the job
-/// to <see cref="IReportJobProcessor"/>.
-/// </summary>
-public class ProcessReportJobRequestedMessageCommandHandler(
+public class ReportRequestedMessageCommandHandler(
     IUnwrappedMessageSerializer<ReportJobRequestedMessage> serializer,
-    IReportJobProcessor reportJobProcessor)
+    IJobEnqueuer<ProcessReportJobDto> jobEnqueuer)
     : ICommandHandler<ProcessReportJobRequestedMessageCommand, MessageType>
 {
     public async Task<MessageType> Handle(ProcessReportJobRequestedMessageCommand request, CancellationToken cancellationToken)
@@ -28,7 +26,13 @@ public class ProcessReportJobRequestedMessageCommandHandler(
                 $"messageId: {message.MessageId}, " +
                 $"correlationId: {message.CorrelationId}");
 
-        await reportJobProcessor.ProcessAsync(messagePayload.JobId, cancellationToken);
+        await jobEnqueuer.EnqueueAsync(
+            new ProcessReportJobDto
+            {
+                ReportJobId = messagePayload.JobId,
+                CorrelationId = CorrelationIdContext.Value
+            },
+            cancellationToken);
 
         return messagePayload;
     }
