@@ -7,6 +7,7 @@ using Cads.Cds.BuildingBlocks.Application.Schema;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Factories;
+using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
