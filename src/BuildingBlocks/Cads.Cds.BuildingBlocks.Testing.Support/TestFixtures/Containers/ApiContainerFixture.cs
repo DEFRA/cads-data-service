@@ -130,6 +130,42 @@ public class ApiContainerFixture : IAsyncLifetime
         {
             ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true
         };
+
+        // "/health" only reports liveness, so the container can be marked ready by the wait
+        // strategy before Postgres connection pools are actually warmed up. Poll the full
+        // "/health/details" check (which exercises the Postgres connections) until it reports
+        // healthy, to avoid flaky 503s on the first requests made by tests.
+        await WaitForDependenciesToBeHealthyAsync();
+    }
+
+    private async Task WaitForDependenciesToBeHealthyAsync()
+    {
+        using var client = CreateBasicClient();
+
+        var deadline = DateTime.UtcNow.AddSeconds(30);
+        HttpResponseMessage? lastResponse = null;
+
+        while (DateTime.UtcNow < deadline)
+        {
+            try
+            {
+                lastResponse = await client.GetAsync("health/details");
+                if (lastResponse.IsSuccessStatusCode)
+                {
+                    return;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                // Container may not be accepting connections yet; retry until the deadline.
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+        }
+
+        var body = lastResponse is null ? "<no response>" : await lastResponse.Content.ReadAsStringAsync();
+        throw new InvalidOperationException(
+            $"cads_cds container dependencies did not become healthy in time. Last response: {lastResponse?.StatusCode} {body}");
     }
 
     public async Task<HttpClient> CreateAzureAdClientAsync(TestTokenRequest request)
