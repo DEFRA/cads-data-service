@@ -9,4 +9,3 @@ public class PagedReportPayload
     public required bool HasMore { get; init; }
     public required IReadOnlyList<JsonElement> Items { get; init; }
 }
-
