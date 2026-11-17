@@ -8,8 +8,8 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 public class BusinessKeysAllocator : IBusinessKeysAllocator
 {
     /*
-    TODO: The allocator is still the stub. new BusinessKeysAllocator() returns 1..N, which collides with seed rows.
-    It needs the LANI-848 sequence, injected as IBusinessKeysAllocator instead of constructed inline.
+    TODO: The allocator is still the stub. It returns 1..N, which collides with seed rows.
+    It needs the LANI-848 sequence.
     */
     public async Task<IReadOnlyList<decimal>> AllocateAsync(string table, int rowCount, CancellationToken ct = default)
     {
