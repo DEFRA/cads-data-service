@@ -2,7 +2,6 @@ using Cads.Cds.BuildingBlocks.Application.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Database.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Files.Setup;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Messaging.Setup;
 using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Setup;
 using Microsoft.AspNetCore.Routing;
@@ -19,7 +18,6 @@ public sealed class BuildingBlocksModule : IModule
         services.AddAmazonSQSCore(config);
         services.ConfigureDatabase(config);
         services.AddFileInfrastructure();
-        services.AddImportEnvelope();
         services.AddBuildBlocksApplicationLayer();
         services.AddEncryption(config);
     }

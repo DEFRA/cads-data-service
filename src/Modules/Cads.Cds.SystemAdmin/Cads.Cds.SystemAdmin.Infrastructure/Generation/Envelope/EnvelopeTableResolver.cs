@@ -1,8 +1,10 @@
+using System;
+using System.Linq;
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope;
 
 public sealed class EnvelopeTableResolver(
     ITablePrefixResolver tablePrefixResolver,

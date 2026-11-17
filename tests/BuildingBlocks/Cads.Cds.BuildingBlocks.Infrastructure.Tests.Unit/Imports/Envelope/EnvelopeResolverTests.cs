@@ -1,6 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 

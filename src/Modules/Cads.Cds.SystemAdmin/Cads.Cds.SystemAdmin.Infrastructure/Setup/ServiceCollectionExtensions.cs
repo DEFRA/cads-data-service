@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.ConfigureSystemAdminData(config);
         services.AddSystemAdminDbAdminLayer();
         services.AddSystemAdminSqsAdminLayer(config);
+        services.AddImportEnvelope();
 
         return services;
     }
