@@ -1,10 +1,10 @@
-using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
-using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
+using Cads.Cds.SystemAdmin.Application.Imports.Envelope;
+using Cads.Cds.SystemAdmin.Application.Imports.Utilities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Tests.Unit.Imports.Envelope;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.Envelope.Metadata;
 
 public class EnvelopeResolverTests
 {
