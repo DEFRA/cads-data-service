@@ -139,16 +139,21 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
         [FromRoute] string reportKey,
         [FromRoute] Guid jobId,
         [FromQuery] string? fileType,
+        [FromQuery] int? page,
         CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<ReportFileType>(fileType ?? nameof(ReportFileType.Xlsx), ignoreCase: true, out var parsedFileType))
             return BadRequest("Invalid fileType. Expected 'json' or 'xlsx'.");
 
+        if (page is < 1)
+            return BadRequest("page must be 1 or greater.");
+
         var query = new GetReportJobFileQuery
         {
             ReportKey = reportKey,
             JobId = jobId,
-            FileType = parsedFileType
+            FileType = parsedFileType,
+            Page = page ?? 1
         };
 
         var result = await _mediator.Send(query, cancellationToken);
