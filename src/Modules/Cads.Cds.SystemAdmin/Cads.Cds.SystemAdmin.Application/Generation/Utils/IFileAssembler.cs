@@ -1,4 +1,4 @@
-using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
+using Cads.Cds.SystemAdmin.Application.Imports.Envelope;
 
 namespace Cads.Cds.SystemAdmin.Application.Generation.Utils;
 

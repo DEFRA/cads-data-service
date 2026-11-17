@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
+using Cads.Cds.SystemAdmin.Application.Imports.Envelope;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 

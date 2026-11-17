@@ -1,5 +1,5 @@
 using System;
-using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
+using Cads.Cds.SystemAdmin.Application.Imports.Envelope;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope;

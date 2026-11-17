@@ -4,7 +4,7 @@ using Cads.Cds.SystemAdmin.Core.Exceptions;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Dispatchers;
 using Moq;
 
-namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Dispatchers;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.Dispatchers;
 
 public class ScenarioGenerationDispatcherTests
 {

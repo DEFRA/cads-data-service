@@ -1,7 +1,8 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
+using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.BuildingBlocks.Application.Schema;
 
-namespace Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Utilities;
 
 public sealed class ImportDataTypeLookup : IImportDataTypeLookup
 {

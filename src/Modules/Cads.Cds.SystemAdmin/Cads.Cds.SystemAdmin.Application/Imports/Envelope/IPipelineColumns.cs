@@ -1,4 +1,4 @@
-namespace Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Envelope;
 
 /// <summary>
 /// The pipeline and bookkeeping columns of a <c>cts_transactions.&lt;table&gt;</c> that are never part of a

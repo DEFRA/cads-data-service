@@ -1,4 +1,4 @@
-namespace Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
+namespace Cads.Cds.SystemAdmin.Application.Imports.Envelope;
 
 /// <summary>
 /// The shape of one <c>cts_transactions</c> table as a vendor extract carries it.

@@ -3,7 +3,7 @@ using Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenari
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using static Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.EnvelopeTestHelpers;
 
-namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.Scenarios.CtLocationScenarios;
 
 /// <summary>The ct_locations scenarios produce envelopes the Bridge and staging COPY accept.</summary>
 public class CtLocationScenarioEnvelopeTests
