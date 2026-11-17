@@ -8,10 +8,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Cads.Cds.MiBff.Application.Reports.Jobs;
 
-/// <summary>
-/// Runs a report job end to end: builds the query, generates the report, stores the encrypted
-/// output and records the job status transitions (pending → processing → complete | failed).
-/// </summary>
 public class ReportJobProcessor(
     IMiReportJobRepository reportJobRepository,
     IReportJobQueryBuilder queryBuilder,
