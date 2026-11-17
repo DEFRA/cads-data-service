@@ -1,11 +1,11 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using System.Globalization;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 using static Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.EnvelopeTestHelpers;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation;

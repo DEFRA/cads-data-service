@@ -1,8 +1,10 @@
+using System;
+using System.Linq;
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 
 public sealed class TablePrefixResolver(IEntityTypeStore entityTypeStore) : ITablePrefixResolver
 {

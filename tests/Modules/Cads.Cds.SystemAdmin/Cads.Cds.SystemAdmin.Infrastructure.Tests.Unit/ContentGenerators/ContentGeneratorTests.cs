@@ -1,6 +1,6 @@
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using static Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.EnvelopeTestHelpers;

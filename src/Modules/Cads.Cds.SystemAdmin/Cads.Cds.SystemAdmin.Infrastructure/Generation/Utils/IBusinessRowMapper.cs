@@ -1,5 +1,5 @@
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using System.Collections.Generic;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 
