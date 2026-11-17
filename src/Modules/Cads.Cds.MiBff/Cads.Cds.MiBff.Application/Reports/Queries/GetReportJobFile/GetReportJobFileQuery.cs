@@ -8,4 +8,5 @@ public class GetReportJobFileQuery : IQuery<IReportResult>
     public required string ReportKey { get; init; }
     public required Guid JobId { get; init; }
     public ReportFileType FileType { get; init; } = ReportFileType.Xlsx;
+    public int Page { get; init; } = 1;
 }
