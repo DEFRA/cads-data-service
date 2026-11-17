@@ -22,6 +22,8 @@ public class GetReportJobFileQueryHandler(
 {
     private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
+    public const int JsonPageSize = 500;
+
     public async Task<IReportResult> Handle(GetReportJobFileQuery request, CancellationToken cancellationToken)
     {
         var job = await reportJobRepository.GetByReportJobIdAsync(request.JobId, cancellationToken)
@@ -51,9 +53,7 @@ public class GetReportJobFileQueryHandler(
         {
             if (request.FileType == ReportFileType.Json)
             {
-                var payload =
-                    await JsonSerializer.DeserializeAsync<object>(decrypted, cancellationToken: cancellationToken);
-                return new JsonReportResult(payload!);
+                return await BuildPagedJsonResultAsync(decrypted, request.Page, cancellationToken);
             }
 
             var xlsxStream = await openXmlReportGenerator.GenerateFromJsonAsync(
@@ -64,5 +64,41 @@ public class GetReportJobFileQueryHandler(
                 $"{job.ReportKey}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.xlsx",
                 XlsxContentType);
         }
+    }
+
+    private static async Task<JsonReportResult> BuildPagedJsonResultAsync(
+        Stream decrypted, int requestedPage, CancellationToken cancellationToken)
+    {
+        var page = Math.Max(1, requestedPage);
+        var skip = (long)(page - 1) * JsonPageSize;
+
+        var items = new List<JsonElement>(JsonPageSize);
+        var hasMore = false;
+        long index = 0;
+
+        await foreach (var element in JsonSerializer.DeserializeAsyncEnumerable<JsonElement>(
+            decrypted, JsonSerializerOptions.Web, cancellationToken))
+        {
+            if (index >= skip && items.Count < JsonPageSize)
+            {
+                // Clone: the element is only valid for the duration of this iteration.
+                items.Add(element.Clone());
+            }
+            else if (index >= skip + JsonPageSize)
+            {
+                hasMore = true;
+                break;
+            }
+
+            index++;
+        }
+
+        return new JsonReportResult(new PagedReportPayload
+        {
+            Page = page,
+            PageSize = JsonPageSize,
+            HasMore = hasMore,
+            Items = items
+        });
     }
 }
