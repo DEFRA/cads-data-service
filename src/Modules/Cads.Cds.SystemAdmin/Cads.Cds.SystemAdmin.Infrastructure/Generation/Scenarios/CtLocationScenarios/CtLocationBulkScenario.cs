@@ -13,9 +13,10 @@ public class CtLocationBulkScenario(
     IFileNameGenerator fileNameGenerator,
     IFileAssembler fileAssembler,
     IContentGeneratorFactory contentGeneratorFactory,
-    IEnvelopeTableResolver envelopeTableResolver)
+    IEnvelopeTableResolver envelopeTableResolver,
+    IBusinessKeysAllocator businessKeysAllocator)
     : GenerationScenario<CtLocation>(
-        "ct_location_bulk_scenario", ImportActionType.Bulk, dbContext, fileNameGenerator, fileAssembler, contentGeneratorFactory, envelopeTableResolver)
+        "ct_location_bulk_scenario", ImportActionType.Bulk, dbContext, fileNameGenerator, fileAssembler, contentGeneratorFactory, envelopeTableResolver, businessKeysAllocator)
 {
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =
         new RuleBuilder<CtLocation>([])

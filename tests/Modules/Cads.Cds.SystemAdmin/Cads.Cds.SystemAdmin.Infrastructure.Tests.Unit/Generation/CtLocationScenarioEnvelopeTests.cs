@@ -13,7 +13,7 @@ public class CtLocationScenarioEnvelopeTests
     {
         using var db = CreateDbContext(nameof(BulkScenario_ProducesABulkEnvelope_WithoutTransType));
         var scenario = new CtLocationBulkScenario(
-            db, new FileNameGenerator(), CreateFileAssembler(), CreateContentGeneratorFactory(), CreateEnvelopeTableResolver());
+            db, new FileNameGenerator(), CreateFileAssembler(), CreateContentGeneratorFactory(), CreateEnvelopeTableResolver(), new BusinessKeysAllocator());
 
         var result = await scenario.ExecuteAsync(
             new CreateGenerationRequestDto { Scenario = scenario.Name, RowCount = 3 }, TestContext.Current.CancellationToken);
@@ -32,7 +32,7 @@ public class CtLocationScenarioEnvelopeTests
     {
         using var db = CreateDbContext(nameof(UpdateScenario_ProducesADeltaEnvelope_WithAudTypeU));
         var scenario = new CtLocationUpdateScenario(
-            db, new FileNameGenerator(), CreateFileAssembler(), CreateContentGeneratorFactory(), CreateEnvelopeTableResolver());
+            db, new FileNameGenerator(), CreateFileAssembler(), CreateContentGeneratorFactory(), CreateEnvelopeTableResolver(), new BusinessKeysAllocator());
 
         var result = await scenario.ExecuteAsync(
             new CreateGenerationRequestDto { Scenario = scenario.Name, BusinessKeys = [501m, 502m] }, TestContext.Current.CancellationToken);

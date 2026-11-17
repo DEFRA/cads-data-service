@@ -5,7 +5,6 @@ using Cads.Cds.SystemAdmin.Application.Generation.Scenarios;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
-using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Globalization;
@@ -21,7 +20,8 @@ public abstract class GenerationScenario<T>(string name,
     IFileNameGenerator fileNameGenerator,
     IFileAssembler fileAssembler,
     IContentGeneratorFactory contentGeneratorFactory,
-    IEnvelopeTableResolver envelopeTableResolver) : IGenerationScenario
+    IEnvelopeTableResolver envelopeTableResolver,
+    IBusinessKeysAllocator businessKeysAllocator) : IGenerationScenario
     where T : class, new()
 {
     private const string FileNameApplicationPrefix = CtsmFilenameGenerator.App;
@@ -54,7 +54,7 @@ public abstract class GenerationScenario<T>(string name,
         LANI-848 is done in the Allocator. This is to validate supplied values when it is a bulk or delta/update scenario only.
         */
         var businessKeys = request.BusinessKeys ??
-            await new BusinessKeysAllocator().AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
+            await businessKeysAllocator.AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
 
         /*
         TODO: LANI-849 had this so it could be regenerated. Need to fulfil the requirements from LANI-849.
@@ -100,7 +100,7 @@ public abstract class GenerationScenario<T>(string name,
         if (importActionType == ImportActionType.Bulk)
             return FileAssemblyOptions.Bulk();
 
-        var audIds = await new BusinessKeysAllocator().AllocateAsync(tableName, rowCount, ct);
+        var audIds = await businessKeysAllocator.AllocateAsync(tableName, rowCount, ct);
 
         return new FileAssemblyOptions(
             ImportActionType.Delta,
