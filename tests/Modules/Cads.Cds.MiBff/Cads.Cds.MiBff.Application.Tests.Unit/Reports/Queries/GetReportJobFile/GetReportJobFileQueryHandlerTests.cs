@@ -66,6 +66,12 @@ public class GetReportJobFileQueryHandlerTests
             .Setup(r => r.TryGetModelType(ReportKey, out modelType))
             .Returns(true);
 
+    private static byte[] BuildJsonArrayBytes(int count) =>
+        Encoding.UTF8.GetBytes(
+            JsonSerializer.Serialize(
+                Enumerable.Range(1, count).Select(i => new { deathYear = i }),
+                JsonSerializerOptions.Web));
+
     [Fact]
     public async Task Handle_WithUnknownJob_ThrowsNotFound()
     {
@@ -129,9 +135,112 @@ public class GetReportJobFileQueryHandlerTests
             new GetReportJobFileQuery { ReportKey = ReportKey, JobId = _jobId, FileType = ReportFileType.Json },
             TestContext.Current.CancellationToken);
 
-        var json = result.Should().BeOfType<JsonReportResult>().Subject;
-        var element = (JsonElement)json.Payload;
-        element.ValueKind.Should().Be(JsonValueKind.Array);
+        var payload = result.Should().BeOfType<JsonReportResult>().Subject.Payload
+            .Should().BeOfType<PagedReportPayload>().Subject;
+
+        payload.Page.Should().Be(1);
+        payload.PageSize.Should().Be(GetReportJobFileQueryHandler.JsonPageSize);
+        payload.HasMore.Should().BeFalse();
+        payload.Items.Should().ContainSingle();
+        payload.Items[0].GetProperty("deathYear").GetInt32().Should().Be(2024);
+    }
+
+    [Fact]
+    public async Task Handle_WithJsonFileTypeDefaultPage_ReturnsFirstPageWithHasMoreTrue_WhenMoreThanPageSizeRows()
+    {
+        SeedJob();
+        SeedModelType(typeof(MiDeathSummary));
+        SeedStoredBytes(BuildJsonArrayBytes(GetReportJobFileQueryHandler.JsonPageSize + 1));
+
+        var result = await CreateSut().Handle(
+            new GetReportJobFileQuery { ReportKey = ReportKey, JobId = _jobId, FileType = ReportFileType.Json },
+            TestContext.Current.CancellationToken);
+
+        var payload = result.Should().BeOfType<JsonReportResult>().Subject.Payload
+            .Should().BeOfType<PagedReportPayload>().Subject;
+
+        payload.Page.Should().Be(1);
+        payload.PageSize.Should().Be(GetReportJobFileQueryHandler.JsonPageSize);
+        payload.HasMore.Should().BeTrue();
+        payload.Items.Should().HaveCount(GetReportJobFileQueryHandler.JsonPageSize);
+        payload.Items[0].GetProperty("deathYear").GetInt32().Should().Be(1);
+        payload.Items[^1].GetProperty("deathYear").GetInt32().Should().Be(GetReportJobFileQueryHandler.JsonPageSize);
+    }
+
+    [Fact]
+    public async Task Handle_WithJsonFileTypeExactlyPageSizeRows_ReturnsHasMoreFalse()
+    {
+        SeedJob();
+        SeedModelType(typeof(MiDeathSummary));
+        SeedStoredBytes(BuildJsonArrayBytes(GetReportJobFileQueryHandler.JsonPageSize));
+
+        var result = await CreateSut().Handle(
+            new GetReportJobFileQuery { ReportKey = ReportKey, JobId = _jobId, FileType = ReportFileType.Json },
+            TestContext.Current.CancellationToken);
+
+        var payload = result.Should().BeOfType<JsonReportResult>().Subject.Payload
+            .Should().BeOfType<PagedReportPayload>().Subject;
+
+        payload.HasMore.Should().BeFalse();
+        payload.Items.Should().HaveCount(GetReportJobFileQueryHandler.JsonPageSize);
+    }
+
+    [Fact]
+    public async Task Handle_WithJsonFileTypeSecondPage_ReturnsNextSliceInStoredOrder()
+    {
+        SeedJob();
+        SeedModelType(typeof(MiDeathSummary));
+        var pageSize = GetReportJobFileQueryHandler.JsonPageSize;
+        SeedStoredBytes(BuildJsonArrayBytes(pageSize + 10));
+
+        var result = await CreateSut().Handle(
+            new GetReportJobFileQuery { ReportKey = ReportKey, JobId = _jobId, FileType = ReportFileType.Json, Page = 2 },
+            TestContext.Current.CancellationToken);
+
+        var payload = result.Should().BeOfType<JsonReportResult>().Subject.Payload
+            .Should().BeOfType<PagedReportPayload>().Subject;
+
+        payload.Page.Should().Be(2);
+        payload.HasMore.Should().BeFalse();
+        payload.Items.Should().HaveCount(10);
+        payload.Items[0].GetProperty("deathYear").GetInt32().Should().Be(pageSize + 1);
+        payload.Items[^1].GetProperty("deathYear").GetInt32().Should().Be(pageSize + 10);
+    }
+
+    [Fact]
+    public async Task Handle_WithJsonFileTypePageBeyondAvailableRows_ReturnsEmptyItems()
+    {
+        SeedJob();
+        SeedModelType(typeof(MiDeathSummary));
+        SeedStoredBytes(BuildJsonArrayBytes(5));
+
+        var result = await CreateSut().Handle(
+            new GetReportJobFileQuery { ReportKey = ReportKey, JobId = _jobId, FileType = ReportFileType.Json, Page = 2 },
+            TestContext.Current.CancellationToken);
+
+        var payload = result.Should().BeOfType<JsonReportResult>().Subject.Payload
+            .Should().BeOfType<PagedReportPayload>().Subject;
+
+        payload.Items.Should().BeEmpty();
+        payload.HasMore.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Handle_WithJsonFileTypeAndPageLessThanOne_TreatsAsFirstPage()
+    {
+        SeedJob();
+        SeedModelType(typeof(MiDeathSummary));
+        SeedStoredBytes(BuildJsonArrayBytes(3));
+
+        var result = await CreateSut().Handle(
+            new GetReportJobFileQuery { ReportKey = ReportKey, JobId = _jobId, FileType = ReportFileType.Json, Page = 0 },
+            TestContext.Current.CancellationToken);
+
+        var payload = result.Should().BeOfType<JsonReportResult>().Subject.Payload
+            .Should().BeOfType<PagedReportPayload>().Subject;
+
+        payload.Page.Should().Be(1);
+        payload.Items.Should().HaveCount(3);
     }
 
     [Fact]
