@@ -1,3 +1,4 @@
+using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,17 +12,17 @@ namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 /// The staging import reads the D records with <c>COPY ... (FORMAT csv, DELIMITER '|')</c>, and the vendor format
 /// has no quoting. A value containing <c>|</c>, <c>"</c>, CR or LF can't be represented, so it is rejected.
 /// </remarks>
-public sealed class EnvelopeWriter
+public sealed class EnvelopeWriter : IEnvelopeWriter
 {
     public const char Separator = '|';
 
     public const string LineEnding = "\r\n";
 
-    private readonly StringBuilder _sb = new();
-
     /// <summary>Writes one record. Each field must already be formatted; it is checked before writing.</summary>
-    public EnvelopeWriter WriteRecord(IEnumerable<string> fields)
+    public void WriteRecord(StringBuilder sb, IEnumerable<string> fields)
     {
+        ArgumentNullException.ThrowIfNull(sb);
+
         var first = true;
 
         foreach (var field in fields)
@@ -29,18 +30,14 @@ public sealed class EnvelopeWriter
             EnsureRepresentable(field);
 
             if (!first)
-                _sb.Append(Separator);
+                sb.Append(Separator);
 
-            _sb.Append(field);
+            sb.Append(field);
             first = false;
         }
 
-        _sb.Append(LineEnding);
-
-        return this;
+        sb.Append(LineEnding);
     }
-
-    public override string ToString() => _sb.ToString();
 
     private static void EnsureRepresentable(string field)
     {
