@@ -33,7 +33,7 @@ internal static class EnvelopeTestHelpers
         new ContentGeneratorFactory(CreateBusinessColumnResolver(), new BusinessRowMapper());
 
     public static FileAssembler CreateFileAssembler() =>
-        new(new EnvelopeValueFormatter(), new PipelineColumns());
+        new(new EnvelopeValueFormatter(), new PipelineColumns(), new EnvelopeWriter());
 
     /// <summary>Splits on CRLF; the file ends with CRLF, so the trailing empty entry is dropped.</summary>
     public static string[] Lines(string content)

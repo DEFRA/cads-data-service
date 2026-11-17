@@ -36,6 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IFileAssembler, FileAssembler>();
         services.AddTransient<IFileNameGenerator, FileNameGenerator>();
         services.AddTransient<IEnvelopeValueFormatter, EnvelopeValueFormatter>();
+        services.AddTransient<IEnvelopeWriter, EnvelopeWriter>();
         services.AddTransient<IBusinessRowMapper, BusinessRowMapper>();
         services.AddTransient<IContentGeneratorFactory, ContentGeneratorFactory>();
     }
