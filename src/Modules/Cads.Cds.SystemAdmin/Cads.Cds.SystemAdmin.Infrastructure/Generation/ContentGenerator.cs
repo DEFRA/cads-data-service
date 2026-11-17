@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation;
 

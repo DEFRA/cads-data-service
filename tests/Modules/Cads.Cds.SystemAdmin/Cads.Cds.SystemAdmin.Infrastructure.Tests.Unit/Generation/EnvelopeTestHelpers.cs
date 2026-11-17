@@ -1,9 +1,9 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Envelope;
 using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Envelope;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Metadata;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Microsoft.EntityFrameworkCore;
 
