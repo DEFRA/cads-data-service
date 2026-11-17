@@ -5,7 +5,7 @@ using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using static Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.EnvelopeTestHelpers;
 
-namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.ContentGenerators;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation;
 
 public class ContentGeneratorTests
 {

@@ -1,12 +1,11 @@
 using Cads.Cds.BuildingBlocks.Application.Setup;
-using Cads.Cds.BuildingBlocks.Infrastructure.Imports.Setup;
 using Cads.Cds.SystemAdmin.Application.Generation.Scenarios;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Setup;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.Setup;
 
 public class GenerationServiceRegistrationTests
 {
