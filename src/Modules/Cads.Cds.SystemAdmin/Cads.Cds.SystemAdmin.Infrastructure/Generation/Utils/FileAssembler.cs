@@ -5,10 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 
-public class FileAssembler(IEnvelopeValueFormatter valueFormatter, IPipelineColumns pipelineColumns) : IFileAssembler
+public class FileAssembler(
+    IEnvelopeValueFormatter valueFormatter,
+    IPipelineColumns pipelineColumns,
+    IEnvelopeWriter envelopeWriter) : IFileAssembler
 {
     private const string HeaderRecordType = "H";
 
@@ -37,12 +41,12 @@ public class FileAssembler(IEnvelopeValueFormatter valueFormatter, IPipelineColu
 
         var isDelta = options.ActionType == ImportActionType.Delta;
         var envelopeDateTime = valueFormatter.FormatEnvelopeDateTime(fileCreatedDateTime);
-        var writer = new EnvelopeWriter();
+        var sb = new StringBuilder();
         string[] audColumns = isDelta ? [.. pipelineColumns.AudColumns(table.Prefix).Select(c => c.ToUpperInvariant())] : [];
 
-        writer.WriteRecord([HeaderRecordType, fileName, envelopeDateTime]);
+        envelopeWriter.WriteRecord(sb, [HeaderRecordType, fileName, envelopeDateTime]);
 
-        writer.WriteRecord([
+        envelopeWriter.WriteRecord(sb, [
             ColumnsRecordType,
             RecordTypeColumn,
             RecordCountColumn,
@@ -58,7 +62,7 @@ public class FileAssembler(IEnvelopeValueFormatter valueFormatter, IPipelineColu
             var row = rows[i];
             string[] audFields = isDelta ? [options.AudIds![i].ToString(CultureInfo.InvariantCulture), audType!, audDateTime!] : [];
 
-            writer.WriteRecord([
+            envelopeWriter.WriteRecord(sb, [
                 DataRecordType,
                 (i + 1).ToString(CultureInfo.InvariantCulture),
                 .. audFields,
@@ -66,9 +70,9 @@ public class FileAssembler(IEnvelopeValueFormatter valueFormatter, IPipelineColu
             ]);
         }
 
-        writer.WriteRecord([TrailerRecordType, fileName, envelopeDateTime, rows.Count.ToString(CultureInfo.InvariantCulture)]);
+        envelopeWriter.WriteRecord(sb, [TrailerRecordType, fileName, envelopeDateTime, rows.Count.ToString(CultureInfo.InvariantCulture)]);
 
-        return writer.ToString();
+        return sb.ToString();
     }
 
     private static void Validate(
