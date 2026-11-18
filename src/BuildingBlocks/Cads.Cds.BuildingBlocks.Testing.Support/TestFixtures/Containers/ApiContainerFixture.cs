@@ -57,6 +57,9 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Kestrel__Certificates__Default__Password", "testpassword")
           .WithEnvironment("AWS__ServiceURL", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Modules__Ingester__Storage__CadsIngester__BucketName", LocalStackFixture.CadsInternalBucketName)
+          .WithEnvironment("Modules__MiBff__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
+          .WithEnvironment("Modules__MiBff__Queues__CadsMiReports__QueueUrl", LocalStackFixture.CadsMiReportsFifoQueueUrl)
+          .WithEnvironment("Modules__MiBff__Queues__CadsMiReports__DlqQueueUrl", LocalStackFixture.CadsMiReportsFifoDeadLetterQueueUrl)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__BucketName", LocalStackFixture.CadsExternalBucketName)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsExternal__AccessKeySecretName", "IMB_S3_ACCESS_KEY")
@@ -68,6 +71,8 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCds__DlqQueueUrl", LocalStackFixture.CadsFifoDeadLetterQueueUrl)
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCdsStandard__QueueUrl", LocalStackFixture.CadsStandardQueueUrl)
           .WithEnvironment("Modules__SystemAdmin__Queues__CadsCdsStandard__DlqQueueUrl", LocalStackFixture.CadsStandardDeadLetterQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsMiReports__QueueUrl", LocalStackFixture.CadsMiReportsFifoQueueUrl)
+          .WithEnvironment("Modules__SystemAdmin__Queues__CadsMiReports__DlqQueueUrl", LocalStackFixture.CadsMiReportsFifoDeadLetterQueueUrl)
           // "Name" is required by QueuePublisherOptions, which binds against this same
           // "Modules:SystemAdmin:Queues" section (shared with SqsAdminQueueOptions).
           // Without it, config binding for this entry throws at startup, breaking the
@@ -129,6 +134,42 @@ public class ApiContainerFixture : IAsyncLifetime
         {
             ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true
         };
+
+        // "/health" only reports liveness, so the container can be marked ready by the wait
+        // strategy before Postgres connection pools are actually warmed up. Poll the full
+        // "/health/details" check (which exercises the Postgres connections) until it reports
+        // healthy, to avoid flaky 503s on the first requests made by tests.
+        await WaitForDependenciesToBeHealthyAsync();
+    }
+
+    private async Task WaitForDependenciesToBeHealthyAsync()
+    {
+        using var client = CreateBasicClient();
+
+        var deadline = DateTime.UtcNow.AddSeconds(30);
+        HttpResponseMessage? lastResponse = null;
+
+        while (DateTime.UtcNow < deadline)
+        {
+            try
+            {
+                lastResponse = await client.GetAsync("health/details");
+                if (lastResponse.IsSuccessStatusCode)
+                {
+                    return;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                // Container may not be accepting connections yet; retry until the deadline.
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+        }
+
+        var body = lastResponse is null ? "<no response>" : await lastResponse.Content.ReadAsStringAsync();
+        throw new InvalidOperationException(
+            $"cads_cds container dependencies did not become healthy in time. Last response: {lastResponse?.StatusCode} {body}");
     }
 
     public async Task<HttpClient> CreateAzureAdClientAsync(TestTokenRequest request)
