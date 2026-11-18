@@ -15,9 +15,15 @@ public class FileEncryptorTests
 
     private static byte[] Key(byte seed) => [.. Enumerable.Range(0, 32).Select(i => (byte)(seed + i))];
 
+    private static byte[] KeyFromId(string id)
+    {
+        var hash = (uint)id.GetHashCode();
+        return [.. Enumerable.Range(0, 32).Select(i => (byte)((hash * 2654435761u + (uint)i * 40503u) >> 24))];
+    }
+
     private static InMemoryMasterKeyProvider Keys(string current = "k1", params string[] ids)
     {
-        var all = (ids.Length == 0 ? ["k1"] : ids).Distinct().ToDictionary(id => id, id => Key((byte)id.GetHashCode()));
+        var all = (ids.Length == 0 ? ["k1"] : ids).Distinct().ToDictionary(id => id, KeyFromId);
         return new InMemoryMasterKeyProvider(current, all);
     }
 
