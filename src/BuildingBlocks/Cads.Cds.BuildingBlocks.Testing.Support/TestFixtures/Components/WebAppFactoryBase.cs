@@ -14,6 +14,7 @@ using Cads.Cds.BuildingBlocks.Testing.Support.Fakes.Authentication;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers.Configuration;
 using Cads.Cds.Ingester.Infrastructure.Storage.Clients;
 using Cads.Cds.MiBff.Application.Reports.Authorisation;
+using Cads.Cds.MiBff.Infrastructure.Storage.Clients;
 using Cads.Cds.StorageBridge.Infrastructure.Storage.Clients;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -173,6 +174,7 @@ public abstract class WebAppFactoryBase<TStart>(
         Environment.SetEnvironmentVariable("Postgres__ReadOnlyConnection", "Host=cads-postgres;Port=5432;Database=cads_data_service;Username=postgres;Password=postgres;");
 
         Environment.SetEnvironmentVariable("Modules__Ingester__Storage__CadsIngester__BucketName", TestS3Constants.TestCadsInternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__MiBff__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
@@ -265,6 +267,10 @@ public abstract class WebAppFactoryBase<TStart>(
             factory.RegisterMockClient<IngesterClient>(
                 TestS3Constants.TestCadsInternalBucketName,
                 healthCheckEnabled: true,
+                AmazonS3Mock.Object);
+            factory.RegisterMockClient<MiBffInternalStorageClient>(
+                TestS3Constants.TestCadsInternalBucketName,
+                healthCheckEnabled: false,
                 AmazonS3Mock.Object);
             factory.RegisterMockClient<CadsExternalClient>(
                 TestS3Constants.TestCadsExternalBucketName,

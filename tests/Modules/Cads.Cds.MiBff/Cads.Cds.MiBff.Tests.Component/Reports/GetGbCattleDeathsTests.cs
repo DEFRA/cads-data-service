@@ -57,6 +57,7 @@ public class GetGbCattleDeathsTests
 
         response.Should().NotBeNull();
         response.IsSuccessStatusCode.Should().BeTrue();
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/json");
     }
 
     private static async Task<HttpResponseMessage?> ExecuteTest(int year)
