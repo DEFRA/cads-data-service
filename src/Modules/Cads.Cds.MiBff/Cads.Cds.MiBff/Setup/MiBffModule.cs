@@ -3,6 +3,7 @@ using Cads.Cds.MiBff.Application.Setup;
 using Cads.Cds.MiBff.Controllers.Authorisation.Setup;
 using Cads.Cds.MiBff.Infrastructure.Messaging.Setup;
 using Cads.Cds.MiBff.Infrastructure.Setup;
+using Cads.Cds.MiBff.Infrastructure.Storage.Setup;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,8 @@ public sealed class MiBffModule : IModule
         services.AddMiBffApplicationLayer(config);
 
         services.AddMiBffMessaging(config);
+
+        services.AddMiBffStorage(config);
     }
 
     /// <summary>
