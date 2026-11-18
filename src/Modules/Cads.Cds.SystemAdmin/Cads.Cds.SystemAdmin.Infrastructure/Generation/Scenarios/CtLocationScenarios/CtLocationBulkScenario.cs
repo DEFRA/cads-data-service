@@ -4,14 +4,19 @@ using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.C
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using System;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenarios;
 
 public class CtLocationBulkScenario(
     CtsTransactionsGQDbContext dbContext,
     IFileNameGenerator fileNameGenerator,
-    IFileAssembler fileAssembler)
-    : GenerationScenario<CtLocation>("ct_location_bulk_scenario", ImportActionType.Bulk, dbContext, fileNameGenerator, fileAssembler)
+    IFileAssembler fileAssembler,
+    IContentGeneratorFactory contentGeneratorFactory,
+    IEnvelopeTableResolver envelopeTableResolver,
+    IBusinessKeysAllocator businessKeysAllocator)
+    : GenerationScenario<CtLocation>(
+        "ct_location_bulk_scenario", ImportActionType.Bulk, dbContext, fileNameGenerator, fileAssembler, contentGeneratorFactory, envelopeTableResolver, businessKeysAllocator)
 {
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =
         new RuleBuilder<CtLocation>([])
@@ -30,7 +35,6 @@ public class CtLocationBulkScenario(
     protected override Func<CtLocation, decimal, CtLocation>? Transform { get; init; } =
         (entity, key) =>
         {
-            entity.TransType = "B";
             entity.LocId = key;
             return entity;
         };

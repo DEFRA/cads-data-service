@@ -1,15 +1,19 @@
 using Cads.Cds.SystemAdmin.Application.Generation.ContentGenerators;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Reflection;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation;
 
-public static class ContentGeneratorFactory
+public class ContentGeneratorFactory(
+    IBusinessColumnResolver businessColumnResolver,
+    IBusinessRowMapper businessRowMapper) : IContentGeneratorFactory
 {
-    public static IContentGenerator Create(string tableName, DbContext dbContext)
+    public IContentGenerator Create(string tableName, DbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
 
@@ -25,24 +29,24 @@ public static class ContentGeneratorFactory
 
         var clrType = entityType.ClrType ?? throw new InvalidOperationException($"Entity for table '{tableName}' has a null CLR type.");
 
-        // Call the generic static Create<T>(DbContext) via reflection
+        // Call the generic CreateDefault<T>(DbContext) via reflection
         var method = typeof(ContentGeneratorFactory)
-            .GetMethod(nameof(Create), BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(DbContext) }, null)
-            ?? throw new InvalidOperationException("Factory Create<T>(DbContext) method not found.");
+            .GetMethod(nameof(CreateDefault), BindingFlags.NonPublic | BindingFlags.Instance)
+            ?? throw new InvalidOperationException($"Factory {nameof(CreateDefault)}<T>(DbContext) method not found.");
 
         var generic = method.MakeGenericMethod(clrType);
-        return (IContentGenerator)generic.Invoke(null, [dbContext])!;
+        return (IContentGenerator)generic.Invoke(this, [dbContext])!;
     }
 
-    public static ContentGenerator<T> Create<T>(DbContext dbContext)
+    public IContentGenerator Create<T>(DbContext dbContext, RuleBuilder<T>? rulesBuilder = null, Func<T, decimal, T>? transform = null)
         where T : class, new()
     {
-        return new ContentGenerator<T>(dbContext, null, null);
+        return new ContentGenerator<T>(dbContext, businessColumnResolver, businessRowMapper, rulesBuilder, transform);
     }
 
-    public static IContentGenerator Create<T>(DbContext dbContext, RuleBuilder<T>? rulesBuilder, Func<T, decimal, T>? transform)
+    private IContentGenerator CreateDefault<T>(DbContext dbContext)
         where T : class, new()
     {
-        return new ContentGenerator<T>(dbContext, rulesBuilder, transform);
+        return Create<T>(dbContext);
     }
 }

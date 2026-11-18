@@ -1,7 +1,11 @@
 using Cads.Cds.SystemAdmin.Application.Generation.Dispatchers;
 using Cads.Cds.SystemAdmin.Application.Generation.Scenarios;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
+using Cads.Cds.SystemAdmin.Application.Imports.Envelope;
+using Cads.Cds.SystemAdmin.Application.Imports.Utilities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Dispatchers;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenarios;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,5 +39,20 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IBusinessKeysAllocator, BusinessKeysAllocator>();
         services.AddTransient<IFileAssembler, FileAssembler>();
         services.AddTransient<IFileNameGenerator, FileNameGenerator>();
+        services.AddTransient<IEnvelopeValueFormatter, EnvelopeValueFormatter>();
+        services.AddTransient<IEnvelopeWriter, EnvelopeWriter>();
+        services.AddTransient<IBusinessRowMapper, BusinessRowMapper>();
+        services.AddTransient<IContentGeneratorFactory, ContentGeneratorFactory>();
+    }
+    
+    public static IServiceCollection AddImportEnvelope(this IServiceCollection services)
+    {
+        return services
+                .AddTransient<IImportDataTypeLookup, ImportDataTypeLookup>()
+                .AddTransient<IPipelineColumns, PipelineColumns>()
+                .AddTransient<IEntityTypeStore, EntityTypeStore>()
+                .AddTransient<ITablePrefixResolver, TablePrefixResolver>()
+                .AddTransient<IBusinessColumnResolver, BusinessColumnResolver>()
+                .AddTransient<IEnvelopeTableResolver, EnvelopeTableResolver>();
     }
 }

@@ -1,28 +1,23 @@
-using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
-using Microsoft.EntityFrameworkCore;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
+using static Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation.EnvelopeTestHelpers;
 
-namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.ContentGenerators;
+namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.Generation;
 
 public class ContentGeneratorTests
 {
-    private static CtsTransactionsGQDbContext CreateDbContext(string dbName)
-    {
-        var options = new DbContextOptionsBuilder<CtsTransactionsGQDbContext>()
-            .UseInMemoryDatabase(dbName)
-            .Options;
-
-        return new CtsTransactionsGQDbContext(options);
-    }
+    private readonly IBusinessColumnResolver _columnResolver = CreateBusinessColumnResolver();
+    private readonly BusinessRowMapper _rowMapper = new();
 
     [Fact]
-    public void GenerateBulk_SetsTransTypeToB_AndLocIdToBusinessKey_AndAppliesRules()
+    public void GenerateBulk_OmitsTransType_SetsLocIdToBusinessKey_AndAppliesRules()
     {
         using var db = CreateDbContext("GenerateBulk_SetsTransTypeToB");
 
-        var contentGenerator = new ContentGenerator<CtLocation>(db,
+        var contentGenerator = new ContentGenerator<CtLocation>(db, _columnResolver, _rowMapper,
             rulesBuilder: new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
@@ -36,7 +31,6 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "B";
                 entity.LocId = key;
                 return entity;
             });
@@ -49,7 +43,7 @@ public class ContentGeneratorTests
         var first = results[0];
 
         Assert.Equal(100m, Convert.ToDecimal(first["loc_id"]));
-        Assert.Equal("B", first["trans_type"] as string);
+        Assert.False(first.ContainsKey("trans_type"));
 
         // RulesBuilder overrides asserted
         Assert.Equal(1m, Convert.ToDecimal(first["loc_slt_id"]));
@@ -66,7 +60,7 @@ public class ContentGeneratorTests
     {
         using var db = CreateDbContext("GenerateBulk_SetsTransTypeToB");
 
-        var contentGenerator1 = new ContentGenerator<CtLocation>(db,
+        var contentGenerator1 = new ContentGenerator<CtLocation>(db, _columnResolver, _rowMapper,
             rulesBuilder: new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
@@ -80,12 +74,11 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "B";
                 entity.LocId = key;
                 return entity;
             });
 
-        var contentGenerator2 = new ContentGenerator<CtLocation>(db,
+        var contentGenerator2 = new ContentGenerator<CtLocation>(db, _columnResolver, _rowMapper,
             rulesBuilder: new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
@@ -99,7 +92,6 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "B";
                 entity.LocId = key;
                 return entity;
             });
@@ -121,9 +113,9 @@ public class ContentGeneratorTests
         var first2 = results2[0];
 
         Assert.Equal(100m, Convert.ToDecimal(first1["loc_id"]));
-        Assert.Equal("B", first1["trans_type"] as string);
+        Assert.False(first1.ContainsKey("trans_type"));
         Assert.Equal(100m, Convert.ToDecimal(first2["loc_id"]));
-        Assert.Equal("B", first2["trans_type"] as string);
+        Assert.False(first2.ContainsKey("trans_type"));
 
         // RulesBuilder overrides asserted
         Assert.Equal(1m, Convert.ToDecimal(first1["loc_slt_id"]));
@@ -143,11 +135,11 @@ public class ContentGeneratorTests
     }
 
     [Fact]
-    public void ContentGeneratorFactory_GenerateBulk_SetsTransTypeToB_AndLocIdToBusinessKey_AndAppliesRules()
+    public void ContentGeneratorFactory_GenerateBulk_OmitsTransType_SetsLocIdToBusinessKey_AndAppliesRules()
     {
         using var db = CreateDbContext("GenerateBulk_SetsTransTypeToB");
 
-        var contentCenerator = new ContentGenerator<CtLocation>(db,
+        var contentCenerator = CreateContentGeneratorFactory().Create<CtLocation>(db,
             rulesBuilder: new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
@@ -161,7 +153,6 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "B";
                 entity.LocId = key;
                 return entity;
             });
@@ -174,7 +165,7 @@ public class ContentGeneratorTests
         var first = results[0];
 
         Assert.Equal(100m, Convert.ToDecimal(first["loc_id"]));
-        Assert.Equal("B", first["trans_type"] as string);
+        Assert.False(first.ContainsKey("trans_type"));
 
         // RulesBuilder overrides asserted
         Assert.Equal(1m, Convert.ToDecimal(first["loc_slt_id"]));
@@ -187,11 +178,11 @@ public class ContentGeneratorTests
     }
 
     [Fact]
-    public void GenerateUpdate_SetsTransTypeToU_AndLocIdToBusinessKey_AndAppliesRules()
+    public void GenerateUpdate_OmitsTransType_SetsLocIdToBusinessKey_AndAppliesRules()
     {
         using var db = CreateDbContext("GenerateUpdate_SetsTransTypeToU");
 
-        var contentCenerator = new ContentGenerator<CtLocation>(db,
+        var contentCenerator = new ContentGenerator<CtLocation>(db, _columnResolver, _rowMapper,
             rulesBuilder: new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
@@ -205,7 +196,6 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "U";
                 entity.LocId = key;
                 return entity;
             });
@@ -216,7 +206,7 @@ public class ContentGeneratorTests
         var first = results[0];
 
         Assert.Equal(200m, Convert.ToDecimal(first["loc_id"]));
-        Assert.Equal("U", first["trans_type"] as string);
+        Assert.False(first.ContainsKey("trans_type"));
 
         // RulesBuilder overrides asserted
         Assert.Equal(1m, Convert.ToDecimal(first["loc_slt_id"]));

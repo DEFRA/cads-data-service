@@ -2,16 +2,22 @@ using Bogus;
 using Cads.Cds.SystemAdmin.Application.Generation.ContentGenerators;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Extensions;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
-using FluentValidation;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope.Metadata;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation;
 
-public class ContentGenerator<T>(DbContext dbContext, RuleBuilder<T>? rulesBuilder = null, Func<T, decimal, T>? transform = null)
+public class ContentGenerator<T>(
+    DbContext dbContext,
+    IBusinessColumnResolver businessColumnResolver,
+    IBusinessRowMapper businessRowMapper,
+    RuleBuilder<T>? rulesBuilder = null,
+    Func<T, decimal, T>? transform = null)
     : IContentGenerator
     where T : class, new()
 {
@@ -55,13 +61,17 @@ public class ContentGenerator<T>(DbContext dbContext, RuleBuilder<T>? rulesBuild
     public IReadOnlyList<IReadOnlyDictionary<string, object?>> Generate(IEnumerable<decimal> businessKeys, int seed)
     {
         var faker = CreateFaker(seed);
+        var entityType = dbContext.Model.FindEntityType(typeof(T)) ?? throw new InvalidOperationException(
+            $"Entity '{typeof(T).Name}' is not mapped in the DbContext.");
+        var columns = businessColumnResolver.Resolve(entityType);
+
         return [.. businessKeys
             .Select(key =>
             {
                 var entity = faker.Generate();
                 if (Transform != null)
                     entity = Transform(entity, key);
-                return entity.ToDictionary(dbContext);
+                return businessRowMapper.Map(entity, columns);
             })];
     }
 }

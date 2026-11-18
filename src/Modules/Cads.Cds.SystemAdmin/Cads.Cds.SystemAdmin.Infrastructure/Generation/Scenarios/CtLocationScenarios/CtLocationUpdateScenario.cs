@@ -4,14 +4,19 @@ using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.C
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using System;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenarios;
 
 public class CtLocationUpdateScenario(
     CtsTransactionsGQDbContext dbContext,
     IFileNameGenerator fileNameGenerator,
-    IFileAssembler fileAssembler)
-    : GenerationScenario<CtLocation>("ct_location_update_scenario", ImportActionType.Delta, dbContext, fileNameGenerator, fileAssembler)
+    IFileAssembler fileAssembler,
+    IContentGeneratorFactory contentGeneratorFactory,
+    IEnvelopeTableResolver envelopeTableResolver,
+    IBusinessKeysAllocator businessKeysAllocator)
+    : GenerationScenario<CtLocation>(
+        "ct_location_update_scenario", ImportActionType.Delta, dbContext, fileNameGenerator, fileAssembler, contentGeneratorFactory, envelopeTableResolver, businessKeysAllocator)
 {
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =
         new RuleBuilder<CtLocation>([])
@@ -26,11 +31,12 @@ public class CtLocationUpdateScenario(
             .RuleFor(r => r.LocPremisesType, () => "FARM")
             .RuleFor(r => r.LocReasonCode, () => "01");
 
-    // configure the per-item transform for bulk generation
+    protected override string? AudType { get; init; } = "U";
+
+    // configure the per-item transform for update generation
     protected override Func<CtLocation, decimal, CtLocation>? Transform { get; init; } =
         (entity, key) =>
         {
-            entity.TransType = "U";
             entity.LocId = key;
             return entity;
         };

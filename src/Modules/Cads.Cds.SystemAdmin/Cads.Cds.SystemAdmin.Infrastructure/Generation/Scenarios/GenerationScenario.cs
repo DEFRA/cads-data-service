@@ -4,12 +4,13 @@ using Cads.Cds.SystemAdmin.Application.Generation.Scenarios;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
-using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Envelope;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios;
 
@@ -17,7 +18,10 @@ public abstract class GenerationScenario<T>(string name,
     ImportActionType importActionType,
     DbContext dbContext,
     IFileNameGenerator fileNameGenerator,
-    IFileAssembler fileAssembler) : IGenerationScenario
+    IFileAssembler fileAssembler,
+    IContentGeneratorFactory contentGeneratorFactory,
+    IEnvelopeTableResolver envelopeTableResolver,
+    IBusinessKeysAllocator businessKeysAllocator) : IGenerationScenario
     where T : class, new()
 {
     private const string FileNameApplicationPrefix = CtsmFilenameGenerator.App;
@@ -26,17 +30,20 @@ public abstract class GenerationScenario<T>(string name,
 
     public string Name { get; init; } = name;
 
-    public string TableName => new ContentGenerator<T>(dbContext).TableName;
+    public string TableName => contentGeneratorFactory.Create<T>(dbContext).TableName;
 
     protected virtual RuleBuilder<T>? OverrideRulesBuilder { get; init; }
 
     protected virtual Func<T, decimal, T>? Transform { get; init; }
 
+    /// <summary>Delta only: the aud type (I, U or D) written to every row. Bulk scenarios leave it null.</summary>
+    protected virtual string? AudType { get; init; }
+
     public async Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
 
-        var contentGenerator = new ContentGenerator<T>(dbContext, OverrideRulesBuilder, Transform);
+        var contentGenerator = contentGeneratorFactory.Create(dbContext, OverrideRulesBuilder, Transform);
         var tableName = contentGenerator.TableName;
 
         /*
@@ -47,7 +54,7 @@ public abstract class GenerationScenario<T>(string name,
         LANI-848 is done in the Allocator. This is to validate supplied values when it is a bulk or delta/update scenario only.
         */
         var businessKeys = request.BusinessKeys ??
-            await new BusinessKeysAllocator().AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
+            await businessKeysAllocator.AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
 
         /*
         TODO: LANI-849 had this so it could be regenerated. Need to fulfil the requirements from LANI-849.
@@ -73,16 +80,11 @@ public abstract class GenerationScenario<T>(string name,
 
         var parsedFileName = CtsmFilenameParser.Parse(fileName);
 
-        /*
-        TODO: LANI-851. This was done by David in the main but doesn't support BULK and DELTA file formats.
-        LANI-851 + LANI-1212 need to be completed so we support both correctly.
-        */
+        var options = await CreateAssemblyOptionsAsync(tableName, rows.Count, ct);
 
-        /*
-        TODO: LANI-1212. Delta details are not visible here. fileAssembler.Create(fileName, date, rows) has no aud ID or aud type arguments,
-        so check where the delta layout and U come from.The update scenario also needs the aud IDs allocated per row.
-        */
-        var content = fileAssembler.Create(fileName, fileCreatedDateTime, rows);
+        var table = envelopeTableResolver.Resolve(dbContext.Model, typeof(T));
+
+        var content = fileAssembler.Create(fileName, fileCreatedDateTime, table, rows, options);
 
         return new CreateGenerationResponseDto
         {
@@ -91,5 +93,18 @@ public abstract class GenerationScenario<T>(string name,
             Content = content,
             BusinessKeys = businessKeys
         };
+    }
+
+    private async Task<FileAssemblyOptions> CreateAssemblyOptionsAsync(string tableName, int rowCount, CancellationToken ct)
+    {
+        if (importActionType == ImportActionType.Bulk)
+            return FileAssemblyOptions.Bulk();
+
+        var audIds = await businessKeysAllocator.AllocateAsync(tableName, rowCount, ct);
+
+        return new FileAssemblyOptions(
+            ImportActionType.Delta,
+            AudType,
+            [.. audIds.Select(id => (long)id)]);
     }
 }

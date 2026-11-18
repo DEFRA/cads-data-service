@@ -1,96 +1,129 @@
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Cads.Cds.SystemAdmin.Application.Imports.Envelope;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 
-public class FileAssembler : IFileAssembler
+public class FileAssembler(
+    IEnvelopeValueFormatter valueFormatter,
+    IPipelineColumns pipelineColumns,
+    IEnvelopeWriter envelopeWriter) : IFileAssembler
 {
-    // The sample file format is as follows:
-    // H|CTSM_UKV_PROD_BULK_######_CT_ANIMAL_RELATIONSHIPS_2026-02-22-074603.csv|22022026 07:46:03
-    // C|RECORD_TYPE|RECORD_COUNT|AAR_ID|AAR_REL_TYPE|AAR_LOC_ID|AAR_CONFIDENCE_INDICATOR|AAR_EFFECTIVE_FROM_DATE|AAR_EFFECTIVE_TO_DATE|AAR_RAN_ID_CHILD|AAR_RAN_ID_PARENT|AAR_PARENT_IDENTIFIER|AAR_PARENT_IDENTIFIER_TYPE|AAR_CANCELLED_REASON|AAR_CURRENT_USER|AAR_CURRENT_STATUS|AAR_CURRENT_MODIFIED_DATE|AAR_CURRENT_PID|AAR_VERSION
-    // T|CTSM_UKV_PROD_BULK_######_CT_ANIMAL_RELATIONSHIPS_2026-02-22-074603.csv|22022026 10:16:02|149721673
+    private const string HeaderRecordType = "H";
 
-    private const char Separator = '|';
+    private const string ColumnsRecordType = "C";
 
-    private const string HeaderPrefix = "H";
+    private const string DataRecordType = "D";
 
-    private const string ContentPrefix = "C";
+    private const string TrailerRecordType = "T";
 
-    private const string DataPrefix = "D";
+    private const string RecordTypeColumn = "RECORD_TYPE";
 
-    private const string FooterPrefix = "T";
+    private const string RecordCountColumn = "RECORD_COUNT";
 
-    private const string RecordType = "RECORD_TYPE";
-
-    private const string DateTimeFormat = "ddMMyyyy HH:mm:ss";
-
-    private const string FieldDateOnlyFormat = "dd-MMM-yy";
-
-    public string Create(string fileName, DateTime fileCreatedDateTime, IReadOnlyList<IReadOnlyDictionary<string, object?>> data)
+    public string Create(
+        string fileName,
+        DateTime fileCreatedDateTime,
+        EnvelopeTable table,
+        IReadOnlyList<IReadOnlyDictionary<string, object?>> rows,
+        FileAssemblyOptions options)
     {
-        if (data == null || data.Count == 0)
-            throw new ArgumentException("data must contain at least one row", nameof(data));
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(options);
 
-        // File Header
-        // Add the file name and any other necessary header information
-        var header = RenderHeader(fileName, data[0], fileCreatedDateTime);
+        Validate(table, rows, options);
 
-        // File Content
-        // Add the data rows
-        // Iterate through the data and format it as needed for the file
-        var content = RenderContent(data);
-
-        // File Footer
-        // Add any necessary footer information
-        var footer = RenderFooter(fileName, data.Count, fileCreatedDateTime);
-
-        // Combine header, content and return
-        var fileSb = new StringBuilder()
-            .Append(header)
-            .Append(content)
-            .Append(footer);
-
-        return fileSb.ToString();
-    }
-
-    private static string RenderHeader(string fileName, IReadOnlyDictionary<string, object?> row, DateTime dateTime)
-    {
-        var sb = new StringBuilder()
-            .AppendLine(HeaderPrefix + Separator + fileName + Separator + dateTime.ToString(DateTimeFormat))
-            .AppendLine(ContentPrefix + Separator + RecordType + Separator + string.Join(Separator, row.Keys.Select(i => i.ToUpper())));
-
-        return sb.ToString().TrimEnd(Separator);
-    }
-
-    private static string RenderContent(IReadOnlyList<IReadOnlyDictionary<string, object?>> data)
-    {
+        var isDelta = options.ActionType == ImportActionType.Delta;
+        var envelopeDateTime = valueFormatter.FormatEnvelopeDateTime(fileCreatedDateTime);
         var sb = new StringBuilder();
+        string[] audColumns = isDelta ? [.. pipelineColumns.AudColumns(table.Prefix).Select(c => c.ToUpperInvariant())] : [];
 
-        for (var i = 0; i < data.Count; i++)
+        envelopeWriter.WriteRecord(sb, [HeaderRecordType, fileName, envelopeDateTime]);
+
+        envelopeWriter.WriteRecord(sb, [
+            ColumnsRecordType,
+            RecordTypeColumn,
+            RecordCountColumn,
+            .. audColumns,
+            .. table.BusinessColumns.Select(c => c.ToUpperInvariant())
+        ]);
+
+        var audType = isDelta ? options.AudType! : null;
+        var audDateTime = isDelta ? valueFormatter.FormatAudDateTime(options.AudDateTime ?? fileCreatedDateTime) : null;
+
+        for (var i = 0; i < rows.Count; i++)
         {
-            var formattedValues = data[i].Values.Select(v =>
-            {
-                if (v == null) return string.Empty;
-                if (v is DateTime dt) return dt.ToString(FieldDateOnlyFormat, CultureInfo.InvariantCulture);
-                if (v is DateTimeOffset dto) return dto.ToString(FieldDateOnlyFormat, CultureInfo.InvariantCulture);
-                return v.ToString() ?? string.Empty;
-            });
+            var row = rows[i];
+            string[] audFields = isDelta ? [options.AudIds![i].ToString(CultureInfo.InvariantCulture), audType!, audDateTime!] : [];
 
-            sb.AppendLine(DataPrefix + Separator + $"{i + 1}{Separator}" + string.Join(Separator, formattedValues));
+            envelopeWriter.WriteRecord(sb, [
+                DataRecordType,
+                (i + 1).ToString(CultureInfo.InvariantCulture),
+                .. audFields,
+                .. table.BusinessColumns.Select(c => valueFormatter.FormatValue(row[c]))
+            ]);
         }
 
-        return sb.ToString().TrimEnd(Separator);
-    }
-
-    private static string RenderFooter(string fileName, long recordCount, DateTime dateTime)
-    {
-        var sb = new StringBuilder()
-            .Append(FooterPrefix + Separator + fileName + Separator + dateTime.ToString(DateTimeFormat) + Separator + recordCount);
+        envelopeWriter.WriteRecord(sb, [TrailerRecordType, fileName, envelopeDateTime, rows.Count.ToString(CultureInfo.InvariantCulture)]);
 
         return sb.ToString();
+    }
+
+    private static void Validate(
+        EnvelopeTable table,
+        IReadOnlyList<IReadOnlyDictionary<string, object?>> rows,
+        FileAssemblyOptions options)
+    {
+        if (rows is null || rows.Count == 0)
+            throw new ArgumentException("rows must contain at least one row.", nameof(rows));
+
+        if (table.BusinessColumns.Count == 0)
+            throw new ArgumentException($"Table '{table.TableName}' has no business columns.", nameof(table));
+
+        switch (options.ActionType)
+        {
+            case ImportActionType.Bulk:
+                if (options.AudType is not null || options.AudIds is not null || options.AudDateTime is not null)
+                    throw new ArgumentException("A bulk file must not carry aud options.", nameof(options));
+                break;
+
+            case ImportActionType.Delta:
+                if (options.AudType is not { } audType || !FileAssemblyOptions.ValidAudTypes.Contains(audType))
+                    throw new ArgumentException(
+                        $"A delta file needs an aud type of {string.Join(", ", FileAssemblyOptions.ValidAudTypes)}; got '{options.AudType}'.",
+                        nameof(options));
+
+                if (options.AudIds is null || options.AudIds.Count != rows.Count)
+                    throw new ArgumentException(
+                        $"A delta file needs one aud id per row: {rows.Count} rows, {options.AudIds?.Count ?? 0} aud ids.",
+                        nameof(options));
+                break;
+
+            default:
+                throw new ArgumentException($"Unsupported action type '{options.ActionType}'.", nameof(options));
+        }
+
+        var expected = new HashSet<string>(table.BusinessColumns, StringComparer.Ordinal);
+
+        for (var i = 0; i < rows.Count; i++)
+        {
+            if (rows[i].Count != expected.Count || !rows[i].Keys.All(expected.Contains))
+            {
+                var actual = rows[i].Keys.ToHashSet(StringComparer.Ordinal);
+                var missing = expected.Except(actual);
+                var extra = actual.Except(expected);
+
+                throw new ArgumentException(
+                    $"Row {i + 1} doesn't match the business columns of '{table.TableName}'. " +
+                    $"Missing: [{string.Join(", ", missing)}]. Unexpected: [{string.Join(", ", extra)}].",
+                    nameof(rows));
+            }
+        }
     }
 }
