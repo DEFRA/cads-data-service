@@ -1,14 +1,14 @@
-using Cads.Cds.BuildingBlocks.Application.Imports.Services;
+using Cads.Cds.BuildingBlocks.Application.Jobs.Services;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
 
-namespace Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
+namespace Cads.Cds.BuildingBlocks.Infrastructure.Jobs.Services;
 
-public class S3ImportJobEnqueuer<T>(
+public class JobEnqueuer<T>(
     Channel<T> channel,
-    ILogger<S3ImportJobEnqueuer<T>> logger) : IS3ImportJobEnqueuer<T>
-    where T : CreateS3ImportJobDto
+    ILogger<JobEnqueuer<T>> logger) : IJobEnqueuer<T>
+    where T : IQueueJob
 {
     public async Task<Guid> EnqueueAsync(T job, CancellationToken cancellationToken = default)
     {
@@ -18,7 +18,7 @@ public class S3ImportJobEnqueuer<T>(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation("Enqueued bulk import job with ID: {JobId}", job.JobId);
+            logger.LogInformation("Enqueued job with ID: {JobId}", job.JobId);
         }
 
         return job.JobId.Value;

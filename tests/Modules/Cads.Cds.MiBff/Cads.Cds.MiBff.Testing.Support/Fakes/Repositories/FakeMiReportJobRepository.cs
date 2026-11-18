@@ -47,6 +47,7 @@ public class FakeMiReportJobRepository : IMiReportJobRepository
         if (_jobs.TryGetValue(reportJobId, out var job))
         {
             job.Status = status;
+            job.S3Key ??= s3Key;
         }
 
         return Task.CompletedTask;
