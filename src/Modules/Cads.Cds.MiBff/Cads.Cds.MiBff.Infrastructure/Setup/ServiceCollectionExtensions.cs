@@ -1,5 +1,6 @@
 using Cads.Cds.MiBff.Infrastructure.Authorisation.Setup;
 using Cads.Cds.MiBff.Infrastructure.Persistence.Setup;
+using Cads.Cds.MiBff.Infrastructure.Reports.Jobs.Setup;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cads.Cds.MiBff.Infrastructure.Setup;
@@ -11,6 +12,8 @@ public static class ServiceCollectionExtensions
         services.ConfigureMiBffPersistence();
 
         services.ConfigureMiAuthorisation();
+
+        services.ConfigureMiBffReportJobProcessing();
 
         return services;
     }
