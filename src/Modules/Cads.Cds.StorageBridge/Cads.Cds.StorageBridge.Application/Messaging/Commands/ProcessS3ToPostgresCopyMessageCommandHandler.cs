@@ -1,7 +1,7 @@
 using Cads.Cds.ApiSurface.Messages;
 using Cads.Cds.ApiSurface.Messages.Imports;
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.BuildingBlocks.Application.Imports.Services;
+using Cads.Cds.BuildingBlocks.Application.Jobs.Services;
 using Cads.Cds.BuildingBlocks.Application.Messaging.Serializers;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 using Cads.Cds.BuildingBlocks.Core.Exceptions;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Cads.Cds.StorageBridge.Application.Messaging.Commands;
 
 public class ProcessS3ToPostgresCopyMessageCommandHandler(
-    IS3ImportJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService,
+    IJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService,
     IUnwrappedMessageSerializer<S3ToPostgresCopyMessage> serializer,
     ILogger<ProcessS3ToPostgresCopyMessageCommandHandler> logger)
     : ICommandHandler<ProcessS3ToPostgresCopyMessageCommand, MessageType>

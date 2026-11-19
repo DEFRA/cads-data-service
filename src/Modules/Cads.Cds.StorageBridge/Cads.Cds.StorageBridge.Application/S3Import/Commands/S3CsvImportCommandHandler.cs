@@ -1,5 +1,5 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.BuildingBlocks.Application.Imports.Services;
+using Cads.Cds.BuildingBlocks.Application.Jobs.Services;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Core.Domain.Imports;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
@@ -11,7 +11,7 @@ namespace Cads.Cds.StorageBridge.Application.S3Import.Commands;
 
 public class S3CsvImportCommandHandler(
     IStorageBridgeFileImportRepository fileImportRepository,
-    IS3ImportJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService,
+    IJobEnqueuer<CreateS3CsvImportJobDto> s3ImportEnqueueService,
     IStorageBridgeUnitOfWork uow)
     : ICommandHandler<S3CsvImportCommand, Guid>
 {
