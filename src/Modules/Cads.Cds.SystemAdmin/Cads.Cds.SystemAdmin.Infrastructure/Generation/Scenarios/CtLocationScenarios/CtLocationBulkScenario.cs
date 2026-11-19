@@ -41,18 +41,18 @@ public class CtLocationBulkScenario(
     protected override IReadOnlyDictionary<string, ColumnDefinition> OverrideColumnDefinitions(IReadOnlyDictionary<string, ColumnDefinition> defaultColumnDefinitions)
     {
         // Set order for RecordType and RecordCount to ensure they are the first two columns in the generated output
-        defaultColumnDefinitions[nameof(CtLocation.RecordType)]!.Order = 0;
-        defaultColumnDefinitions[nameof(CtLocation.RecordCount)]!.Order = 1;
+        defaultColumnDefinitions[nameof(CtLocation.RecordType)].Order = 0;
+        defaultColumnDefinitions[nameof(CtLocation.RecordCount)].Order = 1;
 
         // Exclude columns that should not be visible in the generated output for the bulk scenario
-        defaultColumnDefinitions[nameof(CtLocation.TransType)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.RowNumber)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.ImportedDate)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.CtsFileImportId)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.LocAudDatetime)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.LocAudId)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.LocAudType)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.FakeData)]!.IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.TransType)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.RowNumber)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.ImportedDate)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.CtsFileImportId)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.LocAudDatetime)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.LocAudId)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.LocAudType)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.FakeData)].IsVisible = false;
 
         return defaultColumnDefinitions;
     }

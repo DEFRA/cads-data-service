@@ -44,15 +44,15 @@ public class CtLocationUpdateScenario(
     protected override IReadOnlyDictionary<string, ColumnDefinition> OverrideColumnDefinitions(IReadOnlyDictionary<string, ColumnDefinition> defaultColumnDefinitions)
     {
         // Set order for RecordType and RecordCount to ensure they are the first two columns in the generated output
-        defaultColumnDefinitions[nameof(CtLocation.RecordType)]!.Order = 0;
-        defaultColumnDefinitions[nameof(CtLocation.RecordCount)]!.Order = 1;
+        defaultColumnDefinitions[nameof(CtLocation.RecordType)].Order = 0;
+        defaultColumnDefinitions[nameof(CtLocation.RecordCount)].Order = 1;
 
         // Exclude columns that should not be visible in the generated output for the update scenario
-        defaultColumnDefinitions[nameof(CtLocation.TransType)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.RowNumber)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.ImportedDate)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.CtsFileImportId)]!.IsVisible = false;
-        defaultColumnDefinitions[nameof(CtLocation.FakeData)]!.IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.TransType)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.RowNumber)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.ImportedDate)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.CtsFileImportId)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.FakeData)].IsVisible = false;
 
         return defaultColumnDefinitions;
     }

@@ -20,8 +20,6 @@ public class FileAssembler : IFileAssembler
 
     private const string ContentPrefix = "C";
 
-    private const string DataPrefix = "D";
-
     private const string FooterPrefix = "T";
 
     private const string DateTimeFormat = "ddMMyyyy HH:mm:ss";
