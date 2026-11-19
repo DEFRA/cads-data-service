@@ -1,11 +1,11 @@
 using Cads.Cds.BuildingBlocks.Application.Commands;
-using Cads.Cds.BuildingBlocks.Application.Imports.Services;
+using Cads.Cds.BuildingBlocks.Application.Jobs.Services;
 using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
 
 namespace Cads.Cds.StorageBridge.Application.S3Import.Commands;
 
-public class S3SqlImportCommandHandler(IS3ImportJobEnqueuer<CreateS3SqlImportJobDto> s3ImportEnqueueService)
+public class S3SqlImportCommandHandler(IJobEnqueuer<CreateS3SqlImportJobDto> s3ImportEnqueueService)
     : ICommandHandler<S3SqlImportCommand, Guid>
 {
     public async Task<Guid> Handle(S3SqlImportCommand command, CancellationToken cancellationToken)

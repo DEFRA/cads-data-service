@@ -17,7 +17,7 @@ public class CattleRegistrationReportDefinition : IReportDefinition<MiBirthSumma
         x => x.GovRegion ?? "",
         x => x.County ?? "",
         x => x.BreedType,
-        x => x.Breed,
+        x => x.Breed ?? "",
         x => x.Sex ?? "",
         x => x.ApplicationType ?? "",
         x => x.NumberOfBirths
