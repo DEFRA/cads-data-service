@@ -18,14 +18,14 @@ public class PromotionJobQueue : IPromotionJobQueue
 
     private int _busy;
 
-    public bool TryEnqueue(PromotionType promotionType, bool? deleteSource, string? requestedBy)
+    public bool TryEnqueue(PromotionType promotionType, string correlationId, bool? deleteSource, string? requestedBy)
     {
         if (Interlocked.CompareExchange(ref _busy, 1, 0) != 0)
         {
             return false;
         }
 
-        if (_channel.Writer.TryWrite(new PromotionJob(promotionType, deleteSource, requestedBy)))
+        if (_channel.Writer.TryWrite(new PromotionJob(promotionType, correlationId, deleteSource, requestedBy)))
         {
             return true;
         }

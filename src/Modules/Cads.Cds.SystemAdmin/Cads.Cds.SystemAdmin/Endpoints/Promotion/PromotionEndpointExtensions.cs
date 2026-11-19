@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Core.Correlation;
 using Cads.Cds.BuildingBlocks.Infrastructure.Authentication.Configuration;
 using Cads.Cds.BuildingBlocks.Infrastructure.Identity;
 using Cads.Cds.SystemAdmin.Application.Promotion.Channels;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Cads.Cds.SystemAdmin.Endpoints.Promotion;
 
@@ -32,11 +34,24 @@ public static class PromotionEndpointExtensions
         [FromBody] PromoteImportRequest request,
         IPromotionJobQueue queue,
         HttpContext httpContext,
+        IOptions<PromotionOptions> promotionOptions,
         ILogger<DbAdminCtsImportRequest> logger)
     {
-        var userName = httpContext.User.GetDisplayName();
+        if (!promotionOptions.Value.IsEnabled(type))
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning("PromotionType: {PromotionType} for parallel import is not active.", type);
+            }
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Promotion for parallel import type is not active");
+        }
 
-        if (!queue.TryEnqueue(type, request.DeleteSource, userName))
+        var userName = httpContext.User.GetDisplayName();
+        var correlationId = CorrelationIdContext.Value ?? Guid.NewGuid().ToString();
+
+        if (!queue.TryEnqueue(type, correlationId, request.DeleteSource, userName))
         {
             if (logger.IsEnabled(LogLevel.Warning))
             {
@@ -55,6 +70,7 @@ public static class PromotionEndpointExtensions
         }
 
         return Results.Accepted(value: new PromoteImportResponse(
+            correlationId,
             "Accepted",
             "Import promotion started. This can take 20-30 minutes. Poll the 'runs' command on 'db-admin-cts-import'; the new run appears with status 'ready' when planning completes."));
     }
