@@ -1,5 +1,6 @@
-using Cads.Cds.BuildingBlocks.Application.Imports.Services;
+using Cads.Cds.BuildingBlocks.Application.Jobs.Services;
 using Cads.Cds.BuildingBlocks.Core.DTOs;
+using Cads.Cds.BuildingBlocks.Infrastructure.Jobs.Services;
 using Cads.Cds.StorageBridge.Application.S3Import.Services;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Services;
@@ -18,8 +19,8 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<S3CsvImportBackgroundService>();
         services.AddHostedService<S3SqlImportBackgroundService>();
 
-        services.AddTransient<IS3ImportJobEnqueuer<CreateS3CsvImportJobDto>, S3ImportJobEnqueuer<CreateS3CsvImportJobDto>>();
-        services.AddTransient<IS3ImportJobEnqueuer<CreateS3SqlImportJobDto>, S3ImportJobEnqueuer<CreateS3SqlImportJobDto>>();
+        services.AddTransient<IJobEnqueuer<CreateS3CsvImportJobDto>, JobEnqueuer<CreateS3CsvImportJobDto>>();
+        services.AddTransient<IJobEnqueuer<CreateS3SqlImportJobDto>, JobEnqueuer<CreateS3SqlImportJobDto>>();
 
         services.AddTransient<IS3ToPostgresCopyService, S3ToPostgresCopyService>();
         services.AddTransient<IS3SqlScriptExecutorService, S3SqlScriptExecutorService>();
