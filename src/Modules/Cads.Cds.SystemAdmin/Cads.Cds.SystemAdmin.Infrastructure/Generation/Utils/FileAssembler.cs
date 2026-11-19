@@ -78,7 +78,7 @@ public class FileAssembler : IFileAssembler
                 return v.ToString() ?? string.Empty;
             });
 
-            sb.AppendLine(DataPrefix + Separator + $"{i + 1}{Separator}" + string.Join(Separator, formattedValues));
+            sb.AppendLine(string.Join(Separator, formattedValues));
         }
 
         return sb.ToString().TrimEnd(Separator);

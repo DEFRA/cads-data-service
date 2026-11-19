@@ -18,7 +18,7 @@ public class CtLocationBulkScenario(
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =
         new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.RecordType, () => "D")
-            .RuleFor(r => r.RecordCount, (f) => f.IndexFaker)
+            .RuleFor(r => r.RecordCount, (f) => f.IndexFaker + 1)
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
             .RuleFor(r => r.LocCtyId, () => 1m)
