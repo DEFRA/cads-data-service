@@ -82,7 +82,6 @@
   <include file="0002_040_cts_parallel_bulk_import.postgresql.sql"/>
   <include file="0002_041_cts_parallel_bulk_import.postgresql.sql"/>
   <include file="0002_042_cts_parallel_bulk_import.postgresql.sql"/>
-  <include file="0002_043_cts_parallel_bulk_import_add_cid.postgresql.sql"/>
   <include file="0002_050_admin_exec_stored_proc.postgresql.sql"/>
   <include file="0002_051_cts_parallel_bulk_import_admin_exec_stored_proc.postgresql.sql"/>
   <include file="0002_052_cads_get_animals_on_holding.postgresql.sql"/>

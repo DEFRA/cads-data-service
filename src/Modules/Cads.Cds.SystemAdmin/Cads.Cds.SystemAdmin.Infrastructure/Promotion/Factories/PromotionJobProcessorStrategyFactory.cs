@@ -12,6 +12,6 @@ public class PromotionJobProcessorStrategyFactory(IEnumerable<IPromotionJobProce
     public IPromotionJobProcessorStrategy GetStrategy(PromotionType promotionType)
     {
         return strategies.FirstOrDefault(s => s.PromotionType == promotionType)
-            ?? throw new ArgumentException($"No strategy found for PromotionType: {promotionType}", nameof(promotionType));
+            ?? throw new InvalidOperationException($"No strategy found for PromotionType: {promotionType}");
     }
 }

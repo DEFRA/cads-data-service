@@ -15,8 +15,10 @@ public static class ServiceCollectionExtensions
 {
     public static void AddSystemAdminPromotion(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<PromotionOptions>(
-            configuration.GetSection(ModuleConfigurationSection.PromotionSectionName));
+        services.AddOptions<PromotionOptions>()
+            .Bind(configuration.GetSection(ModuleConfigurationSection.PromotionSectionName))
+            .Validate(o => o.PromotionTypes is { Count: > 0 }, "Promotion:PromotionTypes must be configured.")
+            .ValidateOnStart();
 
         services.RegisterJobQueues();
         services.RegisterBackgroundServices();

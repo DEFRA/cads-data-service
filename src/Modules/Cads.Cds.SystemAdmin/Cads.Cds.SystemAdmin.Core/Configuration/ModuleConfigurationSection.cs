@@ -8,5 +8,5 @@ public static class ModuleConfigurationSection
 
     public static readonly string ImportsDeduplicationSectionName = $"{ModuleSectionName}:ImportsDeduplication";
 
-    public static readonly string PromotionSectionName = $"{ModuleSectionName}:Promotions";
+    public static readonly string PromotionSectionName = $"{ModuleSectionName}:Promotion";
 }

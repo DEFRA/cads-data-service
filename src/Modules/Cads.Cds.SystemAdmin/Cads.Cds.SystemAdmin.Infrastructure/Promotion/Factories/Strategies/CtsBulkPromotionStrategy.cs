@@ -13,7 +13,6 @@ public class CtsBulkPromotionStrategy(IPostgresDataSourceFactory factory) : IPro
 {
     public PromotionType PromotionType => PromotionType.CtsBulk;
 
-    private bool _deleteSource = true;
     private const long RangeSize = 100_000;
     private const bool TruncateCts = false;
 
@@ -24,23 +23,22 @@ public class CtsBulkPromotionStrategy(IPostgresDataSourceFactory factory) : IPro
             p_delete_source => @delete_source,
             p_range_size    => @range_size,
             p_run_id        => NULL::bigint,
-            p_truncate_cts  => @truncate_cts)
+            p_truncate_cts  => @truncate_cts,
+            p_correlation_id  => @correlation_id)
         """;
 
     public async Task<long> PrepareAsync(PromotionJob job, CancellationToken cancellationToken = default)
     {
-        if (job.DeleteSource.HasValue)
-            _deleteSource = job.DeleteSource.Value;
-
         var dataSource = factory.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier);
         await using var conn = await dataSource.OpenConnectionAsync(cancellationToken);
         await using var cmd = conn.CreateCommand();
 
         cmd.CommandText = PrepareSql;
         cmd.CommandTimeout = 0; // planning runs as one transaction and can take 20-30 minutes
-        cmd.Parameters.AddWithValue("delete_source", _deleteSource);
+        cmd.Parameters.AddWithValue("delete_source", job.DeleteSource ?? true);
         cmd.Parameters.AddWithValue("range_size", RangeSize);
         cmd.Parameters.AddWithValue("truncate_cts", TruncateCts);
+        cmd.Parameters.AddWithValue("correlation_id", job.CorrelationId);
 
         var result = await cmd.ExecuteScalarAsync(cancellationToken);
 
