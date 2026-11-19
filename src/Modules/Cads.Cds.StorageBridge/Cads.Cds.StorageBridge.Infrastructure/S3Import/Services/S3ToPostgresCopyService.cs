@@ -403,7 +403,7 @@ public class S3ToPostgresCopyService(
         }
     }
 
-    private async Task<List<string>> CopyFileToStagingAsync(
+    private static async Task<List<string>> CopyFileToStagingAsync(
         FileExecutionContext fileExecutionContext,
         Stream? fileObjectSource,
         bool useDefensiveCopyMode,
