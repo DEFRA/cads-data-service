@@ -40,7 +40,7 @@ public abstract class GenerationScenario<T>(string name,
 
     protected virtual IReadOnlyDictionary<string, ColumnDefinition> OverrideColumnDefinitions(IReadOnlyDictionary<string, ColumnDefinition> defaultColumnDefinitions)
     {
-        return defaultColumnDefinitions;    
+        return defaultColumnDefinitions;
     }
 
     public async Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default)
