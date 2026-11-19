@@ -1,31 +1,31 @@
-using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
+using Cads.Cds.SystemAdmin.Application.Promotion.Channels;
+using Cads.Cds.SystemAdmin.Application.Promotion.Jobs;
+using Cads.Cds.SystemAdmin.Core.Promotion;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Channels;
 
-namespace Cads.Cds.SystemAdmin.Infrastructure.DbAdmin.Services;
-
-public sealed record CtsImportPrepareJob(string? RequestedBy);
+namespace Cads.Cds.SystemAdmin.Infrastructure.Promotion.Channels;
 
 /// <summary>
 /// In-memory single-slot queue. Only one prepare job can be queued or running per instance;
 /// the database also guards against concurrent plans across instances.
 /// </summary>
-public sealed class CtsImportPrepareJobQueue : ICtsImportPrepareJobQueue
+public class PromotionJobQueue : IPromotionJobQueue
 {
-    private readonly Channel<CtsImportPrepareJob> _channel =
-        Channel.CreateBounded<CtsImportPrepareJob>(new BoundedChannelOptions(1) { SingleReader = true });
+    private readonly Channel<PromotionJob> _channel =
+        Channel.CreateBounded<PromotionJob>(new BoundedChannelOptions(1) { SingleReader = true });
 
     private int _busy;
 
-    public bool TryEnqueue(string? requestedBy)
+    public bool TryEnqueue(PromotionType promotionType, bool? deleteSource, string? requestedBy)
     {
         if (Interlocked.CompareExchange(ref _busy, 1, 0) != 0)
         {
             return false;
         }
 
-        if (_channel.Writer.TryWrite(new CtsImportPrepareJob(requestedBy)))
+        if (_channel.Writer.TryWrite(new PromotionJob(promotionType, deleteSource, requestedBy)))
         {
             return true;
         }
@@ -34,7 +34,7 @@ public sealed class CtsImportPrepareJobQueue : ICtsImportPrepareJobQueue
         return false;
     }
 
-    public IAsyncEnumerable<CtsImportPrepareJob> ReadAllAsync(CancellationToken cancellationToken) =>
+    public IAsyncEnumerable<PromotionJob> ReadAllAsync(CancellationToken cancellationToken) =>
         _channel.Reader.ReadAllAsync(cancellationToken);
 
     /// <summary>Releases the slot so another job can be queued.</summary>
