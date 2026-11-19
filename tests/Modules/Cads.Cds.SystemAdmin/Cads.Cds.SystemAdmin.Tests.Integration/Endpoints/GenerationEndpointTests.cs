@@ -247,8 +247,11 @@ public class GenerationEndpointTests(ApiContainerFixture apiContainerFixture)
 
     private static void AssertColumnHeaders(string columnHeader, string dataRow, string[] expectedColumns)
     {
-        columnHeader.Split('|').Skip(2).Should().Equal(expectedColumns);
-        dataRow.Split('|').Should().HaveCount(expectedColumns.Length + 2);
+        var headerColumns = columnHeader.Split('|').Skip(1);
+        headerColumns.Should().Equal(expectedColumns);
+
+        var dataColumns = dataRow.Split('|');
+        dataColumns.Should().HaveCount(expectedColumns.Length);
     }
 
     [Fact]
