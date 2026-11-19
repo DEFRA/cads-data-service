@@ -122,5 +122,5 @@ public class PromoteEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }    
+    }
 }

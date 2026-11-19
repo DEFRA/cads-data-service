@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Promotion.Factories;
 
-public class PromotionJobProcessorStrategyFactory(IEnumerable<IPromotionJobProcessorStrategy> strategies) 
+public class PromotionJobProcessorStrategyFactory(IEnumerable<IPromotionJobProcessorStrategy> strategies)
     : IPromotionJobProcessorStrategyFactory
 {
     public IPromotionJobProcessorStrategy GetStrategy(PromotionType promotionType)
