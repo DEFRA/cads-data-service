@@ -26,5 +26,9 @@
     <PackageReference Include="HotChocolate.Types" Version="16.6.8" />
     <PackageReference Include="HotChocolate.Utilities" Version="16.6.8" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit" />
+  </ItemGroup>
   
 </Project>

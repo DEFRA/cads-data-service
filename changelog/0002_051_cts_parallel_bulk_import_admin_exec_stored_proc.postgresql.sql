@@ -1,14 +1,16 @@
 -- liquibase formatted sql
 
--- changeset andy-defra:0002_051_01 splitStatements:false
+-- changeset andy-defra:0002_051_02 splitStatements:false
 CREATE OR REPLACE FUNCTION cads.cts_parallel_import_admin_exec_command(command_name text, args jsonb DEFAULT '{}'::jsonb)
     RETURNS jsonb
     LANGUAGE plpgsql
 AS $$
 DECLARE
     v_run_id bigint;
+	v_correlation_id text := NULL;
 BEGIN
     v_run_id := (args->>'run_id')::bigint;
+	v_correlation_id := (args->>'correlation_id')::text;
 
     IF command_name <> 'runs' AND v_run_id IS NULL THEN
         RAISE EXCEPTION 'run_id is required in args';
@@ -21,10 +23,11 @@ BEGIN
             RETURN (
                 SELECT COALESCE(jsonb_agg(row_to_json(t)), '[]'::jsonb)
                 FROM (
-                         SELECT run_id, status, created_at, bulk_completed_at, completed_at
-                         FROM cads.cts_parallel_import_runs
-                         ORDER BY run_id DESC
-                     ) t
+                    SELECT run_id, status, created_at, bulk_completed_at, completed_at, correlation_id
+                    FROM cads.cts_parallel_import_runs
+                    WHERE v_correlation_id IS NULL OR correlation_id = v_correlation_id
+                    ORDER BY run_id DESC
+                ) t
             );
 
         -- 1. Status-level totals summary
