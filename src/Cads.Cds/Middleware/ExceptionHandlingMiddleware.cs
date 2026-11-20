@@ -40,6 +40,10 @@ public sealed class ExceptionHandlingMiddleware(
         {
             await HandleExceptionAsync(context, ex, correlationId, (int)ex.HttpStatusCode, "Business rule validation error");
         }
+        catch (Npgsql.PostgresException ex) when (ex.SqlState == Npgsql.PostgresErrorCodes.RaiseException)
+        {
+            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.UnprocessableEntity, "Database command failed");
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.InternalServerError, "An error occurred");
