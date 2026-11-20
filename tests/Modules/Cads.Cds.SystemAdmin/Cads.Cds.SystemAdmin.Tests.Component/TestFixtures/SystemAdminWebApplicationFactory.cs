@@ -1,6 +1,7 @@
 using Cads.Cds.BuildingBlocks.Testing.Support.Specimens.Factories;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Components;
 using Cads.Cds.SystemAdmin.Application.DbAdmin.Services;
+using Cads.Cds.SystemAdmin.Application.Promotion.Channels;
 using Cads.Cds.SystemAdmin.Application.SqsAdmin.Services;
 using Cads.Cds.SystemAdmin.Application.Uow;
 using Cads.Cds.SystemAdmin.Infrastructure.Persistance.Contexts;
@@ -28,7 +29,7 @@ public class SystemAdminWebApplicationFactory(
 
     public Mock<IDbAdminExecuteCommandService> DbAdminExecuteCommandServiceMock { get; } = new();
     public Mock<ISqsAdminService> SqsAdminServiceMock { get; } = new();
-    public Mock<ICtsImportPrepareJobQueue> CtsImportPrepareJobQueueMock { get; } = new();
+    public Mock<IPromotionJobQueue> PromotionJobQueueMock { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -46,8 +47,8 @@ public class SystemAdminWebApplicationFactory(
             services.AddScoped(_ => SqsAdminServiceMock.Object);
 
             // Job Queues
-            services.RemoveAll<ICtsImportPrepareJobQueue>();
-            services.AddSingleton(_ => CtsImportPrepareJobQueueMock.Object);
+            services.RemoveAll<IPromotionJobQueue>();
+            services.AddSingleton(_ => PromotionJobQueueMock.Object);
         });
     }
 
