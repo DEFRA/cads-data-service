@@ -202,6 +202,38 @@ public class ExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task PostgresRaiseException_returns_422_with_raised_message()
+    {
+        // Same values as the dev log of 2026-11-11 (cads.db_admin_exec_command, slow_queries)
+        var raised = new Npgsql.PostgresException(
+            "pg_stat_statements extension is not installed", "ERROR", "ERROR", "P0001");
+        var context = CreateHttpContext();
+        var middleware = CreateMiddleware(_ => throw raised);
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(422);
+
+        var problem = await GetProblemDetailsFromResponse(context);
+        problem.Status.Should().Be(422);
+        problem.Title.Should().Be("Database command failed");
+        problem.Detail.Should().Be("P0001: pg_stat_statements extension is not installed");
+        _testLogger.LogEntries.Should().ContainSingle(e => e.Exception == raised && e.LogLevel == LogLevel.Information);
+    }
+
+    [Fact]
+    public async Task PostgresOtherException_still_returns_500()
+    {
+        var context = CreateHttpContext();
+        var middleware = CreateMiddleware(_ => throw new Npgsql.PostgresException(
+            "permission denied for table x", "ERROR", "ERROR", "42501"));
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(500);
+    }
+
+    [Fact]
     public async Task Response_has_correct_content_type()
     {
         var context = CreateHttpContext();
