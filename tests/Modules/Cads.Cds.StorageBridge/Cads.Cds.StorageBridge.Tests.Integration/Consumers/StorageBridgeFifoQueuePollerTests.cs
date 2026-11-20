@@ -13,7 +13,6 @@ using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Postgres;
 using Cads.Cds.StorageBridge.Infrastructure.S3Import.Factories;
 using Cads.Cds.StorageBridge.Testing.Support.BulkLoad.Utilities;
-using Cads.Cds.StorageBridge.Testing.Support.Constants;
 using FluentAssertions;
 
 namespace Cads.Cds.StorageBridge.Tests.Integration.Consumers;
