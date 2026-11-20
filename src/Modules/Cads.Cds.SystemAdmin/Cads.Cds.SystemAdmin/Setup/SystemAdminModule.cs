@@ -5,6 +5,7 @@ using Cads.Cds.SystemAdmin.Application.Setup;
 using Cads.Cds.SystemAdmin.Endpoints;
 using Cads.Cds.SystemAdmin.Endpoints.DbAdmin;
 using Cads.Cds.SystemAdmin.Endpoints.Generation;
+using Cads.Cds.SystemAdmin.Endpoints.Promotion;
 using Cads.Cds.SystemAdmin.Endpoints.SqsAdmin;
 using Cads.Cds.SystemAdmin.Infrastructure.Setup;
 using Microsoft.AspNetCore.Builder;
@@ -38,9 +39,9 @@ public sealed class SystemAdminModule : IModule
             systemAdminApp.CreateSqsAdminEndpoints();
         }
 
-        if (config.GetValue("Modules:SystemAdmin:EnablePrepareCtsImportEndpoints", false))
+        if (config.GetValue("Modules:SystemAdmin:EnablePromotionEndpoints", false))
         {
-            systemAdminApp.CreateDbAdminPrepareCtsImportEndpoints();
+            systemAdminApp.CreatePromotionEndpoints();
         }
 
         if (config.GetValue("Modules:SystemAdmin:EnableGenerationEndpoints", false))
