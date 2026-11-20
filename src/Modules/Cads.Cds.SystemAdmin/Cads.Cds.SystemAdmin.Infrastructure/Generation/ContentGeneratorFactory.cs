@@ -1,7 +1,9 @@
 using Cads.Cds.SystemAdmin.Application.Generation.ContentGenerators;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -40,9 +42,9 @@ public static class ContentGeneratorFactory
         return new ContentGenerator<T>(dbContext, null, null);
     }
 
-    public static IContentGenerator Create<T>(DbContext dbContext, RuleBuilder<T>? rulesBuilder, Func<T, decimal, T>? transform)
+    public static IContentGenerator Create<T>(DbContext dbContext, RuleBuilder<T>? rulesBuilder, Func<T, decimal, T>? transform, IEnumerable<ColumnDefinition>? columnDefinitions = null)
         where T : class, new()
     {
-        return new ContentGenerator<T>(dbContext, rulesBuilder, transform);
+        return new ContentGenerator<T>(dbContext, rulesBuilder, transform, columnDefinitions);
     }
 }
