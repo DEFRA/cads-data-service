@@ -5,4 +5,6 @@ namespace Cads.Cds.MiBff.Infrastructure.Storage.Configuration;
 public class MiBffStorageConfiguration
 {
     public StorageConfigurationDetails CadsInternal { get; init; } = new();
+
+    public CcoeStorageConfigurationDetails Ccoe { get; init; } = new();
 }

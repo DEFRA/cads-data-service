@@ -22,6 +22,8 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<IReportFileStore, S3ReportFileStore>();
 
+        services.AddTransient<ICcoeReportPublisher, CcoeReportPublisher>();
+
         return services;
     }
 }

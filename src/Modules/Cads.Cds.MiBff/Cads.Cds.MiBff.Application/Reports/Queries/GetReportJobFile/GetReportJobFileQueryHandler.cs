@@ -17,11 +17,10 @@ public class GetReportJobFileQueryHandler(
     IReportJobQueryBuilder queryBuilder,
     IReportFileStore reportFileStore,
     IReportKeyModelRegistry reportKeyModelRegistry,
-    IOpenXmlReportGenerator openXmlReportGenerator)
+    IOpenXmlReportGenerator openXmlReportGenerator,
+    ICcoeReportPublisher ccoeReportPublisher)
     : IQueryHandler<GetReportJobFileQuery, IReportResult>
 {
-    private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
     public const int JsonPageSize = 500;
 
     public async Task<IReportResult> Handle(GetReportJobFileQuery request, CancellationToken cancellationToken)
@@ -59,10 +58,10 @@ public class GetReportJobFileQueryHandler(
             var xlsxStream = await openXmlReportGenerator.GenerateFromJsonAsync(
                 decrypted, modelType!, cancellationToken: cancellationToken);
 
-            return new FileReportResult(
-                xlsxStream,
-                $"{job.ReportKey}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.xlsx",
-                XlsxContentType);
+            var downloadLink = await ccoeReportPublisher.PublishXlsxAsync(
+                job.ReportKey, job.ReportJobId, xlsxStream, cancellationToken);
+
+            return new RedirectReportResult(downloadLink.Url, downloadLink.ExpiresAt);
         }
     }
 
