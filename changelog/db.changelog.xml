@@ -4,7 +4,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-<property name="anName" value="Andy Norman" context="dev,test,ext-test,perf-test"/>
+  <property name="anName" value="Andy Norman" context="dev,test,ext-test,perf-test"/>
   <property name="anEmail" value="andrew.norman@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
   <property name="arName" value="Andy Rose" context="dev,test,ext-test,perf-test"/>
   <property name="arEmail" value="andy.rose@defra.gov.uk" context="dev,test,ext-test,perf-test"/>
@@ -134,6 +134,7 @@
   <include file="0004_042_ct_breeds_seed_data.postgresql.sql"/>
   <include file="0004_043_get_births_summary_seed_data_local.postgresql.sql"/>
   <include file="0004_044_animals_on_holding_seed_data_local.postgresql.sql"/>
+  <include file="0004_045_mi_user_seed_update_users_local.postgresql.sql"/>
   <include file="0003_000_ct_locations_integration.postgresql.sql"/>
   <include file="0003_001_cts_file_imports_integration.postgresql.sql"/>
   <include file="0005_000_ct_eartag_reason_flags_seed_data_faker_data.postgresql.sql"/>

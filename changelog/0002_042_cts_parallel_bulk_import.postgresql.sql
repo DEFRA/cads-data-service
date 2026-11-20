@@ -1,6 +1,6 @@
 -- liquibase formatted sql
 
--- changeset gary:0002_042_01 splitStatements:false
+-- changeset gary:0002_042_02 splitStatements:false
 
 -- Consolidated parallel import, retained-source ledger and worker metrics.
 -- This changeset is rerunnable and never resets an existing import plan.
@@ -124,6 +124,12 @@ CREATE TABLE IF NOT EXISTS cads.cts_parallel_import_runs
 -- Record the destructive option without changing the behaviour of existing runs.
 ALTER TABLE cads.cts_parallel_import_runs
     ADD COLUMN IF NOT EXISTS truncate_cts boolean NOT NULL DEFAULT false;
+
+-- Record the optional correlation_id to supplied by the API request.
+-- Allows us to use a deterministic identifier to check progress.
+-- Doesn't change the behaviour of existing runs.
+ALTER TABLE cads.cts_parallel_import_runs
+    ADD COLUMN IF NOT EXISTS correlation_id text NULL;
 
 CREATE TABLE IF NOT EXISTS cads.cts_parallel_import_dependencies
 (
@@ -410,7 +416,8 @@ CREATE OR REPLACE PROCEDURE cads.prepare_cts_parallel_bulk_import(
     IN p_delete_source boolean,
     IN p_range_size bigint,
     INOUT p_run_id bigint,
-    IN p_truncate_cts boolean
+    IN p_truncate_cts boolean,
+    IN p_correlation_id text
 )
 LANGUAGE plpgsql
 AS $procedure$
@@ -455,8 +462,8 @@ BEGIN
         RAISE EXCEPTION 'Cannot clear CTS while the retained-source migration ledger contains rows';
     END IF;
 
-    INSERT INTO cads.cts_parallel_import_runs (status, delete_source, range_size, truncate_cts)
-    VALUES ('planning', p_delete_source, p_range_size, p_truncate_cts)
+    INSERT INTO cads.cts_parallel_import_runs (status, delete_source, range_size, truncate_cts, correlation_id)
+    VALUES ('planning', p_delete_source, p_range_size, p_truncate_cts, p_correlation_id)
     RETURNING run_id INTO p_run_id;
 
     IF p_truncate_cts AND p_run_id <> 1 THEN
@@ -699,7 +706,7 @@ LANGUAGE plpgsql
 AS $procedure$
 BEGIN
     CALL cads.prepare_cts_parallel_bulk_import(
-        p_delete_source, p_range_size, p_run_id, false
+        p_delete_source, p_range_size, p_run_id, false, null
     );
 END;
 $procedure$;
