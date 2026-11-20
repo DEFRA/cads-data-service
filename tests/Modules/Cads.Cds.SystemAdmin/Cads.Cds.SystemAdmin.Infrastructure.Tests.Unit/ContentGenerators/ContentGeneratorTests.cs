@@ -1,8 +1,12 @@
+using Cads.Cds.SystemAdmin.Application.Generation.Utils;
+using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenarios;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Tests.Unit.ContentGenerators;
 
@@ -62,6 +66,111 @@ public class ContentGeneratorTests
     }
 
     [Fact]
+    public void Generate_AppliesColumnVisibilityOrderAndCaption()
+    {
+        using var db = CreateDbContext("Generate_AppliesColumnVisibilityOrderAndCaption");
+        var contentGenerator = new ContentGenerator<CtLocation>(db, columnDefinitions:
+        [
+            new(nameof(CtLocation.LocId), order: 2, caption: "Location ID"),
+            new(nameof(CtLocation.TransType), isVisible: false, order: 0),
+            new(nameof(CtLocation.LocSltId), order: 1, caption: "Slt")
+        ], transform: (entity, key) =>
+        {
+            entity.LocId = key;
+            return entity;
+        });
+
+        var result = contentGenerator.Generate([100m], seed: 123)[0];
+
+        Assert.Equal(["Slt", "Location ID"], result.Keys);
+        Assert.Equal(100m, Convert.ToDecimal(result["Location ID"]));
+    }
+
+    [Fact]
+    public async Task CtLocationBulkScenario_RendersConfiguredColumnsInCorrectOrder()
+    {
+        using var db = CreateDbContext("CtLocationBulkScenario_RendersConfiguredColumnsInCorrectOrder");
+
+        var fileNameGenerator = new Mock<IFileNameGenerator>();
+        fileNameGenerator
+            .Setup(generator => generator.Create(It.IsAny<CreateFileNameCommand>()))
+            .Returns("CTSM_CADS_PROD_BULK_00003_004_CT_LOCATION_2026-08-23-092214.CSV");
+
+        IReadOnlyList<IReadOnlyDictionary<string, object?>>? renderedRows = null;
+        var fileAssembler = new Mock<IFileAssembler>();
+        fileAssembler
+            .Setup(assembler => assembler.Create(
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<IReadOnlyList<IReadOnlyDictionary<string, object?>>>()))
+            .Callback<string, DateTime, IReadOnlyList<IReadOnlyDictionary<string, object?>>>(
+                (_, _, rows) => renderedRows = rows)
+            .Returns("content");
+
+        var scenario = new CtLocationBulkScenario(db, fileNameGenerator.Object, fileAssembler.Object);
+        var result = await scenario.ExecuteAsync(new CreateGenerationRequestDto
+        {
+            Scenario = scenario.Name,
+            BusinessKeys = [100m]
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal("CTSM_CADS_PROD_BULK_00003_004_CT_LOCATION_2026-08-23-092214.CSV", result.FileName);
+        var row = Assert.Single(Assert.IsAssignableFrom<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(renderedRows));
+        var keys = row.Keys.ToArray();
+
+        Assert.Equal("record_type", keys[0]);
+        Assert.Equal("record_count", keys[1]);
+        Assert.DoesNotContain("trans_type", keys);
+        Assert.DoesNotContain("loc_aud_datetime", keys);
+        Assert.DoesNotContain("loc_aud_id", keys);
+        Assert.DoesNotContain("loc_aud_type", keys);
+        Assert.Contains("loc_id", keys);
+        Assert.Equal(100m, Convert.ToDecimal(row["loc_id"]));
+    }
+
+    [Fact]
+    public async Task CtLocationUpdateScenario_RendersConfiguredColumnsInCorrectOrder()
+    {
+        using var db = CreateDbContext("CtLocationUpdateScenario_RendersConfiguredColumnsInCorrectOrder");
+
+        var fileNameGenerator = new Mock<IFileNameGenerator>();
+        fileNameGenerator
+            .Setup(generator => generator.Create(It.IsAny<CreateFileNameCommand>()))
+            .Returns("CTSM_CADS_PROD_BULK_00003_004_CT_LOCATION_2026-08-23-092214.CSV");
+
+        IReadOnlyList<IReadOnlyDictionary<string, object?>>? renderedRows = null;
+        var fileAssembler = new Mock<IFileAssembler>();
+        fileAssembler
+            .Setup(assembler => assembler.Create(
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<IReadOnlyList<IReadOnlyDictionary<string, object?>>>()))
+            .Callback<string, DateTime, IReadOnlyList<IReadOnlyDictionary<string, object?>>>(
+                (_, _, rows) => renderedRows = rows)
+            .Returns("content");
+
+        var scenario = new CtLocationUpdateScenario(db, fileNameGenerator.Object, fileAssembler.Object);
+        var result = await scenario.ExecuteAsync(new CreateGenerationRequestDto
+        {
+            Scenario = scenario.Name,
+            BusinessKeys = [200m]
+        }, TestContext.Current.CancellationToken);
+
+        Assert.Equal("CTSM_CADS_PROD_BULK_00003_004_CT_LOCATION_2026-08-23-092214.CSV", result.FileName);
+        var row = Assert.Single(Assert.IsAssignableFrom<IReadOnlyList<IReadOnlyDictionary<string, object?>>>(renderedRows));
+        var keys = row.Keys.ToArray();
+
+        Assert.Equal("record_type", keys[0]);
+        Assert.Equal("record_count", keys[1]);
+        Assert.DoesNotContain("trans_type", keys);
+        Assert.Contains("loc_id", keys);
+        Assert.Contains("loc_aud_datetime", keys);
+        Assert.Contains("loc_aud_id", keys);
+        Assert.Contains("loc_aud_type", keys);
+        Assert.Equal(200m, Convert.ToDecimal(row["loc_id"]));
+    }
+
+    [Fact]
     public void GenerateBulk_TwoContentGenerators_SameSeed_Compare_Equal()
     {
         using var db = CreateDbContext("GenerateBulk_SetsTransTypeToB");
@@ -80,7 +189,6 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "B";
                 entity.LocId = key;
                 return entity;
             });
@@ -99,7 +207,6 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "B";
                 entity.LocId = key;
                 return entity;
             });
@@ -121,9 +228,7 @@ public class ContentGeneratorTests
         var first2 = results2[0];
 
         Assert.Equal(100m, Convert.ToDecimal(first1["loc_id"]));
-        Assert.Equal("B", first1["trans_type"] as string);
         Assert.Equal(100m, Convert.ToDecimal(first2["loc_id"]));
-        Assert.Equal("B", first2["trans_type"] as string);
 
         // RulesBuilder overrides asserted
         Assert.Equal(1m, Convert.ToDecimal(first1["loc_slt_id"]));
@@ -161,7 +266,6 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "B";
                 entity.LocId = key;
                 return entity;
             });
@@ -174,7 +278,6 @@ public class ContentGeneratorTests
         var first = results[0];
 
         Assert.Equal(100m, Convert.ToDecimal(first["loc_id"]));
-        Assert.Equal("B", first["trans_type"] as string);
 
         // RulesBuilder overrides asserted
         Assert.Equal(1m, Convert.ToDecimal(first["loc_slt_id"]));
@@ -205,7 +308,6 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocReasonCode, () => "01"),
             transform: (entity, key) =>
             {
-                entity.TransType = "U";
                 entity.LocId = key;
                 return entity;
             });
@@ -216,7 +318,6 @@ public class ContentGeneratorTests
         var first = results[0];
 
         Assert.Equal(200m, Convert.ToDecimal(first["loc_id"]));
-        Assert.Equal("U", first["trans_type"] as string);
 
         // RulesBuilder overrides asserted
         Assert.Equal(1m, Convert.ToDecimal(first["loc_slt_id"]));

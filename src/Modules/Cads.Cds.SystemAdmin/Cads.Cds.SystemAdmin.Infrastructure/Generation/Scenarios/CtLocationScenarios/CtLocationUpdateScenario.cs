@@ -2,8 +2,10 @@ using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using System;
+using System.Collections.Generic;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation.Scenarios.CtLocationScenarios;
 
@@ -15,6 +17,8 @@ public class CtLocationUpdateScenario(
 {
     protected override RuleBuilder<CtLocation>? OverrideRulesBuilder { get; init; } =
         new RuleBuilder<CtLocation>([])
+            .RuleFor(r => r.RecordType, () => "D")
+            .RuleFor(r => r.RecordCount, (f) => f.IndexFaker + 1)
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
             .RuleFor(r => r.LocCtyId, () => 1m)
@@ -24,14 +28,33 @@ public class CtLocationUpdateScenario(
             .RuleFor(r => r.LocEffectiveTo, () => null)
             .RuleFor(r => r.LocCessationReason, () => null)
             .RuleFor(r => r.LocPremisesType, () => "FARM")
-            .RuleFor(r => r.LocReasonCode, () => "01");
+            .RuleFor(r => r.LocReasonCode, () => "01")
+            .RuleFor(r => r.LocAudId, () => DateTime.UtcNow.Ticks)
+            .RuleFor(r => r.LocAudDatetime, () => DateTime.UtcNow)
+            .RuleFor(r => r.LocAudType, () => "I");
 
     // configure the per-item transform for bulk generation
     protected override Func<CtLocation, decimal, CtLocation>? Transform { get; init; } =
         (entity, key) =>
         {
-            entity.TransType = "U";
             entity.LocId = key;
             return entity;
         };
+
+    protected override IReadOnlyDictionary<string, ColumnDefinition> OverrideColumnDefinitions(IReadOnlyDictionary<string, ColumnDefinition> defaultColumnDefinitions)
+    {
+        // Set order for RecordType and RecordCount to ensure they are the first two columns in the generated output
+        defaultColumnDefinitions[nameof(CtLocation.RecordType)].Order = 0;
+        defaultColumnDefinitions[nameof(CtLocation.RecordCount)].Order = 1;
+
+        // Exclude columns that should not be visible in the generated output for the update scenario
+        defaultColumnDefinitions[nameof(CtLocation.TransId)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.TransType)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.RowNumber)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.ImportedDate)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.CtsFileImportId)].IsVisible = false;
+        defaultColumnDefinitions[nameof(CtLocation.FakeData)].IsVisible = false;
+
+        return defaultColumnDefinitions;
+    }
 }
