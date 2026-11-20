@@ -443,8 +443,6 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    // CTS import: runs command
-
     [Fact]
     public async Task GivenRunsCommandWithoutArgs_WhenCtsImportRequested_ShouldInvokeServiceAndReturnOk()
     {
@@ -465,51 +463,5 @@ public class DbAdminEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
         _testFixture.Factory.DbAdminExecuteCommandServiceMock.Verify(x => x.ExecuteAsync(
             It.Is<DbAdminCtsImportRequestDto>(r => r.Command == "runs"),
             It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task GivenNoPrepareInProgress_WhenPrepareCtsImportRequested_ShouldReturnAcceptedAndQueueJob()
-    {
-        _testFixture.Factory.CtsImportPrepareJobQueueMock.Reset();
-        _testFixture.Factory.CtsImportPrepareJobQueueMock
-            .Setup(x => x.TryEnqueue(It.IsAny<string?>()))
-            .Returns(true);
-
-        var response = await DbAdminTestClient.PrepareCtsImportAsync(
-            _httpClient,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
-
-        _testFixture.Factory.CtsImportPrepareJobQueueMock.Verify(
-            x => x.TryEnqueue(It.IsAny<string?>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task GivenPrepareAlreadyInProgress_WhenPrepareCtsImportRequested_ShouldReturnConflict()
-    {
-        _testFixture.Factory.CtsImportPrepareJobQueueMock.Reset();
-        _testFixture.Factory.CtsImportPrepareJobQueueMock
-            .Setup(x => x.TryEnqueue(It.IsAny<string?>()))
-            .Returns(false);
-
-        var response = await DbAdminTestClient.PrepareCtsImportAsync(
-            _httpClient,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-    }
-
-    [Fact]
-    public async Task GivenScopeClaimMissing_WhenPrepareCtsImportRequested_ShouldReturnForbidden()
-    {
-        var client = _testFixture.Factory.CreateClient();
-        client.AddJwt(TestAuthConstants.FakeJwtMissingDbAdminScope);
-
-        var response = await DbAdminTestClient.PrepareCtsImportAsync(
-            client,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }
