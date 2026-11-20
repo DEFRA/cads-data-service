@@ -58,6 +58,7 @@ public class ApiContainerFixture : IAsyncLifetime
           .WithEnvironment("AWS__ServiceURL", LocalStackFixture.NetworkServiceUrl)
           .WithEnvironment("Modules__Ingester__Storage__CadsIngester__BucketName", LocalStackFixture.CadsInternalBucketName)
           .WithEnvironment("Modules__MiBff__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
+          .WithEnvironment("Modules__MiBff__Storage__Ccoe__BucketName", LocalStackFixture.CcoeReportsBucketName)
           .WithEnvironment("Modules__MiBff__Queues__CadsMiReports__QueueUrl", LocalStackFixture.CadsMiReportsFifoQueueUrl)
           .WithEnvironment("Modules__MiBff__Queues__CadsMiReports__DlqQueueUrl", LocalStackFixture.CadsMiReportsFifoDeadLetterQueueUrl)
           .WithEnvironment("Modules__StorageBridge__Storage__CadsInternal__BucketName", LocalStackFixture.CadsInternalBucketName)
