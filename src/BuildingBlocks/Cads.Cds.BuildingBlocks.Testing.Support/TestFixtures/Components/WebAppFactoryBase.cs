@@ -175,6 +175,8 @@ public abstract class WebAppFactoryBase<TStart>(
 
         Environment.SetEnvironmentVariable("Modules__Ingester__Storage__CadsIngester__BucketName", TestS3Constants.TestCadsInternalBucketName);
         Environment.SetEnvironmentVariable("Modules__MiBff__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__MiBff__Storage__Ccoe__BucketName", TestS3Constants.TestCcoeReportsBucketName);
+        Environment.SetEnvironmentVariable("Modules__MiBff__Storage__Ccoe__HealthcheckEnabled", "false");
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
@@ -270,6 +272,10 @@ public abstract class WebAppFactoryBase<TStart>(
                 AmazonS3Mock.Object);
             factory.RegisterMockClient<MiBffInternalStorageClient>(
                 TestS3Constants.TestCadsInternalBucketName,
+                healthCheckEnabled: false,
+                AmazonS3Mock.Object);
+            factory.RegisterMockClient<CcoeReportStorageClient>(
+                TestS3Constants.TestCcoeReportsBucketName,
                 healthCheckEnabled: false,
                 AmazonS3Mock.Object);
             factory.RegisterMockClient<CadsExternalClient>(

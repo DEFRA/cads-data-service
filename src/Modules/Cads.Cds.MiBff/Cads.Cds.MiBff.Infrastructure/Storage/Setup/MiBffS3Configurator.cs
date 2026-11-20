@@ -17,5 +17,10 @@ public class MiBffS3Configurator(MiBffStorageConfiguration config) : IConfigureS
             config.CadsInternal.BucketName,
             config.CadsInternal.HealthcheckEnabled,
             amazonConfig);
+
+        factory.AddClient<CcoeReportStorageClient>(
+            config.Ccoe.BucketName,
+            config.Ccoe.HealthcheckEnabled,
+            amazonConfig);
     }
 }
