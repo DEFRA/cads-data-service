@@ -3,11 +3,15 @@ using Cads.Cds.BuildingBlocks.Application.Imports.Utilities;
 using Cads.Cds.SystemAdmin.Application.Generation.Scenarios;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Extensions;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,11 +36,18 @@ public abstract class GenerationScenario<T>(string name,
 
     protected virtual Func<T, decimal, T>? Transform { get; init; }
 
+    protected virtual IReadOnlyDictionary<string, ColumnDefinition> ColumnDefinitions => EntityExtensions.ResolveColumnDefinitions<T>();
+
+    protected virtual IReadOnlyDictionary<string, ColumnDefinition> OverrideColumnDefinitions(IReadOnlyDictionary<string, ColumnDefinition> defaultColumnDefinitions)
+    {
+        return defaultColumnDefinitions;
+    }
+
     public async Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
 
-        var contentGenerator = new ContentGenerator<T>(dbContext, OverrideRulesBuilder, Transform);
+        var contentGenerator = new ContentGenerator<T>(dbContext, OverrideRulesBuilder, Transform, OverrideColumnDefinitions(ColumnDefinitions).Select(x => x.Value).ToArray());
         var tableName = contentGenerator.TableName;
 
         /*
@@ -72,11 +83,6 @@ public abstract class GenerationScenario<T>(string name,
             });
 
         var parsedFileName = CtsmFilenameParser.Parse(fileName);
-
-        /*
-        TODO: LANI-851. This was done by David in the main but doesn't support BULK and DELTA file formats.
-        LANI-851 + LANI-1212 need to be completed so we support both correctly.
-        */
 
         /*
         TODO: LANI-1212. Delta details are not visible here. fileAssembler.Create(fileName, date, rows) has no aud ID or aud type arguments,
