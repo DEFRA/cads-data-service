@@ -23,16 +23,6 @@ public static class DbAdminEndpointExtensions
             .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
     }
 
-    /// <summary>
-    /// Special endpoint to trigger a CTS bulk data import plan using cron workers.
-    /// </summary>
-    /// <param name="app"></param>
-    public static void CreateDbAdminPrepareCtsImportEndpoints(this IEndpointRouteBuilder app)
-    {
-        app.MapPost($"/db-admin-prepare-cts-import", DbAdminPrepareCtsImport)
-            .RequireAuthorization(AuthenticationConstants.AadDbAdminExecutePolicy);
-    }
-
     private static async Task<DbAdminCommandResponse> DbAdminExecuteCommand(
         DbAdminExecuteCommandRequest request,
         IValidator<DbAdminExecuteCommandRequest> validator,
@@ -78,35 +68,5 @@ public static class DbAdminEndpointExtensions
             request.Command,
             result.RootElement
         );
-    }
-
-    private static IResult DbAdminPrepareCtsImport(
-        ICtsImportPrepareJobQueue queue,
-        HttpContext httpContext,
-        ILogger<DbAdminCtsImportRequest> logger)
-    {
-        var userName = httpContext.User.GetDisplayName();
-
-        if (!queue.TryEnqueue(userName))
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
-            {
-                logger.LogWarning("User {User}: DB Admin prepare cts import rejected, a prepare is already queued or running", userName);
-            }
-
-            return Results.Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                title: "CTS import prepare already in progress",
-                detail: "A CTS import prepare is already queued or running. Check the 'runs' command on db-admin-cts-import for the outcome.");
-        }
-
-        if (logger.IsEnabled(LogLevel.Information))
-        {
-            logger.LogInformation("User {User}: Queued DB Admin prepare cts import", userName);
-        }
-
-        return Results.Accepted(value: new DbAdminPrepareCtsImportResponse(
-            "Accepted",
-            "CTS import prepare started. This can take 20-30 minutes. Poll the 'runs' command on db-admin-cts-import; the new run appears with status 'ready' when planning completes."));
     }
 }
