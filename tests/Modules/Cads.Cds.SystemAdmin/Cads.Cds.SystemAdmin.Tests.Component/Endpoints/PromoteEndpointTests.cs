@@ -16,36 +16,6 @@ public class PromoteEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
     private HttpClient _httpClient => _testFixture.HttpClient;
 
     [Fact]
-    public async Task GivenNoImportInProgress_WhenPromoteImportRequested_ShouldReturnAcceptedAndQueueJob()
-    {
-        _testFixture.Factory.PromotionJobQueueMock.Reset();
-        _testFixture.Factory.PromotionJobQueueMock
-            .Setup(x => x.TryEnqueue(It.IsAny<PromotionType>(), It.IsAny<string>(), It.IsAny<bool?>(), It.IsAny<string?>()))
-            .Returns(true);
-
-        var correlationId = Guid.NewGuid().ToString();
-
-        var response = await PromoteTestClient.PromoteImportAsync(
-            _httpClient,
-            PromotionType.CtsBulk,
-            correlationId,
-            TestContext.Current.CancellationToken);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
-
-        _testFixture.Factory.PromotionJobQueueMock.Verify(
-            x => x.TryEnqueue(It.IsAny<PromotionType>(), It.IsAny<string>(), It.IsAny<bool?>(), It.IsAny<string?>()), Times.Once);
-
-        var dto = await PromoteTestClient.ReadDtoAsync<PromoteImportResponse>(
-            response,
-            TestContext.Current.CancellationToken);
-
-        dto.Should().NotBeNull();
-        dto.CorrelationId.Should().Be(correlationId);
-        dto.Status.Should().Be("Accepted");
-    }
-
-    [Fact]
     public async Task GivenImportAlreadyInProgress_WhenPromoteImportRequested_ShouldReturnConflict()
     {
         _testFixture.Factory.PromotionJobQueueMock.Reset();
@@ -122,5 +92,35 @@ public class PromoteEndpointTests(SystemAdminTestFixture testFixture) : IClassFi
             TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task GivenNoImportInProgress_WhenPromoteImportRequested_ShouldReturnAcceptedAndQueueJob()
+    {
+        _testFixture.Factory.PromotionJobQueueMock.Reset();
+        _testFixture.Factory.PromotionJobQueueMock
+            .Setup(x => x.TryEnqueue(It.IsAny<PromotionType>(), It.IsAny<string>(), It.IsAny<bool?>(), It.IsAny<string?>()))
+            .Returns(true);
+
+        var correlationId = Guid.NewGuid().ToString();
+
+        var response = await PromoteTestClient.PromoteImportAsync(
+            _httpClient,
+            PromotionType.CtsBulk,
+            correlationId,
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        _testFixture.Factory.PromotionJobQueueMock.Verify(
+            x => x.TryEnqueue(It.IsAny<PromotionType>(), It.IsAny<string>(), It.IsAny<bool?>(), It.IsAny<string?>()), Times.Once);
+
+        var dto = await PromoteTestClient.ReadDtoAsync<PromoteImportResponse>(
+            response,
+            TestContext.Current.CancellationToken);
+
+        dto.Should().NotBeNull();
+        dto.CorrelationId.Should().Be(correlationId);
+        dto.Status.Should().Be("Accepted");
     }
 }
