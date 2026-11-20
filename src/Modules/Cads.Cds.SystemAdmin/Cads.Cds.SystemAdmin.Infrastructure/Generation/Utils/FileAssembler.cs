@@ -20,11 +20,7 @@ public class FileAssembler : IFileAssembler
 
     private const string ContentPrefix = "C";
 
-    private const string DataPrefix = "D";
-
     private const string FooterPrefix = "T";
-
-    private const string RecordType = "RECORD_TYPE";
 
     private const string DateTimeFormat = "ddMMyyyy HH:mm:ss";
 
@@ -61,7 +57,7 @@ public class FileAssembler : IFileAssembler
     {
         var sb = new StringBuilder()
             .AppendLine(HeaderPrefix + Separator + fileName + Separator + dateTime.ToString(DateTimeFormat))
-            .AppendLine(ContentPrefix + Separator + RecordType + Separator + string.Join(Separator, row.Keys.Select(i => i.ToUpper())));
+            .AppendLine(ContentPrefix + Separator + string.Join(Separator, row.Keys.Select(i => i.ToUpper())));
 
         return sb.ToString().TrimEnd(Separator);
     }
@@ -80,7 +76,7 @@ public class FileAssembler : IFileAssembler
                 return v.ToString() ?? string.Empty;
             });
 
-            sb.AppendLine(DataPrefix + Separator + $"{i + 1}{Separator}" + string.Join(Separator, formattedValues));
+            sb.AppendLine(string.Join(Separator, formattedValues));
         }
 
         return sb.ToString().TrimEnd(Separator);
