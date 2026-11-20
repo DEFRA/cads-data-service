@@ -39,7 +39,7 @@ public class PromotionJobBackgroundService(
                 logger.LogInformation("Preparing parallel import run for PromotionType: {PromotionType}, requested by {User}, CorrelationId: {CorrelationId}.", job.PromotionType, job.RequestedBy, job.CorrelationId);
             }
 
-            using var scope = scopeFactory.CreateScope();
+            await using var scope = scopeFactory.CreateAsyncScope();
             var strategyFactory = scope.ServiceProvider.GetRequiredService<IPromotionJobProcessorStrategyFactory>();
             var strategy = strategyFactory.GetStrategy(job.PromotionType);
             var runId = await strategy.PrepareAsync(job, cancellationToken);
@@ -49,11 +49,11 @@ public class PromotionJobBackgroundService(
                 logger.LogInformation("Parallel import run for PromotionType: {PromotionType} prepared with RunId: {RunId}, CorrelationId: {CorrelationId}.", job.PromotionType, runId, job.CorrelationId);
             }
         }
-        catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             if (logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning(ex, "Parallel import run preparation cancelled by host shutdown. The transaction was rolled back; no run was created, CorrelationId: {CorrelationId}.", job.CorrelationId);
+                logger.LogWarning("Parallel import run preparation cancelled by host shutdown. The transaction was rolled back; no run was created, CorrelationId: {CorrelationId}.", job.CorrelationId);
             }
         }
         catch (Exception ex)

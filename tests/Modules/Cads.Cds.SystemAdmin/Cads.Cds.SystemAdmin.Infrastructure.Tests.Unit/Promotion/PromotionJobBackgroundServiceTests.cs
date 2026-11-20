@@ -102,4 +102,61 @@ public class PromotionJobBackgroundServiceTests
             await sut.StopAsync(CancellationToken.None);
         }
     }
+
+    [Fact]
+    public async Task GivenJobRunningAtShutdown_WhenHostStops_ShouldReleaseQueueAndStopCleanly()
+    {
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _strategyMock
+            .Setup(x => x.PrepareAsync(It.IsAny<PromotionJob>(), It.IsAny<CancellationToken>()))
+            .Returns<PromotionJob, CancellationToken>(async (_, ct) =>
+            {
+                started.TrySetResult();
+                await Task.Delay(Timeout.Infinite, ct); // cancelled by host shutdown
+                return 0L;
+            });
+
+        var (queue, sut) = CreateSut();
+        await sut.StartAsync(TestContext.Current.CancellationToken);
+
+        queue.TryEnqueue(PromotionType.CtsBulk, "corr-1", null, "user").Should().BeTrue();
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+
+        // StopAsync cancels the stopping token and waits for ExecuteAsync to finish.
+        Func<Task> stop = () => sut.StopAsync(CancellationToken.None);
+        await stop.Should().NotThrowAsync();
+
+        // The worker has finished, so the slot must already be free: no spinning needed.
+        queue.TryEnqueue(PromotionType.CtsBulk, "after-shutdown", null, "user")
+            .Should().BeTrue("MarkCompleted must run even when the job is cancelled");
+    }
+
+    [Fact]
+    public async Task GivenCancellationNotFromHostShutdown_WhenProcessed_ShouldReleaseQueueAndKeepRunning()
+    {
+        // An OperationCanceledException while the host token is NOT cancelled (e.g. a DB timeout)
+        // must be treated as a failure, not as shutdown, and must not stop the loop.
+        _strategyMock
+            .SetupSequence(x => x.PrepareAsync(It.IsAny<PromotionJob>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException())
+            .ReturnsAsync(42L);
+
+        var (queue, sut) = CreateSut();
+        await sut.StartAsync(TestContext.Current.CancellationToken);
+
+        try
+        {
+            queue.TryEnqueue(PromotionType.CtsBulk, "corr-1", null, "user").Should().BeTrue();
+
+            WaitForSlotRelease(queue).Should().BeTrue();
+
+            // The probe job is processed too, proving the loop survived the first failure.
+            SpinWait.SpinUntil(() => _strategyMock.Invocations.Count >= 2, TimeSpan.FromSeconds(5))
+                .Should().BeTrue();
+        }
+        finally
+        {
+            await sut.StopAsync(CancellationToken.None);
+        }
+    }
 }
