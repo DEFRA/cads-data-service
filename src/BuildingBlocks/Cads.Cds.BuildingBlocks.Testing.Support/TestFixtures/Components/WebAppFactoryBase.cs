@@ -274,6 +274,10 @@ public abstract class WebAppFactoryBase<TStart>(
                 TestS3Constants.TestCadsInternalBucketName,
                 healthCheckEnabled: false,
                 AmazonS3Mock.Object);
+            factory.RegisterMockClient<CcoeReportStorageClient>(
+                TestS3Constants.TestCcoeReportsBucketName,
+                healthCheckEnabled: false,
+                AmazonS3Mock.Object);
             factory.RegisterMockClient<CadsExternalClient>(
                 TestS3Constants.TestCadsExternalBucketName,
                 healthCheckEnabled: true,
