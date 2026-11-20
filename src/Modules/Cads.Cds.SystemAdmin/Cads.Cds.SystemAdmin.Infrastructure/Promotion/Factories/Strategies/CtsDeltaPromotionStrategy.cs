@@ -27,7 +27,7 @@ public class CtsDeltaPromotionStrategy(IPostgresDataSourceFactory factory) : IPr
             p_correlation_id  => @correlation_id)
         """;
 
-    public async Task<long> PrepareAsync(PromotionJob job, CancellationToken cancellationToken = default)
+    public async Task<long> PrepareAsync(PromotionJob job, CancellationToken cancellationToken)
     {
         var dataSource = factory.CreateDataSource(PostgresDataSourceFactory.DefaultConnectionIdentifier);
         await using var conn = await dataSource.OpenConnectionAsync(cancellationToken);

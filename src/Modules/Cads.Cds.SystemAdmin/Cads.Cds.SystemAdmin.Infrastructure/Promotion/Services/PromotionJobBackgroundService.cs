@@ -49,11 +49,11 @@ public class PromotionJobBackgroundService(
                 logger.LogInformation("Parallel import run for PromotionType: {PromotionType} prepared with RunId: {RunId}, CorrelationId: {CorrelationId}.", job.PromotionType, runId, job.CorrelationId);
             }
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
         {
             if (logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning("Parallel import run preparation cancelled by host shutdown. The transaction was rolled back; no run was created, CorrelationId: {CorrelationId}.", job.CorrelationId);
+                logger.LogWarning(ex, "Parallel import run preparation cancelled by host shutdown. The transaction was rolled back; no run was created, CorrelationId: {CorrelationId}.", job.CorrelationId);
             }
         }
         catch (Exception ex)
