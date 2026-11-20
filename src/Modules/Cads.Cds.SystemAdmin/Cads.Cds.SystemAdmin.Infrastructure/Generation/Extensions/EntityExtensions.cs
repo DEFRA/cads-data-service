@@ -1,4 +1,5 @@
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Extensions;
+using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
@@ -40,5 +41,33 @@ public static class EntityExtensions
                     return property?.GetColumnName(tableIdentifier) ?? p.Name;
                 },
                 p => p.GetValue(entity));
+    }
+
+    public static IReadOnlyDictionary<string, object?> ToDictionary<T>(this T entity, DbContext dbContext, IReadOnlyList<ColumnDefinition> columnDefinitions)
+        where T : class, new()
+    {
+        var entityType = dbContext.Model.FindEntityType(typeof(T)) ?? throw new InvalidOperationException(
+            $"Entity '{typeof(T).Name}' is not mapped in the DbContext.");
+        var tableIdentifier = StoreObjectIdentifier.Table(entityType.GetTableName()!, entityType.GetSchema());
+        var properties = typeof(T).GetProperties().ToDictionary(p => p.Name, StringComparer.Ordinal);
+
+        return columnDefinitions
+            .Where(column => column.IsVisible)
+            .OrderBy(column => column.Order.HasValue ? 0 : 1)
+            .ThenBy(column => column.Order)
+            .ToDictionary(
+                column => column.Caption ?? entityType.FindProperty(column.PropertyName)?.GetColumnName(tableIdentifier) ?? column.PropertyName,
+                column => properties.TryGetValue(column.PropertyName, out var property)
+                    ? property.GetValue(entity)
+                    : throw new InvalidOperationException($"Column definition references unknown property '{column.PropertyName}' on '{typeof(T).Name}'."));
+    }
+
+    public static Dictionary<string, ColumnDefinition> ResolveColumnDefinitions<T>()
+    {
+        return typeof(T)
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(x => x.CanRead)
+            .Select(property => new ColumnDefinition(property.Name))
+            .ToDictionary(x => x.PropertyName, x => x);
     }
 }
