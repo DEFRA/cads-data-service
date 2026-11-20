@@ -168,4 +168,16 @@ public class CcoeReportPublisherTests
 
         await act.Should().ThrowAsync<RetryableException>().WithInnerException(typeof(AmazonS3Exception));
     }
+
+    [Fact]
+    public async Task PublishXlsxAsync_WhenClientServiceUrlIsHttp_PresignsWithHttpProtocol()
+    {
+        _s3Mock.SetupGet(s => s.Config).Returns(new AmazonS3Config { ServiceURL = "http://localhost:4566" });
+        SeedHeadFound();
+
+        await CreateSut().PublishXlsxAsync(ReportKey, JobId, new MemoryStream([1, 2, 3]), TestContext.Current.CancellationToken);
+
+        _presignRequest.Should().NotBeNull();
+        _presignRequest!.Protocol.Should().Be(Protocol.HTTP);
+    }
 }

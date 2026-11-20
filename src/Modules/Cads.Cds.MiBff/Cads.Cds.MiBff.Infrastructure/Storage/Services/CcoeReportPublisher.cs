@@ -90,12 +90,21 @@ public class CcoeReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorageC
 
         var expiresAt = DateTimeOffset.UtcNow.AddMinutes(expiryMinutes);
 
+        // GetPreSignedURL defaults to HTTPS regardless of the client's configured ServiceURL,
+        // which breaks against LocalStack (and any other plain-HTTP endpoint override) since the
+        // resulting URL can't complete a TLS handshake. Derive the protocol from the configured
+        // endpoint instead, so real AWS (ServiceURL unset) still defaults to HTTPS.
+        var protocol = client.Config?.ServiceURL?.StartsWith("http://", StringComparison.OrdinalIgnoreCase) == true
+            ? Protocol.HTTP
+            : Protocol.HTTPS;
+
         var url = client.GetPreSignedURL(new GetPreSignedUrlRequest
         {
             BucketName = bucket,
             Key = key,
             Verb = HttpVerb.GET,
-            Expires = expiresAt.UtcDateTime
+            Expires = expiresAt.UtcDateTime,
+            Protocol = protocol
         });
 
         return new ReportDownloadLink(url, expiresAt);
