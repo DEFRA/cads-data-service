@@ -45,6 +45,7 @@ public class CtLocationBulkScenario(
         defaultColumnDefinitions[nameof(CtLocation.RecordCount)].Order = 1;
 
         // Exclude columns that should not be visible in the generated output for the bulk scenario
+        defaultColumnDefinitions[nameof(CtLocation.TransId)].IsVisible = false;
         defaultColumnDefinitions[nameof(CtLocation.TransType)].IsVisible = false;
         defaultColumnDefinitions[nameof(CtLocation.RowNumber)].IsVisible = false;
         defaultColumnDefinitions[nameof(CtLocation.ImportedDate)].IsVisible = false;
