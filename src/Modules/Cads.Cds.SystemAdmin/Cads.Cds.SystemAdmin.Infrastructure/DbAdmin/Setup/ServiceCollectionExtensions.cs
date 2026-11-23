@@ -9,10 +9,5 @@ public static class ServiceCollectionExtensions
     public static void AddSystemAdminDbAdminLayer(this IServiceCollection services)
     {
         services.AddScoped<IDbAdminExecuteCommandService, DbAdminExecuteCommandService>();
-
-        services.AddSingleton<CtsImportPrepareJobQueue>();
-        services.AddSingleton<ICtsImportPrepareJobQueue>(sp => sp.GetRequiredService<CtsImportPrepareJobQueue>());
-        services.AddScoped<ICtsImportPrepareService, CtsImportPrepareService>();
-        services.AddHostedService<CtsImportPrepareBackgroundService>();
     }
 }
