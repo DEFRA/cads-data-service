@@ -80,7 +80,10 @@ public class ContentGenerator<T>(
     public IReadOnlyList<IReadOnlyDictionary<string, object?>> Generate(ICreateGenerationRequest request, int seed)
     {
         var faker = CreateFaker(seed);
-        return [.. request.BusinessKeys
+
+        ArgumentNullException.ThrowIfNull(request);
+
+        return [.. request.BusinessKeys!
             .Select(key =>
             {
                 var entity = faker.Generate();
