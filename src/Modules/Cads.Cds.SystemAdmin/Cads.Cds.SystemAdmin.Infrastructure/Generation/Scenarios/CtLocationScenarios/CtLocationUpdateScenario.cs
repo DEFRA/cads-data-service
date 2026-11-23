@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
+using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
@@ -33,13 +34,19 @@ public class CtLocationUpdateScenario(
             .RuleFor(r => r.LocAudDatetime, () => DateTime.UtcNow)
             .RuleFor(r => r.LocAudType, () => "I");
 
-    // configure the per-item transform for bulk generation
-    protected override Func<CtLocation, decimal, CtLocation>? Transform { get; init; } =
-        (entity, key) =>
-        {
-            entity.LocId = key;
-            return entity;
-        };
+    // configure the per-item transform for delta generation
+    protected override Func<ICreateGenerationRequest, CtLocation, decimal, CtLocation>? Transform { get; init; } =
+       (request, entity, key) =>
+       {
+           entity.LocId = key;
+
+           if(!string.IsNullOrEmpty(request.AudType))
+           {
+               entity.LocAudType = request.AudType;
+           }
+
+           return entity;
+       };
 
     protected override IReadOnlyDictionary<string, ColumnDefinition> OverrideColumnDefinitions(IReadOnlyDictionary<string, ColumnDefinition> defaultColumnDefinitions)
     {
