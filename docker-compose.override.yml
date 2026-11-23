@@ -24,6 +24,9 @@ services:
       Modules__SystemAdmin__Queues__CadsMiReports__DlqQueueUrl: http://cads-localstack:4566/000000000000/cads-mi-reports-queue-deadletter.fifo
       Modules__SystemAdmin__ImportsDeduplication__BucketName: cads-external-bucket
       Modules__SystemAdmin__ImportsDeduplication__EnvironmentName: PreProd
+      Modules__SystemAdmin__EnablePromotionEndpoints: "true"
+      Modules__SystemAdmin__Promotion__PromotionTypes__CtsBulk: "true"
+      Modules__SystemAdmin__Promotion__PromotionTypes__CtsDelta: "true"
       Modules__SystemAdmin__EnableAdminEndpoints: "true"
       Modules__SystemAdmin__EnableGenerationEndpoints: "true"
       Modules__SystemAdmin__EnableGraphQlEndpoints: "true"
