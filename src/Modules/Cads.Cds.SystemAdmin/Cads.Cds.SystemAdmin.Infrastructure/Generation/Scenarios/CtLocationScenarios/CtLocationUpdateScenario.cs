@@ -40,7 +40,7 @@ public class CtLocationUpdateScenario(
        {
            entity.LocId = key;
 
-           if(!string.IsNullOrEmpty(request.AudType))
+           if (!string.IsNullOrEmpty(request.AudType))
            {
                entity.LocAudType = request.AudType;
            }
