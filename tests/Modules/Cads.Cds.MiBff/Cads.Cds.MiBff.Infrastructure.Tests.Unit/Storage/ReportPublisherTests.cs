@@ -12,12 +12,12 @@ using System.Net;
 
 namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Storage;
 
-public class CcoeReportPublisherTests
+public class ReportPublisherTests
 {
     private const string BucketName = "defra-cads-reports-dev";
     private const string ReportKey = "gbcattledeaths";
     private const string ExpectedKey = $"reports/{ReportKey}/00000000-0000-0000-0000-000000000001/{ReportKey}.xlsx";
-    private const string PresignedUrl = "https://ccoe.example.test/signed-url";
+    private const string PresignedUrl = "https://reports.example.test/signed-url";
 
     private static readonly Guid JobId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
@@ -27,9 +27,9 @@ public class CcoeReportPublisherTests
     private GetPreSignedUrlRequest? _presignRequest;
     private PutObjectRequest? _uploadedRequest;
 
-    public CcoeReportPublisherTests()
+    public ReportPublisherTests()
     {
-        _factory.RegisterMockClient<CcoeReportStorageClient>(BucketName, healthCheckEnabled: false, _s3Mock.Object);
+        _factory.RegisterMockClient<ReportStorageClient>(BucketName, healthCheckEnabled: false, _s3Mock.Object);
 
         _s3Mock
             .Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
@@ -42,11 +42,11 @@ public class CcoeReportPublisherTests
             .Returns(PresignedUrl);
     }
 
-    private CcoeReportPublisher CreateSut(string kmsKeyArn = "", int expiryMinutes = 15) => new(
+    private ReportPublisher CreateSut(string kmsKeyArn = "", int expiryMinutes = 15) => new(
         _factory,
         new MiBffStorageConfiguration
         {
-            Ccoe = new CcoeStorageConfigurationDetails
+            Reports = new ReportStorageConfigurationDetails
             {
                 BucketName = BucketName,
                 KmsKeyArn = kmsKeyArn,

@@ -9,29 +9,29 @@ using System.Text;
 namespace Cads.Cds.MiBff.Tests.Integration.Storage;
 
 [Collection("MiBffIntegration"), Trait("Dependence", "testcontainers")]
-public class CcoeReportPublisherIntegrationTests(ApiContainerFixture apiContainerFixture)
+public class ReportPublisherIntegrationTests(ApiContainerFixture apiContainerFixture)
 {
-    private CcoeReportPublisher CreateSut()
+    private ReportPublisher CreateSut()
     {
         var factory = new S3ClientFactory();
 
         // Reuse the already-running LocalStack container's real S3 client (not a mock) so this
         // exercises genuine upload + SigV4 presigning behaviour end-to-end.
-        factory.RegisterMockClient<CcoeReportStorageClient>(
-            LocalStackFixture.CcoeReportsBucketName,
+        factory.RegisterMockClient<ReportStorageClient>(
+            LocalStackFixture.CadsReportsBucketName,
             healthCheckEnabled: false,
             apiContainerFixture.LocalStackFixture.S3Client);
 
         var storageConfig = new MiBffStorageConfiguration
         {
-            Ccoe = new CcoeStorageConfigurationDetails
+            Reports = new ReportStorageConfigurationDetails
             {
-                BucketName = LocalStackFixture.CcoeReportsBucketName,
+                BucketName = LocalStackFixture.CadsReportsBucketName,
                 PresignedUrlExpiryMinutes = 15
             }
         };
 
-        return new CcoeReportPublisher(factory, storageConfig);
+        return new ReportPublisher(factory, storageConfig);
     }
 
     [Fact]

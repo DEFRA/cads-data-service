@@ -14,12 +14,12 @@ internal static class TestDataSeeder
 
     public static readonly Guid ReportA = Guid.Parse("33333333-3333-3333-3333-333333333333");
     public static readonly string ReportAKey = "report_a";
-    public static readonly string ReportATitle = "Report A";
+    public static readonly string ReportATitle = "Reports A";
     public static readonly string ReportADescription = "Sample report A";
 
     public static readonly Guid ReportB = Guid.Parse("33333333-3333-3333-3333-333333333334");
     public static readonly string ReportBKey = "report_b";
-    public static readonly string ReportBTitle = "Report B";
+    public static readonly string ReportBTitle = "Reports B";
     public static readonly string ReportBDescription = "Sample report B";
 
     public static readonly Guid PermissionView = Guid.Parse("44444444-4444-4444-4444-444444444444");

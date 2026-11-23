@@ -12,8 +12,8 @@ public class ReportDtoMapperTests
         {
             ReportId = Guid.NewGuid(),
             ReportKey = "report-key",
-            Title = "Report title",
-            Description = "Report description",
+            Title = "Reports title",
+            Description = "Reports description",
             IsActive = true,
             DisplayName = "Display name",
             ExternalSubject = "user@example.com",
@@ -35,7 +35,7 @@ public class ReportDtoMapperTests
         var permission = new MiEffectiveReportPermission
         {
             ReportKey = "report-key",
-            Title = "Report title",
+            Title = "Reports title",
             ExternalSubject = "user@example.com"
         };
 

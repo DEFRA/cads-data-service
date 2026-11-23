@@ -22,7 +22,7 @@ public class GetReportJobFileQueryHandlerTests
     private readonly Mock<IReportFileStore> _fileStoreMock = new();
     private readonly Mock<IReportKeyModelRegistry> _modelRegistryMock = new();
     private readonly Mock<IOpenXmlReportGenerator> _generatorMock = new();
-    private readonly Mock<ICcoeReportPublisher> _ccoeReportPublisherMock = new();
+    private readonly Mock<IReportPublisher> _reportPublisherMock = new();
 
     private readonly Guid _jobId = Guid.NewGuid();
     private const string ReportKey = GetGbCattleDeathsQuery.ExpectedKey;
@@ -39,7 +39,7 @@ public class GetReportJobFileQueryHandlerTests
         _fileStoreMock.Object,
         _modelRegistryMock.Object,
         _generatorMock.Object,
-        _ccoeReportPublisherMock.Object);
+        _reportPublisherMock.Object);
 
     private void SeedJob(string status = ReportJobStatus.Complete, string reportKey = ReportKey) =>
         _repositoryMock
@@ -271,8 +271,8 @@ public class GetReportJobFileQueryHandlerTests
             .Setup(g => g.Generate(It.IsAny<List<MiDeathSummary>>()))
             .Returns(xlsxBytes);
 
-        var expectedLink = new ReportDownloadLink("https://ccoe.example.test/signed", DateTimeOffset.UtcNow.AddMinutes(15));
-        _ccoeReportPublisherMock
+        var expectedLink = new ReportDownloadLink("https://reports.example.test/signed", DateTimeOffset.UtcNow.AddMinutes(15));
+        _reportPublisherMock
             .Setup(p => p.PublishXlsxAsync(ReportKey, _jobId, xlsxBytes, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedLink);
 
@@ -284,7 +284,7 @@ public class GetReportJobFileQueryHandlerTests
         redirect.Url.Should().Be(expectedLink.Url);
         redirect.ExpiresAt.Should().Be(expectedLink.ExpiresAt);
         _generatorMock.Verify(g => g.Generate(It.Is<List<MiDeathSummary>>(d => d.Count == 1 && d[0].DeathYear == 2024)), Times.Once);
-        _ccoeReportPublisherMock.Verify(
+        _reportPublisherMock.Verify(
             p => p.PublishXlsxAsync(ReportKey, _jobId, xlsxBytes, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -14,21 +14,21 @@ using System.Net.Http.Json;
 
 namespace Cads.Cds.MiBff.Tests.Component.Reports;
 
-public class GetReportJobFileCcoeTests
+public class GetReportJobFileStorageTests
 {
-    private const string PresignedUrl = "https://ccoe.example.test/signed-url";
+    private const string PresignedUrl = "https://reports.example.test/signed-url";
 
     private static string Endpoint(string reportKey, Guid jobId) =>
         $"/api/v1/bff/mi/reports/{reportKey}/job/{jobId}?fileType=xlsx";
 
-    private static string ExpectedCcoeKey(string reportKey, Guid jobId) =>
+    private static string ExpectedKey(string reportKey, Guid jobId) =>
         $"reports/{reportKey}/{jobId}/{reportKey}.xlsx";
 
     /// <summary>
     /// Wires up the shared AmazonS3Mock so it behaves like a real bucket for both the internal
-    /// (encrypted JSON) store and the CCoE (xlsx) store: PutObjectAsync records bytes by key,
+    /// (encrypted JSON) store and the Reports (xlsx) store: PutObjectAsync records bytes by key,
     /// GetObjectAsync replays them back, and GetObjectMetadataAsync only succeeds for keys that
-    /// have actually been uploaded (so CcoeReportPublisher's exists-check behaves correctly).
+    /// have actually been uploaded (so ReportPublisher's exists-check behaves correctly).
     /// </summary>
     private static void WireUpS3(MiBffWebApplicationFactory factory, Dictionary<string, byte[]> objects)
     {
@@ -87,7 +87,7 @@ public class GetReportJobFileCcoeTests
     }
 
     [Fact]
-    public async Task GivenCompletedJob_WhenXlsxRequested_UploadsToCcoeBucketAndReturnsPresignedDownloadUrl()
+    public async Task GivenCompletedJob_WhenXlsxRequested_UploadsToReportsBucketAndReturnsPresignedDownloadUrl()
     {
         await using var factory = new MiBffWebApplicationFactory(useFakeAuth: true);
         using var client = factory.CreateClient();
@@ -108,19 +108,19 @@ public class GetReportJobFileCcoeTests
         body!.DownloadUrl.Should().Be(PresignedUrl);
         body.ExpiresAt.Should().BeAfter(DateTimeOffset.UtcNow);
 
-        var ccoeKey = ExpectedCcoeKey(reportKey, jobId);
-        objects.Should().ContainKey(ccoeKey);
+        var reportStorageKey = ExpectedKey(reportKey, jobId);
+        objects.Should().ContainKey(reportStorageKey);
 
         factory.AmazonS3Mock.Verify(s => s.PutObjectAsync(
-            It.Is<PutObjectRequest>(r => r.Key == ccoeKey && r.ContentType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+            It.Is<PutObjectRequest>(r => r.Key == reportStorageKey && r.ContentType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
             It.IsAny<CancellationToken>()), Times.Once);
 
         factory.AmazonS3Mock.Verify(s => s.GetPreSignedURL(
-            It.Is<GetPreSignedUrlRequest>(r => r.Key == ccoeKey && r.Verb == HttpVerb.GET)), Times.Once);
+            It.Is<GetPreSignedUrlRequest>(r => r.Key == reportStorageKey && r.Verb == HttpVerb.GET)), Times.Once);
     }
 
     [Fact]
-    public async Task GivenJobAlreadyPublishedToCcoe_WhenXlsxRequestedAgain_SkipsReuploadButStillReturnsPresignedUrl()
+    public async Task GivenJobAlreadyPublishedToReportsStorage_WhenXlsxRequestedAgain_SkipsReuploadButStillReturnsPresignedUrl()
     {
         await using var factory = new MiBffWebApplicationFactory(useFakeAuth: true);
         using var client = factory.CreateClient();
@@ -139,15 +139,15 @@ public class GetReportJobFileCcoeTests
         var second = await client.GetAsync(endpoint, TestContext.Current.CancellationToken);
         second.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var ccoeKey = ExpectedCcoeKey(reportKey, jobId);
+        var expectedKey = ExpectedKey(reportKey, jobId);
 
         factory.AmazonS3Mock.Verify(s => s.PutObjectAsync(
-            It.Is<PutObjectRequest>(r => r.Key == ccoeKey),
+            It.Is<PutObjectRequest>(r => r.Key == expectedKey),
             It.IsAny<CancellationToken>()), Times.Once,
             "the second request should detect the existing object via HEAD and skip re-uploading");
 
         factory.AmazonS3Mock.Verify(s => s.GetPreSignedURL(
-            It.Is<GetPreSignedUrlRequest>(r => r.Key == ccoeKey)), Times.Exactly(2),
+            It.Is<GetPreSignedUrlRequest>(r => r.Key == expectedKey)), Times.Exactly(2),
             "a fresh presigned URL should still be issued on every request");
     }
 

@@ -81,9 +81,9 @@ public static class TestEndpointConstants
     // Reports - User report permissions
     public const string BffMiReportsUserReportPermissionsEndpoint = BffMiReportsRoot + "{0}/permissions/";
 
-    // Reports - Get Report - gb_cattle_registrations
+    // Reports - Get Reports - gb_cattle_registrations
     public const string BffMiReportsGetGbCattleRegistrationsEndpoint = BffMiReportsRoot + TestReportKeyConstants.GbCattleRegistrationsReportKey;
 
-    // Reports - Get Report - holding_summary
+    // Reports - Get Reports - holding_summary
     public const string BffMiReportsGetHoldingSummaryEndpoint = BffMiReportsRoot + TestReportKeyConstants.HoldingSummaryReportKey;
 }

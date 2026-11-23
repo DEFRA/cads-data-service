@@ -6,5 +6,5 @@ public class MiBffStorageConfiguration
 {
     public StorageConfigurationDetails CadsInternal { get; init; } = new();
 
-    public CcoeStorageConfigurationDetails Ccoe { get; init; } = new();
+    public ReportStorageConfigurationDetails Reports { get; init; } = new();
 }

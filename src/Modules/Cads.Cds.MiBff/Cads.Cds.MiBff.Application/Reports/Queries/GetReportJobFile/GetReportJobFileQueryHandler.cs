@@ -18,7 +18,7 @@ public class GetReportJobFileQueryHandler(
     IReportFileStore reportFileStore,
     IReportKeyModelRegistry reportKeyModelRegistry,
     IOpenXmlReportGenerator openXmlReportGenerator,
-    ICcoeReportPublisher ccoeReportPublisher)
+    IReportPublisher reportPublisher)
     : IQueryHandler<GetReportJobFileQuery, IReportResult>
 {
     public const int JsonPageSize = 500;
@@ -58,7 +58,7 @@ public class GetReportJobFileQueryHandler(
             var xlsxStream = await openXmlReportGenerator.GenerateFromJsonAsync(
                 decrypted, modelType!, cancellationToken: cancellationToken);
 
-            var downloadLink = await ccoeReportPublisher.PublishXlsxAsync(
+            var downloadLink = await reportPublisher.PublishXlsxAsync(
                 job.ReportKey, job.ReportJobId, xlsxStream, cancellationToken);
 
             return new RedirectReportResult(downloadLink.Url, downloadLink.ExpiresAt);
