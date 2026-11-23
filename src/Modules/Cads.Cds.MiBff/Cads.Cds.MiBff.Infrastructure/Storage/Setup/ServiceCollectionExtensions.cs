@@ -2,6 +2,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.MiBff.Application.Reports.Storage;
 using Cads.Cds.MiBff.Core.Configuration;
 using Cads.Cds.MiBff.Infrastructure.Storage.Configuration;
+using Cads.Cds.MiBff.Infrastructure.Storage.Health;
 using Cads.Cds.MiBff.Infrastructure.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,11 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IReportFileStore, S3ReportFileStore>();
 
         services.AddTransient<ICcoeReportPublisher, CcoeReportPublisher>();
+
+        if(moduleConfig.Ccoe.HealthcheckEnabled)
+        {
+            services.AddSingleton<IEnableS3HealthCheck, MiBffCcoeExternalHealthCheckMarker>();
+        }
 
         return services;
     }
