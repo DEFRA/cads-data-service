@@ -4,5 +4,5 @@ public static class TestS3Constants
 {
     public const string TestCadsInternalBucketName = "cads-internal-bucket";
     public const string TestCadsExternalBucketName = "cads-external-bucket";
-    public const string TestCadsReportsBucketName = "cads-reports-bucket";
+    public const string TestCadsMiReportsBucketName = "cads-reports-bucket";
 }

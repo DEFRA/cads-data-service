@@ -73,17 +73,17 @@ public static class TestEndpointConstants
     public const string BffUkvZonesEndpoint = BffMiUkvRoot + "zones";
     public const string BffUkvZonesByZoneIdEndpoint = BffMiUkvRoot + "zones/{0}";
 
-    // Reports
+    // CadsMiReports
 
-    // Reports route paths
+    // CadsMiReports route paths
     public const string BffMiReportsRoot = BffMiRoot + "reports/";
 
-    // Reports - User report permissions
+    // CadsMiReports - User report permissions
     public const string BffMiReportsUserReportPermissionsEndpoint = BffMiReportsRoot + "{0}/permissions/";
 
-    // Reports - Get Reports - gb_cattle_registrations
+    // CadsMiReports - Get CadsMiReports - gb_cattle_registrations
     public const string BffMiReportsGetGbCattleRegistrationsEndpoint = BffMiReportsRoot + TestReportKeyConstants.GbCattleRegistrationsReportKey;
 
-    // Reports - Get Reports - holding_summary
+    // CadsMiReports - Get CadsMiReports - holding_summary
     public const string BffMiReportsGetHoldingSummaryEndpoint = BffMiReportsRoot + TestReportKeyConstants.HoldingSummaryReportKey;
 }

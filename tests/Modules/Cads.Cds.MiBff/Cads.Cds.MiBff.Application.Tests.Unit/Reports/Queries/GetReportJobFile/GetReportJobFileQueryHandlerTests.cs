@@ -22,7 +22,7 @@ public class GetReportJobFileQueryHandlerTests
     private readonly Mock<IReportFileStore> _fileStoreMock = new();
     private readonly Mock<IReportKeyModelRegistry> _modelRegistryMock = new();
     private readonly Mock<IOpenXmlReportGenerator> _generatorMock = new();
-    private readonly Mock<IReportPublisher> _reportPublisherMock = new();
+    private readonly Mock<ICadsMiReportPublisher> _reportPublisherMock = new();
 
     private readonly Guid _jobId = Guid.NewGuid();
     private const string ReportKey = GetGbCattleDeathsQuery.ExpectedKey;

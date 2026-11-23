@@ -26,9 +26,9 @@ public class GetReportJobFileStorageTests
 
     /// <summary>
     /// Wires up the shared AmazonS3Mock so it behaves like a real bucket for both the internal
-    /// (encrypted JSON) store and the Reports (xlsx) store: PutObjectAsync records bytes by key,
+    /// (encrypted JSON) store and the CadsMiReports (xlsx) store: PutObjectAsync records bytes by key,
     /// GetObjectAsync replays them back, and GetObjectMetadataAsync only succeeds for keys that
-    /// have actually been uploaded (so ReportPublisher's exists-check behaves correctly).
+    /// have actually been uploaded (so CadsMiReportPublisher's exists-check behaves correctly).
     /// </summary>
     private static void WireUpS3(MiBffWebApplicationFactory factory, Dictionary<string, byte[]> objects)
     {

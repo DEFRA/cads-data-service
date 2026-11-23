@@ -12,7 +12,7 @@ using System.Net;
 
 namespace Cads.Cds.MiBff.Infrastructure.Tests.Unit.Storage;
 
-public class ReportPublisherTests
+public class CadsMiReportPublisherTests
 {
     private const string BucketName = "defra-cads-reports-dev";
     private const string ReportKey = "gbcattledeaths";
@@ -27,9 +27,9 @@ public class ReportPublisherTests
     private GetPreSignedUrlRequest? _presignRequest;
     private PutObjectRequest? _uploadedRequest;
 
-    public ReportPublisherTests()
+    public CadsMiReportPublisherTests()
     {
-        _factory.RegisterMockClient<ReportStorageClient>(BucketName, healthCheckEnabled: false, _s3Mock.Object);
+        _factory.RegisterMockClient<CadsMiReportStorageClient>(BucketName, healthCheckEnabled: false, _s3Mock.Object);
 
         _s3Mock
             .Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
@@ -42,11 +42,11 @@ public class ReportPublisherTests
             .Returns(PresignedUrl);
     }
 
-    private ReportPublisher CreateSut(string kmsKeyArn = "", int expiryMinutes = 15) => new(
+    private CadsMiReportPublisher CreateSut(string kmsKeyArn = "", int expiryMinutes = 15) => new(
         _factory,
         new MiBffStorageConfiguration
         {
-            Reports = new ReportStorageConfigurationDetails
+            CadsMiReports = new CadsMiReportsConfigurationDetails
             {
                 BucketName = BucketName,
                 KmsKeyArn = kmsKeyArn,

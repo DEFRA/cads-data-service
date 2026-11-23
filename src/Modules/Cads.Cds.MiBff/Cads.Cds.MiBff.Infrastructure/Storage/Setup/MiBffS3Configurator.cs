@@ -18,9 +18,9 @@ public class MiBffS3Configurator(MiBffStorageConfiguration config) : IConfigureS
             config.CadsInternal.HealthcheckEnabled,
             amazonConfig);
 
-        factory.AddClient<ReportStorageClient>(
-            config.Reports.BucketName,
-            config.Reports.HealthcheckEnabled,
+        factory.AddClient<CadsMiReportStorageClient>(
+            config.CadsMiReports.BucketName,
+            config.CadsMiReports.HealthcheckEnabled,
             amazonConfig);
     }
 }

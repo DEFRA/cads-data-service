@@ -23,11 +23,11 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<IReportFileStore, S3ReportFileStore>();
 
-        services.AddTransient<IReportPublisher, ReportPublisher>();
+        services.AddTransient<ICadsMiReportPublisher, CadsMiReportPublisher>();
 
-        if (moduleConfig.Reports.HealthcheckEnabled)
+        if (moduleConfig.CadsMiReports.HealthcheckEnabled)
         {
-            services.AddSingleton<IEnableS3HealthCheck, MiBffReportExternalHealthCheckMarker>();
+            services.AddSingleton<IEnableS3HealthCheck, CadsMiReportsExternalHealthCheckMarker>();
         }
 
         return services;

@@ -9,8 +9,8 @@ using System.Net;
 
 namespace Cads.Cds.MiBff.Infrastructure.Storage.Services;
 
-public class ReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorageConfiguration storageConfig)
-    : IReportPublisher
+public class CadsMiReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorageConfiguration storageConfig)
+    : ICadsMiReportPublisher
 {
     private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
@@ -20,7 +20,7 @@ public class ReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorageConfi
         ArgumentException.ThrowIfNullOrWhiteSpace(reportKey);
         ArgumentNullException.ThrowIfNull(xlsxContent);
 
-        var client = s3ClientFactory.GetClientInfo<ReportStorageClient>();
+        var client = s3ClientFactory.GetClientInfo<CadsMiReportStorageClient>();
         var key = BuildKey(reportKey, jobId);
 
         if (!await ExistsAsync(client.Client, client.BucketName, key, cancellationToken))
@@ -66,10 +66,10 @@ public class ReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorageConfi
 
         request.Headers.ContentDisposition = $"attachment; filename=\"{reportKey}.xlsx\"";
 
-        if (!string.IsNullOrWhiteSpace(storageConfig.Reports.KmsKeyArn))
+        if (!string.IsNullOrWhiteSpace(storageConfig.CadsMiReports.KmsKeyArn))
         {
             request.ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS;
-            request.ServerSideEncryptionKeyManagementServiceKeyId = storageConfig.Reports.KmsKeyArn;
+            request.ServerSideEncryptionKeyManagementServiceKeyId = storageConfig.CadsMiReports.KmsKeyArn;
         }
 
         try
@@ -84,8 +84,8 @@ public class ReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorageConfi
 
     private ReportDownloadLink Presign(IAmazonS3 client, string bucket, string key)
     {
-        var expiryMinutes = storageConfig.Reports.PresignedUrlExpiryMinutes > 0
-            ? storageConfig.Reports.PresignedUrlExpiryMinutes
+        var expiryMinutes = storageConfig.CadsMiReports.PresignedUrlExpiryMinutes > 0
+            ? storageConfig.CadsMiReports.PresignedUrlExpiryMinutes
             : 15;
 
         var expiresAt = DateTimeOffset.UtcNow.AddMinutes(expiryMinutes);

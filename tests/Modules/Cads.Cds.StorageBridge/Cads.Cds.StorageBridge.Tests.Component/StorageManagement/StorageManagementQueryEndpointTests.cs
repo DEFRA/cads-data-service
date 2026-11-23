@@ -128,7 +128,7 @@ public class StorageManagementQueryEndpointTests : IClassFixture<StorageManageme
     {
         SetupListing(
             folders: [],
-            keys: ["data/Reports-Jan.csv", "data/report-feb.csv", "data/other.csv"]);
+            keys: ["data/CadsMiReports-Jan.csv", "data/report-feb.csv", "data/other.csv"]);
 
         var response = await _testFixture.HttpClient.GetAsync(
             $"{Endpoint}/buckets/CadsInternalClient/search?pattern=report&prefix=data/",
@@ -140,7 +140,7 @@ public class StorageManagementQueryEndpointTests : IClassFixture<StorageManageme
             TestContext.Current.CancellationToken);
 
         result.Should().NotBeNull();
-        result!.Keys.Should().BeEquivalentTo("data/Reports-Jan.csv", "data/report-feb.csv");
+        result!.Keys.Should().BeEquivalentTo("data/CadsMiReports-Jan.csv", "data/report-feb.csv");
 
         _testFixture.Factory.AmazonS3Mock.Verify(x => x.ListObjectsV2Async(
             It.Is<ListObjectsV2Request>(r =>

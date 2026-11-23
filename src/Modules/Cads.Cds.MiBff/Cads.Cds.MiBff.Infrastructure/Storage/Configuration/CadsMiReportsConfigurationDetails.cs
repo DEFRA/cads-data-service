@@ -2,7 +2,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Configuration;
 
 namespace Cads.Cds.MiBff.Infrastructure.Storage.Configuration;
 
-public record ReportStorageConfigurationDetails : StorageConfigurationDetails
+public record CadsMiReportsConfigurationDetails : StorageConfigurationDetails
 {
     public string KmsKeyArn { get; init; } = string.Empty;
 
