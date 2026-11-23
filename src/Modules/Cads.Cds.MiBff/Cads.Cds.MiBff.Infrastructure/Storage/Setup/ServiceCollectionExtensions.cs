@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<ICcoeReportPublisher, CcoeReportPublisher>();
 
-        if(moduleConfig.Ccoe.HealthcheckEnabled)
+        if (moduleConfig.Ccoe.HealthcheckEnabled)
         {
             services.AddSingleton<IEnableS3HealthCheck, MiBffCcoeExternalHealthCheckMarker>();
         }
