@@ -5,6 +5,7 @@ using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,13 +37,16 @@ public class ContentGenerator<T>(DbContext dbContext, RuleBuilder<T>? rulesBuild
             .Select((property, order) => new ColumnDefinition(property.Name, order: order))];
     }
 
-    private static void ApplyDefaultRules(Faker<T> faker, HashSet<string> hiddenProperties)
+    private void ApplyDefaultRules(Faker<T> faker, HashSet<string> hiddenProperties)
     {
+        var entityType = dbContext.Model.FindEntityType(typeof(T));
+
         foreach (var property in typeof(T)
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(x => x.CanWrite && !hiddenProperties.Contains(x.Name)))
         {
-            faker.RuleFor(property.Name, f => f.GenerateDefaultValue(property));
+            var entityTypeProperty = entityType?.FindProperty(property.Name);
+            faker.RuleFor(property.Name, f => f.GenerateDefaultValue(property, entityTypeProperty));
         }
     }
 
@@ -79,7 +83,41 @@ public class ContentGenerator<T>(DbContext dbContext, RuleBuilder<T>? rulesBuild
                 var entity = faker.Generate();
                 if (Transform != null)
                     entity = Transform(entity, key);
+                ConformToModel(entity);
                 return entity.ToDictionary(dbContext, _columnDefinitions);
             })];
+    }
+
+    /// <summary>
+    /// Final guard applied after overrides and the transform: makes sure values still fit the
+    /// column facets configured in EF Core (max length, decimal precision/scale).
+    /// </summary>
+    private void ConformToModel(T entity)
+    {
+        var entityType = dbContext.Model.FindEntityType(typeof(T));
+        if (entityType is null)
+            return;
+
+        foreach (var property in entityType.GetProperties())
+        {
+            if (property.PropertyInfo is not { CanWrite: true } info)
+                continue;
+
+            var value = info.GetValue(entity);
+            switch (value)
+            {
+                case string text when property.GetMaxLength() is { } max && text.Length > max:
+                    info.SetValue(entity, text[..max]);
+                    break;
+                case decimal number when property.GetPrecision() is { } precision:
+                    var scale = Math.Min(property.GetScale() ?? 0, precision);
+                    var rounded = Math.Round(number, scale);
+                    var limit = (decimal)Math.Pow(10, precision - scale);
+                    if (Math.Abs(rounded) >= limit)
+                        rounded = Math.Sign(rounded) * (limit - (decimal)Math.Pow(10, -scale));
+                    info.SetValue(entity, rounded);
+                    break;
+            }
+        }
     }
 }
