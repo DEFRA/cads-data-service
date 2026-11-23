@@ -26,7 +26,7 @@ public class ContentGeneratorTests
     {
         using var db = CreateDbContext("GenerateBulk_SetsTransTypeToB");
 
-        var contentGenerator = new ContentGenerator<CtLocation>(db, 
+        var contentGenerator = new ContentGenerator<CtLocation>(db,
              rulesBuilder: new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)

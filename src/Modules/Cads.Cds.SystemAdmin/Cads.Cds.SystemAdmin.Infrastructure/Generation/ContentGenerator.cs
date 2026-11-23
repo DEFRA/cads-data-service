@@ -14,9 +14,9 @@ using System.Reflection;
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation;
 
 public class ContentGenerator<T>(
-    DbContext dbContext, 
-    RuleBuilder<T>? rulesBuilder = null, 
-    Func<ICreateGenerationRequest, T, decimal, T>? transform = null, 
+    DbContext dbContext,
+    RuleBuilder<T>? rulesBuilder = null,
+    Func<ICreateGenerationRequest, T, decimal, T>? transform = null,
     IEnumerable<ColumnDefinition>? columnDefinitions = null)
     : IContentGenerator
     where T : class, new()
