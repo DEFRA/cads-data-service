@@ -56,8 +56,7 @@ public abstract class GenerationScenario<T>(string name,
         Validate this in the request validator: bulk takes no keys, and update requires keys.
         LANI-848 is done in the Allocator. This is to validate supplied values when it is a bulk or delta/update scenario only.
         */
-        request.BusinessKeys = request.BusinessKeys ??
-            await new BusinessKeysAllocator().AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
+        request.BusinessKeys ??= await new BusinessKeysAllocator().AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
 
         /*
         TODO: LANI-849 had this so it could be regenerated. Need to fulfil the requirements from LANI-849.
