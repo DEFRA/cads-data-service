@@ -44,6 +44,11 @@ public class CadsMiReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorag
         {
             return false;
         }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException(
+                $"Access denied checking for report at {key}. Verify IAM/bucket policy permissions for s3:GetObject.", ex);
+        }
         catch (AmazonS3Exception ex) when (ex.StatusCode is >= HttpStatusCode.InternalServerError or HttpStatusCode.TooManyRequests)
         {
             throw new RetryableException($"Transient failure checking for report at {key}.", ex);
@@ -76,6 +81,14 @@ public class CadsMiReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorag
         {
             await client.PutObjectAsync(request, cancellationToken);
         }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException(
+                $"Access denied storing report at {key}. Verify IAM/bucket policy permissions for s3:PutObject" +
+                (string.IsNullOrWhiteSpace(storageConfig.CadsMiReports.KmsKeyArn)
+                    ? "."
+                    : " and kms:GenerateDataKey/kms:Encrypt on the configured KMS key."), ex);
+        }
         catch (AmazonS3Exception ex) when (ex.StatusCode is >= HttpStatusCode.InternalServerError or HttpStatusCode.TooManyRequests)
         {
             throw new RetryableException($"Transient failure storing report at {key}.", ex);
@@ -98,15 +111,27 @@ public class CadsMiReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorag
             ? Protocol.HTTP
             : Protocol.HTTPS;
 
-        var url = client.GetPreSignedURL(new GetPreSignedUrlRequest
+        try
         {
-            BucketName = bucket,
-            Key = key,
-            Verb = HttpVerb.GET,
-            Expires = expiresAt.UtcDateTime,
-            Protocol = protocol
-        });
+            var url = client.GetPreSignedURL(new GetPreSignedUrlRequest
+            {
+                BucketName = bucket,
+                Key = key,
+                Verb = HttpVerb.GET,
+                Expires = expiresAt.UtcDateTime,
+                Protocol = protocol
+            });
 
-        return new ReportDownloadLink(url, expiresAt);
+            return new ReportDownloadLink(url, expiresAt);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            // GetPreSignedURL is computed locally (no network call), so S3 itself can't return a
+            // 403 here. This guards against any credential-resolution failure surfaced as a
+            // Forbidden AmazonS3Exception (e.g. missing/invalid signing credentials) so it isn't
+            // mistaken for a transient issue by callers.
+            throw new ForbiddenException(
+                $"Access denied generating a pre-signed download URL for {key}. Verify IAM/bucket policy permissions for s3:GetObject.", ex);
+        }
     }
 }
