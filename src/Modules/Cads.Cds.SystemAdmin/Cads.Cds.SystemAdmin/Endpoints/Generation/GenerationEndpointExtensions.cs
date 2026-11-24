@@ -23,6 +23,7 @@ public static class GenerationEndpointExtensions
         const string generationRouteSegment = "/generation";
 
         app.MapPost(generationRouteSegment, Generate)
+            .Produces<CreateGenerationResponseDto>(StatusCodes.Status200OK)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
         app.MapGet($"{generationRouteSegment}/scenarios", GetScenarios)
