@@ -46,11 +46,21 @@ public class TestEndpointConstants
     // FileImports - Reset
     public const string FileImportsResetEndpoint = SystemAdminFileImportsRoot + "/{0}/reset";
 
+    // Generation
+
     // Generation route paths
     public const string SystemAdminGenerationRoot = SystemAdminRoot + "generation";
 
     // Generation - Create
     public const string GenerationCreateEndpoint = SystemAdminGenerationRoot;
+
+    // Generation - Scenarios
+    public const string GenerationGetScenariosEndpoint = SystemAdminGenerationRoot + "/scenarios";
+
+    // Generation - Dependencies
+    public const string GenerationDependenciesEndpoint = SystemAdminGenerationRoot + "/{schemaName}/{tableName}/dependencies";
+
+    // DbAdmin
 
     // DbAdmin - ExecuteCommand
     public const string DbAdminExecuteCommandEndpoint = SystemAdminRoot + "db-admin-execute-command";
@@ -58,11 +68,7 @@ public class TestEndpointConstants
     // DbAdmin - CtsImport
     public const string DbAdminCtsImportEndpoint = SystemAdminRoot + "db-admin-cts-import";
 
-    // DbAdmin - Prepare CtsImport
-    public const string DbAdminPrepareCtsImportEndpoint = SystemAdminRoot + "db-admin-prepare-cts-import";
-
-    // Generation - Scenarios
-    public const string GenerationGetScenariosEndpoint = SystemAdminGenerationRoot + "/scenarios";
+    // SqsAdmin
 
     // SqsAdmin - route paths
     public const string SqsAdminQueuesRoot = SystemAdminRoot + "sqs/queues";
@@ -88,7 +94,11 @@ public class TestEndpointConstants
     // SqsAdmin - ReplayDlqMessage
     public const string SqsAdminReplayDlqMessageEndpoint = SqsAdminQueuesRoot + "/{0}/dlq/replay/{1}";
 
-    // Generation - Dependencies
-    public const string GenerationDependenciesEndpoint = SystemAdminGenerationRoot + "/{schemaName}/{tableName}/dependencies";
+    // Promotion
 
+    // Promotion
+    public const string PromotionRoot = SystemAdminRoot + "promote";
+
+    // Promotion - PromoteImport
+    public const string PromoteImportEndpoint = PromotionRoot + "/{0}";
 }

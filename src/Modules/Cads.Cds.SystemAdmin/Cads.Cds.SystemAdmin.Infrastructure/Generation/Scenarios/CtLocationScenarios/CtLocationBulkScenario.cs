@@ -1,5 +1,6 @@
 using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.SystemAdmin.Application.Generation.Utils;
+using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Contexts;
 using Cads.Cds.SystemAdmin.Infrastructure.Data.GraphQL.Schemas.CtsTransactions.Entities;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
@@ -31,8 +32,8 @@ public class CtLocationBulkScenario(
             .RuleFor(r => r.LocReasonCode, () => "01");
 
     // configure the per-item transform for bulk generation
-    protected override Func<CtLocation, decimal, CtLocation>? Transform { get; init; } =
-        (entity, key) =>
+    protected override Func<ICreateGenerationRequest, CtLocation, decimal, CtLocation>? Transform { get; init; } =
+        (request, entity, key) =>
         {
             entity.LocId = key;
             return entity;

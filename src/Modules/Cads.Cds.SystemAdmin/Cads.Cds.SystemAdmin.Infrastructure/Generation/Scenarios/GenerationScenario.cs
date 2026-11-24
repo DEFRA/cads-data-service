@@ -30,11 +30,11 @@ public abstract class GenerationScenario<T>(string name,
 
     public string Name { get; init; } = name;
 
-    public string TableName => new ContentGenerator<T>(dbContext).TableName;
+    public string TableName => dbContext.GetTableName<T>();
 
     protected virtual RuleBuilder<T>? OverrideRulesBuilder { get; init; }
 
-    protected virtual Func<T, decimal, T>? Transform { get; init; }
+    protected virtual Func<ICreateGenerationRequest, T, decimal, T>? Transform { get; init; }
 
     protected virtual IReadOnlyDictionary<string, ColumnDefinition> ColumnDefinitions => EntityExtensions.ResolveColumnDefinitions<T>();
 
@@ -43,13 +43,12 @@ public abstract class GenerationScenario<T>(string name,
         return defaultColumnDefinitions;
     }
 
-    public async Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default)
+    public async Task<CreateGenerationResponseDto> ExecuteAsync(ICreateGenerationRequest request, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
 
-        var contentGenerator = new ContentGenerator<T>(dbContext, OverrideRulesBuilder, Transform, OverrideColumnDefinitions(ColumnDefinitions).Select(x => x.Value).ToArray());
-        var tableName = contentGenerator.TableName;
-
+        var contentGenerator = new ContentGenerator<T>(dbContext, OverrideRulesBuilder, Transform, [.. OverrideColumnDefinitions(ColumnDefinitions).Select(x => x.Value)]);
+        var tableName = TableName;
         /*
         TODO: Caller-supplied keys bypass allocation. 
         request.BusinessKeys ?? allocate lets a bulk request choose its own keys and skip the reserved range.
@@ -57,14 +56,13 @@ public abstract class GenerationScenario<T>(string name,
         Validate this in the request validator: bulk takes no keys, and update requires keys.
         LANI-848 is done in the Allocator. This is to validate supplied values when it is a bulk or delta/update scenario only.
         */
-        var businessKeys = request.BusinessKeys ??
-            await new BusinessKeysAllocator().AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
+        request.BusinessKeys ??= await new BusinessKeysAllocator().AllocateAsync(tableName, request.RowCount.GetValueOrDefault(), ct);
 
         /*
         TODO: LANI-849 had this so it could be regenerated. Need to fulfil the requirements from LANI-849.
         */
         var seed = Random.Shared.Next();
-        var rows = contentGenerator.Generate(businessKeys, seed);
+        var rows = contentGenerator.Generate(request, seed);
 
         var fileBatchId = Random.Shared
             .Next(CtsmFilenameGenerator.MinBatchId, CtsmFilenameGenerator.MaxBatchId + 1)
@@ -95,7 +93,7 @@ public abstract class GenerationScenario<T>(string name,
             FileName = fileName,
             GroupKey = parsedFileName!.GetGroupKey(),
             Content = content,
-            BusinessKeys = businessKeys
+            BusinessKeys = request.BusinessKeys
         };
     }
 }
