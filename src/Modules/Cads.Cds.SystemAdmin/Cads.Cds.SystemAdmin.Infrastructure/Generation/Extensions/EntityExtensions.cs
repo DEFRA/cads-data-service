@@ -70,4 +70,9 @@ public static class EntityExtensions
             .Select(property => new ColumnDefinition(property.Name))
             .ToDictionary(x => x.PropertyName, x => x);
     }
+
+    public static string GetTableName<T>(this DbContext dbContext) where T : class
+    {
+        return dbContext.Model.FindEntityType(typeof(T))?.GetTableName() ?? typeof(T).Name;
+    }
 }
