@@ -1,5 +1,6 @@
 using Bogus;
 using Cads.Cds.SystemAdmin.Application.Generation.ContentGenerators;
+using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Extensions;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
@@ -13,7 +14,11 @@ using System.Reflection;
 
 namespace Cads.Cds.SystemAdmin.Infrastructure.Generation;
 
-public class ContentGenerator<T>(DbContext dbContext, RuleBuilder<T>? rulesBuilder = null, Func<T, decimal, T>? transform = null, IEnumerable<ColumnDefinition>? columnDefinitions = null)
+public class ContentGenerator<T>(
+    DbContext dbContext,
+    RuleBuilder<T>? rulesBuilder = null,
+    Func<ICreateGenerationRequest, T, decimal, T>? transform = null,
+    IEnumerable<ColumnDefinition>? columnDefinitions = null)
     : IContentGenerator
     where T : class, new()
 {
@@ -22,9 +27,7 @@ public class ContentGenerator<T>(DbContext dbContext, RuleBuilder<T>? rulesBuild
     protected RuleBuilder<T>? OverrideRulesBuilder { get; set; } = rulesBuilder;
 
     // hook for per-item bulk transform: (entity, businessKey) => modifiedEntity
-    protected Func<T, decimal, T>? Transform { get; set; } = transform;
-
-    public string TableName => dbContext.Model.FindEntityType(typeof(T))?.GetTableName() ?? typeof(T).Name;
+    protected Func<ICreateGenerationRequest, T, decimal, T>? Transform { get; set; } = transform;
 
     private static ColumnDefinition[] ResolveColumnDefinitions(IEnumerable<ColumnDefinition>? columnDefinitions)
     {
@@ -74,15 +77,18 @@ public class ContentGenerator<T>(DbContext dbContext, RuleBuilder<T>? rulesBuild
         return faker;
     }
 
-    public IReadOnlyList<IReadOnlyDictionary<string, object?>> Generate(IEnumerable<decimal> businessKeys, int seed)
+    public IReadOnlyList<IReadOnlyDictionary<string, object?>> Generate(ICreateGenerationRequest request, int seed)
     {
         var faker = CreateFaker(seed);
-        return [.. businessKeys
+
+        ArgumentNullException.ThrowIfNull(request);
+
+        return [.. request.BusinessKeys!
             .Select(key =>
             {
                 var entity = faker.Generate();
                 if (Transform != null)
-                    entity = Transform(entity, key);
+                    entity = Transform(request, entity, key);
                 ConformToModel(entity);
                 return entity.ToDictionary(dbContext, _columnDefinitions);
             })];
