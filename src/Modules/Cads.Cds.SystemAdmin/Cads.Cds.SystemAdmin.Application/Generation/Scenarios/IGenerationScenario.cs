@@ -8,5 +8,5 @@ public interface IGenerationScenario
 
     string TableName { get; }
 
-    Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default);
+    Task<CreateGenerationResponseDto> ExecuteAsync(ICreateGenerationRequest request, CancellationToken ct = default);
 }

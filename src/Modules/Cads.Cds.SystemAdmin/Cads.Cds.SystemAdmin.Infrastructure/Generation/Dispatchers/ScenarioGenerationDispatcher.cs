@@ -17,7 +17,7 @@ public sealed class ScenarioGenerationDispatcher(IEnumerable<IGenerationScenario
 
     public Dictionary<string, IGenerationScenario> Scenarios => _scenarios;
 
-    public async Task<Dictionary<string, CreateGenerationResponseDto>> DispatchBatchAsync(IEnumerable<CreateGenerationRequestDto> requests, CancellationToken ct)
+    public async Task<Dictionary<string, CreateGenerationResponseDto>> DispatchBatchAsync(IEnumerable<ICreateGenerationRequest> requests, CancellationToken ct)
     {
         var results = new Dictionary<string, CreateGenerationResponseDto>(StringComparer.OrdinalIgnoreCase);
 
@@ -36,7 +36,7 @@ public sealed class ScenarioGenerationDispatcher(IEnumerable<IGenerationScenario
         return results;
     }
 
-    public async Task<CreateGenerationResponseDto> DispatchAsync(CreateGenerationRequestDto request, CancellationToken ct)
+    public async Task<CreateGenerationResponseDto> DispatchAsync(ICreateGenerationRequest request, CancellationToken ct)
     {
         if (!_scenarios.TryGetValue(request.Scenario, out var scenario))
             throw new GenerationValidationException($"Unknown scenario '{request.Scenario}'.");
