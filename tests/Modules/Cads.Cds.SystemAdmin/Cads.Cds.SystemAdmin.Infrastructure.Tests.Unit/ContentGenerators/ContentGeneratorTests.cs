@@ -27,7 +27,7 @@ public class ContentGeneratorTests
         using var db = CreateDbContext("GenerateBulk_SetsTransTypeToB");
 
         var contentGenerator = new ContentGenerator<CtLocation>(db,
-            rulesBuilder: new RuleBuilder<CtLocation>([])
+             rulesBuilder: new RuleBuilder<CtLocation>([])
             .RuleFor(r => r.LocSltId, () => 1m)
             .RuleFor(r => r.LocLtyId, () => 1m)
             .RuleFor(r => r.LocCtyId, () => 1m)
@@ -38,15 +38,16 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocCessationReason, () => null)
             .RuleFor(r => r.LocPremisesType, () => "FARM")
             .RuleFor(r => r.LocReasonCode, () => "01"),
-            transform: (entity, key) =>
+            transform: (request, entity, key) =>
             {
                 entity.TransType = "B";
                 entity.LocId = key;
                 return entity;
             });
 
-        var keys = new List<decimal> { 100m, 101m };
-        var results = contentGenerator.Generate(keys, seed: 123);
+        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m, 101m } };
+
+        var results = contentGenerator.Generate(request, seed: 123);
 
         Assert.Equal(2, results.Count);
 
@@ -69,18 +70,21 @@ public class ContentGeneratorTests
     public void Generate_AppliesColumnVisibilityOrderAndCaption()
     {
         using var db = CreateDbContext("Generate_AppliesColumnVisibilityOrderAndCaption");
-        var contentGenerator = new ContentGenerator<CtLocation>(db, columnDefinitions:
-        [
-            new(nameof(CtLocation.LocId), order: 2, caption: "Location ID"),
-            new(nameof(CtLocation.TransType), isVisible: false, order: 0),
-            new(nameof(CtLocation.LocSltId), order: 1, caption: "Slt")
-        ], transform: (entity, key) =>
-        {
-            entity.LocId = key;
-            return entity;
-        });
+        var contentGenerator = new ContentGenerator<CtLocation>(db,
+            columnDefinitions:
+            [
+                new(nameof(CtLocation.LocId), order: 2, caption: "Location ID"),
+                new(nameof(CtLocation.TransType), isVisible: false, order: 0),
+                new(nameof(CtLocation.LocSltId), order: 1, caption: "Slt")
+            ], transform: (request, entity, key) =>
+            {
+                entity.LocId = key;
+                return entity;
+            });
 
-        var result = contentGenerator.Generate([100m], seed: 123)[0];
+        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m } };
+
+        var result = contentGenerator.Generate(request, seed: 123)[0];
 
         Assert.Equal(["Slt", "Location ID"], result.Keys);
         Assert.Equal(100m, Convert.ToDecimal(result["Location ID"]));
@@ -187,7 +191,7 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocCessationReason, () => null)
             .RuleFor(r => r.LocPremisesType, () => "FARM")
             .RuleFor(r => r.LocReasonCode, () => "01"),
-            transform: (entity, key) =>
+            transform: (request, entity, key) =>
             {
                 entity.LocId = key;
                 return entity;
@@ -205,15 +209,19 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocCessationReason, () => null)
             .RuleFor(r => r.LocPremisesType, () => "FARM")
             .RuleFor(r => r.LocReasonCode, () => "01"),
-            transform: (entity, key) =>
+            transform: (request, entity, key) =>
             {
                 entity.LocId = key;
                 return entity;
             });
 
         var keys = new List<decimal> { 100m, 101m };
-        var results1 = contentGenerator1.Generate(keys, seed: 123);
-        var results2 = contentGenerator2.Generate(keys, seed: 123);
+
+        var request1 = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m, 101m } };
+        var request2 = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m, 101m } };
+
+        var results1 = contentGenerator1.Generate(request1, seed: 123);
+        var results2 = contentGenerator2.Generate(request2, seed: 123);
 
         // pairwise compare every item
         for (var i = 0; i < results1.Count; i++)
@@ -264,14 +272,14 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocCessationReason, () => null)
             .RuleFor(r => r.LocPremisesType, () => "FARM")
             .RuleFor(r => r.LocReasonCode, () => "01"),
-            transform: (entity, key) =>
+            transform: (request, entity, key) =>
             {
                 entity.LocId = key;
                 return entity;
             });
 
-        var keys = new List<decimal> { 100m, 101m };
-        var results = contentCenerator.Generate(keys, seed: 123);
+        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m, 101m } };
+        var results = contentCenerator.Generate(request, seed: 123);
 
         Assert.Equal(2, results.Count);
 
@@ -306,14 +314,15 @@ public class ContentGeneratorTests
             .RuleFor(r => r.LocCessationReason, () => null)
             .RuleFor(r => r.LocPremisesType, () => "FARM")
             .RuleFor(r => r.LocReasonCode, () => "01"),
-            transform: (entity, key) =>
+            transform: (request, entity, key) =>
             {
                 entity.LocId = key;
                 return entity;
             });
 
         var keys = new List<decimal> { 200m };
-        var results = contentCenerator.Generate(keys, seed: 456);
+        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 200m } };
+        var results = contentCenerator.Generate(request, seed: 456);
 
         var first = results[0];
 
