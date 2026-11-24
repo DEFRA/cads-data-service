@@ -53,7 +53,8 @@ public static class GenerationEndpointExtensions
         {
             Scenario = request.Scenario,
             RowCount = request.RowCount,
-            BusinessKeys = request.BusinessKeys
+            BusinessKeys = request.BusinessKeys,
+            AudType = request.AudType,
         };
 
         var result = await dispatcher.DispatchAsync(createGenerationRequestDto, cancellationToken);
