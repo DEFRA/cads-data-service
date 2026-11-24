@@ -4,7 +4,7 @@ namespace Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 
 public class CreateGenerationResponseDto
 {
-    [JsonPropertyName("filename")]
+    [JsonPropertyName("fileName")]
     public required string FileName { get; set; }
 
     [JsonPropertyName("groupKey")]
