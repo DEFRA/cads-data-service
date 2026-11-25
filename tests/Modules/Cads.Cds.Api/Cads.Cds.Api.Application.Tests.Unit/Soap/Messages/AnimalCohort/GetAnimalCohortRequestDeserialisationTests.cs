@@ -30,7 +30,7 @@ public class GetAnimalCohortRequestDeserialisationTests
             <Location>
                 <WindowEndDate>2012-02-15</WindowEndDate>
                 <WindowStartDate>2010-02-15</WindowStartDate>
-                <TargetLocationIdentifier>07/094/0117</TargetLocationIdentifier>
+                <TargetLocationIdentifier>23/456/7890</TargetLocationIdentifier>
                 <TargetLocationIdentifierType RefDataSetName=""Disease Type"">
                     <ah_ref_data_sets:Code>CPH</ah_ref_data_sets:Code>
                 </TargetLocationIdentifierType>
@@ -84,7 +84,7 @@ public class GetAnimalCohortRequestDeserialisationTests
             request.AnimalCohortQuery.Locations!.Location.Should().HaveCount(1);
             request.AnimalCohortQuery.Locations.Location[0].WindowStartDate.Should().Be("2010-02-15");
             request.AnimalCohortQuery.Locations.Location[0].WindowEndDate.Should().Be("2012-02-15");
-            request.AnimalCohortQuery.Locations.Location[0].TargetLocationIdentifier.Should().Be("12/345/6789");
+            request.AnimalCohortQuery.Locations.Location[0].TargetLocationIdentifier.Should().Be("23/456/7890");
 
             request.AnimalCohortQuery.Gender.Should().NotBeNull();
             request.AnimalCohortQuery.Gender!.Code.Should().Be("M");
