@@ -6,7 +6,6 @@ using Cads.Cds.SystemAdmin.Infrastructure.Generation.Models;
 using Cads.Cds.SystemAdmin.Infrastructure.Generation.Rules;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
