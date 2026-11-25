@@ -13,7 +13,17 @@ public sealed class CreateGenerationRequestValidator
             .WithMessage("Scenario is required.");
 
         RuleFor(x => x)
-         .Must(r => (r.BusinessKeys?.Any()).GetValueOrDefault() || r.RowCount.GetValueOrDefault() > 0)
-         .WithMessage("Business keys or a Row count greater than zero is required.");
+            .Must(r => (r.BusinessKeys is not null) ^ r.RowCount.HasValue)
+            .WithMessage("Exactly one of Business keys or Row count must be provided.");
+
+        RuleFor(x => x.RowCount)
+            .GreaterThan(0)
+            .When(x => x.RowCount.HasValue)
+            .WithMessage("Row count must be greater than zero.");
+
+        RuleFor(x => x.BusinessKeys)
+            .NotEmpty()
+            .When(x => x.BusinessKeys is not null)
+            .WithMessage("Business keys are required.");
     }
 }

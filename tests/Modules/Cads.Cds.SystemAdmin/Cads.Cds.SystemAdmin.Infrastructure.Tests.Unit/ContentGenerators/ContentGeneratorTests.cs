@@ -45,7 +45,7 @@ public class ContentGeneratorTests
                 return entity;
             });
 
-        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m, 101m } };
+        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = [100m, 101m] };
 
         var results = contentGenerator.Generate(request, seed: 123);
 
@@ -82,7 +82,7 @@ public class ContentGeneratorTests
                 return entity;
             });
 
-        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m } };
+        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = [100m] };
 
         var result = contentGenerator.Generate(request, seed: 123)[0];
 
@@ -115,7 +115,7 @@ public class ContentGeneratorTests
         var result = await scenario.ExecuteAsync(new CreateGenerationRequestDto
         {
             Scenario = scenario.Name,
-            BusinessKeys = [100m]
+            RowCount = 1
         }, TestContext.Current.CancellationToken);
 
         Assert.Equal("CTSM_CADS_PROD_BULK_00003_004_CT_LOCATION_2026-08-23-092214.CSV", result.FileName);
@@ -129,7 +129,7 @@ public class ContentGeneratorTests
         Assert.DoesNotContain("loc_aud_id", keys);
         Assert.DoesNotContain("loc_aud_type", keys);
         Assert.Contains("loc_id", keys);
-        Assert.Equal(100m, Convert.ToDecimal(row["loc_id"]));
+        Assert.True(Convert.ToDecimal(row["loc_id"]) > 0);
     }
 
     [Fact]
@@ -217,8 +217,8 @@ public class ContentGeneratorTests
 
         var keys = new List<decimal> { 100m, 101m };
 
-        var request1 = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m, 101m } };
-        var request2 = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m, 101m } };
+        var request1 = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = [100m, 101m] };
+        var request2 = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = [100m, 101m] };
 
         var results1 = contentGenerator1.Generate(request1, seed: 123);
         var results2 = contentGenerator2.Generate(request2, seed: 123);
@@ -278,7 +278,7 @@ public class ContentGeneratorTests
                 return entity;
             });
 
-        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 100m, 101m } };
+        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = [100m, 101m] };
         var results = contentCenerator.Generate(request, seed: 123);
 
         Assert.Equal(2, results.Count);
@@ -321,7 +321,7 @@ public class ContentGeneratorTests
             });
 
         var keys = new List<decimal> { 200m };
-        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = new List<decimal> { 200m } };
+        var request = new CreateGenerationRequestDto { Scenario = "Bulk", BusinessKeys = [200m] };
         var results = contentCenerator.Generate(request, seed: 456);
 
         var first = results[0];

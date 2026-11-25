@@ -107,7 +107,7 @@ public class GenerationEndpointTests(ApiContainerFixture apiContainerFixture)
         var request = new CreateGenerationRequest
         {
             Scenario = "ct_location_update_scenario",
-            RowCount = 10
+            BusinessKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         };
 
         var response = await GenerationTestClient.CreateAsync(
