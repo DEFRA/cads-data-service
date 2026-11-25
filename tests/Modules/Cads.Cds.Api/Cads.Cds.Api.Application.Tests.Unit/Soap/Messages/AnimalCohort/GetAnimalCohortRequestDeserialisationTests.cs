@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 
 namespace Cads.Cds.Api.Application.Tests.Unit.Soap.Messages.AnimalCohort;
 
-public class GetAnimalCohortRequestDeserializationTests
+public class GetAnimalCohortRequestDeserialisationTests
 {
     [Fact]
     public void Should_Deserialize_GetAnimalCohortRequest_From_Valid_Xml()
@@ -24,7 +24,7 @@ public class GetAnimalCohortRequestDeserializationTests
     <AnimalCohortQuery>
         <TraceIdentifier>
             <TraceSpecificationIdentifier>99999</TraceSpecificationIdentifier>
-            <TraceIdentifier>26088</TraceIdentifier>
+            <TraceIdentifier>123456</TraceIdentifier>
         </TraceIdentifier>
         <Locations>
             <Location>
@@ -55,7 +55,7 @@ public class GetAnimalCohortRequestDeserializationTests
             </SpeciesCodeAndAnimals>
         </SpeciesCodesAndAnimals>
         <DateOfBirth>2011-02-15</DateOfBirth>
-        <BirthLocationIdentifier>07/094/0117</BirthLocationIdentifier>
+        <BirthLocationIdentifier>12/345/6789</BirthLocationIdentifier>
         <BirthLocationIdentifierType RefDataSetName=""Disease Type"">
             <ah_ref_data_sets:Code>CPH</ah_ref_data_sets:Code>
         </BirthLocationIdentifierType>
@@ -78,13 +78,13 @@ public class GetAnimalCohortRequestDeserializationTests
             request.AnimalCohortQuery.Should().NotBeNull();
             request.AnimalCohortQuery!.TraceIdentifier.Should().NotBeNull();
             request.AnimalCohortQuery.TraceIdentifier!.TraceSpecificationIdentifier.Should().Be("99999");
-            request.AnimalCohortQuery.TraceIdentifier.TraceIdentifierValue.Should().Be("26088");
+            request.AnimalCohortQuery.TraceIdentifier.TraceIdentifierValue.Should().Be("123456");
 
             request.AnimalCohortQuery.Locations.Should().NotBeNull();
             request.AnimalCohortQuery.Locations!.Location.Should().HaveCount(1);
             request.AnimalCohortQuery.Locations.Location[0].WindowStartDate.Should().Be("2010-02-15");
             request.AnimalCohortQuery.Locations.Location[0].WindowEndDate.Should().Be("2012-02-15");
-            request.AnimalCohortQuery.Locations.Location[0].TargetLocationIdentifier.Should().Be("07/094/0117");
+            request.AnimalCohortQuery.Locations.Location[0].TargetLocationIdentifier.Should().Be("12/345/6789");
 
             request.AnimalCohortQuery.Gender.Should().NotBeNull();
             request.AnimalCohortQuery.Gender!.Code.Should().Be("M");
@@ -98,7 +98,7 @@ public class GetAnimalCohortRequestDeserializationTests
                 .Be("CTT");
 
             request.AnimalCohortQuery.DateOfBirth.Should().Be("2011-02-15");
-            request.AnimalCohortQuery.BirthLocationIdentifier.Should().Be("07/094/0117");
+            request.AnimalCohortQuery.BirthLocationIdentifier.Should().Be("12/345/6789");
         }
     }
 }
