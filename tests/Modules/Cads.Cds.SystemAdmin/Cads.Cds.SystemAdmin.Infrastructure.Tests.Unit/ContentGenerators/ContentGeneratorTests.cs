@@ -115,7 +115,7 @@ public class ContentGeneratorTests
         var result = await scenario.ExecuteAsync(new CreateGenerationRequestDto
         {
             Scenario = scenario.Name,
-            BusinessKeys = [100m]
+            RowCount = 1
         }, TestContext.Current.CancellationToken);
 
         Assert.Equal("CTSM_CADS_PROD_BULK_00003_004_CT_LOCATION_2026-08-23-092214.CSV", result.FileName);
@@ -129,7 +129,7 @@ public class ContentGeneratorTests
         Assert.DoesNotContain("loc_aud_id", keys);
         Assert.DoesNotContain("loc_aud_type", keys);
         Assert.Contains("loc_id", keys);
-        Assert.Equal(100m, Convert.ToDecimal(row["loc_id"]));
+        Assert.True(Convert.ToDecimal(row["loc_id"]) > 0);
     }
 
     [Fact]
