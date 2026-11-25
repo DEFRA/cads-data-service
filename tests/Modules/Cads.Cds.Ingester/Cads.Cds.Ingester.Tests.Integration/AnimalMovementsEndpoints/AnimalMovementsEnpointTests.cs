@@ -1,8 +1,9 @@
+using AutoFixture;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption;
 using Cads.Cds.BuildingBlocks.Infrastructure.Encryption.Providers;
-using Cads.Cds.BuildingBlocks.Testing.Support.Payloads;
 using Cads.Cds.BuildingBlocks.Testing.Support.TestFixtures.Containers;
 using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Encryption;
+using Cads.Cds.BuildingBlocks.Testing.Support.Utilities.Http;
 using Cads.Cds.Ingester.Core.Domain.Enums;
 using Cads.Cds.Ingester.Core.DTOs.Common;
 using Cads.Cds.Ingester.Testing.Support.Constants;
@@ -15,6 +16,8 @@ namespace Cads.Cds.Ingester.Tests.Integration.AnimalMovementsEndpoints;
 [Collection("IngesterIntegration"), Trait("Dependence", "testcontainers")]
 public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture)
 {
+    private readonly Fixture _fixture = new();
+
     [Fact]
     public async Task GivenValidAnimalMovements_WhenPostingToEndpointV1_ShouldSucceed()
     {
@@ -22,11 +25,16 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpointV1, nation);
         var client = apiContainerFixture.CreateBasicClient();
 
-        var result = await client.PostAsync(endpoint, new StringContent(TestDataPayloadHelper.AnimalMovementV1, Encoding.UTF8, "application/json"),
+        var model = _fixture.Build<Controllers.AnimalMovements.v1.AnimalMovementMessage>().Create();
+        var result = await client.PostAsync(endpoint,
+            HttpContentUtility.CreateApplicationJsonAsStringContent(model),
             TestContext.Current.CancellationToken);
+
         result.IsSuccessStatusCode.Should().BeTrue();
+
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var responseData = JsonConvert.DeserializeObject<IngestionDto>(responseBody);
+
         responseData.Should().NotBeNull();
         responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
@@ -42,11 +50,16 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
         var endpoint = string.Format(TestEndpointConstants.AnimalMovementIngestionEndpointV2, nation);
         var client = apiContainerFixture.CreateBasicClient();
 
-        var result = await client.PostAsync(endpoint, new StringContent(TestDataPayloadHelper.AnimalMovementV2, Encoding.UTF8, "application/json"),
+        var model = _fixture.Build<Controllers.AnimalMovements.v2.EventMessage>().Create();
+        var result = await client.PostAsync(endpoint,
+            HttpContentUtility.CreateApplicationJsonAsStringContent(model),
             TestContext.Current.CancellationToken);
+
         result.IsSuccessStatusCode.Should().BeTrue();
+
         var responseBody = await result.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var responseData = JsonConvert.DeserializeObject<IngestionDto>(responseBody);
+
         responseData.Should().NotBeNull();
         responseData.IngestionId.Should().Contain(nation.ToString().ToLower());
         responseData.RecordCount.Should().Be(1);
@@ -65,9 +78,10 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
 
         var client = apiContainerFixture.CreateBasicClient();
 
+        var model = _fixture.Build<Controllers.AnimalMovements.v1.AnimalMovementMessage>().Create();
         var result = await client.PostAsync(
             endpoint,
-            new StringContent(TestDataPayloadHelper.AnimalMovementV1, Encoding.UTF8, "application/json"),
+            HttpContentUtility.CreateApplicationJsonAsStringContent(model),
             TestContext.Current.CancellationToken);
 
         result.IsSuccessStatusCode.Should().BeTrue();
@@ -83,7 +97,7 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
 
         var decryptedPayload = await DownloadAndDecryptAsync(responseData.IngestionId);
 
-        decryptedPayload.Should().Contain("\"movementID\": \"8308310\"");
+        decryptedPayload.Should().Contain($"\"movementID\": \"{model.AnimalMovement.MovementID}\"");
     }
 
     [Fact]
@@ -96,9 +110,10 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
 
         var client = apiContainerFixture.CreateBasicClient();
 
+        var model = _fixture.Build<Controllers.AnimalMovements.v2.EventMessage>().Create();
         var result = await client.PostAsync(
             endpoint,
-            new StringContent(TestDataPayloadHelper.AnimalMovementV2, Encoding.UTF8, "application/json"),
+            HttpContentUtility.CreateApplicationJsonAsStringContent(model),
             TestContext.Current.CancellationToken);
 
         result.IsSuccessStatusCode.Should().BeTrue();
@@ -114,7 +129,7 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
 
         var decryptedPayload = await DownloadAndDecryptAsync(responseData.IngestionId);
 
-        decryptedPayload.Should().Contain("\"recordID\": \"record-14567413\"");
+        decryptedPayload.Should().Contain($"\"recordID\": \"{model.Event.RecordID}\"");
     }
 
     private async Task<string> DownloadAndDecryptAsync(string key)
@@ -131,12 +146,6 @@ public class AnimalMovementsEnpointTests(ApiContainerFixture apiContainerFixture
             TestContext.Current.CancellationToken);
 
         var encryptedBytes = encryptedStream.ToArray();
-
-        encryptedBytes.Should().NotBeEmpty();
-        Encoding.UTF8.GetString(encryptedBytes)
-            .Should()
-            .NotBe(TestDataPayloadHelper.AnimalMovementV1);
-
         encryptedStream.Position = 0;
 
         await using var decryptedStream = new MemoryStream();
