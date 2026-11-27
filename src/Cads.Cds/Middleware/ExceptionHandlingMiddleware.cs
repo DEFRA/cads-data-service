@@ -40,6 +40,10 @@ public sealed class ExceptionHandlingMiddleware(
         {
             await HandleExceptionAsync(context, ex, correlationId, (int)ex.HttpStatusCode, "Business rule validation error");
         }
+        catch (ForbiddenException ex)
+        {
+            await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.Forbidden, "Forbidden");
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex, correlationId, (int)HttpStatusCode.InternalServerError, "An error occurred");
