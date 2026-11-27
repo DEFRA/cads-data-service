@@ -18,5 +18,5 @@ INSERT INTO cts.ct_probity_checks (
     record_count,
     imported_date
 ) VALUES
-    (1, 'Standard', 'Standard', DATE '1998-09-10', 30, DATE '1998-12-17', 'a100001', '1', DATE '1998-11-03', 69, 1, 1, 'D', 1, CURRENT_TIMESTAMP)
+    (1, 'Standard', 'Standard', DATE '1998-09-10', 30, DATE '1998-12-17', 'f800705', '1', DATE '1998-11-03', 69, 1, 1, 'D', 1, CURRENT_TIMESTAMP)
 ;
