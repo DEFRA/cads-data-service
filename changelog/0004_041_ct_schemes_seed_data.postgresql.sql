@@ -17,5 +17,5 @@ INSERT INTO cts.ct_schemes (
     record_count,
     imported_date
 ) VALUES
-    (NULL, 'BSPS', 1, 'L', 'a100001', DATE '2004-09-05', 999, 'B', 'Beef Special Premium Scheme', NULL, 1, 'D', 1, CURRENT_TIMESTAMP)
+    (NULL, 'BSPS', 1, 'L', 'f803572', DATE '2004-09-05', 999, 'B', 'Beef Special Premium Scheme', NULL, 1, 'D', 1, CURRENT_TIMESTAMP)
 ;
