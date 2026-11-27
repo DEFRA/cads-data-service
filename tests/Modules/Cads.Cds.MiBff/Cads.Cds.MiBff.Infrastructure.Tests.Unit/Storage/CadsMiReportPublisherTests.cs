@@ -42,14 +42,13 @@ public class CadsMiReportPublisherTests
             .Returns(PresignedUrl);
     }
 
-    private CadsMiReportPublisher CreateSut(string kmsKeyArn = "", int expiryMinutes = 15) => new(
+    private CadsMiReportPublisher CreateSut(int expiryMinutes = 15) => new(
         _factory,
         new MiBffStorageConfiguration
         {
             CadsMiReports = new CadsMiReportsConfigurationDetails
             {
                 BucketName = BucketName,
-                KmsKeyArn = kmsKeyArn,
                 PresignedUrlExpiryMinutes = expiryMinutes
             }
         });
@@ -100,29 +99,34 @@ public class CadsMiReportPublisherTests
     }
 
     [Fact]
-    public async Task PublishXlsxAsync_WhenKmsKeyConfigured_SetsServerSideEncryption()
-    {
-        SeedHeadNotFound();
-        const string kmsKeyArn = "arn:aws:kms:eu-west-2:747301448395:key/50341804-6c4f-example";
-
-        await CreateSut(kmsKeyArn).PublishXlsxAsync(
-            ReportKey, JobId, new MemoryStream([1, 2, 3]), TestContext.Current.CancellationToken);
-
-        _uploadedRequest.Should().NotBeNull();
-        _uploadedRequest!.ServerSideEncryptionMethod.Should().Be(ServerSideEncryptionMethod.AWSKMS);
-        _uploadedRequest.ServerSideEncryptionKeyManagementServiceKeyId.Should().Be(kmsKeyArn);
-    }
-
-    [Fact]
-    public async Task PublishXlsxAsync_WhenNoKmsKeyConfigured_OmitsServerSideEncryption()
+    public async Task PublishXlsxAsync_OmitsEncryptionHeadersToUseBucketDefault()
     {
         SeedHeadNotFound();
 
-        await CreateSut(kmsKeyArn: "").PublishXlsxAsync(
+        await CreateSut().PublishXlsxAsync(
             ReportKey, JobId, new MemoryStream([1, 2, 3]), TestContext.Current.CancellationToken);
 
         _uploadedRequest.Should().NotBeNull();
         _uploadedRequest!.ServerSideEncryptionMethod.Should().BeNull();
+        _uploadedRequest.ServerSideEncryptionKeyManagementServiceKeyId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task PublishXlsxAsync_WhenUploadForbidden_ReportsS3AndKmsPermissions()
+    {
+        SeedHeadNotFound();
+        var exception = new AmazonS3Exception("denied") { StatusCode = HttpStatusCode.Forbidden };
+        _s3Mock
+            .Setup(s => s.PutObjectAsync(It.IsAny<PutObjectRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(exception);
+
+        var act = () => CreateSut().PublishXlsxAsync(
+            ReportKey, JobId, new MemoryStream([1, 2, 3]), TestContext.Current.CancellationToken);
+
+        var result = await act.Should().ThrowAsync<ForbiddenException>();
+        result.WithInnerException<AmazonS3Exception>()
+            .Which.Should().BeSameAs(exception);
+        result.Which.Message.Should().Contain("s3:PutObject").And.Contain("kms:GenerateDataKey");
     }
 
     [Fact]

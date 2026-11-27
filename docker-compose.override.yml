@@ -10,7 +10,6 @@ services:
       Modules__MiBff__Storage__CadsInternal__BucketName: cads-internal-bucket
       Modules__MiBff__Storage__CadsMiReports__BucketName: cads-reports-bucket
       Modules__MiBff__Storage__CadsMiReports__HealthcheckEnabled: "true"
-      Modules__MiBff__Storage__CadsMiReports__KmsKeyArn: arn:aws:kms:eu-west-2:000000000000:alias/cads-reports-key
       Modules__MiBff__Storage__CadsMiReports__AccessKeySecretName: MIREPORT_S3_ACCESS_KEY
       Modules__MiBff__Storage__CadsMiReports__SecretKeySecretName: MIREPORT_S3_ACCESS_SECRET
       Modules__MiBff__Queues__CadsMiReports__QueueUrl: http://cads-localstack:4566/000000000000/cads-mi-reports-queue.fifo

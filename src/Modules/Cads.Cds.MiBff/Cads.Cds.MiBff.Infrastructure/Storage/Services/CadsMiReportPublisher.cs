@@ -55,7 +55,7 @@ public class CadsMiReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorag
         }
     }
 
-    private async Task UploadAsync(
+    private static async Task UploadAsync(
         IAmazonS3 client, string bucket, string key, string reportKey, MemoryStream xlsxContent, CancellationToken cancellationToken)
     {
         xlsxContent.Position = 0;
@@ -71,12 +71,6 @@ public class CadsMiReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorag
 
         request.Headers.ContentDisposition = $"attachment; filename=\"{reportKey}.xlsx\"";
 
-        if (!string.IsNullOrWhiteSpace(storageConfig.CadsMiReports.KmsKeyArn))
-        {
-            request.ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS;
-            request.ServerSideEncryptionKeyManagementServiceKeyId = storageConfig.CadsMiReports.KmsKeyArn;
-        }
-
         try
         {
             await client.PutObjectAsync(request, cancellationToken);
@@ -85,9 +79,7 @@ public class CadsMiReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorag
         {
             throw new ForbiddenException(
                 $"Access denied storing report at {key}. Verify IAM/bucket policy permissions for s3:PutObject" +
-                (string.IsNullOrWhiteSpace(storageConfig.CadsMiReports.KmsKeyArn)
-                    ? "."
-                    : " and kms:GenerateDataKey/kms:Encrypt on the configured KMS key."), ex);
+                " and, if the bucket uses SSE-KMS, kms:GenerateDataKey on its KMS key.", ex);
         }
         catch (AmazonS3Exception ex) when (ex.StatusCode is >= HttpStatusCode.InternalServerError or HttpStatusCode.TooManyRequests)
         {
