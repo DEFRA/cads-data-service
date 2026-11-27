@@ -12,7 +12,7 @@ public static class TestMiBffDataSeeder
     /// <param name="reportPermissionsData"></param>
     public static void Seed(DbContext context, ReportPermissionsData reportPermissionsData)
     {
-        // Mi Users, Roles, Reports and Permissions
+        // Mi Users, Roles, CadsMiReports and Permissions
         context.AddRange(reportPermissionsData.MiRoles);
         context.AddRange(reportPermissionsData.MiPermissions);
         context.AddRange(reportPermissionsData.MiReports);
@@ -26,7 +26,7 @@ public static class TestMiBffDataSeeder
 
     public static void Seed(DbContext context, GbCattleReportData reportData)
     {
-        // GB Cattle Reports
+        // GB Cattle CadsMiReports
         context.AddRange(reportData.BirthSummaries);
         context.AddRange(reportData.DeathSummaries);
         context.AddRange(reportData.ImportSummaries);

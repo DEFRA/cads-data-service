@@ -17,5 +17,12 @@ public class MiBffS3Configurator(MiBffStorageConfiguration config) : IConfigureS
             config.CadsInternal.BucketName,
             config.CadsInternal.HealthcheckEnabled,
             amazonConfig);
+
+        factory.AddClientWithCredentials<CadsMiReportStorageClient>(
+            config.CadsMiReports.BucketName,
+            config.CadsMiReports.HealthcheckEnabled,
+            config.CadsMiReports.AccessKeySecretName,
+            config.CadsMiReports.SecretKeySecretName,
+            amazonConfig);
     }
 }

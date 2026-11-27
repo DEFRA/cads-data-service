@@ -60,7 +60,7 @@ public class S3ReportFileStore(IS3ClientFactory s3ClientFactory, IFileEncryptor 
         }
         catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            throw new NotFoundException("Report file", key);
+            throw new NotFoundException("CadsMiReports file", key);
         }
         catch (AmazonS3Exception ex) when (ex.StatusCode is >= HttpStatusCode.InternalServerError or HttpStatusCode.TooManyRequests)
         {

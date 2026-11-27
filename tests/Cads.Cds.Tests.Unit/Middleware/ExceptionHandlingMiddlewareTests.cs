@@ -202,6 +202,22 @@ public class ExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task ForbiddenException_returns_403()
+    {
+        var context = CreateHttpContext();
+        var middleware = CreateMiddleware(_ => throw new ForbiddenException("Access denied"));
+
+        await middleware.InvokeAsync(context);
+
+        context.Response.StatusCode.Should().Be(403);
+
+        var problem = await GetProblemDetailsFromResponse(context);
+        problem.Status.Should().Be(403);
+        problem.Title.Should().Be("Forbidden");
+        problem.Detail.Should().Contain("Access denied");
+    }
+
+    [Fact]
     public async Task Response_has_correct_content_type()
     {
         var context = CreateHttpContext();
@@ -384,6 +400,27 @@ public class ExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task ForbiddenException_logs_as_information_level()
+    {
+        _testLogger.LogEntries.Clear();
+        var context = CreateHttpContext();
+        var middleware = CreateMiddleware(_ => throw new ForbiddenException("Access denied"));
+
+        await middleware.InvokeAsync(context);
+
+        _testLogger.LogEntries.Should().HaveCount(1);
+        var logEntry = _testLogger.LogEntries.First();
+
+        logEntry.LogLevel.Should().Be(LogLevel.Information);
+        logEntry.Exception.Should().NotBeNull();
+        logEntry.Exception.Should().BeOfType<ForbiddenException>();
+        logEntry.Message.Should().Contain("ErrorId:");
+        logEntry.Message.Should().Contain("CorrelationId:");
+        logEntry.Message.Should().Contain("StatusCode: 403");
+    }
+
+
+    [Fact]
     public async Task Successful_request_passes_through_without_modification()
     {
         var context = CreateHttpContext();
@@ -404,6 +441,7 @@ public class ExceptionHandlingMiddlewareTests
     [Theory]
     [InlineData(typeof(Exception), 500)]
     [InlineData(typeof(NotFoundException), 404)]
+    [InlineData(typeof(ForbiddenException), 403)]
     public async Task InvokeAsync_WhenExceptionThrown_ResponseStatusCodeIsSetBeforeLogging(Type exceptionType, int expectedStatusCode)
     {
         // Arrange

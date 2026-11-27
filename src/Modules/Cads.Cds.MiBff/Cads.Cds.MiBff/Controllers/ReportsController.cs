@@ -162,6 +162,7 @@ public class ReportsController(IMediator mediator, IReportRegistry reportRegistr
         {
             FileReportResult file => this.XlsxFile(file),
             JsonReportResult json => Ok(json.Payload),
+            RedirectReportResult redirect => Ok(new { downloadUrl = redirect.Url, expiresAt = redirect.ExpiresAt }),
             _ => BadRequest("Unknown report result type")
         };
     }

@@ -175,6 +175,10 @@ public abstract class WebAppFactoryBase<TStart>(
 
         Environment.SetEnvironmentVariable("Modules__Ingester__Storage__CadsIngester__BucketName", TestS3Constants.TestCadsInternalBucketName);
         Environment.SetEnvironmentVariable("Modules__MiBff__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
+        Environment.SetEnvironmentVariable("Modules__MiBff__Storage__CadsMiReports__BucketName", TestS3Constants.TestCadsMiReportsBucketName);
+        Environment.SetEnvironmentVariable("Modules__MiBff__Storage__CadsMiReports__HealthcheckEnabled", "false");
+        Environment.SetEnvironmentVariable("Modules__MiBff__Storage__CadsMiReports__AccessKeySecretName", "MIREPORT_S3_ACCESS_KEY");
+        Environment.SetEnvironmentVariable("Modules__MiBff__Storage__CadsMiReports__SecretKeySecretName", "MIREPORT_S3_ACCESS_SECRET");
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__QueueUrl", TestSqsConstants.TestQueueUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Queues__CadsCds__DlqQueueUrl", TestSqsConstants.TestQueueDlqUrl);
         Environment.SetEnvironmentVariable("Modules__StorageBridge__Storage__CadsInternal__BucketName", TestS3Constants.TestCadsInternalBucketName);
@@ -187,6 +191,8 @@ public abstract class WebAppFactoryBase<TStart>(
 
         Environment.SetEnvironmentVariable("IMB_S3_ACCESS_KEY", "test");
         Environment.SetEnvironmentVariable("IMB_S3_SECRET_KEY", "test");
+        Environment.SetEnvironmentVariable("MIREPORT_S3_ACCESS_KEY", "test");
+        Environment.SetEnvironmentVariable("MIREPORT_S3_ACCESS_SECRET", "test");
 
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__ApiKey__Enabled", "true");
         Environment.SetEnvironmentVariable("AuthenticationConfiguration__Cognito__Enabled", "true");
@@ -270,6 +276,10 @@ public abstract class WebAppFactoryBase<TStart>(
                 AmazonS3Mock.Object);
             factory.RegisterMockClient<MiBffInternalStorageClient>(
                 TestS3Constants.TestCadsInternalBucketName,
+                healthCheckEnabled: false,
+                AmazonS3Mock.Object);
+            factory.RegisterMockClient<CadsMiReportStorageClient>(
+                TestS3Constants.TestCadsMiReportsBucketName,
                 healthCheckEnabled: false,
                 AmazonS3Mock.Object);
             factory.RegisterMockClient<CadsExternalClient>(
