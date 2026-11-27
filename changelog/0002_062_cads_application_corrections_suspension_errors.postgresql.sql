@@ -1,50 +1,50 @@
 -- liquibase formatted sql
 
 -- changeset gary:0002_062_01 runInTransaction:false
-CREATE INDEX CONCURRENTLY ix_rap_eartag_error_lookup
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_rap_eartag_error_lookup
     ON cts.ct_received_applications (rap_eartag) INCLUDE (rap_id)
     WHERE rap_eartag IS NOT NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_rap_eartag_error_lookup;
 
 -- changeset gary:0002_062_02 runInTransaction:false
-CREATE INDEX CONCURRENTLY ix_rap_new_eartag_error_lookup
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_rap_new_eartag_error_lookup
     ON cts.ct_received_applications (rap_new_eartag) INCLUDE (rap_id)
     WHERE rap_new_eartag IS NOT NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_rap_new_eartag_error_lookup;
 
 -- changeset gary:0002_062_03 runInTransaction:false
-CREATE INDEX CONCURRENTLY ix_san_eartag_error_lookup
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_san_eartag_error_lookup
     ON cts.ct_suspended_animals (san_eartag) INCLUDE (san_id)
     WHERE san_eartag IS NOT NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_san_eartag_error_lookup;
 
 -- changeset gary:0002_062_04 runInTransaction:false
-CREATE INDEX CONCURRENTLY ix_san_new_eartag_error_lookup
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_san_new_eartag_error_lookup
     ON cts.ct_suspended_animals (san_new_eartag) INCLUDE (san_id)
     WHERE san_new_eartag IS NOT NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_san_new_eartag_error_lookup;
 
 -- changeset gary:0002_062_05 runInTransaction:false
-CREATE INDEX CONCURRENTLY ix_acs_init_eartag_error_lookup
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_acs_init_eartag_error_lookup
     ON cts.ct_animal_correct_summaries (acs_init_eartag) INCLUDE (acs_id)
     WHERE acs_init_eartag IS NOT NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_acs_init_eartag_error_lookup;
 
 -- changeset gary:0002_062_06 runInTransaction:false
-CREATE INDEX CONCURRENTLY ix_acs_new_eartag_error_lookup
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_acs_new_eartag_error_lookup
     ON cts.ct_animal_correct_summaries (acs_new_eartag) INCLUDE (acs_id)
     WHERE acs_new_eartag IS NOT NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_acs_new_eartag_error_lookup;
 
 -- changeset gary:0002_062_07 runInTransaction:false
-CREATE INDEX CONCURRENTLY ix_acs_init_previous_eartag_error_lookup
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_acs_init_previous_eartag_error_lookup
     ON cts.ct_animal_correct_summaries (acs_init_previous_eartag) INCLUDE (acs_id)
     WHERE acs_init_previous_eartag IS NOT NULL;
 -- rollback DROP INDEX CONCURRENTLY IF EXISTS cts.ix_acs_init_previous_eartag_error_lookup;
 
 
 -- changeset gary:0002_062_08 splitStatements:false
-CREATE FUNCTION cads.application_corrections_suspension_errors(p_eartag text)
+CREATE OR REPLACE FUNCTION cads.application_corrections_suspension_errors(p_eartag text)
 RETURNS TABLE (
     searched_eartag text,
     source_table text,
