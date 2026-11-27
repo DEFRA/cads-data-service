@@ -1,3 +1,4 @@
+using Cads.Cds.BuildingBlocks.Application.Imports.Domain.Enums;
 using Cads.Cds.SystemAdmin.Core.DTOs.Generation;
 
 namespace Cads.Cds.SystemAdmin.Application.Generation.Scenarios;
@@ -8,5 +9,7 @@ public interface IGenerationScenario
 
     string TableName { get; }
 
-    Task<CreateGenerationResponseDto> ExecuteAsync(CreateGenerationRequestDto request, CancellationToken ct = default);
+    ImportActionType ImportActionType { get; }
+
+    Task<CreateGenerationResponseDto> ExecuteAsync(ICreateGenerationRequest request, CancellationToken ct = default);
 }

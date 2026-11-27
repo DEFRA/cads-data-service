@@ -23,6 +23,7 @@ public static class GenerationEndpointExtensions
         const string generationRouteSegment = "/generation";
 
         app.MapPost(generationRouteSegment, Generate)
+            .Produces<CreateGenerationResponseDto>(StatusCodes.Status200OK)
             .RequireAuthorization(AuthenticationConstants.DefaultPolicy);
 
         app.MapGet($"{generationRouteSegment}/scenarios", GetScenarios)
@@ -53,7 +54,8 @@ public static class GenerationEndpointExtensions
         {
             Scenario = request.Scenario,
             RowCount = request.RowCount,
-            BusinessKeys = request.BusinessKeys
+            BusinessKeys = request.BusinessKeys,
+            AudType = request.AudType,
         };
 
         var result = await dispatcher.DispatchAsync(createGenerationRequestDto, cancellationToken);

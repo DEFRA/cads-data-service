@@ -7,7 +7,7 @@ public interface IScenarioGenerationDispatcher
 {
     Dictionary<string, IGenerationScenario> Scenarios { get; }
 
-    Task<Dictionary<string, CreateGenerationResponseDto>> DispatchBatchAsync(IEnumerable<CreateGenerationRequestDto> requests, CancellationToken ct);
+    Task<Dictionary<string, CreateGenerationResponseDto>> DispatchBatchAsync(IEnumerable<ICreateGenerationRequest> requests, CancellationToken ct);
 
-    Task<CreateGenerationResponseDto> DispatchAsync(CreateGenerationRequestDto request, CancellationToken ct);
+    Task<CreateGenerationResponseDto> DispatchAsync(ICreateGenerationRequest request, CancellationToken ct);
 }
