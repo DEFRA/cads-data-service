@@ -1,0 +1,137 @@
+using Amazon.S3;
+using Amazon.S3.Model;
+using Cads.Cds.BuildingBlocks.Core.Exceptions;
+using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
+using Cads.Cds.MiBff.Application.Reports.Storage;
+using Cads.Cds.MiBff.Infrastructure.Storage.Clients;
+using Cads.Cds.MiBff.Infrastructure.Storage.Configuration;
+using System.Net;
+
+namespace Cads.Cds.MiBff.Infrastructure.Storage.Services;
+
+public class CadsMiReportPublisher(IS3ClientFactory s3ClientFactory, MiBffStorageConfiguration storageConfig)
+    : ICadsMiReportPublisher
+{
+    private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+    public async Task<ReportDownloadLink> PublishXlsxAsync(
+        string reportKey, Guid jobId, MemoryStream xlsxContent, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reportKey);
+        ArgumentNullException.ThrowIfNull(xlsxContent);
+
+        var client = s3ClientFactory.GetClientInfo<CadsMiReportStorageClient>();
+        var key = BuildKey(reportKey, jobId);
+
+        if (!await ExistsAsync(client.Client, client.BucketName, key, cancellationToken))
+        {
+            await UploadAsync(client.Client, client.BucketName, key, reportKey, xlsxContent, cancellationToken);
+        }
+
+        return Presign(client.Client, client.BucketName, key);
+    }
+
+    private static string BuildKey(string reportKey, Guid jobId) => $"reports/{reportKey}/{jobId}/{reportKey}.xlsx";
+
+    private static async Task<bool> ExistsAsync(IAmazonS3 client, string bucket, string key, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await client.GetObjectMetadataAsync(bucket, key, cancellationToken);
+            return true;
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return false;
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException(
+                $"Access denied checking for report at {key}. Verify IAM/bucket policy permissions for s3:GetObject.", ex);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode is >= HttpStatusCode.InternalServerError or HttpStatusCode.TooManyRequests)
+        {
+            throw new RetryableException($"Transient failure checking for report at {key}.", ex);
+        }
+    }
+
+    private async Task UploadAsync(
+        IAmazonS3 client, string bucket, string key, string reportKey, MemoryStream xlsxContent, CancellationToken cancellationToken)
+    {
+        xlsxContent.Position = 0;
+
+        var request = new PutObjectRequest
+        {
+            BucketName = bucket,
+            Key = key,
+            InputStream = xlsxContent,
+            AutoCloseStream = false,
+            ContentType = XlsxContentType
+        };
+
+        request.Headers.ContentDisposition = $"attachment; filename=\"{reportKey}.xlsx\"";
+
+        if (!string.IsNullOrWhiteSpace(storageConfig.CadsMiReports.KmsKeyArn))
+        {
+            request.ServerSideEncryptionMethod = ServerSideEncryptionMethod.AWSKMS;
+            request.ServerSideEncryptionKeyManagementServiceKeyId = storageConfig.CadsMiReports.KmsKeyArn;
+        }
+
+        try
+        {
+            await client.PutObjectAsync(request, cancellationToken);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new ForbiddenException(
+                $"Access denied storing report at {key}. Verify IAM/bucket policy permissions for s3:PutObject" +
+                (string.IsNullOrWhiteSpace(storageConfig.CadsMiReports.KmsKeyArn)
+                    ? "."
+                    : " and kms:GenerateDataKey/kms:Encrypt on the configured KMS key."), ex);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode is >= HttpStatusCode.InternalServerError or HttpStatusCode.TooManyRequests)
+        {
+            throw new RetryableException($"Transient failure storing report at {key}.", ex);
+        }
+    }
+
+    private ReportDownloadLink Presign(IAmazonS3 client, string bucket, string key)
+    {
+        var expiryMinutes = storageConfig.CadsMiReports.PresignedUrlExpiryMinutes > 0
+            ? storageConfig.CadsMiReports.PresignedUrlExpiryMinutes
+            : 15;
+
+        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(expiryMinutes);
+
+        // GetPreSignedURL defaults to HTTPS regardless of the client's configured ServiceURL,
+        // which breaks against LocalStack (and any other plain-HTTP endpoint override) since the
+        // resulting URL can't complete a TLS handshake. Derive the protocol from the configured
+        // endpoint instead, so real AWS (ServiceURL unset) still defaults to HTTPS.
+        var protocol = client.Config?.ServiceURL?.StartsWith("http://", StringComparison.OrdinalIgnoreCase) == true
+            ? Protocol.HTTP
+            : Protocol.HTTPS;
+
+        try
+        {
+            var url = client.GetPreSignedURL(new GetPreSignedUrlRequest
+            {
+                BucketName = bucket,
+                Key = key,
+                Verb = HttpVerb.GET,
+                Expires = expiresAt.UtcDateTime,
+                Protocol = protocol
+            });
+
+            return new ReportDownloadLink(url, expiresAt);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            // GetPreSignedURL is computed locally (no network call), so S3 itself can't return a
+            // 403 here. This guards against any credential-resolution failure surfaced as a
+            // Forbidden AmazonS3Exception (e.g. missing/invalid signing credentials) so it isn't
+            // mistaken for a transient issue by callers.
+            throw new ForbiddenException(
+                $"Access denied generating a pre-signed download URL for {key}. Verify IAM/bucket policy permissions for s3:GetObject.", ex);
+        }
+    }
+}

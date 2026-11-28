@@ -32,6 +32,7 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
     public const string AuthenticationRegion = TestAwsConstants.AwsRegion;
     public const string CadsInternalBucketName = TestS3Constants.TestCadsInternalBucketName;
     public const string CadsExternalBucketName = TestS3Constants.TestCadsExternalBucketName;
+    public const string CadsMiReportsBucketName = TestS3Constants.TestCadsMiReportsBucketName;
 
     private static Amazon.Runtime.BasicAWSCredentials GetBasicAWSCredentials => new(AwsAccessKeyId, AwsSecretAccessKey);
 
@@ -106,6 +107,7 @@ public class LocalStackFixture(string networkName) : IAsyncLifetime
     {
         await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsInternalBucketName });
         await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsExternalBucketName });
+        await S3Client.PutBucketAsync(new PutBucketRequest { BucketName = CadsMiReportsBucketName });
 
         var cadsFifoDlqCreated = await SqsClient.CreateQueueAsync(new CreateQueueRequest
         {

@@ -2,6 +2,7 @@ using Cads.Cds.BuildingBlocks.Infrastructure.Storage.Abstractions;
 using Cads.Cds.MiBff.Application.Reports.Storage;
 using Cads.Cds.MiBff.Core.Configuration;
 using Cads.Cds.MiBff.Infrastructure.Storage.Configuration;
+using Cads.Cds.MiBff.Infrastructure.Storage.Health;
 using Cads.Cds.MiBff.Infrastructure.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConfigureS3Clients, MiBffS3Configurator>();
 
         services.AddTransient<IReportFileStore, S3ReportFileStore>();
+
+        services.AddTransient<ICadsMiReportPublisher, CadsMiReportPublisher>();
+
+        if (moduleConfig.CadsMiReports.HealthcheckEnabled)
+        {
+            services.AddSingleton<IEnableS3HealthCheck, CadsMiReportsExternalHealthCheckMarker>();
+        }
 
         return services;
     }
